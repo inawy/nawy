@@ -1176,12 +1176,8 @@
     .today-btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
     .today-btn-primary .icon, .today-btn-secondary .icon { width: 17px; height: 17px; }
 
-    .today-viewport { position: relative; overflow: hidden; touch-action: pan-y; min-height: 300px; }
-    .today-track { position: relative; transition: transform .32s cubic-bezier(.22,.61,.36,1); }
-    .today-track.dragging { transition: none; }
-
     .today-card {
-      position: absolute; top: 0; left: 0; padding: 6px 4px 14px; min-height: 300px;
+      padding: 6px 4px 14px; min-height: 300px;
       display: flex; align-items: center; justify-content: center;
       user-select: none; -webkit-user-select: none;
     }
@@ -1232,21 +1228,6 @@
     .today-action.check.active { color: var(--accent); }
     .today-action.star.active { color: #f59e0b; }
     .today-action.share { background: var(--accent); color: #fff; }
-
-    .today-dots { display: flex; justify-content: center; align-items: center; gap: 6px; margin-top: 10px; }
-    .today-jump-start {
-      display: flex; align-items: center; gap: 6px; width: fit-content;
-      margin: 12px auto 0; padding: 8px 16px; border-radius: var(--radius-full);
-      background: var(--surface-2); border: 1px solid var(--border-strong);
-      color: var(--text); font-size: var(--fs-xs); font-weight: 600;
-      opacity: 0; visibility: hidden; pointer-events: none;
-      transition: opacity .2s ease, visibility .2s ease;
-    }
-    .today-jump-start.show { opacity: 1; visibility: visible; pointer-events: auto; }
-    .today-jump-start .icon { width: 14px; height: 14px; }
-    .today-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--border-strong); transition: all .2s ease; }
-    .today-dot.active { width: 16px; border-radius: 3px; background: var(--accent); }
-    .today-counter { font-size: var(--fs-xs); color: var(--muted); margin-top: 10px; text-align: center; }
 
     .today-search {
       display: flex; align-items: center; gap: 8px; min-height: 42px; padding: 0 12px; margin-bottom: 14px;
@@ -1807,10 +1788,6 @@
         pickTodayTitle: "اختار نية اليوم",
         pickTodaySearchPlaceholder: "ابحث في نواياك",
         pickTodayHint: "الضغط على أي نية يختارها على طول",
-        pinTodayConfirmTitle: "تثبيتها نية اليوم؟",
-        pinTodayConfirmText: "هتفضل هي اللي تفتح عليها الشاشة، لحد ما تحققها أو تختار نية غيرها.",
-        pinTodayApprove: "أثبّتها",
-        pinTodayCancel: "لسه",
         archiveDeleteOneConfirmTitle: "حذف النية نهائي؟",
         archiveDeleteOneConfirmText: "مش هينفع ترجعها تاني بعد الحذف.",
         composerEmptyPlaceholder: "ناوي على إيه النهارده؟",
@@ -1933,10 +1910,6 @@
         pickTodayTitle: "Pick today's intention",
         pickTodaySearchPlaceholder: "Search your intentions",
         pickTodayHint: "Tap any intention to select it right away",
-        pinTodayConfirmTitle: "Set as today's intention?",
-        pinTodayConfirmText: "This will be the one the screen opens to, until you achieve it or pick another.",
-        pinTodayApprove: "Set it",
-        pinTodayCancel: "Not yet",
         archiveDeleteOneConfirmTitle: "Delete this intention forever?",
         archiveDeleteOneConfirmText: "This can't be undone once deleted.",
         composerEmptyPlaceholder: "What are you up to today?",
@@ -2010,7 +1983,6 @@
     let settings = { ...DEFAULT_SETTINGS };
     let settingsUpdatedAt = 0;
     let currentView = "today";
-    let todayIndex = 0;
     let selectedTaskId = null;
     let activeTaskEditRestore = null;
     let swipeStartX = 0;
@@ -2797,15 +2769,10 @@
       saveSettings();
     }
 
-    function getTodayOrderedTasks() {
+    function getTodayPinnedTask() {
       const pinnedId = settings.todayIntentionId;
-      // النشطة + المثبتة حتى لو اتحققت النهارده — مفيش نوايا محققة قديمة
-      // تانية بتدخل هنا، الشاشة دي مرشحين للتركيز عليهم مش أرشيف.
-      const eligible = tasks.filter(x => x.status === 'active' || x.id === pinnedId);
-      const pinned = eligible.find(x => x.id === pinnedId);
-      if (!pinned) return { ordered: eligible, pinned: null };
-      const rest = eligible.filter(x => x.id !== pinnedId);
-      return { ordered: [pinned, ...rest], pinned };
+      if (!pinnedId) return null;
+      return tasks.find(x => x.id === pinnedId) || null;
     }
 
     function buildTodayView() {
@@ -2813,7 +2780,7 @@
       wrap.className = "today-view";
 
       const activeTasks = tasks.filter(x => x.status === 'active');
-      const { ordered, pinned } = getTodayOrderedTasks();
+      const pinned = getTodayPinnedTask();
 
       if (activeTasks.length === 0 && !pinned) {
         wrap.appendChild(buildTodayEmpty(t("todayEmptyTitle"), t("todayEmptyText"), false));
@@ -2825,56 +2792,7 @@
         return wrap;
       }
 
-      todayIndex = Math.min(todayIndex, ordered.length - 1);
-
-      if (ordered.length === 1) {
-        // نية واحدة بس: مفيش حاجة نسحب لها داخليًا، فمنسيبها كارت عادي
-        // من غير .today-viewport عشان سحب التابات (على مستوى document)
-        // يفضل شغال طبيعي فوقها.
-        wrap.appendChild(buildTodayCard(ordered[0]));
-        return wrap;
-      }
-
-      const viewport = document.createElement("div");
-      viewport.className = "today-viewport";
-      viewport.id = "todayViewport";
-
-      const track = document.createElement("div");
-      track.className = "today-track";
-      track.id = "todayTrack";
-
-      ordered.forEach(task => track.appendChild(buildTodayCard(task)));
-      viewport.appendChild(track);
-      wrap.appendChild(viewport);
-
-      if (ordered.length <= 7) {
-        const dots = document.createElement("div");
-        dots.className = "today-dots";
-        dots.id = "todayDots";
-        ordered.forEach((_, i) => {
-          const dot = document.createElement("span");
-          dot.className = "today-dot" + (i === todayIndex ? " active" : "");
-          dots.appendChild(dot);
-        });
-        wrap.appendChild(dots);
-      } else {
-        const counter = document.createElement("div");
-        counter.className = "today-counter";
-        counter.id = "todayCounter";
-        counter.textContent = `${todayIndex + 1} / ${ordered.length}`;
-        wrap.appendChild(counter);
-      }
-
-      const jumpBtn = document.createElement("button");
-      jumpBtn.className = "today-jump-start" + (todayIndex > 0 ? " show" : "");
-      jumpBtn.id = "todayJumpStart";
-      jumpBtn.type = "button";
-      jumpBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M9 14l-4-4 4-4"/><path d="M5 10h11a4 4 0 1 1 0 8h-1"/></svg><span>${t("today")}</span>`;
-      jumpBtn.addEventListener("click", () => goToTodayIndex(0, ordered.length));
-      wrap.appendChild(jumpBtn);
-
-      requestAnimationFrame(() => layoutTodayTrack(ordered.length));
-      bindTodayCarouselDrag(viewport, ordered.length);
+      wrap.appendChild(buildTodayCard(pinned));
       return wrap;
     }
 
@@ -2926,32 +2844,12 @@
       blob2.className = "today-blob-2";
       frame.append(blob1, blob2);
 
-      const isPinned = task.id === settings.todayIntentionId;
       const moreBtn = document.createElement("button");
       moreBtn.className = "today-more";
       moreBtn.type = "button";
-      if (isPinned) {
-        moreBtn.setAttribute("aria-label", "خيارات إضافية");
-        moreBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>';
-        moreBtn.addEventListener("click", () => openTaskSheet(task.id));
-      } else {
-        moreBtn.setAttribute("aria-label", t("todayChangeIntention"));
-        moreBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c1.5 1.5 2 3.5 2 5a6 6 0 0 1-12 0c0-4 2-6 4-12Z"/></svg>';
-        moreBtn.addEventListener("click", async () => {
-          const confirmed = await showConfirmDialog({
-            title: t("pinTodayConfirmTitle"),
-            text: t("pinTodayConfirmText"),
-            approveLabel: t("pinTodayApprove"),
-            cancelLabel: t("pinTodayCancel")
-          });
-          if (!confirmed) return;
-          settings.todayIntentionId = task.id;
-          settings.todayIntentionDate = getDateKey();
-          saveSettings();
-          todayIndex = 0;
-          render();
-        });
-      }
+      moreBtn.setAttribute("aria-label", "خيارات إضافية");
+      moreBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>';
+      moreBtn.addEventListener("click", () => openTaskSheet(task.id));
       frame.appendChild(moreBtn);
 
       const brand = document.createElement("div");
@@ -2983,14 +2881,12 @@
       tagline.textContent = t("todayTagline");
       frame.appendChild(tagline);
 
-      if (task.id === settings.todayIntentionId) {
-        const changeBtn = document.createElement("button");
-        changeBtn.className = "today-change-btn";
-        changeBtn.type = "button";
-        changeBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c1.5 1.5 2 3.5 2 5a6 6 0 0 1-12 0c0-4 2-6 4-12Z"/></svg><span>${t("todayChangeIntention")}</span>`;
-        changeBtn.addEventListener("click", openTodayPickSheet);
-        frame.appendChild(changeBtn);
-      }
+      const changeBtn = document.createElement("button");
+      changeBtn.className = "today-change-btn";
+      changeBtn.type = "button";
+      changeBtn.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c1.5 1.5 2 3.5 2 5a6 6 0 0 1-12 0c0-4 2-6 4-12Z"/></svg><span>${t("todayChangeIntention")}</span>`;
+      changeBtn.addEventListener("click", openTodayPickSheet);
+      frame.appendChild(changeBtn);
 
       const actions = document.createElement("div");
       actions.className = "today-actions";
@@ -3025,140 +2921,6 @@
       frame.appendChild(actions);
       card.appendChild(frame);
       return card;
-    }
-
-    function layoutTodayTrack(count) {
-      const viewport = $("#todayViewport");
-      const track = $("#todayTrack");
-      if (!viewport || !track) return;
-      const cardWidth = viewport.offsetWidth;
-      track.style.width = `${cardWidth * count}px`;
-      track.style.height = `${viewport.offsetHeight || track.scrollHeight}px`;
-      track.querySelectorAll(".today-card").forEach((card, i) => {
-        card.style.width = `${cardWidth}px`;
-        card.style.left = `${i * cardWidth}px`;
-      });
-      track.style.transition = "none";
-      track.style.transform = `translateX(${-todayIndex * cardWidth}px)`;
-      requestAnimationFrame(() => { track.style.transition = ""; });
-    }
-
-    function goToTodayIndex(index, count) {
-      const track = $("#todayTrack");
-      const viewport = $("#todayViewport");
-      if (!track || !viewport) return;
-      const cardWidth = viewport.offsetWidth;
-      track.classList.remove("dragging");
-      track.style.transition = "transform .24s cubic-bezier(.25,.8,.4,1)";
-      track.style.transform = `translateX(${-index * cardWidth}px)`;
-      todayIndex = index;
-      $$(".today-dot").forEach((dot, i) => dot.classList.toggle("active", i === index));
-      const counter = $("#todayCounter");
-      if (counter) counter.textContent = `${index + 1} / ${count}`;
-      const jumpBtn = $("#todayJumpStart");
-      if (jumpBtn) jumpBtn.classList.toggle("show", index > 0);
-    }
-
-    // سحب الكاروسيل مربوط بمنطقة #todayViewport فقط — منفصل تمامًا عن
-    // سحب التابات الذي يعمل على مستوى document (انظر معالج touchstart بالأسفل
-    // المستثني لعنصر .today-viewport، ولا يُستثنى إلا لما يكون فيه أكتر من
-    // نية واحدة — نية واحدة بترجع كارت عادي من غير .today-viewport أصلاً).
-    function bindTodayCarouselDrag(viewport, count) {
-      if (!viewport) return;
-      const track = viewport.querySelector(".today-track");
-      if (!track) return;
-
-      let startX = 0;
-      let startY = 0;
-      let startTime = 0;
-      let currentDx = 0;
-      let dragging = false;
-      let mode = "none"; // "horizontal" | "vertical" | "none"
-
-      // الكاروسيل داخليًا دايمًا LTR فعليًا (.today-track { direction: ltr })
-      // بغض النظر عن لغة الصفحة، فاتجاه السحب هنا ثابت ومش مرتبط بـ RTL/LTR:
-      // سحب لليسار = التالي، سحب لليمين = السابق — في الحالتين.
-      const applyResistance = (dx, atStart, atEnd) => {
-        const pullingBackwardAtStart = atStart && dx > 0;
-        const pullingForwardAtEnd = atEnd && dx < 0;
-        if (pullingBackwardAtStart || pullingForwardAtEnd) return dx * 0.42;
-        return dx;
-      };
-
-      // مهم: نبدأ نتابع أي ضغطة في أي مكان في الكارت — حتى فوق الأزرار
-      // أو نص النية نفسه — من غير ما نستولي على الـ pointer أو نمنع أي
-      // حاجة لسه. لو الحركة فضلت صغيرة (يعني ضغطة عادية)، الزرار أو
-      // النص هياخد الحدث طبيعي زي ما المتصفح متعوّد. بس لو الحركة بانت
-      // سحب أفقي واضح، هنا بس نستولي على الـ pointer ونفعّل الكاروسيل —
-      // بالظبط زي أي كاروسيل بريميم بيسمح بالسحب من أي حتة في الكارت.
-      viewport.addEventListener("pointerdown", e => {
-        dragging = true;
-        mode = "none";
-        startX = e.clientX;
-        startY = e.clientY;
-        startTime = Date.now();
-        currentDx = 0;
-      });
-
-      viewport.addEventListener("pointermove", e => {
-        if (!dragging) return;
-        const dx = e.clientX - startX;
-        const dy = e.clientY - startY;
-
-        if (mode === "none" && (Math.abs(dx) > 4 || Math.abs(dy) > 4)) {
-          mode = Math.abs(dx) >= Math.abs(dy) ? "horizontal" : "vertical";
-          if (mode === "horizontal") {
-            // اتأكدنا دلوقتي إنه سحب أفقي فعلي — نستولي على الـ pointer
-            // ونلغي أي تحديد نص أو ضغطة كانت شغالة تحت الإصبع.
-            viewport.setPointerCapture?.(e.pointerId);
-            track.classList.add("dragging");
-            track.style.transition = "none";
-          }
-        }
-
-        if (mode !== "horizontal") return; // سيب السحب العمودي يعدي عادي كسكرول
-
-        currentDx = dx;
-        const cardWidth = viewport.offsetWidth;
-        const resisted = applyResistance(dx, todayIndex === 0, todayIndex === count - 1);
-        track.style.transform = `translateX(${-(todayIndex * cardWidth) + resisted}px)`;
-
-        // لازم نمنع السلوك الافتراضي عشان المتصفح ميلغيش السحب معتبره
-        // محاولة سكرول عمودي غامضة (بنفس الأسلوب المستخدم في سحب الشيتات).
-        if (e.cancelable) e.preventDefault();
-      });
-
-      const endDrag = () => {
-        if (!dragging) return;
-        dragging = false;
-
-        if (mode !== "horizontal") {
-          mode = "none";
-          return; // ضغطة عادية — الزرار/النص خدوا الحدث طبيعي، مفيش حاجة نصلحها
-        }
-
-        mode = "none";
-        const elapsed = Math.max(1, Date.now() - startTime);
-        const velocity = currentDx / elapsed; // px per ms
-
-        // سحب سريع (فليك) حتى لو المسافة قصيرة يبقى كفاية، زي أي كاروسيل
-        // بريميم — بدل ما نعتمد على مسافة السحب لوحدها.
-        const distanceThreshold = viewport.offsetWidth * 0.18;
-        const velocityThreshold = 0.4;
-
-        const movedForward = currentDx < 0;
-        const movedBackward = currentDx > 0;
-        const passedDistance = Math.abs(currentDx) > distanceThreshold;
-        const passedVelocity = Math.abs(velocity) > velocityThreshold;
-
-        let next = todayIndex;
-        if ((passedDistance || passedVelocity) && movedForward && todayIndex < count - 1) next = todayIndex + 1;
-        else if ((passedDistance || passedVelocity) && movedBackward && todayIndex > 0) next = todayIndex - 1;
-        goToTodayIndex(next, count);
-      };
-
-      viewport.addEventListener("pointerup", endDrag);
-      viewport.addEventListener("pointercancel", endDrag);
     }
 
     function openTodayPickSheet() {
@@ -3197,7 +2959,6 @@
           settings.todayIntentionId = task.id;
           settings.todayIntentionDate = getDateKey();
           saveSettings();
-          todayIndex = 0;
           closeOverlay($("#todayPickOverlay"));
           render();
         });
@@ -3216,7 +2977,6 @@
     function setView(view) {
       if (currentView === view) return;
       currentView = view;
-      if (view === "today") todayIndex = 0;
       closeAllOverlays();
       closeComposer();
       render();
@@ -4751,28 +4511,6 @@
       }
     });
 
-    document.addEventListener("keydown", e => {
-      if (currentView !== "today") return;
-      if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-      if (e.target.closest("input, textarea")) return;
-      if (document.querySelector(".overlay.show")) return; // شيت مفتوح فوقها، سيبها
-
-      const { ordered } = getTodayOrderedTasks();
-      const count = ordered.length;
-      if (count <= 1) return;
-
-      const forward = e.key === "ArrowLeft";
-      const backward = e.key === "ArrowRight";
-
-      let next = todayIndex;
-      if (forward && todayIndex < count - 1) next = todayIndex + 1;
-      else if (backward && todayIndex > 0) next = todayIndex - 1;
-      if (next !== todayIndex) {
-        e.preventDefault();
-        goToTodayIndex(next, count);
-      }
-    });
-
     $$(".overlay .sheet").forEach(sheet => {
       let startY = 0;
       let dragging = false;
@@ -4932,7 +4670,7 @@
     });
 
     document.addEventListener("touchstart", e => {
-      if (e.target.closest("button, input, textarea, select, option, .overlay, .sheet, .composer-panel, .fab, .today-viewport")) return;
+      if (e.target.closest("button, input, textarea, select, option, .overlay, .sheet, .composer-panel, .fab")) return;
 
       const touch = e.touches[0];
       swipeStartX = touch.clientX;
