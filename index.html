@@ -4511,52 +4511,6 @@
       }
     });
 
-    $$(".overlay .sheet").forEach(sheet => {
-      let startY = 0;
-      let dragging = false;
-
-      sheet.addEventListener("touchstart", e => {
-        if (sheet.scrollTop > 0) return;
-
-        startY = e.touches[0].clientY;
-        dragging = true;
-      }, { passive: true });
-
-      sheet.addEventListener("touchmove", e => {
-        if (!dragging) return;
-
-        const dy = e.touches[0].clientY - startY;
-
-        if (dy <= 0) return;
-
-        e.preventDefault();
-
-        sheet.style.transition = "none";
-        sheet.style.transform = `translateY(${Math.min(dy, 180)}px)`;
-      }, { passive: false });
-
-      sheet.addEventListener("touchend", e => {
-        if (!dragging) return;
-
-        dragging = false;
-
-        const dy = e.changedTouches[0].clientY - startY;
-
-        sheet.style.transition = "transform 0.24s ease";
-        sheet.style.transform = "";
-
-        if (dy > 90) {
-          closeOverlay(sheet.closest(".overlay"));
-        }
-      }, { passive: true });
-
-      sheet.addEventListener("touchcancel", () => {
-        dragging = false;
-        sheet.style.transition = "transform 0.24s ease";
-        sheet.style.transform = "";
-      }, { passive: true });
-    });
-
     $$(".segment[data-theme]").forEach(btn => {
       btn.addEventListener("click", () => {
         settings.theme = btn.dataset.theme;
@@ -4778,9 +4732,18 @@
             mode = Math.abs(dy) >= Math.abs(dx) ? "vertical" : "horizontal";
           }
 
+          // متابعة 1:1 للإصبع لحد نقطة معيّنة، وبعدها مقاومة متزايدة —
+          // إحساس "مطاطي" مألوف في الشيتات الحديثة، بدل ما تفضل تتبع
+          // الإصبع بحرية كاملة لأي مسافة.
+          const applyRubberBand = (rawDistance, followLimit) => {
+            if (rawDistance <= followLimit) return rawDistance;
+            return followLimit + (rawDistance - followLimit) * 0.32;
+          };
+
           if (mode === "vertical") {
-            const distance = Math.max(0, dy);
-            const progress = Math.min(distance / 180, 1);
+            const rawDistance = Math.max(0, dy);
+            const distance = applyRubberBand(rawDistance, 140);
+            const progress = Math.min(distance / 160, 1);
 
             overlay.style.setProperty("--sheet-drag-progress", progress.toFixed(3));
             sheet.style.transform = `translateY(${distance}px) scale(${Math.max(.98, 1 - progress * .02)})`;
@@ -4789,9 +4752,10 @@
 
           } else if (mode === "horizontal") {
             const direction = document.documentElement.dir === "rtl" ? 1 : -1;
-            const distance = Math.max(0, dx * direction);
+            const rawDistance = Math.max(0, dx * direction);
+            const distance = applyRubberBand(rawDistance, 120);
 
-            sheet.style.transform = `translateX(${distance}px) scale(${Math.max(.985, 1 - distance / 5000)})`;
+            sheet.style.transform = `translateX(${distance}px) scale(${Math.max(.985, 1 - distance / 2400)})`;
 
             if (event.cancelable) event.preventDefault();
           }
