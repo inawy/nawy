@@ -55,9 +55,9 @@ button{
   background:
     linear-gradient(
       180deg,
-      #fafdff 0%,
-      #ffffff 55%,
-      #f8fbfd 100%
+      #fbfdff 0%,
+      #ffffff 58%,
+      #f8fafc 100%
     );
 }
 
@@ -95,12 +95,19 @@ button{
   display:grid;
   place-items:center;
   color:#fff;
-  font-size:23px;
+  font-size:22px;
   font-weight:900;
-  background:linear-gradient(145deg,#1688ff,#0067df);
+
+  background:
+    linear-gradient(
+      145deg,
+      #1791ff,
+      #0069e5
+    );
+
   box-shadow:
-    0 7px 18px rgba(0,103,223,.18),
-    inset 0 1px 0 rgba(255,255,255,.4);
+    0 7px 18px rgba(0,103,223,.14),
+    inset 0 1px 0 rgba(255,255,255,.45);
 }
 
 .brandText{
@@ -110,13 +117,13 @@ button{
 .brandText strong{
   display:block;
   font-size:15px;
-  font-weight:900;
+  font-weight:950;
 }
 
 .brandText span{
   display:block;
   margin-top:3px;
-  color:#8290a3;
+  color:#8a96a5;
   font-size:10px;
   font-weight:700;
 }
@@ -128,13 +135,18 @@ button{
 }
 
 .stat{
-  min-width:57px;
+  min-width:60px;
   height:40px;
   padding:5px 9px;
-  border:1px solid #e8edf3;
+
+  border:1px solid #e9eef3;
   border-radius:13px;
-  background:rgba(255,255,255,.88);
-  box-shadow:0 5px 18px rgba(24,42,65,.045);
+
+  background:#fff;
+
+  box-shadow:
+    0 5px 18px rgba(24,42,65,.038);
+
   text-align:center;
 }
 
@@ -151,26 +163,36 @@ button{
   color:#172235;
   font-size:15px;
   line-height:17px;
-  font-weight:900;
+  font-weight:950;
 }
 
 .iconBtn{
   width:40px;
   height:40px;
   flex:0 0 40px;
+
   border:1px solid #e8edf3;
   border-radius:13px;
+
   background:#fff;
   color:#526174;
-  box-shadow:0 5px 18px rgba(24,42,65,.045);
+
+  box-shadow:
+    0 5px 18px rgba(24,42,65,.038);
+
   display:grid;
   place-items:center;
+
   font-size:17px;
-  transition:transform .12s ease;
+
+  transition:
+    transform .12s ease,
+    background .12s ease;
 }
 
 .iconBtn:active{
   transform:scale(.92);
+  background:#f8fafc;
 }
 
 /* =========================
@@ -190,12 +212,15 @@ button{
   width:100%;
   height:100%;
   min-height:260px;
+
   overflow:hidden;
   border-radius:25px;
+
   background:#fff;
-  box-shadow:
-    0 18px 55px rgba(20,45,75,.08),
-    0 1px 0 rgba(20,45,75,.05);
+
+  /* ثابت تمامًا — بدون Border Flash */
+  box-shadow:none;
+
   isolation:isolate;
 }
 
@@ -215,10 +240,13 @@ canvas{
   top:12px;
   left:12px;
   right:12px;
+
   z-index:10;
+
   display:flex;
   align-items:center;
   justify-content:space-between;
+
   pointer-events:none;
 }
 
@@ -232,12 +260,18 @@ canvas{
 .chip{
   min-height:30px;
   padding:6px 10px;
+
   border:1px solid rgba(225,232,240,.92);
   border-radius:999px;
-  background:rgba(255,255,255,.82);
+
+  background:rgba(255,255,255,.86);
+
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
-  box-shadow:0 5px 18px rgba(20,45,75,.055);
+
+  box-shadow:
+    0 5px 18px rgba(20,45,75,.045);
+
   color:#536174;
   font-size:11px;
   font-weight:800;
@@ -247,10 +281,7 @@ canvas{
   color:#172235;
 }
 
-#powerChip{
-  display:none;
-}
-
+#powerChip,
 #shieldChip{
   display:none;
 }
@@ -262,59 +293,85 @@ canvas{
 .overlay{
   position:absolute;
   inset:0;
+
   z-index:30;
+
   display:grid;
   place-items:center;
+
   padding:20px;
+
   background:
     linear-gradient(
       180deg,
-      rgba(255,255,255,.30),
+      rgba(255,255,255,.26),
       rgba(255,255,255,.72)
     );
+
   backdrop-filter:blur(4px);
   -webkit-backdrop-filter:blur(4px);
 }
 
 .panel{
   width:min(420px,92%);
+
   padding:27px 24px 22px;
+
   border:1px solid rgba(224,231,239,.95);
   border-radius:28px;
-  background:rgba(255,255,255,.96);
+
+  background:rgba(255,255,255,.97);
+
   box-shadow:
-    0 25px 80px rgba(21,45,72,.13),
-    0 2px 4px rgba(21,45,72,.04);
+    0 25px 80px rgba(21,45,72,.11),
+    0 2px 4px rgba(21,45,72,.035);
+
   text-align:center;
 }
 
 .panelEmoji{
   width:64px;
   height:64px;
+
   margin:0 auto 14px;
+
   border-radius:21px;
+
   display:grid;
   place-items:center;
-  font-size:33px;
-  background:linear-gradient(145deg,#eef7ff,#ffffff);
+
+  font-size:32px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #eef7ff,
+      #ffffff
+    );
+
   box-shadow:
     inset 0 1px 0 #fff,
-    0 12px 25px rgba(22,136,255,.09);
+    0 12px 25px rgba(22,136,255,.07);
 }
 
 .panel h1{
   margin:0;
+
   font-size:27px;
   line-height:1.2;
   font-weight:950;
   letter-spacing:-.6px;
+
   color:#111c2d;
 }
 
 .panel p{
   margin:10px auto 18px;
+
   max-width:340px;
+
   color:#6c7888;
+
   font-size:13px;
   line-height:1.8;
   font-weight:650;
@@ -323,17 +380,24 @@ canvas{
 .powerPreview{
   display:flex;
   justify-content:center;
+
   gap:9px;
+
   margin:0 auto 19px;
 }
 
 .powerPreviewItem{
   min-width:108px;
+
   padding:10px 12px;
+
   border:1px solid #edf1f5;
   border-radius:15px;
+
   background:#fafcfe;
+
   color:#536174;
+
   font-size:11px;
   font-weight:850;
 }
@@ -346,29 +410,50 @@ canvas{
 .mainBtn{
   width:100%;
   min-height:52px;
+
   border-radius:16px;
+
   color:#fff;
+
   font-size:15px;
   font-weight:950;
-  background:linear-gradient(135deg,#1489ff,#0069e5);
+
+  background:
+    linear-gradient(
+      135deg,
+      #1489ff,
+      #0069e5
+    );
+
   box-shadow:
-    0 12px 25px rgba(0,105,229,.20),
+    0 12px 25px rgba(0,105,229,.18),
     inset 0 1px 0 rgba(255,255,255,.35);
-  transition:transform .12s ease,box-shadow .12s ease;
+
+  transition:
+    transform .12s ease,
+    box-shadow .12s ease;
 }
 
 .mainBtn:active{
-  transform:translateY(2px) scale(.99);
-  box-shadow:0 7px 15px rgba(0,105,229,.17);
+  transform:
+    translateY(2px)
+    scale(.99);
+
+  box-shadow:
+    0 7px 15px rgba(0,105,229,.15);
 }
 
 .secondaryBtn{
   margin-top:9px;
+
   width:100%;
   min-height:44px;
+
   border-radius:14px;
+
   background:#f4f7fa;
   color:#526174;
+
   font-size:12px;
   font-weight:850;
 }
@@ -379,29 +464,44 @@ canvas{
 
 .toast{
   position:absolute;
+
   z-index:40;
+
   left:50%;
   bottom:24px;
-  transform:translate(-50%,12px);
+
+  transform:
+    translate(-50%,12px);
+
   opacity:0;
+
   pointer-events:none;
 
   padding:10px 15px;
+
   border-radius:999px;
+
   background:rgba(22,32,48,.91);
   color:#fff;
-  box-shadow:0 10px 30px rgba(20,30,45,.16);
+
+  box-shadow:
+    0 10px 30px rgba(20,30,45,.14);
 
   font-size:12px;
   font-weight:850;
+
   white-space:nowrap;
 
-  transition:opacity .18s ease,transform .18s ease;
+  transition:
+    opacity .18s ease,
+    transform .18s ease;
 }
 
 .toast.show{
   opacity:1;
-  transform:translate(-50%,0);
+
+  transform:
+    translate(-50%,0);
 }
 
 /* =========================
@@ -410,6 +510,7 @@ canvas{
 
 .bottomHint{
   min-height:30px;
+
   padding:
     3px
     max(15px,env(safe-area-inset-right))
@@ -417,7 +518,9 @@ canvas{
     max(15px,env(safe-area-inset-left));
 
   text-align:center;
+
   color:#98a4b2;
+
   font-size:10px;
   font-weight:750;
 }
@@ -427,6 +530,7 @@ canvas{
 ========================= */
 
 @media (min-width:800px){
+
   .stageWrap{
     padding:0 14px 10px;
   }
@@ -437,6 +541,7 @@ canvas{
 
   .topbar{
     min-height:70px;
+
     padding-left:20px;
     padding-right:20px;
   }
@@ -447,6 +552,7 @@ canvas{
 }
 
 @media (max-height:620px){
+
   .topbar{
     min-height:54px;
     padding-top:5px;
@@ -465,7 +571,7 @@ canvas{
 
   .stat{
     height:35px;
-    min-width:52px;
+    min-width:56px;
   }
 
   .iconBtn{
@@ -531,11 +637,6 @@ canvas{
         <b id="best">0</b>
       </div>
 
-      <div class="stat">
-        <span>سلسلة</span>
-        <b id="combo">0</b>
-      </div>
-
       <button
         class="iconBtn"
         id="muteBtn"
@@ -563,14 +664,18 @@ canvas{
       <div class="hud">
 
         <div class="hudLeft">
+
           <div class="chip" id="powerChip"></div>
           <div class="chip" id="shieldChip"></div>
+
         </div>
 
         <div class="hudRight">
+
           <div class="chip">
             ⭐ <strong id="stars">0</strong>
           </div>
+
         </div>
 
       </div>
@@ -581,7 +686,9 @@ canvas{
 
           <div class="panelEmoji" id="panelEmoji">🏃</div>
 
-          <h1 id="panelTitle">ناوي جاهز؟</h1>
+          <h1 id="panelTitle">
+            ناوي جاهز؟
+          </h1>
 
           <p id="panelText">
             اقفز فوق العقبات، اجمع النجوم،
@@ -641,53 +748,95 @@ canvas{
 
 /* =========================================================
    NAWY RUNNER
-   Local First / Offline / No Dependencies
+   Premium + Simple + Offline
 ========================================================= */
 
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d", { alpha:false });
+const canvas =
+  document.getElementById("gameCanvas");
 
-const stage = document.querySelector(".stage");
+const ctx =
+  canvas.getContext("2d",{alpha:false});
 
-const scoreEl = document.getElementById("score");
-const bestEl = document.getElementById("best");
-const comboEl = document.getElementById("combo");
-const starsEl = document.getElementById("stars");
+const stage =
+  document.querySelector(".stage");
 
-const powerChip = document.getElementById("powerChip");
-const shieldChip = document.getElementById("shieldChip");
+const scoreEl =
+  document.getElementById("score");
 
-const overlay = document.getElementById("overlay");
-const panelEmoji = document.getElementById("panelEmoji");
-const panelTitle = document.getElementById("panelTitle");
-const panelText = document.getElementById("panelText");
-const mainBtn = document.getElementById("mainBtn");
-const shareBtn = document.getElementById("shareBtn");
+const bestEl =
+  document.getElementById("best");
 
-const pauseBtn = document.getElementById("pauseBtn");
-const muteBtn = document.getElementById("muteBtn");
-const toast = document.getElementById("toast");
+const starsEl =
+  document.getElementById("stars");
+
+const powerChip =
+  document.getElementById("powerChip");
+
+const shieldChip =
+  document.getElementById("shieldChip");
+
+const overlay =
+  document.getElementById("overlay");
+
+const panelEmoji =
+  document.getElementById("panelEmoji");
+
+const panelTitle =
+  document.getElementById("panelTitle");
+
+const panelText =
+  document.getElementById("panelText");
+
+const mainBtn =
+  document.getElementById("mainBtn");
+
+const shareBtn =
+  document.getElementById("shareBtn");
+
+const pauseBtn =
+  document.getElementById("pauseBtn");
+
+const muteBtn =
+  document.getElementById("muteBtn");
+
+const toast =
+  document.getElementById("toast");
 
 
 /* =========================================================
    STORAGE
 ========================================================= */
 
-const STORE_KEY = "nawy_runner_best_v2";
-const SOUND_KEY = "nawy_runner_sound_v2";
+const BEST_KEY =
+  "nawy_runner_best_v3";
 
-function loadNumber(key, fallback=0){
+const SOUND_KEY =
+  "nawy_runner_sound_v3";
+
+function loadNumber(key,fallback=0){
+
   try{
-    const value = Number(localStorage.getItem(key));
-    return Number.isFinite(value) ? value : fallback;
+
+    const value =
+      Number(localStorage.getItem(key));
+
+    return Number.isFinite(value)
+      ? value
+      : fallback;
+
   }catch{
+
     return fallback;
   }
 }
 
 function saveNumber(key,value){
+
   try{
-    localStorage.setItem(key,String(value));
+    localStorage.setItem(
+      key,
+      String(value)
+    );
   }catch{}
 }
 
@@ -703,21 +852,23 @@ let DPR = 1;
 let state = "ready";
 
 let score = 0;
-let best = loadNumber(STORE_KEY,0);
+let best =
+  loadNumber(BEST_KEY,0);
 
 let starCount = 0;
-let combo = 0;
 
-let muted = loadNumber(SOUND_KEY,0) === 1;
+let muted =
+  loadNumber(SOUND_KEY,0) === 1;
 
-let worldSpeed = 5.4;
-let targetSpeed = 5.4;
+let worldSpeed = 5.3;
+let targetSpeed = 5.3;
 
-let obstacleTimer = 1.5;
-let powerTimer = 3.2;
+let obstacleTimer = 1.55;
+let starTimer = 1.15;
+let powerTimer = 4.2;
 
-let lastTime = 0;
 let elapsed = 0;
+let lastTime = 0;
 
 let coyoteTime = 0;
 let jumpBuffer = 0;
@@ -725,6 +876,7 @@ let jumpBuffer = 0;
 let shake = 0;
 
 let toastTimer = 0;
+
 let milestone = 0;
 
 
@@ -733,9 +885,11 @@ let milestone = 0;
 ========================================================= */
 
 const player = {
+
   x:0,
   y:0,
-  r:19,
+
+  r:21,
 
   vy:0,
 
@@ -745,15 +899,20 @@ const player = {
   magnet:0,
 
   squash:1,
-  rotation:0
+  rotation:0,
+
+  blink:0,
+  blinkTimer:2.5,
+
+  expression:"happy"
 };
 
-const GRAVITY = 2500;
+const GRAVITY = 2480;
 const JUMP_VELOCITY = -850;
 
 
 /* =========================================================
-   OBJECTS
+   WORLD OBJECTS
 ========================================================= */
 
 const obstacles = [];
@@ -762,7 +921,6 @@ const powerups = [];
 const particles = [];
 
 let clouds = [];
-let hills = [];
 
 
 /* =========================================================
@@ -770,18 +928,79 @@ let hills = [];
 ========================================================= */
 
 function clamp(v,min,max){
-  return Math.max(min,Math.min(max,v));
+  return Math.max(
+    min,
+    Math.min(max,v)
+  );
 }
 
 function rand(min,max){
-  return min + Math.random()*(max-min);
+  return min+
+    Math.random()*
+    (max-min);
 }
 
 function pick(arr){
-  return arr[Math.floor(Math.random()*arr.length)];
+  return arr[
+    Math.floor(
+      Math.random()*arr.length
+    )
+  ];
+}
+
+function roundRectPath(
+  ctx,
+  x,y,w,h,r
+){
+
+  r=Math.min(
+    r,
+    w/2,
+    h/2
+  );
+
+  ctx.beginPath();
+
+  ctx.moveTo(x+r,y);
+
+  ctx.lineTo(x+w-r,y);
+
+  ctx.quadraticCurveTo(
+    x+w,y,
+    x+w,y+r
+  );
+
+  ctx.lineTo(
+    x+w,
+    y+h-r
+  );
+
+  ctx.quadraticCurveTo(
+    x+w,y+h,
+    x+w-r,y+h
+  );
+
+  ctx.lineTo(
+    x+r,y+h
+  );
+
+  ctx.quadraticCurveTo(
+    x,y+h,
+    x,y+h-r
+  );
+
+  ctx.lineTo(x,y+r);
+
+  ctx.quadraticCurveTo(
+    x,y,
+    x+r,y
+  );
+
+  ctx.closePath();
 }
 
 function rectsOverlap(a,b){
+
   return (
     a.x < b.x+b.w &&
     a.x+a.w > b.x &&
@@ -790,252 +1009,277 @@ function rectsOverlap(a,b){
   );
 }
 
-function circleRectCollision(cx,cy,r,rect){
-
-  const closestX = clamp(cx,rect.x,rect.x+rect.w);
-  const closestY = clamp(cy,rect.y,rect.y+rect.h);
-
-  const dx = cx-closestX;
-  const dy = cy-closestY;
-
-  return dx*dx + dy*dy < r*r;
-}
-
 
 /* =========================================================
    RESIZE
-========================================================= */
-
-function resize(){
-
-  const rect = stage.getBoundingClientRect();
-
-  DPR = Math.min(window.devicePixelRatio || 1,2);
-
-  W = Math.max(320,rect.width);
-  H = Math.max(260,rect.height);
-
-  canvas.width = Math.floor(W*DPR);
-  canvas.height = Math.floor(H*DPR);
-
-  canvas.style.width = W+"px";
-  canvas.style.height = H+"px";
-
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-
-  player.x = Math.max(70,W*.18);
-
-  if(state !== "playing"){
-    player.y = floorY()-player.r;
-  }
-
-  buildBackground();
-}
-
-window.addEventListener("resize",resize);
-
-
-/* =========================================================
-   WORLD
 ========================================================= */
 
 function floorY(){
   return H*.78;
 }
 
-function getWorldSpeed(){
+function resize(){
 
-  /*
-    Difficulty is intentionally hidden.
-    The player simply feels the game getting faster.
-  */
+  const rect =
+    stage.getBoundingClientRect();
 
-  const progress = clamp(score/900,0,1);
+  DPR =
+    Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
 
-  return 5.4 + progress*3.0;
+  W =
+    Math.max(
+      320,
+      rect.width
+    );
+
+  H =
+    Math.max(
+      260,
+      rect.height
+    );
+
+  canvas.width =
+    Math.floor(W*DPR);
+
+  canvas.height =
+    Math.floor(H*DPR);
+
+  canvas.style.width =
+    W+"px";
+
+  canvas.style.height =
+    H+"px";
+
+  ctx.setTransform(
+    DPR,0,0,DPR,0,0
+  );
+
+  player.x =
+    Math.max(
+      68,
+      W*.18
+    );
+
+  if(state!=="playing"){
+    player.y =
+      floorY()-player.r;
+  }
+
+  createClouds();
 }
 
-function buildBackground(){
+window.addEventListener(
+  "resize",
+  resize
+);
 
-  clouds = [];
 
-  const count = Math.max(4,Math.floor(W/180));
+/* =========================================================
+   WORLD SPEED
+========================================================= */
+
+function getWorldSpeed(){
+
+  const progress =
+    clamp(
+      score/1200,
+      0,
+      1
+    );
+
+  /*
+    من 5.3 إلى 8.2
+    تدريجيًا جدًا.
+  */
+
+  return (
+    5.3+
+    progress*2.9
+  );
+}
+
+
+/* =========================================================
+   BACKGROUND
+========================================================= */
+
+function createClouds(){
+
+  clouds=[];
+
+  const count =
+    Math.max(
+      4,
+      Math.floor(W/190)
+    );
 
   for(let i=0;i<count;i++){
 
     clouds.push({
+
       x:Math.random()*W,
-      y:rand(H*.13,H*.35),
-      w:rand(65,125),
-      speed:rand(.12,.28),
-      alpha:rand(.35,.65)
-    });
-  }
 
-  hills = [];
+      y:rand(
+        H*.12,
+        H*.34
+      ),
 
-  for(let i=0;i<8;i++){
+      w:rand(
+        70,
+        135
+      ),
 
-    hills.push({
-      x:i*(W/6)-80,
-      y:floorY()+rand(-20,15),
-      w:rand(170,280),
-      h:rand(50,90)
+      speed:rand(
+        .10,
+        .22
+      ),
+
+      alpha:rand(
+        .32,
+        .58
+      )
     });
   }
 }
 
 
 /* =========================================================
-   START / RESET
+   RESET
 ========================================================= */
 
 function resetGame(){
 
-  score = 0;
-  starCount = 0;
-  combo = 0;
+  score=0;
+  starCount=0;
 
-  elapsed = 0;
+  elapsed=0;
 
-  worldSpeed = 5.4;
-  targetSpeed = 5.4;
+  worldSpeed=5.3;
+  targetSpeed=5.3;
 
-  obstacleTimer = 1.35;
-  powerTimer = 3.0;
+  obstacleTimer=1.35;
+  starTimer=.95;
+  powerTimer=3.2;
 
-  coyoteTime = 0;
-  jumpBuffer = 0;
+  milestone=0;
 
-  shake = 0;
+  coyoteTime=0;
+  jumpBuffer=0;
 
-  milestone = 0;
+  shake=0;
 
-  obstacles.length = 0;
-  stars.length = 0;
-  powerups.length = 0;
-  particles.length = 0;
+  obstacles.length=0;
+  stars.length=0;
+  powerups.length=0;
+  particles.length=0;
 
-  player.shield = 0;
-  player.magnet = 0;
+  player.shield=0;
+  player.magnet=0;
 
-  player.vy = 0;
-  player.grounded = true;
-  player.squash = 1;
-  player.rotation = 0;
+  player.vy=0;
+  player.grounded=true;
 
-  player.x = Math.max(70,W*.18);
-  player.y = floorY()-player.r;
+  player.squash=1;
+  player.rotation=0;
+
+  player.blink=0;
+  player.blinkTimer=rand(
+    2.5,
+    5
+  );
+
+  player.expression="happy";
+
+  player.x =
+    Math.max(
+      68,
+      W*.18
+    );
+
+  player.y =
+    floorY()-player.r;
 
   updateUI();
 }
+
+
+/* =========================================================
+   START
+========================================================= */
 
 function startGame(){
 
   resetGame();
 
-  state = "playing";
+  state="playing";
 
-  overlay.style.display = "none";
+  overlay.style.display="none";
 
   playSound("start");
 
   /*
-    Guaranteed early reward.
-    This lets the player understand powerups immediately.
+    أول تعزيز يظهر بدري
+    عشان اللاعب يشوف الميكانيزم.
   */
 
   spawnPowerup(true);
 
-  lastTime = performance.now();
-}
+  /*
+    أول نجوم تظهر بسرعة.
+  */
 
-function pauseGame(){
+  spawnStarArc();
 
-  if(state !== "playing") return;
-
-  state = "paused";
-
-  overlay.style.display = "grid";
-
-  panelEmoji.textContent = "⏸️";
-  panelTitle.textContent = "وقفة صغيرة";
-  panelText.innerHTML = "خد نفس... ولما تكون جاهز نكمل من نفس المكان.";
-
-  mainBtn.textContent = "كمّل اللعب";
-
-  shareBtn.hidden = true;
-
-  pauseBtn.textContent = "▶";
-
-}
-
-function resumeGame(){
-
-  if(state !== "paused") return;
-
-  state = "playing";
-
-  overlay.style.display = "none";
-
-  pauseBtn.textContent = "Ⅱ";
-
-  lastTime = performance.now();
+  lastTime =
+    performance.now();
 }
 
 
 /* =========================================================
-   JUMP SYSTEM
+   PAUSE
 ========================================================= */
 
-function requestJump(){
+function pauseGame(){
 
-  if(state !== "playing") return;
+  if(state!=="playing")
+    return;
 
-  /*
-    Jump buffer:
-    الضغط قبل ملامسة الأرض مباشرة لا يضيع.
-  */
+  state="paused";
 
-  jumpBuffer = .13;
+  overlay.style.display="grid";
 
-  tryJump();
+  panelEmoji.textContent="⏸️";
+
+  panelTitle.textContent=
+    "وقفة صغيرة";
+
+  panelText.innerHTML=
+    "خد نفس... ولما تكون جاهز نكمل من نفس المكان.";
+
+  mainBtn.textContent=
+    "كمّل اللعب";
+
+  shareBtn.hidden=true;
+
+  pauseBtn.textContent="▶";
 }
 
-function tryJump(){
+function resumeGame(){
 
-  if(state !== "playing") return;
+  if(state!=="paused")
+    return;
 
-  /*
-    Coyote time:
-    حتى لو اللاعب خرج من الأرض بجزء صغير جدًا
-    يظل القفز مقبولًا.
-  */
+  state="playing";
 
-  const canJump =
-    player.grounded ||
-    coyoteTime > 0 ||
-    player.y >= floorY()-player.r-2;
+  overlay.style.display="none";
 
-  if(!canJump) return;
+  pauseBtn.textContent="Ⅱ";
 
-  player.vy = JUMP_VELOCITY;
-
-  player.grounded = false;
-
-  coyoteTime = 0;
-  jumpBuffer = 0;
-
-  player.squash = .82;
-
-  burst(
-    player.x,
-    player.y+player.r,
-    5,
-    "dust"
-  );
-
-  playSound("jump");
+  lastTime =
+    performance.now();
 }
 
 
@@ -1043,23 +1287,76 @@ function tryJump(){
    INPUT
 ========================================================= */
 
+function requestJump(){
+
+  if(state!=="playing")
+    return;
+
+  jumpBuffer=.13;
+
+  tryJump();
+}
+
+function tryJump(){
+
+  if(state!=="playing")
+    return;
+
+  const canJump =
+    player.grounded ||
+    coyoteTime>0 ||
+    player.y>=
+    floorY()-player.r-2;
+
+  if(!canJump)
+    return;
+
+  player.vy=
+    JUMP_VELOCITY;
+
+  player.grounded=false;
+
+  coyoteTime=0;
+  jumpBuffer=0;
+
+  player.squash=.80;
+
+  player.expression="excited";
+
+  burst(
+    player.x,
+    player.y+player.r-2,
+    5,
+    "dust"
+  );
+
+  playSound("jump");
+}
+
 function handleTap(e){
 
-  if(e){
+  if(e)
     e.preventDefault();
-  }
 
-  if(state === "playing"){
+  if(state==="playing"){
+
     requestJump();
+
     return;
   }
 
-  if(state === "paused"){
+  if(state==="paused"){
+
     resumeGame();
+
     return;
   }
 
-  if(state === "ready" || state === "over"){
+  if(
+    state==="ready" ||
+    state==="over"
+  ){
+
     startGame();
   }
 }
@@ -1070,225 +1367,360 @@ canvas.addEventListener(
   {passive:false}
 );
 
-window.addEventListener("keydown",e=>{
+window.addEventListener(
+  "keydown",
+  e=>{
 
-  if(
-    e.code === "Space" ||
-    e.code === "ArrowUp" ||
-    e.code === "KeyW"
-  ){
+    if(
+      e.code==="Space" ||
+      e.code==="ArrowUp" ||
+      e.code==="KeyW"
+    ){
 
-    e.preventDefault();
+      e.preventDefault();
 
-    if(state === "playing"){
       requestJump();
     }
-  }
 
-  if(e.code === "KeyP" || e.code === "Escape"){
+    if(
+      e.code==="KeyP" ||
+      e.code==="Escape"
+    ){
 
-    if(state === "playing"){
-      pauseGame();
-    }else if(state === "paused"){
-      resumeGame();
+      if(state==="playing")
+        pauseGame();
+
+      else if(state==="paused")
+        resumeGame();
     }
   }
-});
+);
 
+mainBtn.addEventListener(
+  "click",
+  e=>{
 
-mainBtn.addEventListener("click",e=>{
+    e.stopPropagation();
 
-  e.stopPropagation();
+    if(state==="paused")
+      resumeGame();
 
-  if(state === "paused"){
-    resumeGame();
-  }else{
-    startGame();
+    else
+      startGame();
   }
-});
+);
 
-shareBtn.addEventListener("click",e=>{
+pauseBtn.addEventListener(
+  "click",
+  e=>{
 
-  e.stopPropagation();
+    e.stopPropagation();
 
-  shareScore();
-});
+    if(state==="playing")
+      pauseGame();
 
-pauseBtn.addEventListener("click",e=>{
-
-  e.stopPropagation();
-
-  if(state === "playing"){
-    pauseGame();
-  }else if(state === "paused"){
-    resumeGame();
+    else if(state==="paused")
+      resumeGame();
   }
-});
+);
+
+shareBtn.addEventListener(
+  "click",
+  e=>{
+
+    e.stopPropagation();
+
+    shareScore();
+  }
+);
 
 
 /* =========================================================
-   SOUND
+   AUDIO
 ========================================================= */
 
-let audioCtx = null;
+let audioCtx=null;
 
-function audio(){
+function getAudio(){
 
-  if(muted) return null;
+  if(muted)
+    return null;
 
   try{
 
     if(!audioCtx){
-      audioCtx = new (
+
+      const AC =
         window.AudioContext ||
-        window.webkitAudioContext
-      )();
+        window.webkitAudioContext;
+
+      if(!AC)
+        return null;
+
+      audioCtx=new AC();
     }
 
-    if(audioCtx.state === "suspended"){
+    if(
+      audioCtx.state==="suspended"
+    ){
       audioCtx.resume();
     }
 
     return audioCtx;
 
   }catch{
+
     return null;
   }
 }
 
-function tone(freq,duration,type="sine",volume=.035){
+function tone(
+  freq,
+  duration,
+  type="sine",
+  volume=.03
+){
 
-  const ac = audio();
+  const ac=getAudio();
 
-  if(!ac) return;
+  if(!ac)
+    return;
 
-  const osc = ac.createOscillator();
-  const gain = ac.createGain();
+  const osc=
+    ac.createOscillator();
 
-  osc.type = type;
-  osc.frequency.value = freq;
+  const gain=
+    ac.createGain();
 
-  gain.gain.setValueAtTime(volume,ac.currentTime);
+  osc.type=type;
+
+  osc.frequency.value=freq;
+
+  gain.gain.setValueAtTime(
+    volume,
+    ac.currentTime
+  );
+
   gain.gain.exponentialRampToValueAtTime(
     .001,
     ac.currentTime+duration
   );
 
   osc.connect(gain);
-  gain.connect(ac.destination);
+
+  gain.connect(
+    ac.destination
+  );
 
   osc.start();
-  osc.stop(ac.currentTime+duration);
+
+  osc.stop(
+    ac.currentTime+duration
+  );
 }
 
 function playSound(name){
 
-  if(muted) return;
+  if(muted)
+    return;
 
   if(name==="jump"){
-    tone(440,.08,"sine",.028);
+    tone(
+      440,
+      .075,
+      "sine",
+      .026
+    );
   }
 
   if(name==="star"){
-    tone(760,.07,"sine",.035);
-    setTimeout(()=>tone(980,.08,"sine",.025),35);
+
+    tone(
+      740,
+      .06,
+      "sine",
+      .028
+    );
+
+    setTimeout(
+      ()=>tone(
+        980,
+        .07,
+        "sine",
+        .022
+      ),
+      30
+    );
   }
 
   if(name==="power"){
-    tone(500,.08,"sine",.03);
-    setTimeout(()=>tone(720,.1,"sine",.03),55);
+
+    tone(
+      510,
+      .07,
+      "sine",
+      .028
+    );
+
+    setTimeout(
+      ()=>tone(
+        700,
+        .08,
+        "sine",
+        .025
+      ),
+      55
+    );
   }
 
   if(name==="shield"){
-    tone(360,.09,"triangle",.04);
-    setTimeout(()=>tone(560,.13,"sine",.03),60);
+
+    tone(
+      360,
+      .08,
+      "triangle",
+      .033
+    );
+
+    setTimeout(
+      ()=>tone(
+        560,
+        .11,
+        "sine",
+        .027
+      ),
+      55
+    );
   }
 
   if(name==="hit"){
-    tone(110,.12,"sawtooth",.035);
+
+    tone(
+      120,
+      .10,
+      "sine",
+      .026
+    );
   }
 
   if(name==="start"){
-    tone(420,.08,"sine",.025);
-    setTimeout(()=>tone(620,.1,"sine",.025),70);
+
+    tone(
+      420,
+      .07,
+      "sine",
+      .022
+    );
+
+    setTimeout(
+      ()=>tone(
+        620,
+        .09,
+        "sine",
+        .022
+      ),
+      60
+    );
   }
 
   if(name==="record"){
-    tone(660,.08,"sine",.035);
-    setTimeout(()=>tone(830,.08,"sine",.035),75);
-    setTimeout(()=>tone(1040,.13,"sine",.03),150);
+
+    tone(
+      650,
+      .07,
+      "sine",
+      .03
+    );
+
+    setTimeout(
+      ()=>tone(
+        820,
+        .07,
+        "sine",
+        .03
+      ),
+      65
+    );
+
+    setTimeout(
+      ()=>tone(
+        1020,
+        .12,
+        "sine",
+        .026
+      ),
+      140
+    );
   }
 }
 
-muteBtn.addEventListener("click",e=>{
+muteBtn.addEventListener(
+  "click",
+  e=>{
 
-  e.stopPropagation();
+    e.stopPropagation();
 
-  muted = !muted;
+    muted=!muted;
 
-  saveNumber(SOUND_KEY,muted?1:0);
+    saveNumber(
+      SOUND_KEY,
+      muted?1:0
+    );
 
-  muteBtn.textContent = muted ? "🔇" : "🔊";
+    muteBtn.textContent =
+      muted
+        ? "🔇"
+        : "🔊";
 
-  if(!muted){
-    tone(600,.07);
+    if(!muted){
+      tone(
+        600,
+        .06
+      );
+    }
   }
-});
+);
 
-muteBtn.textContent = muted ? "🔇" : "🔊";
+muteBtn.textContent =
+  muted
+    ? "🔇"
+    : "🔊";
 
 
 /* =========================================================
-   OBSTACLES
+   OBSTACLE
 ========================================================= */
 
 function spawnObstacle(){
 
   /*
-    Simple obstacle vocabulary.
-    Fewer types = fewer collision bugs.
+    عمدًا عقبة واحدة فقط.
+    البساطة هنا جزء من التصميم.
   */
 
-  const type = Math.random() < .72
-    ? "block"
-    : "double";
+  const base=floorY();
 
-  const baseY = floorY();
+  const w=rand(
+    25,
+    38
+  );
 
-  if(type==="block"){
+  const h=rand(
+    34,
+    61
+  );
 
-    const w = rand(24,38);
-    const h = rand(34,62);
+  obstacles.push({
 
-    obstacles.push({
-      x:W+40,
-      y:baseY-h,
-      w,
-      h,
-      passed:false
-    });
+    x:W+45,
 
-  }else{
+    y:base-h,
 
-    const w = rand(24,34);
-    const h = rand(32,50);
+    w,
+    h,
 
-    obstacles.push({
-      x:W+40,
-      y:baseY-h,
-      w,
-      h,
-      passed:false
-    });
-
-    obstacles.push({
-      x:W+40+w+rand(16,25),
-      y:baseY-rand(27,40),
-      w:rand(20,30),
-      h:rand(27,40),
-      passed:false
-    });
-  }
+    passed:false
+  });
 }
 
 
@@ -1298,25 +1730,43 @@ function spawnObstacle(){
 
 function spawnStarArc(){
 
-  const startX = W+60;
+  const base=floorY();
 
-  const base = floorY();
+  const startX=W+70;
 
-  const high = Math.random() < .5;
+  const high =
+    Math.random()<.55;
 
-  const y = high
-    ? base-rand(135,185)
-    : base-rand(70,110);
+  const y=
+    high
+      ? base-rand(125,175)
+      : base-rand(65,105);
 
-  const amount = Math.random()<.5 ? 3 : 4;
+  const count =
+    Math.random()<.5
+      ? 3
+      : 4;
 
-  for(let i=0;i<amount;i++){
+  for(let i=0;i<count;i++){
 
     stars.push({
-      x:startX+i*34,
-      y:y-Math.sin((i/(amount-1))*Math.PI)*18,
+
+      x:
+        startX+
+        i*34,
+
+      y:
+        y-
+        Math.sin(
+          (i/(count-1))*
+          Math.PI
+        )*17,
+
       r:8,
-      rotation:Math.random()*Math.PI
+
+      rotation:
+        Math.random()*
+        Math.PI
     });
   }
 }
@@ -1328,23 +1778,32 @@ function spawnStarArc(){
 
 function spawnPowerup(force=false){
 
-  if(powerups.length>=1 && !force) return;
+  if(
+    !force &&
+    powerups.length>=1
+  )
+    return;
 
-  /*
-    No speed boost.
-    Only two clear abilities.
-  */
-
-  const type = Math.random()<.55
-    ? "shield"
-    : "magnet";
+  const type =
+    Math.random()<.55
+      ? "shield"
+      : "magnet";
 
   powerups.push({
-    x:W+60,
-    y:floorY()-rand(105,165),
+
+    x:W+70,
+
+    y:
+      floorY()-
+      rand(105,160),
+
     r:15,
+
     type,
-    bob:Math.random()*Math.PI*2
+
+    bob:
+      Math.random()*
+      Math.PI*2
   });
 }
 
@@ -1353,33 +1812,45 @@ function spawnPowerup(force=false){
    PARTICLES
 ========================================================= */
 
-function burst(x,y,count=8,type="normal"){
+function burst(
+  x,
+  y,
+  count=8,
+  type="normal"
+){
 
   for(let i=0;i<count;i++){
 
     const angle =
-      Math.random()*Math.PI*2;
+      Math.random()*
+      Math.PI*2;
 
     const speed =
       type==="dust"
-        ? rand(25,80)
-        : rand(50,170);
+        ? rand(25,75)
+        : rand(50,160);
 
     particles.push({
 
       x,
       y,
 
-      vx:Math.cos(angle)*speed,
-      vy:Math.sin(angle)*speed,
+      vx:
+        Math.cos(angle)*
+        speed,
 
-      life:rand(.25,.55),
-      maxLife:.55,
+      vy:
+        Math.sin(angle)*
+        speed,
+
+      life:rand(.24,.52),
+
+      maxLife:.52,
 
       size:
         type==="dust"
-          ? rand(2,5)
-          : rand(2,4),
+          ? rand(2,4.5)
+          : rand(2,3.8),
 
       type
     });
@@ -1393,25 +1864,29 @@ function burst(x,y,count=8,type="normal"){
 
 function update(dt){
 
-  if(state !== "playing") return;
+  if(state!=="playing")
+    return;
 
-  elapsed += dt;
+  elapsed+=dt;
 
-  /*
-    Smooth difficulty.
-  */
-
-  targetSpeed = getWorldSpeed();
+  targetSpeed=
+    getWorldSpeed();
 
   worldSpeed +=
     (targetSpeed-worldSpeed)*
-    Math.min(1,dt*2.8);
+    Math.min(
+      1,
+      dt*2.8
+    );
 
-  score += dt*12;
+  score+=dt*12;
 
-  if(score >= milestone+100){
+  if(
+    score>=
+    milestone+100
+  ){
 
-    milestone += 100;
+    milestone+=100;
 
     showToast(
       pick([
@@ -1426,39 +1901,63 @@ function update(dt){
   }
 
   updatePlayer(dt);
+
   updateObstacles(dt);
+
   updateStars(dt);
+
   updatePowerups(dt);
+
   updateParticles(dt);
 
-  obstacleTimer -= dt;
-  powerTimer -= dt;
+  obstacleTimer-=dt;
+  starTimer-=dt;
+  powerTimer-=dt;
 
   if(obstacleTimer<=0){
 
     spawnObstacle();
 
+    const difficulty=
+      clamp(
+        score/1200,
+        0,
+        1
+      );
+
     /*
-      Reaction time remains generous.
-      Difficulty comes from speed, not impossible spawning.
+      يفضل وقت رد فعل جيد.
     */
 
-    const difficulty =
-      clamp(score/1000,0,1);
+    const reaction=
+      1.18-
+      difficulty*.16;
 
-    const reaction =
-      1.20 - difficulty*.20;
+    obstacleTimer=
+      reaction+
+      rand(.18,.34);
+  }
 
-    obstacleTimer =
-      reaction +
-      rand(.18,.42);
+  if(starTimer<=0){
+
+    spawnStarArc();
+
+    starTimer=
+      rand(
+        2.25,
+        3.25
+      );
   }
 
   if(powerTimer<=0){
 
     spawnPowerup();
 
-    powerTimer = rand(9,13);
+    powerTimer=
+      rand(
+        9,
+        13
+      );
   }
 
   updateUI();
@@ -1466,51 +1965,68 @@ function update(dt){
 
 
 /* =========================================================
-   PLAYER PHYSICS
+   PLAYER UPDATE
 ========================================================= */
 
 function updatePlayer(dt){
 
-  const floor = floorY();
+  const floor=
+    floorY();
 
   if(!player.grounded){
 
-    coyoteTime -= dt;
+    coyoteTime-=dt;
 
   }else{
 
-    coyoteTime = .10;
+    coyoteTime=.10;
   }
 
   if(jumpBuffer>0){
 
-    jumpBuffer -= dt;
+    jumpBuffer-=dt;
 
     if(
       player.grounded ||
       coyoteTime>0
     ){
+
       tryJump();
     }
   }
 
-  player.vy += GRAVITY*dt;
+  player.vy+=
+    GRAVITY*dt;
 
-  player.vy =
-    Math.min(player.vy,1900);
+  player.vy=
+    Math.min(
+      player.vy,
+      1900
+    );
 
-  player.y += player.vy*dt;
+  player.y+=
+    player.vy*dt;
 
-  if(player.y+player.r >= floor){
+  if(
+    player.y+
+    player.r>=
+    floor
+  ){
 
-    player.y = floor-player.r;
+    player.y=
+      floor-
+      player.r;
 
     if(player.vy>0){
 
-      player.vy = 0;
+      player.vy=0;
 
       if(!player.grounded){
-        player.squash = .82;
+
+        player.squash=.82;
+
+        player.expression=
+          "happy";
 
         burst(
           player.x,
@@ -1520,15 +2036,12 @@ function updatePlayer(dt){
         );
       }
 
-      player.grounded = true;
-      coyoteTime = .10;
+      player.grounded=true;
 
-      /*
-        If the user tapped exactly as we landed,
-        execute immediately.
-      */
+      coyoteTime=.10;
 
       if(jumpBuffer>0){
+
         tryJump();
       }
     }
@@ -1536,98 +2049,197 @@ function updatePlayer(dt){
 
   player.squash +=
     (1-player.squash)*
-    Math.min(1,dt*10);
+    Math.min(
+      1,
+      dt*10
+    );
 
   if(!player.grounded){
 
-    player.rotation =
+    player.rotation=
       clamp(
-        player.vy/1700,
-        -.35,
-        .35
+        player.vy/1850,
+        -.28,
+        .30
       );
+
+    player.expression=
+      "excited";
 
   }else{
 
     player.rotation *=
-      Math.max(0,1-dt*8);
+      Math.max(
+        0,
+        1-dt*8
+      );
+
+    if(
+      player.expression!=="happy"
+    ){
+
+      player.expression=
+        "happy";
+    }
   }
 
   if(player.shield>0){
-    player.shield -= dt;
+
+    player.shield-=dt;
   }
 
   if(player.magnet>0){
-    player.magnet -= dt;
+
+    player.magnet-=dt;
+  }
+
+  updateBlink(dt);
+}
+
+
+/* =========================================================
+   BLINK
+========================================================= */
+
+function updateBlink(dt){
+
+  player.blinkTimer-=dt;
+
+  if(
+    player.blinkTimer<=0 &&
+    player.blink<=0
+  ){
+
+    player.blink=.11;
+
+    player.blinkTimer=
+      rand(
+        2.8,
+        5.5
+      );
+  }
+
+  if(player.blink>0){
+
+    player.blink-=dt;
   }
 }
 
 
 /* =========================================================
-   OBSTACLE UPDATE + COLLISION
+   OBSTACLE COLLISION
 ========================================================= */
 
 function updateObstacles(dt){
 
-  const dx =
-    worldSpeed*60*dt;
+  const dx=
+    worldSpeed*
+    60*
+    dt;
 
-  const playerBox = {
-    x:player.x-player.r*.65,
-    y:player.y-player.r*.82,
-    w:player.r*1.3,
-    h:player.r*1.65
+  /*
+    Hitbox أصغر من الشكل.
+    بصريًا العقبة تبدو طبيعية،
+    لكن اللعبة مش ظالمة.
+  */
+
+  const playerBox={
+
+    x:
+      player.x-
+      player.r*.56,
+
+    y:
+      player.y-
+      player.r*.78,
+
+    w:
+      player.r*1.12,
+
+    h:
+      player.r*1.48
   };
 
-  for(let i=obstacles.length-1;i>=0;i--){
+  for(
+    let i=obstacles.length-1;
+    i>=0;
+    i--
+  ){
 
-    const o = obstacles[i];
+    const o=
+      obstacles[i];
 
-    o.x -= dx;
+    o.x-=dx;
 
-    /*
-      Slightly forgiving hitbox.
-      Visual object remains normal size.
-    */
+    const hitbox={
 
-    const hitbox = {
-      x:o.x+4,
+      x:o.x+5,
       y:o.y+5,
-      w:Math.max(1,o.w-8),
-      h:Math.max(1,o.h-6)
+
+      w:
+        Math.max(
+          1,
+          o.w-10
+        ),
+
+      h:
+        Math.max(
+          1,
+          o.h-6
+        )
     };
 
-    if(rectsOverlap(playerBox,hitbox)){
+    if(
+      rectsOverlap(
+        playerBox,
+        hitbox
+      )
+    ){
 
-      if(player.shield>0){
+      if(
+        player.shield>0
+      ){
 
-        player.shield = 0;
+        player.shield=0;
 
-        shake = .12;
+        player.expression=
+          "happy";
+
+        shake=.10;
 
         burst(
           player.x,
           player.y,
-          16,
+          14,
           "shield"
         );
 
-        showToast("🛡️ الحماية أنقذتك!");
+        showToast(
+          "🛡️ الحماية أنقذتك!"
+        );
 
-        playSound("shield");
+        playSound(
+          "shield"
+        );
 
-        obstacles.splice(i,1);
+        obstacles.splice(
+          i,
+          1
+        );
 
         continue;
 
       }else{
+
+        player.expression=
+          "surprised";
 
         playSound("hit");
 
         burst(
           player.x,
           player.y,
-          18,
+          16,
           "hit"
         );
 
@@ -1638,84 +2250,126 @@ function updateObstacles(dt){
     }
 
     if(
-      !o.passed &&
-      o.x+o.w < player.x
+      o.x+o.w<
+      player.x
     ){
 
-      o.passed = true;
-
-      combo++;
-
-      if(combo%3===0){
-        showToast("🔥 سلسلة "+combo);
-      }
+      o.passed=true;
     }
 
-    if(o.x+o.w < -80){
-      obstacles.splice(i,1);
+    if(
+      o.x+o.w<
+      -80
+    ){
+
+      obstacles.splice(
+        i,
+        1
+      );
     }
   }
 }
 
 
 /* =========================================================
-   STAR UPDATE
+   STARS UPDATE
 ========================================================= */
 
 function updateStars(dt){
 
-  const dx =
-    worldSpeed*60*dt;
+  const dx=
+    worldSpeed*
+    60*
+    dt;
 
-  const px = player.x;
-  const py = player.y;
+  const px=
+    player.x;
 
-  for(let i=stars.length-1;i>=0;i--){
+  const py=
+    player.y;
 
-    const s = stars[i];
+  for(
+    let i=stars.length-1;
+    i>=0;
+    i--
+  ){
 
-    s.x -= dx;
+    const s=
+      stars[i];
 
-    s.rotation += dt*4;
+    s.x-=dx;
 
-    if(player.magnet>0){
+    s.rotation+=
+      dt*4;
 
-      const ax = px-s.x;
-      const ay = py-s.y;
+    if(
+      player.magnet>0
+    ){
 
-      const dist =
-        Math.hypot(ax,ay);
+      const ax=
+        px-s.x;
 
-      if(dist<210 && dist>1){
+      const ay=
+        py-s.y;
 
-        const force =
-          (1-dist/210);
+      const dist=
+        Math.hypot(
+          ax,
+          ay
+        );
 
-        s.x +=
-          ax*dt*(4+force*7);
+      if(
+        dist<210 &&
+        dist>1
+      ){
 
-        s.y +=
-          ay*dt*(4+force*7);
+        const pull=
+          1-dist/210;
+
+        s.x+=
+          ax*
+          dt*
+          (4+pull*8);
+
+        s.y+=
+          ay*
+          dt*
+          (4+pull*8);
       }
     }
 
-    const dist =
+    const dist=
       Math.hypot(
         px-s.x,
         py-s.y
       );
 
-    if(dist < player.r+s.r+7){
+    if(
+      dist<
+      player.r+
+      s.r+
+      7
+    ){
 
-      collectStar(s);
+      collectStar();
 
-      stars.splice(i,1);
+      stars.splice(
+        i,
+        1
+      );
 
       continue;
     }
 
-    if(s.x < -50){
-      stars.splice(i,1);
+    if(
+      s.x<
+      -50
+    ){
+
+      stars.splice(
+        i,
+        1
+      );
     }
   }
 }
@@ -1723,24 +2377,25 @@ function updateStars(dt){
 function collectStar(){
 
   starCount++;
-  combo++;
 
   burst(
     player.x,
     player.y,
-    9,
+    8,
     "star"
   );
 
   playSound("star");
 
-  if(starCount%5===0){
+  if(
+    starCount%5===0
+  ){
 
     showToast(
       pick([
         "⭐ عاش يا ناوي!",
         "⭐ تجميع ممتاز!",
-        "⭐ كمل!",
+        "⭐ كمل يا بطل!",
         "⭐ عينك على الرقم!"
       ])
     );
@@ -1749,46 +2404,66 @@ function collectStar(){
 
 
 /* =========================================================
-   POWERUP UPDATE
+   POWERUPS UPDATE
 ========================================================= */
 
 function updatePowerups(dt){
 
-  const dx =
-    worldSpeed*60*dt;
+  const dx=
+    worldSpeed*
+    60*
+    dt;
 
-  for(let i=powerups.length-1;i>=0;i--){
+  for(
+    let i=powerups.length-1;
+    i>=0;
+    i--
+  ){
 
-    const p = powerups[i];
+    const p=
+      powerups[i];
 
-    p.x -= dx;
+    p.x-=dx;
 
-    p.bob += dt*4;
+    p.bob+=
+      dt*4;
 
-    const py =
+    const py=
       p.y+
-      Math.sin(p.bob)*6;
+      Math.sin(
+        p.bob
+      )*6;
 
-    const dist =
+    const dist=
       Math.hypot(
         player.x-p.x,
         player.y-py
       );
 
-    if(dist < player.r+p.r+5){
+    if(
+      dist<
+      player.r+
+      p.r+
+      5
+    ){
 
-      if(p.type==="shield"){
+      if(
+        p.type==="shield"
+      ){
 
-        player.shield = 7;
+        player.shield=7;
 
-        showToast("🛡️ حماية لمدة 7 ثواني");
+        showToast(
+          "🛡️ حماية شغالة!"
+        );
 
       }else{
 
-        player.magnet = 7;
+        player.magnet=7;
 
-        showToast("🧲 المغناطيس شغال!");
-
+        showToast(
+          "🧲 المغناطيس شغال!"
+        );
       }
 
       burst(
@@ -1800,13 +2475,23 @@ function updatePowerups(dt){
 
       playSound("power");
 
-      powerups.splice(i,1);
+      powerups.splice(
+        i,
+        1
+      );
 
       continue;
     }
 
-    if(p.x < -60){
-      powerups.splice(i,1);
+    if(
+      p.x<
+      -60
+    ){
+
+      powerups.splice(
+        i,
+        1
+      );
     }
   }
 }
@@ -1818,29 +2503,45 @@ function updatePowerups(dt){
 
 function updateParticles(dt){
 
-  for(let i=particles.length-1;i>=0;i--){
+  for(
+    let i=particles.length-1;
+    i>=0;
+    i--
+  ){
 
-    const p = particles[i];
+    const p=
+      particles[i];
 
-    p.life -= dt;
+    p.life-=dt;
 
-    if(p.life<=0){
+    if(
+      p.life<=0
+    ){
 
-      particles.splice(i,1);
+      particles.splice(
+        i,
+        1
+      );
 
       continue;
     }
 
-    p.x += p.vx*dt;
-    p.y += p.vy*dt;
+    p.x+=
+      p.vx*dt;
 
-    p.vy +=
+    p.y+=
+      p.vy*dt;
+
+    p.vy+=
       p.type==="dust"
         ? 100*dt
         : 280*dt;
 
-    p.vx *=
-      Math.pow(.08,dt);
+    p.vx*=
+      Math.pow(
+        .08,
+        dt
+      );
   }
 }
 
@@ -1855,24 +2556,29 @@ function draw(){
 
   if(shake>0){
 
-    const amount =
-      shake*10;
+    const amount=
+      shake*8;
 
     ctx.translate(
-      rand(-amount,amount),
-      rand(-amount,amount)
+      rand(
+        -amount,
+        amount
+      ),
+      rand(
+        -amount,
+        amount
+      )
     );
 
-    shake *= .88;
+    shake*=.86;
 
-    if(shake<.01){
+    if(shake<.01)
       shake=0;
-    }
   }
 
   drawSky();
   drawClouds();
-  drawHills();
+  drawLandscape();
   drawGround();
 
   drawStars();
@@ -1891,56 +2597,69 @@ function draw(){
 
 function drawSky(){
 
-  /*
-    Bright optimistic palette.
-    No dark night cycle.
-    No blue screen wash.
-  */
-
-  const g =
+  const g=
     ctx.createLinearGradient(
-      0,0,
-      0,H
+      0,
+      0,
+      0,
+      H
     );
 
-  g.addColorStop(0,"#f4faff");
-  g.addColorStop(.52,"#ffffff");
-  g.addColorStop(1,"#f7fafc");
+  g.addColorStop(
+    0,
+    "#f6fbff"
+  );
 
-  ctx.fillStyle = g;
+  g.addColorStop(
+    .55,
+    "#ffffff"
+  );
+
+  g.addColorStop(
+    1,
+    "#f7fafc"
+  );
+
+  ctx.fillStyle=g;
 
   ctx.fillRect(
-    0,0,W,H
+    0,
+    0,
+    W,
+    H
   );
 
   /*
-    Soft sun.
+    شمس ناعمة.
   */
 
-  const sunX = W*.82;
-  const sunY = H*.19;
+  const sunX=
+    W*.83;
 
-  const rg =
+  const sunY=
+    H*.19;
+
+  const glow=
     ctx.createRadialGradient(
       sunX,
       sunY,
       0,
       sunX,
       sunY,
-      90
+      95
     );
 
-  rg.addColorStop(
+  glow.addColorStop(
     0,
-    "rgba(255,218,112,.34)"
+    "rgba(255,216,94,.30)"
   );
 
-  rg.addColorStop(
+  glow.addColorStop(
     1,
-    "rgba(255,218,112,0)"
+    "rgba(255,216,94,0)"
   );
 
-  ctx.fillStyle = rg;
+  ctx.fillStyle=glow;
 
   ctx.fillRect(
     sunX-100,
@@ -1949,9 +2668,10 @@ function drawSky(){
     200
   );
 
-  ctx.fillStyle = "#ffd866";
+  ctx.fillStyle="#ffd96d";
 
   ctx.beginPath();
+
   ctx.arc(
     sunX,
     sunY,
@@ -1959,6 +2679,7 @@ function drawSky(){
     0,
     Math.PI*2
   );
+
   ctx.fill();
 }
 
@@ -1969,22 +2690,31 @@ function drawSky(){
 
 function drawClouds(){
 
-  for(const c of clouds){
+  for(
+    const c of clouds
+  ){
 
-    c.x -=
+    c.x-=
       c.speed*
       worldSpeed*
-      .35;
+      .34;
 
-    if(c.x+c.w < -30){
-      c.x = W+40;
+    if(
+      c.x+c.w<
+      -30
+    ){
+
+      c.x=
+        W+40;
     }
 
     ctx.save();
 
-    ctx.globalAlpha=c.alpha;
+    ctx.globalAlpha=
+      c.alpha;
 
-    ctx.fillStyle="#ffffff";
+    ctx.fillStyle=
+      "#ffffff";
 
     ctx.beginPath();
 
@@ -2012,12 +2742,13 @@ function drawClouds(){
       Math.PI*2
     );
 
-    ctx.roundRect(
+    roundRectPath(
+      ctx,
       c.x-c.w*.02,
       c.y,
       c.w*.48,
       c.w*.17,
-      12
+      10
     );
 
     ctx.fill();
@@ -2028,68 +2759,103 @@ function drawClouds(){
 
 
 /* =========================================================
-   HILLS
+   LANDSCAPE
 ========================================================= */
 
-function drawHills(){
+function drawLandscape(){
 
-  ctx.save();
+  const horizon=
+    floorY();
 
-  ctx.fillStyle="#eef4f7";
+  ctx.fillStyle=
+    "#edf4f7";
 
   ctx.beginPath();
 
-  ctx.moveTo(0,floorY()+15);
+  ctx.moveTo(
+    0,
+    horizon+18
+  );
 
-  for(let i=0;i<=W+300;i+=100){
+  for(
+    let x=0;
+    x<=W+260;
+    x+=100
+  ){
 
-    const y =
-      floorY()-
+    const y=
+      horizon-
       42-
-      Math.sin(i*.008)*20;
+      Math.sin(
+        x*.008
+      )*18;
 
     ctx.quadraticCurveTo(
-      i+50,
-      y-30,
-      i+100,
-      floorY()+15
+      x+50,
+      y-28,
+      x+100,
+      horizon+18
     );
   }
 
-  ctx.lineTo(W,H);
-  ctx.lineTo(0,H);
+  ctx.lineTo(
+    W,
+    H
+  );
+
+  ctx.lineTo(
+    0,
+    H
+  );
+
   ctx.closePath();
 
   ctx.fill();
 
-  ctx.fillStyle="#f4f7f9";
+  ctx.fillStyle=
+    "#f5f8fa";
 
   ctx.beginPath();
 
-  ctx.moveTo(0,floorY()+30);
+  ctx.moveTo(
+    0,
+    horizon+28
+  );
 
-  for(let i=0;i<=W+300;i+=120){
+  for(
+    let x=0;
+    x<=W+300;
+    x+=120
+  ){
 
-    const y =
-      floorY()-
-      17-
-      Math.sin(i*.012+1)*13;
+    const y=
+      horizon-
+      18-
+      Math.sin(
+        x*.012+1
+      )*11;
 
     ctx.quadraticCurveTo(
-      i+60,
-      y-20,
-      i+120,
-      floorY()+30
+      x+60,
+      y-17,
+      x+120,
+      horizon+28
     );
   }
 
-  ctx.lineTo(W,H);
-  ctx.lineTo(0,H);
+  ctx.lineTo(
+    W,
+    H
+  );
+
+  ctx.lineTo(
+    0,
+    H
+  );
+
   ctx.closePath();
 
   ctx.fill();
-
-  ctx.restore();
 }
 
 
@@ -2099,9 +2865,11 @@ function drawHills(){
 
 function drawGround(){
 
-  const y=floorY();
+  const y=
+    floorY();
 
-  ctx.fillStyle="#edf2f5";
+  ctx.fillStyle=
+    "#edf2f5";
 
   ctx.fillRect(
     0,
@@ -2110,7 +2878,8 @@ function drawGround(){
     H-y
   );
 
-  ctx.fillStyle="#dce4ea";
+  ctx.fillStyle=
+    "#dbe3e9";
 
   ctx.fillRect(
     0,
@@ -2119,22 +2888,26 @@ function drawGround(){
     2
   );
 
-  /*
-    Moving tiny ground marks.
-    Very subtle = premium, not noisy.
-  */
+  const offset=
+    (
+      elapsed*
+      worldSpeed*
+      45
+    )%44;
 
-  const offset =
-    (elapsed*worldSpeed*45)%42;
+  ctx.fillStyle=
+    "#dfe6eb";
 
-  ctx.fillStyle="#dfe6eb";
-
-  for(let x=-50-offset;x<W+50;x+=42){
+  for(
+    let x=-60-offset;
+    x<W+70;
+    x+=44
+  ){
 
     ctx.fillRect(
       x,
       y+20,
-      16,
+      15,
       2
     );
   }
@@ -2147,7 +2920,9 @@ function drawGround(){
 
 function drawStars(){
 
-  for(const s of stars){
+  for(
+    const s of stars
+  ){
 
     ctx.save();
 
@@ -2156,34 +2931,45 @@ function drawStars(){
       s.y
     );
 
-    ctx.rotate(s.rotation);
+    ctx.rotate(
+      s.rotation
+    );
 
-    ctx.fillStyle="#ffc928";
+    ctx.fillStyle=
+      "#ffc928";
 
     ctx.beginPath();
 
-    for(let i=0;i<10;i++){
+    for(
+      let i=0;
+      i<10;
+      i++
+    ){
 
-      const a =
+      const a=
         -Math.PI/2+
         i*Math.PI/5;
 
-      const r =
+      const r=
         i%2===0
           ? s.r
           : s.r*.42;
 
-      const x=Math.cos(a)*r;
-      const y=Math.sin(a)*r;
+      const x=
+        Math.cos(a)*r;
 
-      if(i===0){
+      const y=
+        Math.sin(a)*r;
+
+      if(i===0)
         ctx.moveTo(x,y);
-      }else{
+
+      else
         ctx.lineTo(x,y);
-      }
     }
 
     ctx.closePath();
+
     ctx.fill();
 
     ctx.restore();
@@ -2197,26 +2983,27 @@ function drawStars(){
 
 function drawPowerups(){
 
-  for(const p of powerups){
+  for(
+    const p of powerups
+  ){
 
-    const y =
+    const y=
       p.y+
-      Math.sin(p.bob)*6;
+      Math.sin(
+        p.bob
+      )*6;
 
     ctx.save();
 
-    /*
-      Soft local glow only.
-      No screen flash.
-    */
+    ctx.shadowBlur=14;
 
-    ctx.shadowBlur=16;
-    ctx.shadowColor =
+    ctx.shadowColor=
       p.type==="shield"
-        ? "rgba(31,139,255,.18)"
-        : "rgba(255,177,40,.18)";
+        ? "rgba(49,154,255,.17)"
+        : "rgba(241,184,47,.17)";
 
-    ctx.fillStyle="#ffffff";
+    ctx.fillStyle=
+      "#ffffff";
 
     ctx.beginPath();
 
@@ -2234,19 +3021,23 @@ function drawPowerups(){
 
     ctx.lineWidth=2;
 
-    ctx.strokeStyle =
+    ctx.strokeStyle=
       p.type==="shield"
-        ? "#55a9ff"
-        : "#f1b72f";
+        ? "#5bacff"
+        : "#efba3b";
 
     ctx.stroke();
 
-    ctx.font="15px system-ui";
+    ctx.font=
+      "15px system-ui";
+
     ctx.textAlign="center";
     ctx.textBaseline="middle";
 
     ctx.fillText(
-      p.type==="shield" ? "🛡️" : "🧲",
+      p.type==="shield"
+        ? "🛡️"
+        : "🧲",
       p.x,
       y+1
     );
@@ -2262,20 +3053,60 @@ function drawPowerups(){
 
 function drawObstacles(){
 
-  for(const o of obstacles){
+  for(
+    const o of obstacles
+  ){
 
     ctx.save();
 
     /*
-      Simple rounded obstacles.
-      Easy to read and easy to collide with.
+      ظل بسيط.
     */
 
-    ctx.fillStyle="#303b4c";
+    ctx.fillStyle=
+      "rgba(27,39,52,.08)";
 
     ctx.beginPath();
 
-    ctx.roundRect(
+    ctx.ellipse(
+      o.x+
+      o.w/2,
+      floorY()+3,
+      o.w*.75,
+      4,
+      0,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    /*
+      الجسم.
+    */
+
+    const g=
+      ctx.createLinearGradient(
+        o.x,
+        o.y,
+        o.x,
+        o.y+o.h
+      );
+
+    g.addColorStop(
+      0,
+      "#455365"
+    );
+
+    g.addColorStop(
+      1,
+      "#2c3746"
+    );
+
+    ctx.fillStyle=g;
+
+    roundRectPath(
+      ctx,
       o.x,
       o.y,
       o.w,
@@ -2285,14 +3116,26 @@ function drawObstacles(){
 
     ctx.fill();
 
-    ctx.fillStyle="#485568";
+    /*
+      highlight.
+    */
 
-    ctx.fillRect(
-      o.x+5,
-      o.y+5,
-      Math.max(3,o.w-10),
-      4
+    ctx.fillStyle=
+      "rgba(255,255,255,.13)";
+
+    roundRectPath(
+      ctx,
+      o.x+4,
+      o.y+4,
+      Math.max(
+        4,
+        o.w-8
+      ),
+      4,
+      2
     );
+
+    ctx.fill();
 
     ctx.restore();
   }
@@ -2305,28 +3148,44 @@ function drawObstacles(){
 
 function drawParticles(){
 
-  for(const p of particles){
+  for(
+    const p of particles
+  ){
 
-    const alpha =
+    const alpha=
       clamp(
-        p.life/p.maxLife,
+        p.life/
+        p.maxLife,
         0,
         1
       );
 
     ctx.save();
 
-    ctx.globalAlpha=alpha;
+    ctx.globalAlpha=
+      alpha;
 
-    if(p.type==="dust"){
-      ctx.fillStyle="#b9c4ce";
-    }else if(p.type==="shield"){
-      ctx.fillStyle="#55a9ff";
-    }else if(p.type==="star"){
-      ctx.fillStyle="#ffc928";
-    }else{
-      ctx.fillStyle="#7cbcff";
-    }
+    if(
+      p.type==="dust"
+    )
+      ctx.fillStyle=
+        "#b7c2cc";
+
+    else if(
+      p.type==="shield"
+    )
+      ctx.fillStyle=
+        "#5eafff";
+
+    else if(
+      p.type==="star"
+    )
+      ctx.fillStyle=
+        "#ffc928";
+
+    else
+      ctx.fillStyle=
+        "#82c2ff";
 
     ctx.beginPath();
 
@@ -2346,22 +3205,30 @@ function drawParticles(){
 
 
 /* =========================================================
-   PLAYER DRAW
+   NAWY CHARACTER
 ========================================================= */
 
 function drawPlayer(){
 
-  const x=player.x;
-  const y=player.y;
+  const x=
+    player.x;
+
+  const y=
+    player.y;
 
   ctx.save();
 
-  ctx.translate(x,y);
+  ctx.translate(
+    x,
+    y
+  );
 
-  ctx.rotate(player.rotation);
+  ctx.rotate(
+    player.rotation
+  );
 
   /*
-    Shadow
+    shadow
   */
 
   ctx.save();
@@ -2372,19 +3239,22 @@ function drawPlayer(){
   );
 
   ctx.scale(
-    player.grounded ? 1 : .72,
+    player.grounded
+      ? 1
+      : .70,
     .25
   );
 
-  ctx.fillStyle="rgba(25,40,60,.13)";
+  ctx.fillStyle=
+    "rgba(25,40,60,.12)";
 
   ctx.beginPath();
 
   ctx.ellipse(
     0,
     0,
-    player.r*1.15,
-    player.r*.55,
+    player.r*1.14,
+    player.r*.52,
     0,
     0,
     Math.PI*2
@@ -2394,22 +3264,30 @@ function drawPlayer(){
 
   ctx.restore();
 
-
   /*
-    Shield ring
+    Shield
   */
 
-  if(player.shield>0){
+  if(
+    player.shield>0
+  ){
 
-    const pulse =
+    const pulse=
       1+
-      Math.sin(elapsed*8)*.04;
+      Math.sin(
+        elapsed*7
+      )*.035;
 
     ctx.save();
 
-    ctx.scale(pulse,pulse);
+    ctx.scale(
+      pulse,
+      pulse
+    );
 
-    ctx.strokeStyle="rgba(49,154,255,.48)";
+    ctx.strokeStyle=
+      "rgba(54,158,255,.46)";
+
     ctx.lineWidth=3;
 
     ctx.beginPath();
@@ -2427,9 +3305,8 @@ function drawPlayer(){
     ctx.restore();
   }
 
-
   /*
-    Main Nawy character.
+    Body
   */
 
   ctx.scale(
@@ -2437,7 +3314,7 @@ function drawPlayer(){
     player.squash
   );
 
-  const gradient =
+  const body=
     ctx.createLinearGradient(
       -player.r,
       -player.r,
@@ -2445,20 +3322,28 @@ function drawPlayer(){
       player.r
     );
 
-  gradient.addColorStop(
+  body.addColorStop(
     0,
-    "#1a91ff"
+    "#1b94ff"
   );
 
-  gradient.addColorStop(
+  body.addColorStop(
+    .55,
+    "#0a7cf0"
+  );
+
+  body.addColorStop(
     1,
-    "#0069e5"
+    "#0065da"
   );
 
-  ctx.fillStyle=gradient;
+  ctx.fillStyle=
+    body;
 
-  ctx.shadowColor="rgba(0,105,229,.20)";
-  ctx.shadowBlur=14;
+  ctx.shadowColor=
+    "rgba(0,105,229,.16)";
+
+  ctx.shadowBlur=12;
 
   ctx.beginPath();
 
@@ -2474,26 +3359,325 @@ function drawPlayer(){
 
   ctx.shadowBlur=0;
 
+  /*
+    subtle inner shine
+  */
+
+  const shine=
+    ctx.createRadialGradient(
+      -7,
+      -8,
+      1,
+      -7,
+      -8,
+      16
+    );
+
+  shine.addColorStop(
+    0,
+    "rgba(255,255,255,.28)"
+  );
+
+  shine.addColorStop(
+    1,
+    "rgba(255,255,255,0)"
+  );
+
+  ctx.fillStyle=
+    shine;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    player.r,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
 
   /*
-    ن
+    Face
+  */
+
+  drawNawyFace();
+
+  ctx.restore();
+}
+
+
+/* =========================================================
+   NAWY FACE
+========================================================= */
+
+function drawNawyFace(){
+
+  const blink=
+    player.blink>0;
+
+  let eyeOpen=
+    1;
+
+  if(blink)
+    eyeOpen=.16;
+
+  /*
+    Jump/excited:
+    عين أوسع شوية.
+  */
+
+  if(
+    player.expression==="excited"
+  ){
+
+    eyeOpen=
+      blink
+        ? .16
+        : 1.08;
+  }
+
+  if(
+    player.expression==="surprised"
+  ){
+
+    eyeOpen=
+      blink
+        ? .16
+        : 1.22;
+  }
+
+  /*
+    Eye whites
   */
 
   ctx.fillStyle="#fff";
 
-  ctx.font=
-    "900 23px system-ui";
+  ctx.beginPath();
 
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-
-  ctx.fillText(
-    "ن",
+  ctx.ellipse(
+    -7,
+    -5,
+    4.5,
+    5.3*eyeOpen,
     0,
-    1
+    0,
+    Math.PI*2
   );
 
-  ctx.restore();
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    7,
+    -5,
+    4.5,
+    5.3*eyeOpen,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Pupils
+  */
+
+  ctx.fillStyle=
+    "#236fbd";
+
+  const lookY=
+    player.grounded
+      ? -4.6
+      : -5.3;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    -7,
+    lookY,
+    2.15,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    7,
+    lookY,
+    2.15,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Eye shine
+  */
+
+  ctx.fillStyle="#fff";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    -7.7,
+    -5.8,
+    .8,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.beginPath();
+
+  ctx.arc(
+    6.3,
+    -5.8,
+    .8,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  /*
+    Brows for surprise
+  */
+
+  if(
+    player.expression==="surprised"
+  ){
+
+    ctx.strokeStyle=
+      "rgba(255,255,255,.9)";
+
+    ctx.lineWidth=1.7;
+
+    ctx.lineCap="round";
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      -11,
+      -11
+    );
+
+    ctx.lineTo(
+      -4,
+      -12.5
+    );
+
+    ctx.stroke();
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+      4,
+      -12.5
+    );
+
+    ctx.lineTo(
+      11,
+      -11
+    );
+
+    ctx.stroke();
+  }
+
+  /*
+    Smile — no teeth.
+    This is intentionally small,
+    soft and friendly.
+  */
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.96)";
+
+  ctx.lineWidth=2.5;
+
+  ctx.lineCap="round";
+
+  ctx.beginPath();
+
+  if(
+    player.expression==="surprised"
+  ){
+
+    /*
+      Small rounded "O"
+      instead of scary impact face.
+    */
+
+    ctx.arc(
+      0,
+      5,
+      3.5,
+      0,
+      Math.PI*2
+    );
+
+  }else if(
+    player.expression==="excited"
+  ){
+
+    ctx.arc(
+      0,
+      1.5,
+      7,
+      .16*Math.PI,
+      .84*Math.PI
+    );
+
+  }else{
+
+    /*
+      Signature Nawy smile.
+    */
+
+    ctx.arc(
+      0,
+      2,
+      7,
+      .18*Math.PI,
+      .82*Math.PI
+    );
+  }
+
+  ctx.stroke();
+
+  /*
+    Tiny "ن" mark integrated subtly.
+    Not a giant letter on his face.
+  */
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.22)";
+
+  ctx.lineWidth=1.3;
+
+  ctx.beginPath();
+
+  ctx.moveTo(
+    -5,
+    11
+  );
+
+  ctx.quadraticCurveTo(
+    0,
+    13,
+    5,
+    11
+  );
+
+  ctx.stroke();
 }
 
 
@@ -2503,47 +3687,56 @@ function drawPlayer(){
 
 function updateUI(){
 
-  scoreEl.textContent =
+  scoreEl.textContent=
     Math.floor(score);
 
-  bestEl.textContent =
+  bestEl.textContent=
     Math.max(
       best,
       Math.floor(score)
     );
 
-  comboEl.textContent =
-    combo;
-
-  starsEl.textContent =
+  starsEl.textContent=
     starCount;
 
-  if(player.magnet>0){
+  if(
+    player.magnet>0
+  ){
 
-    powerChip.style.display="block";
+    powerChip.style.display=
+      "block";
 
-    powerChip.innerHTML =
+    powerChip.innerHTML=
       "🧲 مغناطيس <strong>"+
-      Math.ceil(player.magnet)+
+      Math.ceil(
+        player.magnet
+      )+
       "ث</strong>";
 
   }else{
 
-    powerChip.style.display="none";
+    powerChip.style.display=
+      "none";
   }
 
-  if(player.shield>0){
+  if(
+    player.shield>0
+  ){
 
-    shieldChip.style.display="block";
+    shieldChip.style.display=
+      "block";
 
-    shieldChip.innerHTML =
+    shieldChip.innerHTML=
       "🛡️ حماية <strong>"+
-      Math.ceil(player.shield)+
+      Math.ceil(
+        player.shield
+      )+
       "ث</strong>";
 
   }else{
 
-    shieldChip.style.display="none";
+    shieldChip.style.display=
+      "none";
   }
 }
 
@@ -2554,17 +3747,26 @@ function updateUI(){
 
 function showToast(text){
 
-  toast.textContent=text;
+  toast.textContent=
+    text;
 
-  toast.classList.add("show");
+  toast.classList.add(
+    "show"
+  );
 
-  clearTimeout(toastTimer);
+  clearTimeout(
+    toastTimer
+  );
 
-  toastTimer=setTimeout(()=>{
-
-    toast.classList.remove("show");
-
-  },1300);
+  toastTimer=
+    setTimeout(
+      ()=>{
+        toast.classList.remove(
+          "show"
+        );
+      },
+      1300
+    );
 }
 
 
@@ -2576,27 +3778,30 @@ function gameOver(){
 
   state="over";
 
-  const finalScore =
+  const finalScore=
     Math.floor(score);
 
-  const isRecord =
+  const isRecord=
     finalScore>best;
 
   if(isRecord){
 
-    best=finalScore;
+    best=
+      finalScore;
 
     saveNumber(
-      STORE_KEY,
+      BEST_KEY,
       best
     );
 
-    playSound("record");
+    playSound(
+      "record"
+    );
 
     burst(
       player.x,
       player.y,
-      28,
+      26,
       "star"
     );
 
@@ -2604,11 +3809,13 @@ function gameOver(){
 
   updateUI();
 
-  overlay.style.display="grid";
+  overlay.style.display=
+    "grid";
 
   if(isRecord){
 
-    panelEmoji.textContent="🏆";
+    panelEmoji.textContent=
+      "🏆";
 
     panelTitle.textContent=
       "رقمك الجديد!";
@@ -2621,7 +3828,8 @@ function gameOver(){
 
   }else{
 
-    panelEmoji.textContent="😄";
+    panelEmoji.textContent=
+      "😄";
 
     panelTitle.textContent=
       "جولة حلوة!";
@@ -2639,9 +3847,11 @@ function gameOver(){
   mainBtn.textContent=
     "يلا تاني";
 
-  shareBtn.hidden=false;
+  shareBtn.hidden=
+    false;
 
-  pauseBtn.textContent="Ⅱ";
+  pauseBtn.textContent=
+    "Ⅱ";
 }
 
 
@@ -2651,7 +3861,7 @@ function gameOver(){
 
 async function shareScore(){
 
-  const text =
+  const text=
     "حققت "+
     Math.floor(score)+
     " نقطة في لعبة ناوي! 🔥\n"+
@@ -2674,9 +3884,13 @@ async function shareScore(){
 
     try{
 
-      await navigator.clipboard.writeText(text);
+      await navigator.clipboard.writeText(
+        text
+      );
 
-      showToast("📋 تم نسخ النتيجة");
+      showToast(
+        "📋 تم نسخ النتيجة"
+      );
 
     }catch{
 
@@ -2696,66 +3910,83 @@ async function shareScore(){
 
 function loop(now){
 
-  if(!lastTime){
+  if(!lastTime)
     lastTime=now;
-  }
 
-  let dt =
+  let dt=
     (now-lastTime)/1000;
 
   lastTime=now;
 
   /*
-    Prevent physics explosions
-    after background tab / lag.
+    يمنع انفجار الفيزياء
+    عند الرجوع من الخلفية.
   */
 
-  dt=clamp(dt,0,.033);
+  dt=
+    clamp(
+      dt,
+      0,
+      .033
+    );
 
   update(dt);
+
   draw();
 
-  requestAnimationFrame(loop);
+  requestAnimationFrame(
+    loop
+  );
 }
 
 
 /* =========================================================
-   INITIAL SCREEN
+   READY SCREEN
 ========================================================= */
 
 function showReady(){
 
   state="ready";
 
-  overlay.style.display="grid";
+  overlay.style.display=
+    "grid";
 
-  panelEmoji.textContent="🏃";
-  panelTitle.textContent="ناوي جاهز؟";
+  panelEmoji.textContent=
+    "🏃";
+
+  panelTitle.textContent=
+    "ناوي جاهز؟";
 
   panelText.innerHTML=
     "اقفز فوق العقبات، اجمع النجوم،<br>"+
     "وحاول تكسر <b>أفضل نتيجة</b> ليك.";
 
-  mainBtn.textContent="يلا نبدأ";
+  mainBtn.textContent=
+    "يلا نبدأ";
 
-  shareBtn.hidden=true;
+  shareBtn.hidden=
+    true;
 
-  pauseBtn.textContent="Ⅱ";
+  pauseBtn.textContent=
+    "Ⅱ";
 
   updateUI();
 }
 
 
 /* =========================================================
-   INITIALIZE
+   INIT
 ========================================================= */
 
 resize();
+
 resetGame();
+
 showReady();
 
-requestAnimationFrame(loop);
-
+requestAnimationFrame(
+  loop
+);
 </script>
 
 </body>
