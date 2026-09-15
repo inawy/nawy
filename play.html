@@ -279,8 +279,7 @@ canvas{display:block;width:100%;height:100%;touch-action:none;}
 "use strict";
 
 /* =========================================================
-   NAWY RUNNER — PREMIUM EDITION
-   Local First / Offline / No Dependencies
+   NAWY RUNNER — MASCOT EDITION
 ========================================================= */
 
 const canvas = document.getElementById("gameCanvas");
@@ -308,8 +307,8 @@ const toast    = document.getElementById("toast");
 /* =========================================================
    STORAGE
 ========================================================= */
-const STORE_KEY = "nawy_runner_best_v3";
-const SOUND_KEY = "nawy_runner_sound_v3";
+const STORE_KEY = "nawy_runner_best_v4";
+const SOUND_KEY = "nawy_runner_sound_v4";
 
 function loadNumber(key,fallback=0){
   try{
@@ -367,7 +366,7 @@ const player = {
   targetSquashY: 1
 };
 
-const GRAVITY      = 2200;   // أنعم شوية
+const GRAVITY      = 2200;
 const JUMP_VELOCITY= -800;
 
 /* =========================================================
@@ -379,7 +378,6 @@ const powerups  = [];
 const particles = [];
 
 let clouds = [];
-let hills  = [];
 
 /* =========================================================
    HELPERS
@@ -393,7 +391,6 @@ function rectsOverlap(a,b){
          a.y < b.y+b.h && a.y+a.h > b.y;
 }
 
-/* تصادم دائرة × مستطيل (أدق للاعب) */
 function circleRect(cx,cy,r, rx,ry,rw,rh){
   const nx = clamp(cx, rx, rx+rw);
   const ny = clamp(cy, ry, ry+rh);
@@ -427,7 +424,7 @@ function resize(){
   canvas.style.height = H+"px";
   ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  player.r = clamp(Math.round(H * 0.042), 17, 22);
+  player.r = clamp(Math.round(H * 0.038), 16, 20);
   player.x = Math.max(70, W*0.18);
 
   if(state !== "playing"){
@@ -460,16 +457,6 @@ function buildBackground(){
       w: rand(65, 125),
       speed: rand(.12, .28),
       alpha: rand(.35, .65)
-    });
-  }
-
-  hills = [];
-  for(let i=0;i<8;i++){
-    hills.push({
-      x: i*(W/6)-80,
-      y: floorY() + rand(-20,15),
-      w: rand(170,280),
-      h: rand(50,90)
     });
   }
 }
@@ -555,9 +542,8 @@ function tryJump(){
   coyoteTime = 0;
   jumpBuffer = 0;
 
-  /* Squash & stretch: نطاط */
-  player.targetSquashX = 0.86;
-  player.targetSquashY = 1.18;
+  player.targetSquashX = 0.90;
+  player.targetSquashY = 1.12;
 
   burst(player.x, player.y + player.r, 5, "dust");
   playSound("jump");
@@ -829,10 +815,8 @@ function updatePlayer(dt){
 
       if(!player.grounded){
         burst(player.x, floor-2, 5, "dust");
-
-        /* Squash على الهبوط */
-        player.targetSquashX = 1.20;
-        player.targetSquashY = 0.82;
+        player.targetSquashX = 1.12;
+        player.targetSquashY = 0.90;
       }
 
       player.grounded = true;
@@ -843,19 +827,18 @@ function updatePlayer(dt){
   }
 
   if(!player.grounded){
-    player.rotation = clamp(player.vy/1700, -.35, .35);
+    player.rotation = clamp(player.vy/2400, -.20, .20);
   } else {
     player.rotation *= Math.max(0, 1 - dt*8);
   }
 
   /* Smooth squash/stretch */
-  const k = 1 - Math.pow(0.001, dt);   // ~ fast lerp
+  const k = 1 - Math.pow(0.001, dt);
   player.squashX += (player.targetSquashX - player.squashX) * k;
   player.squashY += (player.targetSquashY - player.squashY) * k;
 
-  /* لو مرجعش للحالة الطبيعية، رجّعه بالتدريج */
-  player.targetSquashX += (1 - player.targetSquashX) * Math.min(1, dt*4);
-  player.targetSquashY += (1 - player.targetSquashY) * Math.min(1, dt*4);
+  player.targetSquashX += (1 - player.targetSquashX) * Math.min(1, dt*5);
+  player.targetSquashY += (1 - player.targetSquashY) * Math.min(1, dt*5);
 
   if(player.shield > 0) player.shield -= dt;
   if(player.magnet > 0) player.magnet -= dt;
@@ -1165,12 +1148,25 @@ function drawPowerups(){
 function drawObstacles(){
   for(const o of obstacles){
     ctx.save();
+
+    // ظل خارجي
+    ctx.shadowColor = "rgba(20,40,70,.18)";
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 3;
+
+    // الجسم
     ctx.fillStyle = "#303b4c";
     roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
     ctx.fill();
 
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+
+    // شريط فاتح فوق
     ctx.fillStyle = "#485568";
-    ctx.fillRect(o.x+5, o.y+5, Math.max(3,o.w-10), 4);
+    roundRectPath(ctx, o.x+4, o.y+4, Math.max(3,o.w-8), 5, 2);
+    ctx.fill();
+
     ctx.restore();
   }
 }
@@ -1197,7 +1193,7 @@ function drawParticles(){
 }
 
 /* =========================================================
-   NAWY — RED BULL PREMIUM EDITION
+   NAWY — MASCOT EDITION
 ========================================================= */
 function drawPlayer(){
   const r = player.r;
@@ -1207,204 +1203,188 @@ function drawPlayer(){
   ctx.save();
   ctx.translate(x, y);
 
-  /* Squash & stretch */
-  ctx.scale(player.squashX, player.squashY);
+  /* squash خفيف جدًا — 20% بس عشان يفضل دائرة */
+  const sx = 1 + (player.squashX - 1) * 0.20;
+  const sy = 1 + (player.squashY - 1) * 0.20;
+  ctx.scale(sx, sy);
 
-  ctx.rotate(player.rotation);
+  /* دوران خفيف */
+  ctx.rotate(player.rotation * 0.25);
 
-  /* ---------- Shadow (على الأرض) ---------- */
-  const airH = clamp((floorY() - y - r) / 180, 0, 1);
+  /* ============ 1) ظل أرضي ============ */
+  const airH = clamp((floorY() - y - r) / 200, 0, 1);
   ctx.save();
-  ctx.globalAlpha = 0.16 * (1 - airH*0.6);
-  ctx.fillStyle = "#14284a";
+  ctx.globalAlpha = 0.18 * (1 - airH * 0.65);
+  ctx.fillStyle = "#0a1a3a";
   ctx.beginPath();
-  ctx.ellipse(0, floorY() - y + 5,
-              r*1.15*(1-airH*0.35),
-              r*0.42*(1-airH*0.35),
-              0, 0, Math.PI*2);
+  ctx.ellipse(
+    0, floorY() - y + r + 4,
+    r * 1.05 * (1 - airH * 0.4),
+    r * 0.22 * (1 - airH * 0.4),
+    0, 0, Math.PI * 2
+  );
   ctx.fill();
   ctx.restore();
 
-  /* ---------- Magnet aura ---------- */
+  /* ============ 2) هالة المغناطيس ============ */
   if(player.magnet > 0){
     ctx.save();
-    ctx.globalAlpha = .35 + Math.sin(elapsed*7)*.15;
+    ctx.globalAlpha = .35 + Math.sin(elapsed * 7) * .15;
     ctx.strokeStyle = "#f1b72f";
     ctx.lineWidth = 2;
-    ctx.setLineDash([5,7]);
+    ctx.setLineDash([5, 7]);
     ctx.beginPath();
-    ctx.arc(0, 0, r + 7, 0, Math.PI*2);
+    ctx.arc(0, 0, r + 9, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.restore();
   }
 
-  /* ---------- Shield aura ---------- */
+  /* ============ 3) هالة الحماية ============ */
   if(player.shield > 0){
-    const pulse = 1 + Math.sin(elapsed*8) * .05;
+    const pulse = 1 + Math.sin(elapsed * 8) * .05;
     ctx.save();
     ctx.scale(pulse, pulse);
-
-    const sGrad = ctx.createRadialGradient(0,0,r-2, 0,0,r+14);
-    sGrad.addColorStop(0,   "rgba(49,154,255,0)");
+    const sGrad = ctx.createRadialGradient(0, 0, r - 2, 0, 0, r + 16);
+    sGrad.addColorStop(0, "rgba(49,154,255,0)");
     sGrad.addColorStop(.65, "rgba(49,154,255,.28)");
-    sGrad.addColorStop(1,   "rgba(49,154,255,0)");
+    sGrad.addColorStop(1, "rgba(49,154,255,0)");
     ctx.fillStyle = sGrad;
-    ctx.beginPath(); ctx.arc(0,0,r+14,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0, 0, r + 16, 0, Math.PI * 2); ctx.fill();
 
     ctx.strokeStyle = "rgba(90,175,255,.75)";
     ctx.lineWidth = 2.4;
-    ctx.beginPath(); ctx.arc(0,0,r+9,0,Math.PI*2); ctx.stroke();
-
+    ctx.beginPath(); ctx.arc(0, 0, r + 10, 0, Math.PI * 2); ctx.stroke();
     ctx.restore();
   }
 
-  /* ---------- Body: Red Bull sphere ---------- */
+  /* ============ 4) الإيدين ============ */
+  const armSwing = player.grounded
+    ? Math.sin(elapsed * 10) * 0.30
+    : -1.05;
 
-  // ظل خارجي
+  drawArm( r * 0.92, 0, armSwing, +1, r);
+  drawArm(-r * 0.92, 0, armSwing, -1, r);
+
+  /* ============ 5) الجسم (الدائرة الزرقا) ============ */
+
+  // ظل ناعم
   ctx.save();
-  ctx.shadowColor = "rgba(0,55,130,.45)";
-  ctx.shadowBlur = 16;
+  ctx.shadowColor = "rgba(20,90,200,.28)";
+  ctx.shadowBlur = 12;
   ctx.shadowOffsetY = 3;
   ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI*2);
-  ctx.fillStyle = "#062a63";
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = "#2563EB";
   ctx.fill();
   ctx.restore();
 
-  // Radial gradient كروم + أزرق
-  const body = ctx.createRadialGradient(
-    -r*.38, -r*.42, r*.08,
-     0,      0,      r*1.05
-  );
-  body.addColorStop(0,   "#f3f8ff");
-  body.addColorStop(.14, "#a8ccff");
-  body.addColorStop(.42, "#2b86e6");
-  body.addColorStop(.74, "#0a4cb0");
-  body.addColorStop(1,   "#002a6a");
+  // تدرج ناعم
+  const g = ctx.createLinearGradient(0, -r, 0, r);
+  g.addColorStop(0,   "#4A96F0");
+  g.addColorStop(.55, "#2563EB");
+  g.addColorStop(1,   "#1A4FBF");
 
   ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI*2);
-  ctx.fillStyle = body;
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = g;
   ctx.fill();
 
-  // Clip داخل الكرة
+  // لمعة علوية صغيرة
   ctx.save();
+  ctx.globalAlpha = 0.32;
+  ctx.fillStyle = "#FFFFFF";
   ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI*2);
-  ctx.clip();
-
-  // شريط أحمر قطري (توقيع)
-  ctx.save();
-  ctx.translate(-r*.15, 0);
-  ctx.rotate(-0.42);
-
-  ctx.fillStyle = "#d11414";
-  ctx.fillRect(-r*1.3, -r*.14, r*2.6, r*.34);
-
-  ctx.fillStyle = "rgba(220,230,240,.85)";
-  ctx.fillRect(-r*1.3, r*.20, r*2.6, r*.06);
-  ctx.restore();
-
-  // لمعة علوية
-  ctx.save();
-  ctx.globalAlpha = .22;
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.ellipse(-r*.32, -r*.42, r*.62, r*.24, -0.55, 0, Math.PI*2);
+  ctx.ellipse(-r*0.30, -r*0.44, r*0.28, r*0.14, -0.5, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
 
-  // Reflection سفلية
+  /* ============ 6) الوش ============ */
+
+  // رمش تلقائي
+  const cycle = elapsed % 3.2;
+  const blinkScale = cycle < 0.14
+    ? Math.abs(Math.cos(cycle / 0.14 * Math.PI))
+    : 1;
+
+  // خدود وردية
   ctx.save();
-  ctx.globalAlpha = .10;
-  ctx.fillStyle = "#9fd0ff";
+  ctx.globalAlpha = 0.32;
+  ctx.fillStyle = "#FF9AAB";
   ctx.beginPath();
-  ctx.ellipse(r*.18, r*.55, r*.5, r*.15, -0.4, 0, Math.PI*2);
+  ctx.ellipse(-r*0.55, r*0.12, r*0.13, r*0.085, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse( r*0.55, r*0.12, r*0.13, r*0.085, 0, 0, Math.PI*2);
   ctx.fill();
   ctx.restore();
 
-  ctx.restore(); // end clip
+  // العيون — نقط بسيطة
+  const eyeX = r * 0.32;
+  const eyeY = -r * 0.14;
+  const eyeR = r * 0.105;
 
-  // Rim light علوي
-  ctx.beginPath();
-  ctx.arc(0, 0, r-1, -Math.PI*.78, -Math.PI*.18);
-  ctx.strokeStyle = "rgba(255,255,255,.9)";
-  ctx.lineWidth = 2;
-  ctx.lineCap = "round";
-  ctx.stroke();
-
-  // Rim dark سفلي
-  ctx.beginPath();
-  ctx.arc(0, 0, r-1, Math.PI*.18, Math.PI*.78);
-  ctx.strokeStyle = "rgba(0,25,70,.55)";
-  ctx.lineWidth = 2;
-  ctx.stroke();
-
-  // ---------- Face بلاطة ----------
   ctx.save();
-  const face = ctx.createRadialGradient(0, 3, 2, 0, 3, 16);
-  face.addColorStop(0, "rgba(255,255,255,.98)");
-  face.addColorStop(1, "rgba(232,241,255,.78)");
-  ctx.fillStyle = face;
-
-  roundRectPath(ctx, -13.5, -10, 27, 19, 9.5);
-  ctx.fill();
-
-  ctx.strokeStyle = "rgba(10,55,130,.14)";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.restore();
-
-  // عيون
-  ctx.fillStyle = "#0a1a3a";
-  ctx.beginPath();
-  ctx.arc(-5.5, -1.2, 2.4, 0, Math.PI*2);
-  ctx.arc( 5.5, -1.2, 2.4, 0, Math.PI*2);
-  ctx.fill();
-
-  // Highlight عين
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.arc(-4.7, -2.0, .85, 0, Math.PI*2);
-  ctx.arc( 6.3, -2.0, .85, 0, Math.PI*2);
-  ctx.fill();
-
-  // ابتسامة
-  ctx.strokeStyle = "#0a1a3a";
-  ctx.lineWidth = 1.8;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.arc(0, 1, 5, .18*Math.PI, .82*Math.PI);
-  ctx.stroke();
-
-  /* ---------- تاج ذهبي صغير ---------- */
-  ctx.save();
-  ctx.translate(r*.62, r*.55);
-  ctx.rotate(elapsed * 0.9);
-
-  ctx.shadowColor = "rgba(255,190,40,.55)";
-  ctx.shadowBlur = 6;
-
-  ctx.fillStyle = "#ffd24a";
-  ctx.beginPath();
-  for(let i=0;i<10;i++){
-    const a = -Math.PI/2 + i*Math.PI/5;
-    const rr = (i%2) ? 1.6 : 3.6;
-    const px = Math.cos(a)*rr;
-    const py = Math.sin(a)*rr;
-    if(i===0) ctx.moveTo(px,py);
-    else ctx.lineTo(px,py);
+  ctx.fillStyle = "#0A1A3A";
+  for(const dir of [-1, 1]){
+    ctx.save();
+    ctx.translate(dir * eyeX, eyeY);
+    ctx.scale(1, blinkScale);
+    ctx.beginPath();
+    ctx.arc(0, 0, eyeR, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
-  ctx.closePath();
-  ctx.fill();
+  ctx.restore();
 
-  ctx.shadowBlur = 0;
-  ctx.fillStyle = "#fff8d8";
+  // الابتسامة — قوس رفيع
+  ctx.save();
+  ctx.strokeStyle = "#0A1A3A";
+  ctx.lineWidth = Math.max(1.8, r * 0.11);
+  ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.arc(0, 0, .9, 0, Math.PI*2);
+  ctx.arc(0, r * 0.14, r * 0.36,
+          0.18 * Math.PI, 0.82 * Math.PI);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.restore();
+}
+
+/* =========================================================
+   دالة مساعدة: رسم الإيد
+========================================================= */
+function drawArm(originX, originY, swing, dir, r){
+  ctx.save();
+  ctx.translate(originX, originY);
+  ctx.rotate(dir * swing);
+
+  const armLen = r * 0.60;
+  const armW   = Math.max(3, r * 0.16);
+  const color  = "#1A5FC7";
+
+  // الذراع
+  ctx.strokeStyle = color;
+  ctx.lineWidth = armW;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(dir * armLen, armLen * 0.60);
+  ctx.stroke();
+
+  // اليد (دائرة صغيرة)
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(dir * armLen, armLen * 0.60, armW * 1.05, 0, Math.PI * 2);
   ctx.fill();
 
+  // لمعة خفيفة على اليد
+  ctx.save();
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.beginPath();
+  ctx.arc(dir * armLen - armW*0.3, armLen * 0.60 - armW*0.3, armW*0.35, 0, Math.PI * 2);
+  ctx.fill();
   ctx.restore();
 
   ctx.restore();
