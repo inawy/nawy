@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>العب مع ناوي 🎮</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;width:100%;height:100%;overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:#fff;color:#0f172a;
+    user-select:none;-webkit-user-select:none;
+    touch-action:manipulation;overscroll-behavior:none;
+  }
+  body{display:flex;justify-content:center;align-items:center;}
+
+  .game{
+    width:min(100%,900px);height:100%;max-height:680px;
+    position:relative;display:flex;flex-direction:column;
+    padding:14px 16px 8px;gap:8px;
+  }
+
+  .topbar{display:flex;align-items:center;gap:10px;min-height:52px;}
+  .brand{font-size:19px;font-weight:800;white-space:nowrap;}
+  .brand em{font-style:normal;color:#2563eb;}
+  .stats{
+    margin-inline-start:auto;display:flex;gap:14px;align-items:center;
+    font-size:13px;color:#64748b;font-weight:600;white-space:nowrap;
+  }
+  .stats b{color:#0f172a;font-size:15px;font-variant-numeric:tabular-nums;}
+  .icon-btn{
+    border:0;background:transparent;font-size:19px;line-height:1;
+    width:38px;height:38px;border-radius:12px;cursor:pointer;
+    display:grid;place-items:center;transition:transform .12s;
+  }
+  .icon-btn:active{transform:scale(.9);}
+
+  .stage{position:relative;flex:1;min-height:260px;border-radius:18px;overflow:hidden;}
+  canvas{width:100%;height:100%;display:block;}
+
+  .overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;text-align:center;padding:18px;
+  }
+  .overlay.hidden{display:none;}
+  .overlay h1{margin:0 0 6px;font-size:25px;}
+  .overlay p{margin:0;color:#64748b;font-size:14px;}
+  .overlay .emoji{font-size:44px;line-height:1;margin-bottom:10px;}
+  .badge{
+    display:inline-block;margin-top:9px;padding:4px 12px;border-radius:999px;
+    background:#fef3c7;color:#92400e;font-weight:800;font-size:13px;
+  }
+  .button{
+    margin-top:16px;border:0;border-radius:14px;padding:12px 26px;
+    background:#2563eb;color:#fff;font-size:16px;font-weight:800;
+    cursor:pointer;pointer-events:auto;font-family:inherit;
+    box-shadow:0 6px 18px rgba(37,99,235,.28);transition:transform .12s;
+  }
+  .button:active{transform:scale(.95);}
+
+  .toast{
+    position:absolute;top:13%;left:50%;transform:translate(-50%,10px);
+    background:#2563eb;color:#fff;padding:9px 18px;border-radius:999px;
+    font-weight:800;font-size:14px;opacity:0;pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;
+    white-space:nowrap;box-shadow:0 8px 24px rgba(37,99,235,.3);
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
+
+  .hint{text-align:center;color:#94a3b8;font-size:12px;padding:2px 0;}
+
+  @media (prefers-color-scheme: dark){
+    html,body{background:#0b1220;color:#e2e8f0;}
+    .stats{color:#94a3b8;}
+    .stats b{color:#e2e8f0;}
+    .overlay p{color:#94a3b8;}
+    .badge{background:#422006;color:#fcd34d;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .toast,.button,.icon-btn{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="game">
+
+  <div class="topbar">
+    <div class="brand">🎮 العب مع <em>ناوي</em></div>
+    <div class="stats">
+      <span>النقاط <b id="score">0</b></span>
+      <span>الأفضل <b id="best">0</b></span>
+    </div>
+    <button class="icon-btn" id="muteBtn" aria-label="الصوت">🔊</button>
+  </div>
+
+  <div class="stage" id="stage">
+    <canvas id="canvas"></canvas>
+
+    <div class="overlay" id="overlay">
+      <div class="overlay-inner">
+        <div class="emoji" id="ovEmoji">🟦</div>
+        <h1 id="ovTitle">ناوي جاهز؟</h1>
+        <p id="ovText">اضغط في أي مكان عشان تبدأ</p>
+        <button class="button" id="ovBtn">يلا نبدأ</button>
+      </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="hint">اضغط في أي مكان — أو Space على الكيبورد</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   0) أدوات مساعدة
+   ============================================================ */
+const TAU = Math.PI * 2;
+const clamp = (v,a,b)=> v<a?a:(v>b?b:v);
+const rand  = (a,b)=> a + Math.random()*(b-a);
+const pick  = arr => arr[(Math.random()*arr.length)|0];
+
+function roundRectPath(c,x,y,w,h,r){
+  r = Math.min(r, w*0.5, h*0.5);
+  c.beginPath();
+  c.moveTo(x+r,y);
+  c.arcTo(x+w,y,x+w,y+h,r);
+  c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r);
+  c.arcTo(x,y,x+w,y,r);
+  c.closePath();
+}
+
+function circleRect(cx,cy,r,rx,ry,rw,rh){
+  const nx = clamp(cx, rx, rx+rw);
+  const ny = clamp(cy, ry, ry+rh);
+  const dx = cx-nx, dy = cy-ny;
+  return dx*dx + dy*dy < r*r;
+}
+
+function onMQ(mq, fn){
+  if (mq.addEventListener) mq.addEventListener('change', fn);
+  else if (mq.addListener) mq.addListener(fn);
+}
+
+/* ============================================================
+   1) عناصر الصفحة
+   ============================================================ */
+const stage    = document.getElementById('stage');
+const canvas   = document.getElementById('canvas');
+const ctx      = canvas.getContext('2d');
+const scoreEl  = document.getElementById('score');
+const bestEl   = document.getElementById('best');
+const overlay  = document.getElementById('overlay');
+const ovEmoji  = document.getElementById('ovEmoji');
+const ovTitle  = document.getElementById('ovTitle');
+const ovText   = document.getElementById('ovText');
+const ovBtn    = document.getElementById('ovBtn');
+const toastEl  = document.getElementById('toast');
+const muteBtn  = document.getElementById('muteBtn');
+
+/* ============================================================
+   2) الثيم (فاتح / غامق / تقليل الحركة)
+   ============================================================ */
+const darkMQ   = window.matchMedia('(prefers-color-scheme: dark)');
+const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+let isDark       = darkMQ.matches;
+let reduceMotion = reduceMQ.matches;
+
+onMQ(darkMQ, e => { isDark = e.matches; buildGradient(); });
+onMQ(reduceMQ, e => { reduceMotion = e.matches; });
+
+/* ============================================================
+   3) ثوابت اللعبة  ⚠️ الوحدات px/ثانية (مش px/فريم)
+   ============================================================ */
+const GRAVITY  = 2600;   // px/s²
+const JUMP_V   = -830;   // px/s
+const MAX_FALL = 2000;   // px/s
+const BASE_SPEED = 6;    // وحدة سرعة → 6*60 = 360 px/s
+const MAX_SPEED  = 11;
+
+const MILESTONES = [
+  'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
+  'ناوي مبسوط! 😄','ماشي صح! 🚀','تركيز عالي! 🎯'
+];
+
+/* ============================================================
+   4) حالة اللعبة
+   ============================================================ */
+let W = 0, H = 0, groundY = 0, bgGrad = null;
+
+let state = 'ready';         // ready | playing | over
+let score = 0, lastShown = -1, milestone = 0;
+let speed = BASE_SPEED;
+let best  = 0;
+try { best = Number(localStorage.getItem('nawy.best')) || 0; } catch(e){}
+
+let shake = 0;
+let obstacleTimer = 0, starTimer = 0, cloudTimer = 0;
+let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
+let lastT = 0, overAt = 0;
+
+const obstacles = [];
+const stars     = [];
+const clouds    = [];
+const particles = [];
+
+const player = {
+  x: 80, y: 0, size: 40,
+  vy: 0, grounded: true,
+  squash: 1,
+  blinkTimer: 2, blinking: 0
+};
+
+/* ============================================================
+   5) الصوت (Web Audio بدون ملفات)
+   ============================================================ */
+let audioCtx = null;
+let muted = false;
+try { muted = localStorage.getItem('nawy.muted') === '1'; } catch(e){}
+
+function unlockAudio(){
+  if (muted) return;
+  try {
+    if (!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = new AC();
+    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e){}
+}
+
+function beep(freq, dur, type, vol, slideTo, delay){
+  if (muted) return;
+  try {
+    unlockAudio();
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime + (delay || 0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t0);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(1,slideTo), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.03);
+  } catch(e){}
+}
+
+function sfx(name){
+  switch(name){
+    case 'jump':      beep(430, 0.13, 'square',   0.045, 720);  break;
+    case 'land':      beep(160, 0.07, 'sine',     0.035, 110);  break;
+    case 'coin':      beep(1000,0.09, 'sine',     0.055, 1500);
+                      beep(1500,0.09, 'sine',     0.030, 1900, 0.06); break;
+    case 'hit':       beep(220, 0.40, 'sawtooth', 0.070, 55);   break;
+    case 'milestone': beep(660, 0.12, 'triangle', 0.050, 660);
+                      beep(880, 0.16, 'triangle', 0.050, 880, 0.11); break;
+  }
+}
+
+function vibrate(ms){
+  if (muted) return;
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){}
+}
+
+/* ============================================================
+   6) الجزيئات (تراب / شرارات / كونفيتي / نصوص طايرة)
+   ============================================================ */
+function addP(p){
+  if (particles.length > 240) return;
+  p.rot     = p.rot     || 0;
+  p.rotSpd  = p.rotSpd  || 0;
+  p.g       = p.g       || 0;
+  p.drag    = p.drag    || 0;
+  p.maxLife = p.life;
+  particles.push(p);
+}
+
+function burstDust(x, y, n){
+  if (reduceMotion) n = Math.ceil(n/2);
+  for (let i=0;i<n;i++){
+    addP({
+      type:'dust', x: x + rand(-8,8), y: y + rand(-4,2),
+      vx: rand(-90,-20), vy: rand(-70,-8),
+      g: 220, drag: 2.4, size: rand(2,4.5),
+      life: rand(0.3,0.6),
+      color: isDark ? '#475569' : '#cbd5e1'
+    });
+  }
+}
+
+function burstSparkle(x, y, n){
+  for (let i=0;i<n;i++){
+    const a = rand(0,TAU), sp = rand(40,150);
+    addP({
+      type:'spark', x, y,
+      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 30,
+      g: 260, drag: 1.8, size: rand(2,4),
+      life: rand(0.3,0.55),
+      color: pick(['#fbbf24','#fcd34d','#f59e0b','#fff7cc'])
+    });
+  }
+}
+
+function burstConfetti(x, y, n){
+  const colors = ['#2563eb','#60a5fa','#fbbf24','#34d399','#f472b6','#a78bfa'];
+  for (let i=0;i<n;i++){
+    const a = rand(-Math.PI, 0), sp = rand(120, 380);
+    addP({
+      type:'confetti', x, y,
+      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+      g: 700, drag: 0.6, size: rand(6,11),
+      rot: rand(0,TAU), rotSpd: rand(-12,12),
+      life: rand(0.8,1.6),
+      color: pick(colors)
+    });
+  }
+}
+
+function spawnText(x, y, text){
+  addP({ type:'text', x, y, vx:0, vy:-58, life:0.85, size:15,
+         color:'#f59e0b', text });
+}
+
+function updateParticles(dt){
+  for (let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    p.life -= dt;
+    if (p.life <= 0){ particles.splice(i,1); continue; }
+    p.vy += p.g * dt;
+    if (p.drag){ const d = Math.max(0, 1 - p.drag*dt); p.vx *= d; p.vy *= d; }
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.rot += p.rotSpd * dt;
+  }
+}
+
+/* ============================================================
+   7) المقاس
+   ============================================================ */
+function buildGradient(){
+  const g = ctx.createLinearGradient(0,0,0,Math.max(groundY,1));
+  if (isDark){ g.addColorStop(0,'#0b1220'); g.addColorStop(1,'#141d2e'); }
+  else       { g.addColorStop(0,'#e8f1ff'); g.addColorStop(1,'#ffffff'); }
+  bgGrad = g;
+}
+
+function resize(){
+  const rect = canvas.getBoundingClientRect();
+  const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+  const nw = Math.max(1, Math.round(rect.width));
+  const nh = Math.max(1, Math.round(rect.height));
+
+  canvas.width  = Math.round(nw * dpr);
+  canvas.height = Math.round(nh * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const oldGround = groundY;
+  W = nw; H = nh;
+  groundY = Math.round(H - Math.max(52, H * 0.16));
+
+  player.size = clamp(Math.round(H * 0.085), 32, 44);
+
+  if (!oldGround){
+    player.y = groundY - player.size;
+  } else if (oldGround !== groundY){
+    const dy = groundY - oldGround;
+    for (const o of obstacles) o.y += dy;
+    for (const s of stars)     s.y += dy;
+    if (state === 'playing') player.y += dy;
+    else player.y = groundY - player.size;
+  }
+
+  player.x = Math.max(46, W * 0.14);
+  buildGradient();
+}
+
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 120));
+if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+
+/* ============================================================
+   8) الرسومات
+   ============================================================ */
+function drawSky(){
+  ctx.fillStyle = bgGrad || '#ffffff';
+  ctx.fillRect(0, 0, W, groundY + 1);
+
+  // شمس / هالة
+  ctx.save();
+  ctx.fillStyle = '#2563eb';
+  ctx.globalAlpha = isDark ? 0.10 : 0.16;
+  ctx.beginPath(); ctx.arc(W-64, 62, 68, 0, TAU); ctx.fill();
+  ctx.globalAlpha = isDark ? 0.16 : 0.28;
+  ctx.beginPath(); ctx.arc(W-64, 62, 44, 0, TAU); ctx.fill();
+  ctx.restore();
+}
+
+function drawClouds(){
+  ctx.save();
+  ctx.fillStyle = isDark ? 'rgba(148,163,184,0.14)' : 'rgba(148,163,184,0.28)';
+  for (const c of clouds){
+    const r = c.w * 0.30;
+    ctx.beginPath();
+    ctx.arc(c.x,            c.y,           r,        0, TAU);
+    ctx.arc(c.x + r*1.10,   c.y - r*0.50,  r*1.25,   0, TAU);
+    ctx.arc(c.x + r*2.30,   c.y,           r*0.95,   0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function hillLayer(off, wl, amp, color){
+  ctx.beginPath();
+  ctx.moveTo(-2, groundY + 2);
+  for (let x = -2; x <= W + 2; x += 12){
+    const y = groundY - 26
+      - Math.sin((x + off) / wl) * amp
+      - Math.sin((x + off) / (wl * 0.42)) * amp * 0.35;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W + 2, groundY + 2);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function drawHills(){
+  hillLayer(hillOff1, 130, 22, isDark ? 'rgba(37,99,235,0.10)' : 'rgba(37,99,235,0.07)');
+  hillLayer(hillOff2,  95, 16, isDark ? 'rgba(37,99,235,0.16)' : 'rgba(37,99,235,0.11)');
+}
+
+function drawGround(){
+  ctx.fillStyle = isDark ? '#0d1522' : '#ffffff';
+  ctx.fillRect(0, groundY, W, H - groundY);
+
+  ctx.strokeStyle = isDark ? '#334155' : '#1e293b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, groundY + 1);
+  ctx.lineTo(W, groundY + 1);
+  ctx.stroke();
+
+  const gap = 44;
+  const start = -((groundOff % gap) + gap) % gap;
+  ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let x = start; x < W + gap; x += gap){
+    ctx.moveTo(x, groundY + 18);
+    ctx.lineTo(x + 20, groundY + 18);
+  }
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+}
+
+function drawStars(){
+  for (const s of stars){
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(s.rot);
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++){
+      const a  = -Math.PI/2 + i * Math.PI/5;
+      const rr = (i % 2) ? s.r * 0.45 : s.r;
+      const px = Math.cos(a) * rr;
+      const py = Math.sin(a) * rr;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#fbbf24';
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawObstacles(){
+  for (const o of obstacles){
+    // ظل
+    ctx.save();
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(o.x + o.w/2, groundY + 4, o.w*0.55, 4, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+
+    // جسم المبنى
+    ctx.fillStyle = isDark ? '#334155' : '#1e293b';
+    roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
+    ctx.fill();
+
+    // سطح
+    ctx.fillStyle = isDark ? '#475569' : '#334155';
+    roundRectPath(ctx, o.x, o.y, o.w, Math.min(9, o.h*0.22), 7);
+    ctx.fill();
+
+    // شبابيك
+    ctx.fillStyle = isDark ? '#93c5fd' : '#bfdbfe';
+    const cols = o.w >= 46 ? 3 : 2;
+    const rows = o.h >= 46 ? 2 : 1;
+    const bw = 5, bh = 5;
+    for (let r = 0; r < rows; r++){
+      for (let c = 0; c < cols; c++){
+        const px = o.x + (o.w/(cols+1))*(c+1) - bw/2;
+        const py = o.y + (rows === 1 ? o.h*0.55 : o.h*(0.38 + r*0.34)) - bh/2;
+        roundRectPath(ctx, px, py, bw, bh, 1.5);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+function drawPlayer(){
+  const s = player.size;
+  const cx = player.x + s/2;
+  const bottomY = player.y + s;
+  const sq = player.squash;
+  const sx = 1 / Math.sqrt(sq);
+
+  // ظل أرضي
+  const airH = clamp((groundY - player.y - s) / 170, 0, 1);
+  ctx.save();
+  ctx.globalAlpha = (isDark ? 0.30 : 0.13) * (1 - airH*0.7);
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.ellipse(cx, groundY + 5, s*0.42*(1-airH*0.4), 5*(1-airH*0.4), 0, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(cx, bottomY);
+  ctx.scale(sx, sq);
+
+  const R   = s/2;
+  const cy  = -R;
+
+  // الجسم
+  ctx.fillStyle = '#2563eb';
+  ctx.beginPath(); ctx.arc(0, cy, R, 0, TAU); ctx.fill();
+
+  // لمعة
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(-R*0.32, cy - R*0.42, R*0.34, R*0.20, -0.6, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  // عيون
+  const eyeR = R * 0.26;
+  const eyeX = R * 0.42;
+  const eyeY = cy - R * 0.20;
+
+  if (player.blinking > 0){
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = R * 0.12;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-eyeX - eyeR*0.7, eyeY); ctx.lineTo(-eyeX + eyeR*0.7, eyeY);
+    ctx.moveTo( eyeX - eyeR*0.7, eyeY); ctx.lineTo( eyeX + eyeR*0.7, eyeY);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(-eyeX, eyeY, eyeR, 0, TAU);
+    ctx.arc( eyeX, eyeY, eyeR, 0, TAU);
+    ctx.fill();
+
+    const lookY = clamp(player.vy / 2600, -0.3, 0.3) * eyeR;
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.arc(-eyeX + eyeR*0.32, eyeY + lookY, eyeR*0.52, 0, TAU);
+    ctx.arc( eyeX + eyeR*0.32, eyeY + lookY, eyeR*0.52, 0, TAU);
+    ctx.fill();
+  }
+
+  // بقّ
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = '#fb7185';
+  ctx.beginPath();
+  ctx.arc(-R*0.62, cy + R*0.18, R*0.15, 0, TAU);
+  ctx.arc( R*0.62, cy + R*0.18, R*0.15, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  // بق
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = R * 0.10;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  if (player.grounded){
+    ctx.arc(0, cy + R*0.10, R*0.30, Math.PI*0.25, Math.PI*0.75);
+  } else {
+    ctx.arc(0, cy + R*0.28, R*0.16, 0, TAU);
+  }
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawParticles(){
+  for (const p of particles){
+    const a = clamp(p.life / p.maxLife, 0, 1);
+    ctx.globalAlpha = a;
+
+    if (p.type === 'text'){
+      ctx.font = '800 ' + p.size + 'px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = p.color;
+      ctx.fillText(p.text, p.x, p.y);
+
+    } else if (p.type === 'confetti'){
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      ctx.restore();
+
+    } else if (p.type === 'spark'){
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*a, 0, TAU); ctx.fill();
+
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, TAU); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function render(){
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.save();
+  if (shake > 0.2) ctx.translate(rand(-shake,shake)*0.5, rand(-shake,shake)*0.5);
+
+  drawSky();
+  drawClouds();
+  drawHills();
+  drawGround();
+  drawStars();
+  drawObstacles();
+  drawParticles();
+  if (state !== 'over') drawPlayer();
+
+  ctx.restore();
+}
+
+/* ============================================================
+   9) الأحداث والمولّدات
+   ============================================================ */
+function spawnObstacle(){
+  const r = Math.random();
+  let w, h;
+  if      (r < 0.42){ w = 26; h = 38; }   // قصير
+  else if (r < 0.78){ w = 22; h = 54; }   // طويل
+  else              { w = 50; h = 30; }   // عريض وواطي
+  obstacles.push({ x: W + 40, w, h, y: groundY - h });
+}
+
+function spawnStarArc(){
+  const startX = W + 90;
+  // ما نولّدش نجوم فوق عقبة
+  for (const o of obstacles){
+    if (o.x < startX + 130 && o.x + o.w > startX - 30) return;
+  }
+  const n = 3;
+  const baseY = groundY - rand(95, 140);
+  for (let i = 0; i < n; i++){
+    stars.push({
+      x: startX + i*36,
+      y: baseY - Math.sin((i/(n-1)) * Math.PI) * 22,
+      r: 10,
+      rot: rand(0, TAU)
+    });
+  }
+}
+
+function spawnCloud(){
+  const w = rand(60, 110);
+  clouds.push({ x: W + w, y: rand(H*0.08, groundY*0.45), w, spd: rand(6, 16) });
+}
+
+/* ============================================================
+   10) التحديث
+   ============================================================ */
+function updateAmbient(dt){
+  const worldSpeed = (state === 'playing') ? speed * 60 : 70;
+
+  hillOff1  += worldSpeed * 0.06 * dt;
+  hillOff2  += worldSpeed * 0.14 * dt;
+  groundOff += worldSpeed * dt;
+
+  cloudTimer -= dt;
+  if (cloudTimer <= 0){ spawnCloud(); cloudTimer = rand(2.5, 6); }
+
+  for (let i = clouds.length-1; i >= 0; i--){
+    const c = clouds[i];
+    c.x -= (c.spd + worldSpeed * 0.05) * dt;
+    if (c.x + c.w < -40) clouds.splice(i, 1);
+  }
+}
+
+function update(dt){
+  /* ---------- فيزياء اللاعب ---------- */
+  player.vy = Math.min(player.vy + GRAVITY * dt, MAX_FALL);
+  player.y += player.vy * dt;
+
+  const floor = groundY - player.size;
+
+  if (player.y >= floor){
+    if (!player.grounded){
+      player.squash = 0.74;
+      if (!reduceMotion) shake = Math.min(shake + 2, 4);
+      burstDust(player.x + player.size/2, groundY, 7);
+      sfx('land');
+    }
+    player.y = floor;
+    player.vy = 0;
+    player.grounded = true;
+  } else {
+    player.grounded = false;
+  }
+
+  player.squash += (1 - player.squash) * 12 * dt;
+  if (Math.abs(player.squash - 1) < 0.002) player.squash = 1;
+
+  /* ---------- الرمش ---------- */
+  player.blinkTimer -= dt;
+  if (player.blinkTimer <= 0){
+    player.blinking = 0.13;
+    player.blinkTimer = rand(2.2, 5.5);
+  }
+  if (player.blinking > 0) player.blinking -= dt;
+
+  /* ---------- النقاط والصعوبة ---------- */
+  score += dt * 12;
+  const shown = Math.floor(score);
+  if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
+
+  speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.02);
+
+  /* ---------- محطات ---------- */
+  const ms = Math.floor(score / 100);
+  if (ms > milestone){
+    milestone = ms;
+    showToast(pick(MILESTONES));
+    sfx('milestone');
+  }
+
+  /* ---------- توليد العقبات ---------- */
+  obstacleTimer -= dt;
+  if (obstacleTimer <= 0){
+    spawnObstacle();
+    obstacleTimer = Math.max(0.82, 1.5 - score * 0.006) * rand(0.92, 1.12);
+  }
+
+  const dx = speed * 60 * dt;
+
+  /* ---------- حركة + تصادم العقبات ---------- */
+  for (let i = obstacles.length-1; i >= 0; i--){
+    const o = obstacles[i];
+    o.x -= dx;
+
+    if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
+
+    if (circleRect(
+      player.x + player.size/2,
+      player.y + player.size/2,
+      player.size * 0.36,
+      o.x, o.y, o.w, o.h
+    )){
+      gameOver();
+      return;
+    }
+  }
+
+  /* ---------- النجوم ---------- */
+  starTimer -= dt;
+  if (starTimer <= 0){ spawnStarArc(); starTimer = rand(2.4, 4.8); }
+
+  const pcx = player.x + player.size/2;
+  const pcy = player.y + player.size/2;
+  const pickupR = player.size * 0.45;
+
+  for (let i = stars.length-1; i >= 0; i--){
+    const s = stars[i];
+    s.x   -= dx;
+    s.rot += dt * 2.2;
+
+    if (s.x < -30){ stars.splice(i,1); continue; }
+
+    const ddx = pcx - s.x, ddy = pcy - s.y;
+    const rr  = s.r + pickupR;
+    if (ddx*ddx + ddy*ddy < rr*rr){
+      stars.splice(i,1);
+      score += 10;
+      burstSparkle(s.x, s.y, 8);
+      spawnText(s.x, s.y - 10, '+10');
+      sfx('coin');
+    }
+  }
+}
+
+/* ============================================================
+   11) التحكم
+   ============================================================ */
+function jump(){
+  if (state !== 'playing' || !player.grounded) return;
+  player.vy = JUMP_V;
+  player.grounded = false;
+  player.squash = 1.22;
+  burstDust(player.x + player.size/2, groundY, 5);
+  sfx('jump');
+}
+
+function onTap(e){
+  if (e && e.preventDefault) e.preventDefault();
+
+  if (state === 'playing'){
+    jump();
+    return;
+  }
+  if (state === 'over' && performance.now() - overAt < 500) return;
+  startGame();
+}
+
+canvas.addEventListener('pointerdown', onTap, { passive:false });
+ovBtn.addEventListener('click', e => { e.stopPropagation(); startGame(); });
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter'){
+    e.preventDefault();
+    if (e.repeat) return;
+    onTap(null);
+  }
+});
+
+muteBtn.addEventListener('click', () => {
+  muted = !muted;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+  try { localStorage.setItem('nawy.muted', muted ? '1' : '0'); } catch(e){}
+  if (!muted) sfx('coin');
+});
+
+/* ============================================================
+   12) الواجهة (Overlay / Toast)
+   ============================================================ */
+let toastTimeout = null;
+function showToast(text){
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 1300);
+}
+
+function showOverlay(opt){
+  ovEmoji.textContent = opt.emoji;
+  ovTitle.textContent = opt.title;
+  ovText.textContent  = opt.text;
+  ovBtn.textContent   = opt.btn;
+
+  let badge = overlay.querySelector('.badge');
+  if (opt.badge){
+    if (!badge){
+      badge = document.createElement('div');
+      badge.className = 'badge';
+      overlay.querySelector('.overlay-inner').appendChild(badge);
+    }
+    badge.textContent = opt.badge;
+  } else if (badge){
+    badge.remove();
+  }
+
+  overlay.classList.remove('hidden');
+}
+
+/* ============================================================
+   13) دورة اللعبة
+   ============================================================ */
+function startGame(){
+  score = 0; lastShown = -1; milestone = 0;
+  speed = BASE_SPEED;
+  obstacleTimer = 1.1;
+  starTimer = rand(1.5, 3);
+  shake = 0;
+
+  obstacles.length = 0;
+  stars.length     = 0;
+  particles.length = 0;
+
+  player.x = Math.max(46, W * 0.14);
+  player.y = groundY - player.size;
+  player.vy = 0;
+  player.grounded = true;
+  player.squash = 1;
+  player.blinking = 0;
+  player.blinkTimer = rand(1, 3);
+
+  scoreEl.textContent = '0';
+  overlay.classList.add('hidden');
+
+  unlockAudio();
+  state = 'playing';
+}
+
+function gameOver(){
+  state = 'over';
+  overAt = performance.now();
+  score = Math.floor(score);
+
+  if (!reduceMotion) shake = 12;
+  sfx('hit');
+  vibrate(80);
+
+  burstConfetti(
+    player.x + player.size/2,
+    player.y + player.size/2,
+    reduceMotion ? 10 : 28
+  );
+
+  let record = false;
+  if (score > best){
+    best = score;
+    record = true;
+    try { localStorage.setItem('nawy.best', String(best)); } catch(e){}
+    bestEl.textContent = best;
+  }
+
+  showOverlay({
+    emoji: record ? '🏆' : '😵',
+    title: record ? 'رقم قياسي جديد!' : 'ناوي خبط! 😅',
+    text : 'نتيجتك: ' + score + ' — الأفضل: ' + best,
+    btn  : 'حاول تاني',
+    badge: record ? 'أحسنت! 🎉' : null
+  });
+
+  if (record && !reduceMotion){
+    burstConfetti(W/2, H*0.35, 24);
+  }
+}
+
+let rafId = 0, lastT2 = 0;
+
+function frame(t){
+  rafId = requestAnimationFrame(frame);
+
+  if (!lastT2) lastT2 = t;
+  let dt = (t - lastT2) / 1000;
+  lastT2 = t;
+  if (!isFinite(dt) || dt < 0) dt = 0;
+  dt = Math.min(dt, 1/30);            // منع القفزات بعد الرجوع من الخلفية
+
+  if (state === 'playing') update(dt);
+  updateAmbient(dt);
+  updateParticles(dt);
+
+  shake *= Math.exp(-9 * dt);
+  if (shake < 0.15) shake = 0;
+
+  render();
+}
+
+/* ============================================================
+   14) التشغيل
+   ============================================================ */
+function init(){
+  bestEl.textContent = best;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+
+  resize();
+
+  // نجوم وسحاب في البداية
+  for (let i = 0; i < 3; i++) spawnCloud();
+
+  requestAnimationFrame(frame);
+}
+
+init();
+
+})();
+</script>
+</body>
+</html>
