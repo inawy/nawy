@@ -2,404 +2,132 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>العب مع ناوي</title>
-
+<title>العب مع ناوي 🎮</title>
 <style>
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{
+    margin:0;width:100%;height:100%;overflow:hidden;
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    background:#fff;color:#0f172a;
+    user-select:none;-webkit-user-select:none;
+    touch-action:manipulation;overscroll-behavior:none;
+  }
+  body{display:flex;justify-content:center;align-items:center;}
 
-html,body{
-  width:100%;height:100%;margin:0;overflow:hidden;
-  background:#fff;
-  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
-}
+  .game{
+    width:min(100%,900px);height:100%;max-height:680px;
+    position:relative;display:flex;flex-direction:column;
+    padding:14px 16px 8px;gap:8px;
+  }
 
-body{
-  color:#152033;
-  user-select:none;-webkit-user-select:none;
-  touch-action:manipulation;
-}
+  .topbar{display:flex;align-items:center;gap:10px;min-height:52px;}
+  .brand{font-size:19px;font-weight:800;white-space:nowrap;}
+  .brand em{font-style:normal;color:#2563eb;}
+  .stats{
+    margin-inline-start:auto;display:flex;gap:14px;align-items:center;
+    font-size:13px;color:#64748b;font-weight:600;white-space:nowrap;
+  }
+  .stats b{color:#0f172a;font-size:15px;font-variant-numeric:tabular-nums;}
+  .icon-btn{
+    border:0;background:transparent;font-size:19px;line-height:1;
+    width:38px;height:38px;border-radius:12px;cursor:pointer;
+    display:grid;place-items:center;transition:transform .12s;
+  }
+  .icon-btn:active{transform:scale(.9);}
 
-button{
-  font:inherit;border:0;cursor:pointer;
-  user-select:none;-webkit-user-select:none;
-}
+  .stage{position:relative;flex:1;min-height:260px;border-radius:18px;overflow:hidden;}
+  canvas{width:100%;height:100%;display:block;}
 
-.game{
-  width:100%;height:100dvh;min-height:100%;
-  position:relative;overflow:hidden;
-  background:linear-gradient(180deg,#fafdff 0%,#ffffff 55%,#f8fbfd 100%);
-}
+  .overlay{
+    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    pointer-events:none;text-align:center;padding:18px;
+  }
+  .overlay.hidden{display:none;}
+  .overlay h1{margin:0 0 6px;font-size:25px;}
+  .overlay p{margin:0;color:#64748b;font-size:14px;}
+  .overlay .emoji{font-size:44px;line-height:1;margin-bottom:10px;}
+  .badge{
+    display:inline-block;margin-top:9px;padding:4px 12px;border-radius:999px;
+    background:#fef3c7;color:#92400e;font-weight:800;font-size:13px;
+  }
+  .button{
+    margin-top:16px;border:0;border-radius:14px;padding:12px 26px;
+    background:#2563eb;color:#fff;font-size:16px;font-weight:800;
+    cursor:pointer;pointer-events:auto;font-family:inherit;
+    box-shadow:0 6px 18px rgba(37,99,235,.28);transition:transform .12s;
+  }
+  .button:active{transform:scale(.95);}
 
-/* ============ TOP BAR ============ */
-.topbar{
-  position:absolute;top:0;left:0;right:0;
-  width:100%;min-height:64px;
-  padding:max(10px,env(safe-area-inset-top))
-          max(14px,env(safe-area-inset-right))
-          8px
-          max(14px,env(safe-area-inset-left));
-  display:flex;align-items:center;justify-content:space-between;
-  gap:10px;z-index:50;pointer-events:none;
-}
+  .toast{
+    position:absolute;top:13%;left:50%;transform:translate(-50%,10px);
+    background:#2563eb;color:#fff;padding:9px 18px;border-radius:999px;
+    font-weight:800;font-size:14px;opacity:0;pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;
+    white-space:nowrap;box-shadow:0 8px 24px rgba(37,99,235,.3);
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0);}
 
-.brand,.stats{pointer-events:auto;}
-.brand{display:flex;align-items:center;gap:9px;min-width:0;}
+  .hint{text-align:center;color:#94a3b8;font-size:12px;padding:2px 0;}
 
-.logo{
-  width:38px;height:38px;flex:0 0 38px;
-  border-radius:13px;overflow:hidden;
-  display:grid;place-items:center;background:#fff;
-  box-shadow:0 7px 18px rgba(0,103,223,.12),inset 0 1px 0 rgba(255,255,255,.5);
-}
-.logo img{width:100%;height:100%;display:block;object-fit:cover;}
-
-.brandText{line-height:1.05;}
-.brandText strong{display:block;font-size:15px;font-weight:900;}
-.brandText span{display:block;margin-top:3px;color:#8290a3;font-size:10px;font-weight:700;}
-
-.stats{display:flex;align-items:center;gap:7px;}
-
-.stat{
-  min-width:57px;height:40px;padding:5px 9px;
-  border:1px solid #e8edf3;border-radius:13px;
-  background:rgba(255,255,255,.88);
-  box-shadow:0 5px 18px rgba(24,42,65,.045);
-  text-align:center;
-}
-.stat span{display:block;color:#8b98a8;font-size:9px;font-weight:800;line-height:12px;}
-.stat b{display:block;color:#172235;font-size:15px;line-height:17px;font-weight:900;}
-
-.iconBtn{
-  width:40px;height:40px;flex:0 0 40px;
-  border:1px solid #e8edf3;border-radius:13px;
-  background:#fff;color:#526174;
-  box-shadow:0 5px 18px rgba(24,42,65,.045);
-  display:grid;place-items:center;font-size:17px;
-  transition:transform .12s ease;
-}
-.iconBtn:active{transform:scale(.92);}
-
-/* ============ STAGE ============ */
-.stageWrap{position:absolute;inset:0;width:100%;height:100%;}
-.stage{
-  position:absolute;inset:0;width:100%;height:100%;
-  overflow:hidden;background:#fff;isolation:isolate;
-}
-canvas{display:block;width:100%;height:100%;touch-action:none;}
-
-/* ============ HUD ============ */
-.hud{
-  position:absolute;
-  top:max(76px,calc(env(safe-area-inset-top) + 62px));
-  left:12px;right:12px;z-index:10;
-  display:flex;align-items:center;justify-content:space-between;
-  pointer-events:none;
-}
-.hudLeft,.hudRight{display:flex;align-items:center;gap:7px;}
-
-.chip{
-  min-height:30px;padding:6px 10px;
-  border:1px solid rgba(225,232,240,.92);
-  border-radius:999px;
-  background:rgba(255,255,255,.82);
-  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  box-shadow:0 5px 18px rgba(20,45,75,.055);
-  color:#536174;font-size:11px;font-weight:800;
-}
-.chip strong{color:#172235;}
-#powerChip,#shieldChip{display:none;}
-
-/* ============ OVERLAY ============ */
-.overlay{
-  position:absolute;inset:0;z-index:30;
-  display:grid;place-items:center;padding:20px;
-  background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.72));
-  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-}
-
-.panel{
-  width:min(420px,92%);
-  padding:27px 24px 22px;
-  border:1px solid rgba(224,231,239,.95);
-  border-radius:28px;
-  background:rgba(255,255,255,.96);
-  box-shadow:0 25px 80px rgba(21,45,72,.13),0 2px 4px rgba(21,45,72,.04);
-  text-align:center;
-}
-
-.panelEmoji{
-  width:64px;height:64px;margin:0 auto 14px;
-  border-radius:21px;display:grid;place-items:center;
-  font-size:33px;
-  background:linear-gradient(145deg,#eef7ff,#ffffff);
-  box-shadow:inset 0 1px 0 #fff,0 12px 25px rgba(22,136,255,.09);
-}
-
-.panel h1{
-  margin:0;font-size:27px;line-height:1.2;
-  font-weight:950;letter-spacing:-.6px;color:#111c2d;
-}
-.panel p{
-  margin:10px auto 18px;max-width:340px;
-  color:#6c7888;font-size:13px;line-height:1.8;font-weight:650;
-}
-
-.powerPreview{display:flex;justify-content:center;gap:9px;margin:0 auto 19px;}
-.powerPreviewItem{
-  min-width:108px;padding:10px 12px;
-  border:1px solid #edf1f5;border-radius:15px;
-  background:#fafcfe;color:#536174;
-  font-size:11px;font-weight:850;
-}
-.powerPreviewItem span{font-size:17px;margin-left:4px;}
-
-.mainBtn{
-  width:100%;min-height:52px;border-radius:16px;
-  color:#fff;font-size:15px;font-weight:950;
-  background:linear-gradient(135deg,#1489ff,#0069e5);
-  box-shadow:0 12px 25px rgba(0,105,229,.20),inset 0 1px 0 rgba(255,255,255,.35);
-  transition:transform .12s ease,box-shadow .12s ease;
-}
-.mainBtn:active{
-  transform:translateY(2px) scale(.99);
-  box-shadow:0 7px 15px rgba(0,105,229,.17);
-}
-
-.secondaryBtn{
-  margin-top:9px;width:100%;min-height:44px;border-radius:14px;
-  background:#f4f7fa;color:#526174;font-size:12px;font-weight:850;
-}
-
-/* ============ TOAST ============ */
-.toast{
-  position:absolute;z-index:40;left:50%;
-  bottom:max(24px,calc(env(safe-area-inset-bottom) + 18px));
-  transform:translate(-50%,12px);opacity:0;pointer-events:none;
-  padding:10px 15px;border-radius:999px;
-  background:rgba(22,32,48,.91);color:#fff;
-  box-shadow:0 10px 30px rgba(20,30,45,.16);
-  font-size:12px;font-weight:850;white-space:nowrap;
-  transition:opacity .18s ease,transform .18s ease;
-}
-.toast.show{opacity:1;transform:translate(-50%,0);}
-
-/* ============ FOOTER ============ */
-.bottomHint{
-  position:absolute;left:0;right:0;bottom:0;z-index:45;
-  padding:4px max(15px,env(safe-area-inset-right))
-          max(8px,env(safe-area-inset-bottom))
-          max(15px,env(safe-area-inset-left));
-  text-align:center;color:#98a4b2;font-size:10px;font-weight:750;
-  pointer-events:none;
-}
-
-@media(max-width:620px){
-  .brandText{display:none;}
-  .stats{gap:5px;}
-  .stat{min-width:52px;padding-left:7px;padding-right:7px;}
-}
-@media(max-height:620px){
-  .topbar{min-height:54px;padding-top:5px;}
-  .logo{width:34px;height:34px;flex-basis:34px;border-radius:11px;}
-  .stat{height:35px;min-width:52px;}
-  .iconBtn{width:35px;height:35px;flex-basis:35px;}
-  .panel{padding:19px;}
-  .panelEmoji{width:50px;height:50px;font-size:27px;margin-bottom:9px;}
-  .panel h1{font-size:23px;}
-  .panel p{margin:7px auto 12px;}
-  .powerPreview{margin-bottom:12px;}
-  .mainBtn{min-height:45px;}
-  .hud{top:62px;}
-}
+  @media (prefers-color-scheme: dark){
+    html,body{background:#0b1220;color:#e2e8f0;}
+    .stats{color:#94a3b8;}
+    .stats b{color:#e2e8f0;}
+    .overlay p{color:#94a3b8;}
+    .badge{background:#422006;color:#fcd34d;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .toast,.button,.icon-btn{transition:none;}
+  }
 </style>
 </head>
-
 <body>
-<main class="game">
 
-<header class="topbar">
-  <div class="brand">
-    <div class="logo"><img src="icon-512.png" alt="ناوي" draggable="false"></div>
-    <div class="brandText">
-      <strong>ناوي</strong>
-      <span>العب وارفع رقمك</span>
+<div class="game">
+
+  <div class="topbar">
+    <div class="brand">🎮 العب مع <em>ناوي</em></div>
+    <div class="stats">
+      <span>النقاط <b id="score">0</b></span>
+      <span>الأفضل <b id="best">0</b></span>
     </div>
+    <button class="icon-btn" id="muteBtn" aria-label="الصوت">🔊</button>
   </div>
 
-  <div class="stats">
-    <div class="stat"><span>النقاط</span><b id="score">0</b></div>
-    <div class="stat"><span>أفضل</span><b id="best">0</b></div>
-    <div class="stat"><span>سلسلة</span><b id="combo">0</b></div>
-    <button class="iconBtn" id="muteBtn" type="button" aria-label="الصوت">🔊</button>
-    <button class="iconBtn" id="pauseBtn" type="button" aria-label="إيقاف مؤقت">Ⅱ</button>
-  </div>
-</header>
+  <div class="stage" id="stage">
+    <canvas id="canvas"></canvas>
 
-<section class="stageWrap">
-<div class="stage">
-  <canvas id="gameCanvas"></canvas>
-
-  <div class="hud">
-    <div class="hudLeft">
-      <div class="chip" id="powerChip"></div>
-      <div class="chip" id="shieldChip"></div>
-    </div>
-    <div class="hudRight">
-      <div class="chip">⭐ <strong id="stars">0</strong></div>
-    </div>
-  </div>
-
-  <div class="overlay" id="overlay">
-    <div class="panel">
-      <div class="panelEmoji" id="panelEmoji">🏃</div>
-      <h1 id="panelTitle">ناوي جاهز؟</h1>
-      <p id="panelText">اقفز فوق العقبات، اجمع النجوم،<br>وحاول تكسر أفضل نتيجة ليك.</p>
-
-      <div class="powerPreview">
-        <div class="powerPreviewItem"><span>🛡️</span> حماية</div>
-        <div class="powerPreviewItem"><span>🧲</span> مغناطيس</div>
+    <div class="overlay" id="overlay">
+      <div class="overlay-inner">
+        <div class="emoji" id="ovEmoji">🟦</div>
+        <h1 id="ovTitle">ناوي جاهز؟</h1>
+        <p id="ovText">اضغط في أي مكان عشان تبدأ</p>
+        <button class="button" id="ovBtn">يلا نبدأ</button>
       </div>
-
-      <button class="mainBtn" id="mainBtn" type="button">يلا نبدأ</button>
-      <button class="secondaryBtn" id="shareBtn" type="button" hidden>📤 شارك نتيجتك</button>
     </div>
+
+    <div class="toast" id="toast"></div>
   </div>
 
-  <div class="toast" id="toast"></div>
+  <div class="hint">اضغط في أي مكان — أو Space على الكيبورد</div>
 </div>
-</section>
-
-<div class="bottomHint">لمس الشاشة أو Space للقفز</div>
-</main>
 
 <script>
-"use strict";
+(function(){
+'use strict';
 
-/* =========================================================
-   NAWY RUNNER — MASCOT EDITION
-========================================================= */
-
-const canvas = document.getElementById("gameCanvas");
-const ctx    = canvas.getContext("2d", {alpha:false});
-const stage  = document.querySelector(".stage");
-
-const scoreEl   = document.getElementById("score");
-const bestEl    = document.getElementById("best");
-const comboEl   = document.getElementById("combo");
-const starsEl   = document.getElementById("stars");
-const powerChip = document.getElementById("powerChip");
-const shieldChip= document.getElementById("shieldChip");
-
-const overlay    = document.getElementById("overlay");
-const panelEmoji = document.getElementById("panelEmoji");
-const panelTitle = document.getElementById("panelTitle");
-const panelText  = document.getElementById("panelText");
-const mainBtn    = document.getElementById("mainBtn");
-const shareBtn   = document.getElementById("shareBtn");
-
-const pauseBtn = document.getElementById("pauseBtn");
-const muteBtn  = document.getElementById("muteBtn");
-const toast    = document.getElementById("toast");
-
-/* =========================================================
-   STORAGE
-========================================================= */
-const STORE_KEY = "nawy_runner_best_v4";
-const SOUND_KEY = "nawy_runner_sound_v4";
-
-function loadNumber(key,fallback=0){
-  try{
-    const v = Number(localStorage.getItem(key));
-    return Number.isFinite(v) ? v : fallback;
-  }catch{ return fallback; }
-}
-function saveNumber(key,value){
-  try{ localStorage.setItem(key, String(value)); }catch{}
-}
-
-/* =========================================================
-   GAME STATE
-========================================================= */
-let W = 800, H = 500, DPR = 1;
-let state = "ready";
-
-let score = 0;
-let best  = loadNumber(STORE_KEY, 0);
-let starCount = 0;
-let combo = 0;
-
-let muted = loadNumber(SOUND_KEY, 0) === 1;
-
-let worldSpeed  = 5.4;
-let targetSpeed = 5.4;
-
-let obstacleTimer = 1.5;
-let powerTimer    = 3.2;
-
-let lastTime = 0;
-let elapsed  = 0;
-
-let coyoteTime = 0;
-let jumpBuffer = 0;
-
-let shake = 0;
-let toastTimer = 0;
-let milestone = 0;
-
-/* =========================================================
-   PLAYER
-========================================================= */
-const player = {
-  x: 0, y: 0,
-  r: 20,
-  vy: 0,
-  grounded: true,
-  shield: 0,
-  magnet: 0,
-  rotation: 0,
-  squashX: 1,
-  squashY: 1,
-  targetSquashX: 1,
-  targetSquashY: 1
-};
-
-const GRAVITY      = 2200;
-const JUMP_VELOCITY= -800;
-
-/* =========================================================
-   OBJECTS
-========================================================= */
-const obstacles = [];
-const stars     = [];
-const powerups  = [];
-const particles = [];
-
-let clouds = [];
-
-/* =========================================================
-   HELPERS
-========================================================= */
-function clamp(v,min,max){ return Math.max(min, Math.min(max,v)); }
-function rand(min,max){ return min + Math.random()*(max-min); }
-function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
-
-function rectsOverlap(a,b){
-  return a.x < b.x+b.w && a.x+a.w > b.x &&
-         a.y < b.y+b.h && a.y+a.h > b.y;
-}
-
-function circleRect(cx,cy,r, rx,ry,rw,rh){
-  const nx = clamp(cx, rx, rx+rw);
-  const ny = clamp(cy, ry, ry+rh);
-  const dx = cx-nx, dy = cy-ny;
-  return dx*dx + dy*dy < r*r;
-}
+/* ============================================================
+   0) أدوات مساعدة
+   ============================================================ */
+const TAU = Math.PI * 2;
+const clamp = (v,a,b)=> v<a?a:(v>b?b:v);
+const rand  = (a,b)=> a + Math.random()*(b-a);
+const pick  = arr => arr[(Math.random()*arr.length)|0];
 
 function roundRectPath(c,x,y,w,h,r){
-  r = Math.min(r, w/2, h/2);
+  r = Math.min(r, w*0.5, h*0.5);
   c.beginPath();
   c.moveTo(x+r,y);
   c.arcTo(x+w,y,x+w,y+h,r);
@@ -409,1125 +137,870 @@ function roundRectPath(c,x,y,w,h,r){
   c.closePath();
 }
 
-/* =========================================================
-   RESIZE
-========================================================= */
-function resize(){
-  const rect = stage.getBoundingClientRect();
-  DPR = Math.min(window.devicePixelRatio || 1, 2);
-  W = Math.max(320, rect.width);
-  H = Math.max(260, rect.height);
-
-  canvas.width  = Math.floor(W*DPR);
-  canvas.height = Math.floor(H*DPR);
-  canvas.style.width  = W+"px";
-  canvas.style.height = H+"px";
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-
-  player.r = clamp(Math.round(H * 0.038), 16, 20);
-  player.x = Math.max(70, W*0.18);
-
-  if(state !== "playing"){
-    player.y = floorY() - player.r;
-  } else {
-    player.y = Math.min(player.y, floorY() - player.r);
-  }
-
-  buildBackground();
-}
-window.addEventListener("resize", resize);
-
-/* =========================================================
-   WORLD
-========================================================= */
-function floorY(){ return H * 0.78; }
-
-function getWorldSpeed(){
-  const progress = clamp(score/900, 0, 1);
-  return 5.4 + progress*3.0;
+function circleRect(cx,cy,r,rx,ry,rw,rh){
+  const nx = clamp(cx, rx, rx+rw);
+  const ny = clamp(cy, ry, ry+rh);
+  const dx = cx-nx, dy = cy-ny;
+  return dx*dx + dy*dy < r*r;
 }
 
-function buildBackground(){
-  clouds = [];
-  const count = Math.max(4, Math.floor(W/180));
-  for(let i=0;i<count;i++){
-    clouds.push({
-      x: Math.random()*W,
-      y: rand(H*.13, H*.35),
-      w: rand(65, 125),
-      speed: rand(.12, .28),
-      alpha: rand(.35, .65)
-    });
-  }
+function onMQ(mq, fn){
+  if (mq.addEventListener) mq.addEventListener('change', fn);
+  else if (mq.addListener) mq.addListener(fn);
 }
 
-/* =========================================================
-   RESET / START / PAUSE
-========================================================= */
-function resetGame(){
-  score = 0; starCount = 0; combo = 0;
-  elapsed = 0;
-  worldSpeed = 5.4; targetSpeed = 5.4;
-  obstacleTimer = 1.35;
-  powerTimer = 3;
-  coyoteTime = 0; jumpBuffer = 0;
-  shake = 0; milestone = 0;
+/* ============================================================
+   1) عناصر الصفحة
+   ============================================================ */
+const stage    = document.getElementById('stage');
+const canvas   = document.getElementById('canvas');
+const ctx      = canvas.getContext('2d');
+const scoreEl  = document.getElementById('score');
+const bestEl   = document.getElementById('best');
+const overlay  = document.getElementById('overlay');
+const ovEmoji  = document.getElementById('ovEmoji');
+const ovTitle  = document.getElementById('ovTitle');
+const ovText   = document.getElementById('ovText');
+const ovBtn    = document.getElementById('ovBtn');
+const toastEl  = document.getElementById('toast');
+const muteBtn  = document.getElementById('muteBtn');
 
-  obstacles.length = 0;
-  stars.length = 0;
-  powerups.length = 0;
-  particles.length = 0;
+/* ============================================================
+   2) الثيم (فاتح / غامق / تقليل الحركة)
+   ============================================================ */
+const darkMQ   = window.matchMedia('(prefers-color-scheme: dark)');
+const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  player.shield = 0;
-  player.magnet = 0;
-  player.vy = 0;
-  player.grounded = true;
-  player.rotation = 0;
-  player.squashX = 1; player.squashY = 1;
-  player.targetSquashX = 1; player.targetSquashY = 1;
+let isDark       = darkMQ.matches;
+let reduceMotion = reduceMQ.matches;
 
-  player.x = Math.max(70, W*0.18);
-  player.y = floorY() - player.r;
+onMQ(darkMQ, e => { isDark = e.matches; buildGradient(); });
+onMQ(reduceMQ, e => { reduceMotion = e.matches; });
 
-  updateUI();
-}
+/* ============================================================
+   3) ثوابت اللعبة  ⚠️ الوحدات px/ثانية (مش px/فريم)
+   ============================================================ */
+const GRAVITY  = 2600;   // px/s²
+const JUMP_V   = -830;   // px/s
+const MAX_FALL = 2000;   // px/s
+const BASE_SPEED = 6;    // وحدة سرعة → 6*60 = 360 px/s
+const MAX_SPEED  = 11;
 
-function startGame(){
-  resetGame();
-  state = "playing";
-  overlay.style.display = "none";
-  playSound("start");
-  spawnPowerup(true);
-  lastTime = performance.now();
-}
+const MILESTONES = [
+  'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
+  'ناوي مبسوط! 😄','ماشي صح! 🚀','تركيز عالي! 🎯'
+];
 
-function pauseGame(){
-  if(state !== "playing") return;
-  state = "paused";
-  overlay.style.display = "grid";
-  panelEmoji.textContent = "⏸️";
-  panelTitle.textContent = "وقفة صغيرة";
-  panelText.innerHTML = "خد نفس... ولما تكون جاهز نكمل من نفس المكان.";
-  mainBtn.textContent = "كمّل اللعب";
-  shareBtn.hidden = true;
-  pauseBtn.textContent = "▶";
-}
+/* ============================================================
+   4) حالة اللعبة
+   ============================================================ */
+let W = 0, H = 0, groundY = 0, bgGrad = null;
 
-function resumeGame(){
-  if(state !== "paused") return;
-  state = "playing";
-  overlay.style.display = "none";
-  pauseBtn.textContent = "Ⅱ";
-  lastTime = performance.now();
-}
+let state = 'ready';         // ready | playing | over
+let score = 0, lastShown = -1, milestone = 0;
+let speed = BASE_SPEED;
+let best  = 0;
+try { best = Number(localStorage.getItem('nawy.best')) || 0; } catch(e){}
 
-/* =========================================================
-   JUMP
-========================================================= */
-function requestJump(){
-  if(state !== "playing") return;
-  jumpBuffer = .13;
-  tryJump();
-}
+let shake = 0;
+let obstacleTimer = 0, starTimer = 0, cloudTimer = 0;
+let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
+let lastT = 0, overAt = 0;
 
-function tryJump(){
-  if(state !== "playing") return;
+const obstacles = [];
+const stars     = [];
+const clouds    = [];
+const particles = [];
 
-  const canJump = player.grounded || coyoteTime > 0 ||
-                  player.y >= floorY() - player.r - 2;
-  if(!canJump) return;
+const player = {
+  x: 80, y: 0, size: 40,
+  vy: 0, grounded: true,
+  squash: 1,
+  blinkTimer: 2, blinking: 0
+};
 
-  player.vy = JUMP_VELOCITY;
-  player.grounded = false;
-  coyoteTime = 0;
-  jumpBuffer = 0;
-
-  player.targetSquashX = 0.90;
-  player.targetSquashY = 1.12;
-
-  burst(player.x, player.y + player.r, 5, "dust");
-  playSound("jump");
-}
-
-/* =========================================================
-   INPUT
-========================================================= */
-function handleTap(e){
-  if(e) e.preventDefault();
-  if(state === "playing"){ requestJump(); return; }
-  if(state === "paused"){ resumeGame(); return; }
-  if(state === "ready" || state === "over"){ startGame(); }
-}
-
-canvas.addEventListener("pointerdown", handleTap, {passive:false});
-
-window.addEventListener("keydown", e=>{
-  if(e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW"){
-    e.preventDefault();
-    if(state === "playing") requestJump();
-    else if(state === "ready" || state === "over") startGame();
-    else if(state === "paused") resumeGame();
-  }
-  if(e.code === "KeyP" || e.code === "Escape"){
-    if(state === "playing") pauseGame();
-    else if(state === "paused") resumeGame();
-  }
-});
-
-mainBtn.addEventListener("click", e=>{
-  e.stopPropagation();
-  if(state === "paused") resumeGame();
-  else startGame();
-});
-
-shareBtn.addEventListener("click", e=>{
-  e.stopPropagation();
-  shareScore();
-});
-
-pauseBtn.addEventListener("click", e=>{
-  e.stopPropagation();
-  if(state === "playing") pauseGame();
-  else if(state === "paused") resumeGame();
-});
-
-/* =========================================================
-   SOUND
-========================================================= */
+/* ============================================================
+   5) الصوت (Web Audio بدون ملفات)
+   ============================================================ */
 let audioCtx = null;
+let muted = false;
+try { muted = localStorage.getItem('nawy.muted') === '1'; } catch(e){}
 
-function audio(){
-  if(muted) return null;
-  try{
-    if(!audioCtx){
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function unlockAudio(){
+  if (muted) return;
+  try {
+    if (!audioCtx){
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = new AC();
     }
-    if(audioCtx.state === "suspended") audioCtx.resume();
-    return audioCtx;
-  }catch{ return null; }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  } catch(e){}
 }
 
-function tone(freq, duration, type="sine", volume=.035){
-  const ac = audio();
-  if(!ac) return;
-  const osc = ac.createOscillator();
-  const gain = ac.createGain();
-  osc.type = type;
-  osc.frequency.value = freq;
-  gain.gain.setValueAtTime(volume, ac.currentTime);
-  gain.gain.exponentialRampToValueAtTime(.001, ac.currentTime + duration);
-  osc.connect(gain); gain.connect(ac.destination);
-  osc.start();
-  osc.stop(ac.currentTime + duration);
+function beep(freq, dur, type, vol, slideTo, delay){
+  if (muted) return;
+  try {
+    unlockAudio();
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime + (delay || 0);
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t0);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(1,slideTo), t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + dur + 0.03);
+  } catch(e){}
 }
 
-function playSound(name){
-  if(muted) return;
-  if(name === "jump"){ tone(440,.08,"sine",.028); }
-  if(name === "star"){
-    tone(760,.07,"sine",.035);
-    setTimeout(()=>tone(980,.08,"sine",.025), 35);
-  }
-  if(name === "power"){
-    tone(500,.08,"sine",.03);
-    setTimeout(()=>tone(720,.1,"sine",.03), 55);
-  }
-  if(name === "shield"){
-    tone(360,.09,"triangle",.04);
-    setTimeout(()=>tone(560,.13,"sine",.03), 60);
-  }
-  if(name === "hit"){ tone(110,.12,"sawtooth",.035); }
-  if(name === "start"){
-    tone(420,.08,"sine",.025);
-    setTimeout(()=>tone(620,.1,"sine",.025), 70);
-  }
-  if(name === "record"){
-    tone(660,.08,"sine",.035);
-    setTimeout(()=>tone(830,.08,"sine",.035), 75);
-    setTimeout(()=>tone(1040,.13,"sine",.03), 150);
+function sfx(name){
+  switch(name){
+    case 'jump':      beep(430, 0.13, 'square',   0.045, 720);  break;
+    case 'land':      beep(160, 0.07, 'sine',     0.035, 110);  break;
+    case 'coin':      beep(1000,0.09, 'sine',     0.055, 1500);
+                      beep(1500,0.09, 'sine',     0.030, 1900, 0.06); break;
+    case 'hit':       beep(220, 0.40, 'sawtooth', 0.070, 55);   break;
+    case 'milestone': beep(660, 0.12, 'triangle', 0.050, 660);
+                      beep(880, 0.16, 'triangle', 0.050, 880, 0.11); break;
   }
 }
 
-muteBtn.addEventListener("click", e=>{
-  e.stopPropagation();
-  muted = !muted;
-  saveNumber(SOUND_KEY, muted ? 1 : 0);
-  muteBtn.textContent = muted ? "🔇" : "🔊";
-  if(!muted) tone(600,.07);
-});
-muteBtn.textContent = muted ? "🔇" : "🔊";
+function vibrate(ms){
+  if (muted) return;
+  try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){}
+}
 
-/* =========================================================
-   SPAWNERS
-========================================================= */
-function spawnObstacle(){
-  const type = Math.random() < .72 ? "block" : "double";
-  const baseY = floorY();
+/* ============================================================
+   6) الجزيئات (تراب / شرارات / كونفيتي / نصوص طايرة)
+   ============================================================ */
+function addP(p){
+  if (particles.length > 240) return;
+  p.rot     = p.rot     || 0;
+  p.rotSpd  = p.rotSpd  || 0;
+  p.g       = p.g       || 0;
+  p.drag    = p.drag    || 0;
+  p.maxLife = p.life;
+  particles.push(p);
+}
 
-  if(type === "block"){
-    const w = rand(24,38);
-    const h = rand(34,62);
-    obstacles.push({ x: W+40, y: baseY-h, w, h, passed:false });
-  } else {
-    const w = rand(24,34);
-    const h = rand(32,50);
-    obstacles.push({ x: W+40, y: baseY-h, w, h, passed:false });
-    obstacles.push({
-      x: W + 40 + w + rand(16,25),
-      y: baseY - rand(27,40),
-      w: rand(20,30),
-      h: rand(27,40),
-      passed:false
+function burstDust(x, y, n){
+  if (reduceMotion) n = Math.ceil(n/2);
+  for (let i=0;i<n;i++){
+    addP({
+      type:'dust', x: x + rand(-8,8), y: y + rand(-4,2),
+      vx: rand(-90,-20), vy: rand(-70,-8),
+      g: 220, drag: 2.4, size: rand(2,4.5),
+      life: rand(0.3,0.6),
+      color: isDark ? '#475569' : '#cbd5e1'
     });
   }
 }
 
-function spawnStarArc(){
-  const startX = W + 60;
-  const base = floorY();
-  const high = Math.random() < .5;
-  const y = high ? base - rand(135,185) : base - rand(70,110);
-  const amount = Math.random() < .5 ? 3 : 4;
-  for(let i=0;i<amount;i++){
-    stars.push({
-      x: startX + i*34,
-      y: y - Math.sin((i/(amount-1))*Math.PI)*18,
-      r: 8,
-      rotation: Math.random()*Math.PI
+function burstSparkle(x, y, n){
+  for (let i=0;i<n;i++){
+    const a = rand(0,TAU), sp = rand(40,150);
+    addP({
+      type:'spark', x, y,
+      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 30,
+      g: 260, drag: 1.8, size: rand(2,4),
+      life: rand(0.3,0.55),
+      color: pick(['#fbbf24','#fcd34d','#f59e0b','#fff7cc'])
     });
   }
 }
 
-function spawnPowerup(force=false){
-  if(powerups.length >= 1 && !force) return;
-  const type = Math.random() < .55 ? "shield" : "magnet";
-  powerups.push({
-    x: W+60,
-    y: floorY() - rand(105,165),
-    r: 15,
-    type,
-    bob: Math.random()*Math.PI*2
-  });
-}
-
-/* =========================================================
-   PARTICLES
-========================================================= */
-function burst(x,y,count=8,type="normal"){
-  for(let i=0;i<count;i++){
-    const angle = Math.random()*Math.PI*2;
-    const speed = type === "dust" ? rand(25,80) : rand(50,170);
-    particles.push({
-      x, y,
-      vx: Math.cos(angle)*speed,
-      vy: Math.sin(angle)*speed,
-      life: rand(.25,.55),
-      maxLife:.55,
-      size: type === "dust" ? rand(2,5) : rand(2,4),
-      type
+function burstConfetti(x, y, n){
+  const colors = ['#2563eb','#60a5fa','#fbbf24','#34d399','#f472b6','#a78bfa'];
+  for (let i=0;i<n;i++){
+    const a = rand(-Math.PI, 0), sp = rand(120, 380);
+    addP({
+      type:'confetti', x, y,
+      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
+      g: 700, drag: 0.6, size: rand(6,11),
+      rot: rand(0,TAU), rotSpd: rand(-12,12),
+      life: rand(0.8,1.6),
+      color: pick(colors)
     });
   }
+}
+
+function spawnText(x, y, text){
+  addP({ type:'text', x, y, vx:0, vy:-58, life:0.85, size:15,
+         color:'#f59e0b', text });
 }
 
 function updateParticles(dt){
-  for(let i=particles.length-1;i>=0;i--){
+  for (let i=particles.length-1;i>=0;i--){
     const p = particles[i];
     p.life -= dt;
-    if(p.life <= 0){ particles.splice(i,1); continue; }
-    p.x += p.vx*dt;
-    p.y += p.vy*dt;
-    p.vy += p.type === "dust" ? 100*dt : 280*dt;
-    p.vx *= Math.pow(.08, dt);
+    if (p.life <= 0){ particles.splice(i,1); continue; }
+    p.vy += p.g * dt;
+    if (p.drag){ const d = Math.max(0, 1 - p.drag*dt); p.vx *= d; p.vy *= d; }
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.rot += p.rotSpd * dt;
   }
 }
 
-/* =========================================================
-   UPDATE
-========================================================= */
-function update(dt){
-  if(state !== "playing") return;
-  elapsed += dt;
-
-  targetSpeed = getWorldSpeed();
-  worldSpeed += (targetSpeed - worldSpeed) * Math.min(1, dt*2.8);
-
-  score += dt*12;
-
-  if(score >= milestone + 100){
-    milestone += 100;
-    showToast(pick([
-      "برافو يا ناوي! 🔥",
-      "كمّل يا بطل!",
-      "عينك على الرقم القياسي 👀",
-      "ناوي مكمل!",
-      "جامد جدًا 👏",
-      "ولا غلطة!"
-    ]));
-  }
-
-  updatePlayer(dt);
-  updateObstacles(dt);
-  updateStars(dt);
-  updatePowerups(dt);
-  updateParticles(dt);
-
-  obstacleTimer -= dt;
-  powerTimer -= dt;
-
-  if(obstacleTimer <= 0){
-    spawnObstacle();
-    const difficulty = clamp(score/1000, 0, 1);
-    const reaction = 1.20 - difficulty*.20;
-    obstacleTimer = reaction + rand(.18,.42);
-  }
-
-  if(powerTimer <= 0){
-    spawnPowerup();
-    powerTimer = rand(9,13);
-  }
-
-  updateUI();
+/* ============================================================
+   7) المقاس
+   ============================================================ */
+function buildGradient(){
+  const g = ctx.createLinearGradient(0,0,0,Math.max(groundY,1));
+  if (isDark){ g.addColorStop(0,'#0b1220'); g.addColorStop(1,'#141d2e'); }
+  else       { g.addColorStop(0,'#e8f1ff'); g.addColorStop(1,'#ffffff'); }
+  bgGrad = g;
 }
 
-/* =========================================================
-   PLAYER PHYSICS
-========================================================= */
-function updatePlayer(dt){
-  const floor = floorY();
+function resize(){
+  const rect = canvas.getBoundingClientRect();
+  const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+  const nw = Math.max(1, Math.round(rect.width));
+  const nh = Math.max(1, Math.round(rect.height));
 
-  if(!player.grounded) coyoteTime -= dt;
-  else coyoteTime = .10;
+  canvas.width  = Math.round(nw * dpr);
+  canvas.height = Math.round(nh * dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  if(jumpBuffer > 0){
-    jumpBuffer -= dt;
-    if(player.grounded || coyoteTime > 0) tryJump();
+  const oldGround = groundY;
+  W = nw; H = nh;
+  groundY = Math.round(H - Math.max(52, H * 0.16));
+
+  player.size = clamp(Math.round(H * 0.085), 32, 44);
+
+  if (!oldGround){
+    player.y = groundY - player.size;
+  } else if (oldGround !== groundY){
+    const dy = groundY - oldGround;
+    for (const o of obstacles) o.y += dy;
+    for (const s of stars)     s.y += dy;
+    if (state === 'playing') player.y += dy;
+    else player.y = groundY - player.size;
   }
 
-  player.vy += GRAVITY*dt;
-  player.vy  = Math.min(player.vy, 1900);
-  player.y  += player.vy*dt;
-
-  if(player.y + player.r >= floor){
-    player.y = floor - player.r;
-
-    if(player.vy > 0){
-      player.vy = 0;
-
-      if(!player.grounded){
-        burst(player.x, floor-2, 5, "dust");
-        player.targetSquashX = 1.12;
-        player.targetSquashY = 0.90;
-      }
-
-      player.grounded = true;
-      coyoteTime = .10;
-
-      if(jumpBuffer > 0) tryJump();
-    }
-  }
-
-  if(!player.grounded){
-    player.rotation = clamp(player.vy/2400, -.20, .20);
-  } else {
-    player.rotation *= Math.max(0, 1 - dt*8);
-  }
-
-  /* Smooth squash/stretch */
-  const k = 1 - Math.pow(0.001, dt);
-  player.squashX += (player.targetSquashX - player.squashX) * k;
-  player.squashY += (player.targetSquashY - player.squashY) * k;
-
-  player.targetSquashX += (1 - player.targetSquashX) * Math.min(1, dt*5);
-  player.targetSquashY += (1 - player.targetSquashY) * Math.min(1, dt*5);
-
-  if(player.shield > 0) player.shield -= dt;
-  if(player.magnet > 0) player.magnet -= dt;
+  player.x = Math.max(46, W * 0.14);
+  buildGradient();
 }
 
-/* =========================================================
-   OBSTACLES UPDATE
-========================================================= */
-function updateObstacles(dt){
-  const dx = worldSpeed*60*dt;
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 120));
+if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
 
-  const pr = player.r * 0.72;
-  const px = player.x;
-  const py = player.y;
+/* ============================================================
+   8) الرسومات
+   ============================================================ */
+function drawSky(){
+  ctx.fillStyle = bgGrad || '#ffffff';
+  ctx.fillRect(0, 0, W, groundY + 1);
 
-  for(let i=obstacles.length-1;i>=0;i--){
-    const o = obstacles[i];
-    o.x -= dx;
-
-    if(circleRect(px, py, pr, o.x+3, o.y+4, Math.max(1,o.w-6), Math.max(1,o.h-5))){
-      if(player.shield > 0){
-        player.shield = 0;
-        burst(player.x, player.y, 16, "shield");
-        showToast("🛡️ الحماية أنقذتك!");
-        playSound("shield");
-        obstacles.splice(i,1);
-        continue;
-      } else {
-        playSound("hit");
-        burst(player.x, player.y, 18, "hit");
-        shake = 1;
-        gameOver();
-        return;
-      }
-    }
-
-    if(!o.passed && o.x + o.w < player.x){
-      o.passed = true;
-      combo++;
-      if(combo % 3 === 0) showToast("🔥 سلسلة " + combo);
-    }
-
-    if(o.x + o.w < -80) obstacles.splice(i,1);
-  }
-}
-
-/* =========================================================
-   STARS UPDATE
-========================================================= */
-function updateStars(dt){
-  const dx = worldSpeed*60*dt;
-  const px = player.x;
-  const py = player.y;
-
-  for(let i=stars.length-1;i>=0;i--){
-    const s = stars[i];
-    s.x -= dx;
-    s.rotation += dt*4;
-
-    if(player.magnet > 0){
-      const ax = px - s.x;
-      const ay = py - s.y;
-      const dist = Math.hypot(ax, ay);
-      if(dist < 210 && dist > 1){
-        const force = 1 - dist/210;
-        s.x += ax * dt * (4 + force*7);
-        s.y += ay * dt * (4 + force*7);
-      }
-    }
-
-    const dist = Math.hypot(px - s.x, py - s.y);
-    if(dist < player.r + s.r + 7){
-      collectStar();
-      stars.splice(i,1);
-      continue;
-    }
-
-    if(s.x < -50) stars.splice(i,1);
-  }
-}
-
-function collectStar(){
-  starCount++;
-  combo++;
-  burst(player.x, player.y, 9, "star");
-  playSound("star");
-
-  if(starCount % 5 === 0){
-    showToast(pick([
-      "⭐ عاش يا ناوي!",
-      "⭐ تجميع ممتاز!",
-      "⭐ كمل!",
-      "⭐ عينك على الرقم!"
-    ]));
-  }
-}
-
-/* =========================================================
-   POWERUPS UPDATE
-========================================================= */
-function updatePowerups(dt){
-  const dx = worldSpeed*60*dt;
-
-  for(let i=powerups.length-1;i>=0;i--){
-    const p = powerups[i];
-    p.x -= dx;
-    p.bob += dt*4;
-
-    const py = p.y + Math.sin(p.bob)*6;
-    const dist = Math.hypot(player.x - p.x, player.y - py);
-
-    if(dist < player.r + p.r + 5){
-      if(p.type === "shield"){
-        player.shield = 7;
-        showToast("🛡️ حماية لمدة 7 ثواني");
-      } else {
-        player.magnet = 7;
-        showToast("🧲 المغناطيس شغال!");
-      }
-      burst(p.x, py, 14, "power");
-      playSound("power");
-      powerups.splice(i,1);
-      continue;
-    }
-
-    if(p.x < -60) powerups.splice(i,1);
-  }
-}
-
-/* =========================================================
-   DRAW
-========================================================= */
-function draw(){
+  // شمس / هالة
   ctx.save();
+  ctx.fillStyle = '#2563eb';
+  ctx.globalAlpha = isDark ? 0.10 : 0.16;
+  ctx.beginPath(); ctx.arc(W-64, 62, 68, 0, TAU); ctx.fill();
+  ctx.globalAlpha = isDark ? 0.16 : 0.28;
+  ctx.beginPath(); ctx.arc(W-64, 62, 44, 0, TAU); ctx.fill();
+  ctx.restore();
+}
 
-  if(shake > 0){
-    const amount = shake*5;
-    ctx.translate(rand(-amount,amount), rand(-amount,amount));
-    shake *= .88;
-    if(shake < .01) shake = 0;
+function drawClouds(){
+  ctx.save();
+  ctx.fillStyle = isDark ? 'rgba(148,163,184,0.14)' : 'rgba(148,163,184,0.28)';
+  for (const c of clouds){
+    const r = c.w * 0.30;
+    ctx.beginPath();
+    ctx.arc(c.x,            c.y,           r,        0, TAU);
+    ctx.arc(c.x + r*1.10,   c.y - r*0.50,  r*1.25,   0, TAU);
+    ctx.arc(c.x + r*2.30,   c.y,           r*0.95,   0, TAU);
+    ctx.fill();
   }
+  ctx.restore();
+}
+
+function hillLayer(off, wl, amp, color){
+  ctx.beginPath();
+  ctx.moveTo(-2, groundY + 2);
+  for (let x = -2; x <= W + 2; x += 12){
+    const y = groundY - 26
+      - Math.sin((x + off) / wl) * amp
+      - Math.sin((x + off) / (wl * 0.42)) * amp * 0.35;
+    ctx.lineTo(x, y);
+  }
+  ctx.lineTo(W + 2, groundY + 2);
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+function drawHills(){
+  hillLayer(hillOff1, 130, 22, isDark ? 'rgba(37,99,235,0.10)' : 'rgba(37,99,235,0.07)');
+  hillLayer(hillOff2,  95, 16, isDark ? 'rgba(37,99,235,0.16)' : 'rgba(37,99,235,0.11)');
+}
+
+function drawGround(){
+  ctx.fillStyle = isDark ? '#0d1522' : '#ffffff';
+  ctx.fillRect(0, groundY, W, H - groundY);
+
+  ctx.strokeStyle = isDark ? '#334155' : '#1e293b';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, groundY + 1);
+  ctx.lineTo(W, groundY + 1);
+  ctx.stroke();
+
+  const gap = 44;
+  const start = -((groundOff % gap) + gap) % gap;
+  ctx.strokeStyle = isDark ? '#1e293b' : '#e2e8f0';
+  ctx.lineWidth = 3;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let x = start; x < W + gap; x += gap){
+    ctx.moveTo(x, groundY + 18);
+    ctx.lineTo(x + 20, groundY + 18);
+  }
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+}
+
+function drawStars(){
+  for (const s of stars){
+    ctx.save();
+    ctx.translate(s.x, s.y);
+    ctx.rotate(s.rot);
+    ctx.beginPath();
+    for (let i = 0; i < 10; i++){
+      const a  = -Math.PI/2 + i * Math.PI/5;
+      const rr = (i % 2) ? s.r * 0.45 : s.r;
+      const px = Math.cos(a) * rr;
+      const py = Math.sin(a) * rr;
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#fbbf24';
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#f59e0b';
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function drawObstacles(){
+  for (const o of obstacles){
+    // ظل
+    ctx.save();
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(o.x + o.w/2, groundY + 4, o.w*0.55, 4, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+
+    // جسم المبنى
+    ctx.fillStyle = isDark ? '#334155' : '#1e293b';
+    roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
+    ctx.fill();
+
+    // سطح
+    ctx.fillStyle = isDark ? '#475569' : '#334155';
+    roundRectPath(ctx, o.x, o.y, o.w, Math.min(9, o.h*0.22), 7);
+    ctx.fill();
+
+    // شبابيك
+    ctx.fillStyle = isDark ? '#93c5fd' : '#bfdbfe';
+    const cols = o.w >= 46 ? 3 : 2;
+    const rows = o.h >= 46 ? 2 : 1;
+    const bw = 5, bh = 5;
+    for (let r = 0; r < rows; r++){
+      for (let c = 0; c < cols; c++){
+        const px = o.x + (o.w/(cols+1))*(c+1) - bw/2;
+        const py = o.y + (rows === 1 ? o.h*0.55 : o.h*(0.38 + r*0.34)) - bh/2;
+        roundRectPath(ctx, px, py, bw, bh, 1.5);
+        ctx.fill();
+      }
+    }
+  }
+}
+
+function drawPlayer(){
+  const s = player.size;
+  const cx = player.x + s/2;
+  const bottomY = player.y + s;
+  const sq = player.squash;
+  const sx = 1 / Math.sqrt(sq);
+
+  // ظل أرضي
+  const airH = clamp((groundY - player.y - s) / 170, 0, 1);
+  ctx.save();
+  ctx.globalAlpha = (isDark ? 0.30 : 0.13) * (1 - airH*0.7);
+  ctx.fillStyle = '#000';
+  ctx.beginPath();
+  ctx.ellipse(cx, groundY + 5, s*0.42*(1-airH*0.4), 5*(1-airH*0.4), 0, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(cx, bottomY);
+  ctx.scale(sx, sq);
+
+  const R   = s/2;
+  const cy  = -R;
+
+  // الجسم
+  ctx.fillStyle = '#2563eb';
+  ctx.beginPath(); ctx.arc(0, cy, R, 0, TAU); ctx.fill();
+
+  // لمعة
+  ctx.save();
+  ctx.globalAlpha = 0.22;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.ellipse(-R*0.32, cy - R*0.42, R*0.34, R*0.20, -0.6, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  // عيون
+  const eyeR = R * 0.26;
+  const eyeX = R * 0.42;
+  const eyeY = cy - R * 0.20;
+
+  if (player.blinking > 0){
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = R * 0.12;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-eyeX - eyeR*0.7, eyeY); ctx.lineTo(-eyeX + eyeR*0.7, eyeY);
+    ctx.moveTo( eyeX - eyeR*0.7, eyeY); ctx.lineTo( eyeX + eyeR*0.7, eyeY);
+    ctx.stroke();
+  } else {
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.arc(-eyeX, eyeY, eyeR, 0, TAU);
+    ctx.arc( eyeX, eyeY, eyeR, 0, TAU);
+    ctx.fill();
+
+    const lookY = clamp(player.vy / 2600, -0.3, 0.3) * eyeR;
+    ctx.fillStyle = '#0f172a';
+    ctx.beginPath();
+    ctx.arc(-eyeX + eyeR*0.32, eyeY + lookY, eyeR*0.52, 0, TAU);
+    ctx.arc( eyeX + eyeR*0.32, eyeY + lookY, eyeR*0.52, 0, TAU);
+    ctx.fill();
+  }
+
+  // بقّ
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  ctx.fillStyle = '#fb7185';
+  ctx.beginPath();
+  ctx.arc(-R*0.62, cy + R*0.18, R*0.15, 0, TAU);
+  ctx.arc( R*0.62, cy + R*0.18, R*0.15, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+
+  // بق
+  ctx.strokeStyle = '#ffffff';
+  ctx.lineWidth = R * 0.10;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  if (player.grounded){
+    ctx.arc(0, cy + R*0.10, R*0.30, Math.PI*0.25, Math.PI*0.75);
+  } else {
+    ctx.arc(0, cy + R*0.28, R*0.16, 0, TAU);
+  }
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function drawParticles(){
+  for (const p of particles){
+    const a = clamp(p.life / p.maxLife, 0, 1);
+    ctx.globalAlpha = a;
+
+    if (p.type === 'text'){
+      ctx.font = '800 ' + p.size + 'px system-ui, -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle = p.color;
+      ctx.fillText(p.text, p.x, p.y);
+
+    } else if (p.type === 'confetti'){
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/4, p.size, p.size/2);
+      ctx.restore();
+
+    } else if (p.type === 'spark'){
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size*a, 0, TAU); ctx.fill();
+
+    } else {
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, TAU); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'alphabetic';
+}
+
+function render(){
+  ctx.clearRect(0, 0, W, H);
+
+  ctx.save();
+  if (shake > 0.2) ctx.translate(rand(-shake,shake)*0.5, rand(-shake,shake)*0.5);
 
   drawSky();
   drawClouds();
   drawHills();
   drawGround();
-
   drawStars();
-  drawPowerups();
   drawObstacles();
   drawParticles();
-  drawPlayer();
+  if (state !== 'over') drawPlayer();
 
   ctx.restore();
 }
 
-/* =========================================================
-   SKY
-========================================================= */
-function drawSky(){
-  const g = ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0, "#f4faff");
-  g.addColorStop(.52, "#ffffff");
-  g.addColorStop(1, "#f7fafc");
-  ctx.fillStyle = g;
-  ctx.fillRect(0,0,W,H);
-
-  const sunX = W*.82, sunY = H*.19;
-  const rg = ctx.createRadialGradient(sunX,sunY,0, sunX,sunY,90);
-  rg.addColorStop(0, "rgba(255,218,112,.34)");
-  rg.addColorStop(1, "rgba(255,218,112,0)");
-  ctx.fillStyle = rg;
-  ctx.fillRect(sunX-100, sunY-100, 200, 200);
-
-  ctx.fillStyle = "#ffd866";
-  ctx.beginPath();
-  ctx.arc(sunX, sunY, 21, 0, Math.PI*2);
-  ctx.fill();
+/* ============================================================
+   9) الأحداث والمولّدات
+   ============================================================ */
+function spawnObstacle(){
+  const r = Math.random();
+  let w, h;
+  if      (r < 0.42){ w = 26; h = 38; }   // قصير
+  else if (r < 0.78){ w = 22; h = 54; }   // طويل
+  else              { w = 50; h = 30; }   // عريض وواطي
+  obstacles.push({ x: W + 40, w, h, y: groundY - h });
 }
 
-/* =========================================================
-   CLOUDS
-========================================================= */
-function drawClouds(){
-  for(const c of clouds){
-    c.x -= c.speed * worldSpeed * .35;
-    if(c.x + c.w < -30) c.x = W + 40;
-
-    ctx.save();
-    ctx.globalAlpha = c.alpha;
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.arc(c.x, c.y, c.w*.18, 0, Math.PI*2);
-    ctx.arc(c.x + c.w*.22, c.y - 8, c.w*.25, 0, Math.PI*2);
-    ctx.arc(c.x + c.w*.46, c.y, c.w*.20, 0, Math.PI*2);
-    roundRectPath(ctx, c.x - c.w*.02, c.y, c.w*.48, c.w*.17, 12);
-    ctx.fill();
-    ctx.restore();
+function spawnStarArc(){
+  const startX = W + 90;
+  // ما نولّدش نجوم فوق عقبة
+  for (const o of obstacles){
+    if (o.x < startX + 130 && o.x + o.w > startX - 30) return;
+  }
+  const n = 3;
+  const baseY = groundY - rand(95, 140);
+  for (let i = 0; i < n; i++){
+    stars.push({
+      x: startX + i*36,
+      y: baseY - Math.sin((i/(n-1)) * Math.PI) * 22,
+      r: 10,
+      rot: rand(0, TAU)
+    });
   }
 }
 
-/* =========================================================
-   HILLS
-========================================================= */
-function drawHills(){
-  ctx.save();
-
-  ctx.fillStyle = "#eef4f7";
-  ctx.beginPath();
-  ctx.moveTo(0, floorY()+15);
-  for(let i=0; i<=W+300; i+=100){
-    const y = floorY() - 42 - Math.sin(i*.008)*20;
-    ctx.quadraticCurveTo(i+50, y-30, i+100, floorY()+15);
-  }
-  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#f4f7f9";
-  ctx.beginPath();
-  ctx.moveTo(0, floorY()+30);
-  for(let i=0; i<=W+300; i+=120){
-    const y = floorY() - 17 - Math.sin(i*.012+1)*13;
-    ctx.quadraticCurveTo(i+60, y-20, i+120, floorY()+30);
-  }
-  ctx.lineTo(W,H); ctx.lineTo(0,H); ctx.closePath();
-  ctx.fill();
-
-  ctx.restore();
+function spawnCloud(){
+  const w = rand(60, 110);
+  clouds.push({ x: W + w, y: rand(H*0.08, groundY*0.45), w, spd: rand(6, 16) });
 }
 
-/* =========================================================
-   GROUND
-========================================================= */
-function drawGround(){
-  const y = floorY();
-  ctx.fillStyle = "#edf2f5";
-  ctx.fillRect(0, y, W, H-y);
-  ctx.fillStyle = "#dce4ea";
-  ctx.fillRect(0, y, W, 2);
+/* ============================================================
+   10) التحديث
+   ============================================================ */
+function updateAmbient(dt){
+  const worldSpeed = (state === 'playing') ? speed * 60 : 70;
 
-  const offset = (elapsed * worldSpeed * 45) % 42;
-  ctx.fillStyle = "#dfe6eb";
-  for(let x = -50-offset; x < W+50; x += 42){
-    ctx.fillRect(x, y+20, 16, 2);
+  hillOff1  += worldSpeed * 0.06 * dt;
+  hillOff2  += worldSpeed * 0.14 * dt;
+  groundOff += worldSpeed * dt;
+
+  cloudTimer -= dt;
+  if (cloudTimer <= 0){ spawnCloud(); cloudTimer = rand(2.5, 6); }
+
+  for (let i = clouds.length-1; i >= 0; i--){
+    const c = clouds[i];
+    c.x -= (c.spd + worldSpeed * 0.05) * dt;
+    if (c.x + c.w < -40) clouds.splice(i, 1);
   }
 }
 
-/* =========================================================
-   STARS
-========================================================= */
-function drawStars(){
-  for(const s of stars){
-    ctx.save();
-    ctx.translate(s.x, s.y);
-    ctx.rotate(s.rotation);
-    ctx.fillStyle = "#ffc928";
-    ctx.beginPath();
-    for(let i=0;i<10;i++){
-      const a = -Math.PI/2 + i*Math.PI/5;
-      const r = i%2===0 ? s.r : s.r*.42;
-      const x = Math.cos(a)*r;
-      const y = Math.sin(a)*r;
-      if(i===0) ctx.moveTo(x,y);
-      else ctx.lineTo(x,y);
+function update(dt){
+  /* ---------- فيزياء اللاعب ---------- */
+  player.vy = Math.min(player.vy + GRAVITY * dt, MAX_FALL);
+  player.y += player.vy * dt;
+
+  const floor = groundY - player.size;
+
+  if (player.y >= floor){
+    if (!player.grounded){
+      player.squash = 0.74;
+      if (!reduceMotion) shake = Math.min(shake + 2, 4);
+      burstDust(player.x + player.size/2, groundY, 7);
+      sfx('land');
     }
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-/* =========================================================
-   POWERUPS
-========================================================= */
-function drawPowerups(){
-  for(const p of powerups){
-    const y = p.y + Math.sin(p.bob)*6;
-    ctx.save();
-
-    ctx.shadowBlur = 16;
-    ctx.shadowColor = p.type === "shield"
-      ? "rgba(31,139,255,.18)"
-      : "rgba(255,177,40,.18)";
-
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.arc(p.x, y, p.r, 0, Math.PI*2);
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = p.type === "shield" ? "#55a9ff" : "#f1b72f";
-    ctx.stroke();
-
-    ctx.font = "15px system-ui";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText(p.type === "shield" ? "🛡️" : "🧲", p.x, y+1);
-
-    ctx.restore();
-  }
-}
-
-/* =========================================================
-   OBSTACLES
-========================================================= */
-function drawObstacles(){
-  for(const o of obstacles){
-    ctx.save();
-
-    // ظل خارجي
-    ctx.shadowColor = "rgba(20,40,70,.18)";
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetY = 3;
-
-    // الجسم
-    ctx.fillStyle = "#303b4c";
-    roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
-    ctx.fill();
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetY = 0;
-
-    // شريط فاتح فوق
-    ctx.fillStyle = "#485568";
-    roundRectPath(ctx, o.x+4, o.y+4, Math.max(3,o.w-8), 5, 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-}
-
-/* =========================================================
-   PARTICLES
-========================================================= */
-function drawParticles(){
-  for(const p of particles){
-    const alpha = clamp(p.life/p.maxLife, 0, 1);
-    ctx.save();
-    ctx.globalAlpha = alpha;
-
-    if(p.type === "dust")   ctx.fillStyle = "#b9c4ce";
-    else if(p.type === "shield") ctx.fillStyle = "#55a9ff";
-    else if(p.type === "star")   ctx.fillStyle = "#ffc928";
-    else ctx.fillStyle = "#7cbcff";
-
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-/* =========================================================
-   NAWY — MASCOT EDITION
-========================================================= */
-function drawPlayer(){
-  const r = player.r;
-  const x = player.x;
-  const y = player.y;
-
-  ctx.save();
-  ctx.translate(x, y);
-
-  /* squash خفيف جدًا — 20% بس عشان يفضل دائرة */
-  const sx = 1 + (player.squashX - 1) * 0.20;
-  const sy = 1 + (player.squashY - 1) * 0.20;
-  ctx.scale(sx, sy);
-
-  /* دوران خفيف */
-  ctx.rotate(player.rotation * 0.25);
-
-  /* ============ 1) ظل أرضي ============ */
-  const airH = clamp((floorY() - y - r) / 200, 0, 1);
-  ctx.save();
-  ctx.globalAlpha = 0.18 * (1 - airH * 0.65);
-  ctx.fillStyle = "#0a1a3a";
-  ctx.beginPath();
-  ctx.ellipse(
-    0, floorY() - y + r + 4,
-    r * 1.05 * (1 - airH * 0.4),
-    r * 0.22 * (1 - airH * 0.4),
-    0, 0, Math.PI * 2
-  );
-  ctx.fill();
-  ctx.restore();
-
-  /* ============ 2) هالة المغناطيس ============ */
-  if(player.magnet > 0){
-    ctx.save();
-    ctx.globalAlpha = .35 + Math.sin(elapsed * 7) * .15;
-    ctx.strokeStyle = "#f1b72f";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 7]);
-    ctx.beginPath();
-    ctx.arc(0, 0, r + 9, 0, Math.PI * 2);
-    ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.restore();
-  }
-
-  /* ============ 3) هالة الحماية ============ */
-  if(player.shield > 0){
-    const pulse = 1 + Math.sin(elapsed * 8) * .05;
-    ctx.save();
-    ctx.scale(pulse, pulse);
-    const sGrad = ctx.createRadialGradient(0, 0, r - 2, 0, 0, r + 16);
-    sGrad.addColorStop(0, "rgba(49,154,255,0)");
-    sGrad.addColorStop(.65, "rgba(49,154,255,.28)");
-    sGrad.addColorStop(1, "rgba(49,154,255,0)");
-    ctx.fillStyle = sGrad;
-    ctx.beginPath(); ctx.arc(0, 0, r + 16, 0, Math.PI * 2); ctx.fill();
-
-    ctx.strokeStyle = "rgba(90,175,255,.75)";
-    ctx.lineWidth = 2.4;
-    ctx.beginPath(); ctx.arc(0, 0, r + 10, 0, Math.PI * 2); ctx.stroke();
-    ctx.restore();
-  }
-
-  /* ============ 4) الإيدين ============ */
-  const armSwing = player.grounded
-    ? Math.sin(elapsed * 10) * 0.30
-    : -1.05;
-
-  drawArm( r * 0.92, 0, armSwing, +1, r);
-  drawArm(-r * 0.92, 0, armSwing, -1, r);
-
-  /* ============ 5) الجسم (الدائرة الزرقا) ============ */
-
-  // ظل ناعم
-  ctx.save();
-  ctx.shadowColor = "rgba(20,90,200,.28)";
-  ctx.shadowBlur = 12;
-  ctx.shadowOffsetY = 3;
-  ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.fillStyle = "#2563EB";
-  ctx.fill();
-  ctx.restore();
-
-  // تدرج ناعم
-  const g = ctx.createLinearGradient(0, -r, 0, r);
-  g.addColorStop(0,   "#4A96F0");
-  g.addColorStop(.55, "#2563EB");
-  g.addColorStop(1,   "#1A4FBF");
-
-  ctx.beginPath();
-  ctx.arc(0, 0, r, 0, Math.PI * 2);
-  ctx.fillStyle = g;
-  ctx.fill();
-
-  // لمعة علوية صغيرة
-  ctx.save();
-  ctx.globalAlpha = 0.32;
-  ctx.fillStyle = "#FFFFFF";
-  ctx.beginPath();
-  ctx.ellipse(-r*0.30, -r*0.44, r*0.28, r*0.14, -0.5, 0, Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-
-  /* ============ 6) الوش ============ */
-
-  // رمش تلقائي
-  const cycle = elapsed % 3.2;
-  const blinkScale = cycle < 0.14
-    ? Math.abs(Math.cos(cycle / 0.14 * Math.PI))
-    : 1;
-
-  // خدود وردية
-  ctx.save();
-  ctx.globalAlpha = 0.32;
-  ctx.fillStyle = "#FF9AAB";
-  ctx.beginPath();
-  ctx.ellipse(-r*0.55, r*0.12, r*0.13, r*0.085, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse( r*0.55, r*0.12, r*0.13, r*0.085, 0, 0, Math.PI*2);
-  ctx.fill();
-  ctx.restore();
-
-  // العيون — نقط بسيطة
-  const eyeX = r * 0.32;
-  const eyeY = -r * 0.14;
-  const eyeR = r * 0.105;
-
-  ctx.save();
-  ctx.fillStyle = "#0A1A3A";
-  for(const dir of [-1, 1]){
-    ctx.save();
-    ctx.translate(dir * eyeX, eyeY);
-    ctx.scale(1, blinkScale);
-    ctx.beginPath();
-    ctx.arc(0, 0, eyeR, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.restore();
-  }
-  ctx.restore();
-
-  // الابتسامة — قوس رفيع
-  ctx.save();
-  ctx.strokeStyle = "#0A1A3A";
-  ctx.lineWidth = Math.max(1.8, r * 0.11);
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.arc(0, r * 0.14, r * 0.36,
-          0.18 * Math.PI, 0.82 * Math.PI);
-  ctx.stroke();
-  ctx.restore();
-
-  ctx.restore();
-}
-
-/* =========================================================
-   دالة مساعدة: رسم الإيد
-========================================================= */
-function drawArm(originX, originY, swing, dir, r){
-  ctx.save();
-  ctx.translate(originX, originY);
-  ctx.rotate(dir * swing);
-
-  const armLen = r * 0.60;
-  const armW   = Math.max(3, r * 0.16);
-  const color  = "#1A5FC7";
-
-  // الذراع
-  ctx.strokeStyle = color;
-  ctx.lineWidth = armW;
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(dir * armLen, armLen * 0.60);
-  ctx.stroke();
-
-  // اليد (دائرة صغيرة)
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(dir * armLen, armLen * 0.60, armW * 1.05, 0, Math.PI * 2);
-  ctx.fill();
-
-  // لمعة خفيفة على اليد
-  ctx.save();
-  ctx.globalAlpha = 0.35;
-  ctx.fillStyle = "#FFFFFF";
-  ctx.beginPath();
-  ctx.arc(dir * armLen - armW*0.3, armLen * 0.60 - armW*0.3, armW*0.35, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.restore();
-}
-
-/* =========================================================
-   UI
-========================================================= */
-function updateUI(){
-  scoreEl.textContent = Math.floor(score);
-  bestEl.textContent  = Math.max(best, Math.floor(score));
-  comboEl.textContent = combo;
-  starsEl.textContent = starCount;
-
-  if(player.magnet > 0){
-    powerChip.style.display = "block";
-    powerChip.innerHTML = "🧲 مغناطيس <strong>" + Math.ceil(player.magnet) + "ث</strong>";
+    player.y = floor;
+    player.vy = 0;
+    player.grounded = true;
   } else {
-    powerChip.style.display = "none";
+    player.grounded = false;
   }
 
-  if(player.shield > 0){
-    shieldChip.style.display = "block";
-    shieldChip.innerHTML = "🛡️ حماية <strong>" + Math.ceil(player.shield) + "ث</strong>";
-  } else {
-    shieldChip.style.display = "none";
+  player.squash += (1 - player.squash) * 12 * dt;
+  if (Math.abs(player.squash - 1) < 0.002) player.squash = 1;
+
+  /* ---------- الرمش ---------- */
+  player.blinkTimer -= dt;
+  if (player.blinkTimer <= 0){
+    player.blinking = 0.13;
+    player.blinkTimer = rand(2.2, 5.5);
   }
-}
+  if (player.blinking > 0) player.blinking -= dt;
 
-/* =========================================================
-   TOAST
-========================================================= */
-function showToast(text){
-  toast.textContent = text;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>toast.classList.remove("show"), 1300);
-}
+  /* ---------- النقاط والصعوبة ---------- */
+  score += dt * 12;
+  const shown = Math.floor(score);
+  if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
 
-/* =========================================================
-   GAME OVER
-========================================================= */
-function gameOver(){
-  state = "over";
+  speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.02);
 
-  const finalScore = Math.floor(score);
-  const isRecord = finalScore > best;
-
-  if(isRecord){
-    best = finalScore;
-    saveNumber(STORE_KEY, best);
-    playSound("record");
-    burst(player.x, player.y, 28, "star");
+  /* ---------- محطات ---------- */
+  const ms = Math.floor(score / 100);
+  if (ms > milestone){
+    milestone = ms;
+    showToast(pick(MILESTONES));
+    sfx('milestone');
   }
 
-  updateUI();
-  overlay.style.display = "grid";
-
-  if(isRecord){
-    panelEmoji.textContent = "🏆";
-    panelTitle.textContent = "رقمك الجديد!";
-    panelText.innerHTML =
-      "حققت <b>" + finalScore + "</b> نقطة!<br>" +
-      "كده عندك أفضل نتيجة جديدة. 🔥";
-  } else {
-    panelEmoji.textContent = "😄";
-    panelTitle.textContent = "جولة حلوة!";
-    panelText.innerHTML =
-      "حققت <b>" + finalScore + "</b> نقطة<br>" +
-      "أفضل نتيجة: <b>" + best + "</b><br>" +
-      "جاهز تكسرها؟";
+  /* ---------- توليد العقبات ---------- */
+  obstacleTimer -= dt;
+  if (obstacleTimer <= 0){
+    spawnObstacle();
+    obstacleTimer = Math.max(0.82, 1.5 - score * 0.006) * rand(0.92, 1.12);
   }
 
-  mainBtn.textContent = "يلا تاني";
-  shareBtn.hidden = false;
-  pauseBtn.textContent = "Ⅱ";
-}
+  const dx = speed * 60 * dt;
 
-/* =========================================================
-   SHARE
-========================================================= */
-async function shareScore(){
-  const text = "حققت " + Math.floor(score) + " نقطة في لعبة ناوي! 🔥\n" +
-               "هل تقدر تكسر رقمي؟";
-  if(navigator.share){
-    try{ await navigator.share({ title:"العب مع ناوي", text }); }catch{}
-  } else {
-    try{
-      await navigator.clipboard.writeText(text);
-      showToast("📋 تم نسخ النتيجة");
-    }catch{
-      showToast("نتيجتي: " + Math.floor(score) + " نقطة 🔥");
+  /* ---------- حركة + تصادم العقبات ---------- */
+  for (let i = obstacles.length-1; i >= 0; i--){
+    const o = obstacles[i];
+    o.x -= dx;
+
+    if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
+
+    if (circleRect(
+      player.x + player.size/2,
+      player.y + player.size/2,
+      player.size * 0.36,
+      o.x, o.y, o.w, o.h
+    )){
+      gameOver();
+      return;
+    }
+  }
+
+  /* ---------- النجوم ---------- */
+  starTimer -= dt;
+  if (starTimer <= 0){ spawnStarArc(); starTimer = rand(2.4, 4.8); }
+
+  const pcx = player.x + player.size/2;
+  const pcy = player.y + player.size/2;
+  const pickupR = player.size * 0.45;
+
+  for (let i = stars.length-1; i >= 0; i--){
+    const s = stars[i];
+    s.x   -= dx;
+    s.rot += dt * 2.2;
+
+    if (s.x < -30){ stars.splice(i,1); continue; }
+
+    const ddx = pcx - s.x, ddy = pcy - s.y;
+    const rr  = s.r + pickupR;
+    if (ddx*ddx + ddy*ddy < rr*rr){
+      stars.splice(i,1);
+      score += 10;
+      burstSparkle(s.x, s.y, 8);
+      spawnText(s.x, s.y - 10, '+10');
+      sfx('coin');
     }
   }
 }
 
-/* =========================================================
-   VISIBILITY
-========================================================= */
-document.addEventListener("visibilitychange", ()=>{
-  if(document.hidden && state === "playing") pauseGame();
+/* ============================================================
+   11) التحكم
+   ============================================================ */
+function jump(){
+  if (state !== 'playing' || !player.grounded) return;
+  player.vy = JUMP_V;
+  player.grounded = false;
+  player.squash = 1.22;
+  burstDust(player.x + player.size/2, groundY, 5);
+  sfx('jump');
+}
+
+function onTap(e){
+  if (e && e.preventDefault) e.preventDefault();
+
+  if (state === 'playing'){
+    jump();
+    return;
+  }
+  if (state === 'over' && performance.now() - overAt < 500) return;
+  startGame();
+}
+
+canvas.addEventListener('pointerdown', onTap, { passive:false });
+ovBtn.addEventListener('click', e => { e.stopPropagation(); startGame(); });
+
+window.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter'){
+    e.preventDefault();
+    if (e.repeat) return;
+    onTap(null);
+  }
 });
 
-/* =========================================================
-   MAIN LOOP
-========================================================= */
-function loop(now){
-  if(!lastTime) lastTime = now;
-  let dt = (now - lastTime) / 1000;
-  lastTime = now;
-  dt = clamp(dt, 0, .033);
+muteBtn.addEventListener('click', () => {
+  muted = !muted;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+  try { localStorage.setItem('nawy.muted', muted ? '1' : '0'); } catch(e){}
+  if (!muted) sfx('coin');
+});
 
-  update(dt);
-  draw();
-
-  requestAnimationFrame(loop);
+/* ============================================================
+   12) الواجهة (Overlay / Toast)
+   ============================================================ */
+let toastTimeout = null;
+function showToast(text){
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 1300);
 }
 
-/* =========================================================
-   INITIAL SCREEN
-========================================================= */
-function showReady(){
-  state = "ready";
-  overlay.style.display = "grid";
-  panelEmoji.textContent = "🏃";
-  panelTitle.textContent = "ناوي جاهز؟";
-  panelText.innerHTML =
-    "اقفز فوق العقبات، اجمع النجوم،<br>" +
-    "وحاول تكسر <b>أفضل نتيجة</b> ليك.";
-  mainBtn.textContent = "يلا نبدأ";
-  shareBtn.hidden = true;
-  pauseBtn.textContent = "Ⅱ";
-  updateUI();
+function showOverlay(opt){
+  ovEmoji.textContent = opt.emoji;
+  ovTitle.textContent = opt.title;
+  ovText.textContent  = opt.text;
+  ovBtn.textContent   = opt.btn;
+
+  let badge = overlay.querySelector('.badge');
+  if (opt.badge){
+    if (!badge){
+      badge = document.createElement('div');
+      badge.className = 'badge';
+      overlay.querySelector('.overlay-inner').appendChild(badge);
+    }
+    badge.textContent = opt.badge;
+  } else if (badge){
+    badge.remove();
+  }
+
+  overlay.classList.remove('hidden');
 }
 
-/* =========================================================
-   INIT
-========================================================= */
-resize();
-resetGame();
-showReady();
-requestAnimationFrame(loop);
+/* ============================================================
+   13) دورة اللعبة
+   ============================================================ */
+function startGame(){
+  score = 0; lastShown = -1; milestone = 0;
+  speed = BASE_SPEED;
+  obstacleTimer = 1.1;
+  starTimer = rand(1.5, 3);
+  shake = 0;
 
+  obstacles.length = 0;
+  stars.length     = 0;
+  particles.length = 0;
+
+  player.x = Math.max(46, W * 0.14);
+  player.y = groundY - player.size;
+  player.vy = 0;
+  player.grounded = true;
+  player.squash = 1;
+  player.blinking = 0;
+  player.blinkTimer = rand(1, 3);
+
+  scoreEl.textContent = '0';
+  overlay.classList.add('hidden');
+
+  unlockAudio();
+  state = 'playing';
+}
+
+function gameOver(){
+  state = 'over';
+  overAt = performance.now();
+  score = Math.floor(score);
+
+  if (!reduceMotion) shake = 12;
+  sfx('hit');
+  vibrate(80);
+
+  burstConfetti(
+    player.x + player.size/2,
+    player.y + player.size/2,
+    reduceMotion ? 10 : 28
+  );
+
+  let record = false;
+  if (score > best){
+    best = score;
+    record = true;
+    try { localStorage.setItem('nawy.best', String(best)); } catch(e){}
+    bestEl.textContent = best;
+  }
+
+  showOverlay({
+    emoji: record ? '🏆' : '😵',
+    title: record ? 'رقم قياسي جديد!' : 'ناوي خبط! 😅',
+    text : 'نتيجتك: ' + score + ' — الأفضل: ' + best,
+    btn  : 'حاول تاني',
+    badge: record ? 'أحسنت! 🎉' : null
+  });
+
+  if (record && !reduceMotion){
+    burstConfetti(W/2, H*0.35, 24);
+  }
+}
+
+let rafId = 0, lastT2 = 0;
+
+function frame(t){
+  rafId = requestAnimationFrame(frame);
+
+  if (!lastT2) lastT2 = t;
+  let dt = (t - lastT2) / 1000;
+  lastT2 = t;
+  if (!isFinite(dt) || dt < 0) dt = 0;
+  dt = Math.min(dt, 1/30);            // منع القفزات بعد الرجوع من الخلفية
+
+  if (state === 'playing') update(dt);
+  updateAmbient(dt);
+  updateParticles(dt);
+
+  shake *= Math.exp(-9 * dt);
+  if (shake < 0.15) shake = 0;
+
+  render();
+}
+
+/* ============================================================
+   14) التشغيل
+   ============================================================ */
+function init(){
+  bestEl.textContent = best;
+  muteBtn.textContent = muted ? '🔇' : '🔊';
+
+  resize();
+
+  // نجوم وسحاب في البداية
+  for (let i = 0; i < 3; i++) spawnCloud();
+
+  requestAnimationFrame(frame);
+}
+
+init();
+
+})();
 </script>
 </body>
 </html>
