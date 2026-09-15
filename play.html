@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#ffffff">
 <title>العب مع ناوي 🎮</title>
 <style>
@@ -17,65 +17,116 @@
   body{display:flex;justify-content:center;align-items:center;}
 
   .game{
-    width:min(100%,900px);height:100%;max-height:680px;
+    width:min(100%,900px);height:100%;max-height:700px;
     position:relative;display:flex;flex-direction:column;
-    padding:14px 16px 8px;gap:8px;
+    padding:10px 14px 6px;gap:6px;
   }
 
-  .topbar{display:flex;align-items:center;gap:10px;min-height:52px;}
-  .brand{font-size:19px;font-weight:800;white-space:nowrap;}
+  /* ====== TOP BAR ====== */
+  .topbar{display:flex;align-items:center;gap:10px;min-height:56px;}
+  .brand{font-size:18px;font-weight:900;white-space:nowrap;letter-spacing:-.3px;}
   .brand em{font-style:normal;color:#2563eb;}
+
   .stats{
-    margin-inline-start:auto;display:flex;gap:14px;align-items:center;
-    font-size:13px;color:#64748b;font-weight:600;white-space:nowrap;
+    margin-inline-start:auto;display:flex;gap:7px;align-items:center;
+    font-size:12px;color:#64748b;font-weight:700;white-space:nowrap;
   }
-  .stats b{color:#0f172a;font-size:15px;font-variant-numeric:tabular-nums;}
+  .stat{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-width:52px;height:40px;padding:3px 9px;
+    border:1px solid #e8edf3;border-radius:12px;
+    background:rgba(255,255,255,.9);
+    box-shadow:0 4px 14px rgba(24,42,65,.05);
+    line-height:1;
+  }
+  .stat span{font-size:9px;color:#94a3b8;font-weight:800;margin-bottom:2px;letter-spacing:.2px;}
+  .stat b{font-size:15px;color:#0f172a;font-weight:900;font-variant-numeric:tabular-nums;}
+
   .icon-btn{
-    border:0;background:transparent;font-size:19px;line-height:1;
-    width:38px;height:38px;border-radius:12px;cursor:pointer;
+    border:1px solid #e8edf3;background:#fff;
+    font-size:16px;line-height:1;
+    width:40px;height:40px;flex:0 0 40px;border-radius:12px;cursor:pointer;
     display:grid;place-items:center;transition:transform .12s;
+    color:#526174;box-shadow:0 4px 14px rgba(24,42,65,.05);
   }
-  .icon-btn:active{transform:scale(.9);}
+  .icon-btn:active{transform:scale(.92);}
 
-  .stage{position:relative;flex:1;min-height:260px;border-radius:18px;overflow:hidden;}
-  canvas{width:100%;height:100%;display:block;}
+  /* ====== STAGE ====== */
+  .stage{position:relative;flex:1;min-height:240px;border-radius:20px;overflow:hidden;isolation:isolate;}
+  canvas{width:100%;height:100%;display:block;touch-action:none;}
 
+  /* ====== HUD ====== */
+  .hud{
+    position:absolute;top:12px;left:12px;right:12px;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    pointer-events:none;z-index:5;
+  }
+  .hud-side{display:flex;gap:6px;}
+  .chip{
+    padding:5px 10px;border-radius:999px;
+    background:rgba(255,255,255,.85);
+    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    border:1px solid rgba(225,232,240,.9);
+    box-shadow:0 4px 14px rgba(20,45,75,.06);
+    font-size:11px;font-weight:800;color:#536174;
+    display:none;
+  }
+  .chip.show{display:inline-flex;align-items:center;gap:5px;}
+  .chip.shield{color:#1f6feb;border-color:#c9dfff;background:rgba(230,242,255,.9);}
+  .chip.magnet{color:#b45309;border-color:#fde6b5;background:rgba(255,247,230,.9);}
+
+  /* ====== OVERLAY ====== */
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    pointer-events:none;text-align:center;padding:18px;
+    pointer-events:none;text-align:center;padding:18px;z-index:10;
+    background:linear-gradient(180deg,rgba(255,255,255,.35),rgba(255,255,255,.75));
+    backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
   }
   .overlay.hidden{display:none;}
-  .overlay h1{margin:0 0 6px;font-size:25px;}
-  .overlay p{margin:0;color:#64748b;font-size:14px;}
-  .overlay .emoji{font-size:44px;line-height:1;margin-bottom:10px;}
+  .overlay-inner{
+    padding:22px 24px;border-radius:24px;
+    background:rgba(255,255,255,.96);
+    border:1px solid rgba(224,231,239,.95);
+    box-shadow:0 20px 60px rgba(21,45,72,.12);
+    max-width:380px;
+  }
+  .overlay h1{margin:0 0 6px;font-size:24px;font-weight:950;letter-spacing:-.4px;}
+  .overlay p{margin:0;color:#64748b;font-size:13px;font-weight:650;line-height:1.6;}
+  .overlay .emoji{font-size:44px;line-height:1;margin-bottom:8px;}
   .badge{
     display:inline-block;margin-top:9px;padding:4px 12px;border-radius:999px;
-    background:#fef3c7;color:#92400e;font-weight:800;font-size:13px;
+    background:#fef3c7;color:#92400e;font-weight:900;font-size:12px;
   }
   .button{
     margin-top:16px;border:0;border-radius:14px;padding:12px 26px;
-    background:#2563eb;color:#fff;font-size:16px;font-weight:800;
+    background:linear-gradient(135deg,#1489ff,#0069e5);color:#fff;
+    font-size:15px;font-weight:900;letter-spacing:.2px;
     cursor:pointer;pointer-events:auto;font-family:inherit;
-    box-shadow:0 6px 18px rgba(37,99,235,.28);transition:transform .12s;
+    box-shadow:0 8px 22px rgba(0,105,229,.28),inset 0 1px 0 rgba(255,255,255,.35);
+    transition:transform .12s;
   }
-  .button:active{transform:scale(.95);}
+  .button:active{transform:scale(.96) translateY(1px);}
 
   .toast{
     position:absolute;top:13%;left:50%;transform:translate(-50%,10px);
-    background:#2563eb;color:#fff;padding:9px 18px;border-radius:999px;
-    font-weight:800;font-size:14px;opacity:0;pointer-events:none;
-    transition:opacity .25s ease,transform .25s ease;
-    white-space:nowrap;box-shadow:0 8px 24px rgba(37,99,235,.3);
+    background:rgba(22,32,48,.92);color:#fff;padding:9px 18px;border-radius:999px;
+    font-weight:850;font-size:13px;opacity:0;pointer-events:none;
+    transition:opacity .22s ease,transform .22s ease;
+    white-space:nowrap;box-shadow:0 10px 30px rgba(20,30,45,.18);
+    z-index:8;
   }
   .toast.show{opacity:1;transform:translate(-50%,0);}
 
-  .hint{text-align:center;color:#94a3b8;font-size:12px;padding:2px 0;}
+  .hint{text-align:center;color:#94a3b8;font-size:11px;padding:2px 0;font-weight:600;}
 
   @media (prefers-color-scheme: dark){
     html,body{background:#0b1220;color:#e2e8f0;}
-    .stats{color:#94a3b8;}
-    .stats b{color:#e2e8f0;}
+    .stat{background:rgba(20,30,45,.7);border-color:rgba(60,80,110,.5);}
+    .stat b{color:#e2e8f0;}
+    .icon-btn{background:#141d2e;border-color:rgba(60,80,110,.5);color:#94a3b8;}
+    .overlay-inner{background:rgba(18,26,42,.96);border-color:rgba(60,80,110,.4);}
     .overlay p{color:#94a3b8;}
+    .chip{background:rgba(20,30,45,.85);border-color:rgba(60,80,110,.5);color:#cbd5e1;}
     .badge{background:#422006;color:#fcd34d;}
   }
   @media (prefers-reduced-motion: reduce){
@@ -90,18 +141,32 @@
   <div class="topbar">
     <div class="brand">🎮 العب مع <em>ناوي</em></div>
     <div class="stats">
-      <span>النقاط <b id="score">0</b></span>
-      <span>الأفضل <b id="best">0</b></span>
+      <div class="stat"><span>النقاط</span><b id="score">0</b></div>
+      <div class="stat"><span>الأفضل</span><b id="best">0</b></div>
+      <div class="stat"><span>سلسلة</span><b id="combo">0</b></div>
+      <button class="icon-btn" id="muteBtn" aria-label="الصوت">🔊</button>
+      <button class="icon-btn" id="pauseBtn" aria-label="إيقاف">Ⅱ</button>
     </div>
-    <button class="icon-btn" id="muteBtn" aria-label="الصوت">🔊</button>
   </div>
 
   <div class="stage" id="stage">
     <canvas id="canvas"></canvas>
 
+    <div class="hud">
+      <div class="hud-side">
+        <div class="chip shield" id="shieldChip">🛡️ <b id="shieldTime">0</b></div>
+        <div class="chip magnet" id="magnetChip">🧲 <b id="magnetTime">0</b></div>
+      </div>
+      <div class="hud-side">
+        <div class="chip" id="starChip" style="display:inline-flex;align-items:center;gap:5px;color:#b45309;border-color:#fde6b5;background:rgba(255,247,230,.9);">
+          ⭐ <b id="stars">0</b>
+        </div>
+      </div>
+    </div>
+
     <div class="overlay" id="overlay">
       <div class="overlay-inner">
-        <div class="emoji" id="ovEmoji">🟦</div>
+        <div class="emoji" id="ovEmoji">🔵</div>
         <h1 id="ovTitle">ناوي جاهز؟</h1>
         <p id="ovText">اضغط في أي مكان عشان تبدأ</p>
         <button class="button" id="ovBtn">يلا نبدأ</button>
@@ -119,7 +184,7 @@
 'use strict';
 
 /* ============================================================
-   0) أدوات مساعدة
+   0) أدوات
    ============================================================ */
 const TAU = Math.PI * 2;
 const clamp = (v,a,b)=> v<a?a:(v>b?b:v);
@@ -152,21 +217,28 @@ function onMQ(mq, fn){
 /* ============================================================
    1) عناصر الصفحة
    ============================================================ */
-const stage    = document.getElementById('stage');
-const canvas   = document.getElementById('canvas');
-const ctx      = canvas.getContext('2d');
-const scoreEl  = document.getElementById('score');
-const bestEl   = document.getElementById('best');
-const overlay  = document.getElementById('overlay');
-const ovEmoji  = document.getElementById('ovEmoji');
-const ovTitle  = document.getElementById('ovTitle');
-const ovText   = document.getElementById('ovText');
-const ovBtn    = document.getElementById('ovBtn');
-const toastEl  = document.getElementById('toast');
-const muteBtn  = document.getElementById('muteBtn');
+const stage       = document.getElementById('stage');
+const canvas      = document.getElementById('canvas');
+const ctx         = canvas.getContext('2d');
+const scoreEl     = document.getElementById('score');
+const bestEl      = document.getElementById('best');
+const comboEl     = document.getElementById('combo');
+const starsEl     = document.getElementById('stars');
+const overlay     = document.getElementById('overlay');
+const ovEmoji     = document.getElementById('ovEmoji');
+const ovTitle     = document.getElementById('ovTitle');
+const ovText      = document.getElementById('ovText');
+const ovBtn       = document.getElementById('ovBtn');
+const toastEl     = document.getElementById('toast');
+const muteBtn     = document.getElementById('muteBtn');
+const pauseBtn    = document.getElementById('pauseBtn');
+const shieldChip  = document.getElementById('shieldChip');
+const shieldTime  = document.getElementById('shieldTime');
+const magnetChip  = document.getElementById('magnetChip');
+const magnetTime  = document.getElementById('magnetTime');
 
 /* ============================================================
-   2) الثيم (فاتح / غامق / تقليل الحركة)
+   2) الثيم
    ============================================================ */
 const darkMQ   = window.matchMedia('(prefers-color-scheme: dark)');
 const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -178,13 +250,15 @@ onMQ(darkMQ, e => { isDark = e.matches; buildGradient(); });
 onMQ(reduceMQ, e => { reduceMotion = e.matches; });
 
 /* ============================================================
-   3) ثوابت اللعبة  ⚠️ الوحدات px/ثانية (مش px/فريم)
+   3) ثوابت
    ============================================================ */
-const GRAVITY  = 2600;   // px/s²
-const JUMP_V   = -830;   // px/s
-const MAX_FALL = 2000;   // px/s
-const BASE_SPEED = 6;    // وحدة سرعة → 6*60 = 360 px/s
+const GRAVITY  = 2300;
+const JUMP_V   = -800;
+const MAX_FALL = 1900;
+const BASE_SPEED = 6;
 const MAX_SPEED  = 11;
+const COYOTE     = 0.10;
+const JUMP_BUF   = 0.13;
 
 const MILESTONES = [
   'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
@@ -194,37 +268,54 @@ const MILESTONES = [
 /* ============================================================
    4) حالة اللعبة
    ============================================================ */
-let W = 0, H = 0, groundY = 0, bgGrad = null;
+let W=0, H=0, groundY=0, bgGrad=null;
 
-let state = 'ready';         // ready | playing | over
+let state = 'ready'; // ready | playing | paused | over
 let score = 0, lastShown = -1, milestone = 0;
+let starCount = 0, combo = 0;
 let speed = BASE_SPEED;
-let best  = 0;
-try { best = Number(localStorage.getItem('nawy.best')) || 0; } catch(e){}
+let best = 0;
+try { best = Number(localStorage.getItem('nawy.best.v5')) || 0; } catch(e){}
 
 let shake = 0;
-let obstacleTimer = 0, starTimer = 0, cloudTimer = 0;
+let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
 let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
 let lastT = 0, overAt = 0;
 
 const obstacles = [];
 const stars     = [];
+const powerups  = [];
 const clouds    = [];
 const particles = [];
 
+/* ============================================================
+   5) ناوي — شخصية بسيطة ب ريأكشنات Red Ball 4
+   ============================================================ */
 const player = {
   x: 80, y: 0, size: 40,
-  vy: 0, grounded: true,
+  vy: 0, grounded: true, coyote: 0, jumpBuf: 0,
   squash: 1,
-  blinkTimer: 2, blinking: 0
+  rotation: 0,
+  blinkTimer: 2, blinking: 0,
+  mood: 'idle',       // idle | jump | fall | happy | hit | focus | record
+  moodTimer: 0,
+  shield: 0,
+  magnet: 0,
+  pupilX: 0, pupilY: 0,  // بؤبؤ ناعم الحركة
+  pupilTargetX: 0, pupilTargetY: 0
 };
 
+function setMood(mood, duration){
+  player.mood = mood;
+  player.moodTimer = duration || 0;
+}
+
 /* ============================================================
-   5) الصوت (Web Audio بدون ملفات)
+   6) الصوت
    ============================================================ */
 let audioCtx = null;
 let muted = false;
-try { muted = localStorage.getItem('nawy.muted') === '1'; } catch(e){}
+try { muted = localStorage.getItem('nawy.muted.v5') === '1'; } catch(e){}
 
 function unlockAudio(){
   if (muted) return;
@@ -264,8 +355,13 @@ function sfx(name){
     case 'coin':      beep(1000,0.09, 'sine',     0.055, 1500);
                       beep(1500,0.09, 'sine',     0.030, 1900, 0.06); break;
     case 'hit':       beep(220, 0.40, 'sawtooth', 0.070, 55);   break;
+    case 'power':     beep(500,0.09, 'sine',      0.045, 800);  break;
+    case 'shield':    beep(360,0.10, 'triangle',  0.055, 560);  break;
     case 'milestone': beep(660, 0.12, 'triangle', 0.050, 660);
                       beep(880, 0.16, 'triangle', 0.050, 880, 0.11); break;
+    case 'record':    beep(660,0.10,'sine',0.055,660);
+                      beep(880,0.10,'sine',0.055,880,0.10);
+                      beep(1200,0.16,'sine',0.045,1200,0.20); break;
   }
 }
 
@@ -275,10 +371,10 @@ function vibrate(ms){
 }
 
 /* ============================================================
-   6) الجزيئات (تراب / شرارات / كونفيتي / نصوص طايرة)
+   7) الجزيئات
    ============================================================ */
 function addP(p){
-  if (particles.length > 240) return;
+  if (particles.length > 260) return;
   p.rot     = p.rot     || 0;
   p.rotSpd  = p.rotSpd  || 0;
   p.g       = p.g       || 0;
@@ -328,9 +424,9 @@ function burstConfetti(x, y, n){
   }
 }
 
-function spawnText(x, y, text){
+function spawnText(x, y, text, color){
   addP({ type:'text', x, y, vx:0, vy:-58, life:0.85, size:15,
-         color:'#f59e0b', text });
+         color: color || '#f59e0b', text });
 }
 
 function updateParticles(dt){
@@ -347,7 +443,7 @@ function updateParticles(dt){
 }
 
 /* ============================================================
-   7) المقاس
+   8) المقاس
    ============================================================ */
 function buildGradient(){
   const g = ctx.createLinearGradient(0,0,0,Math.max(groundY,1));
@@ -370,7 +466,7 @@ function resize(){
   W = nw; H = nh;
   groundY = Math.round(H - Math.max(52, H * 0.16));
 
-  player.size = clamp(Math.round(H * 0.085), 32, 44);
+  player.size = clamp(Math.round(H * 0.082), 30, 42);
 
   if (!oldGround){
     player.y = groundY - player.size;
@@ -378,6 +474,7 @@ function resize(){
     const dy = groundY - oldGround;
     for (const o of obstacles) o.y += dy;
     for (const s of stars)     s.y += dy;
+    for (const p of powerups)  p.y += dy;
     if (state === 'playing') player.y += dy;
     else player.y = groundY - player.size;
   }
@@ -391,13 +488,12 @@ window.addEventListener('orientationchange', () => setTimeout(resize, 120));
 if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
 
 /* ============================================================
-   8) الرسومات
+   9) الرسومات — خلفية
    ============================================================ */
 function drawSky(){
   ctx.fillStyle = bgGrad || '#ffffff';
   ctx.fillRect(0, 0, W, groundY + 1);
 
-  // شمس / هالة
   ctx.save();
   ctx.fillStyle = '#2563eb';
   ctx.globalAlpha = isDark ? 0.10 : 0.16;
@@ -466,11 +562,23 @@ function drawGround(){
   ctx.lineCap = 'butt';
 }
 
+/* ============================================================
+   10) النجوم والعقبات والقوى
+   ============================================================ */
 function drawStars(){
   for (const s of stars){
     ctx.save();
     ctx.translate(s.x, s.y);
     ctx.rotate(s.rot);
+
+    // هالة ناعمة
+    ctx.globalAlpha = 0.25;
+    ctx.fillStyle = '#fbbf24';
+    ctx.beginPath();
+    ctx.arc(0, 0, s.r * 1.6, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
     ctx.beginPath();
     for (let i = 0; i < 10; i++){
       const a  = -Math.PI/2 + i * Math.PI/5;
@@ -500,7 +608,7 @@ function drawObstacles(){
     ctx.fill();
     ctx.restore();
 
-    // جسم المبنى
+    // الجسم
     ctx.fillStyle = isDark ? '#334155' : '#1e293b';
     roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
     ctx.fill();
@@ -526,92 +634,332 @@ function drawObstacles(){
   }
 }
 
-function drawPlayer(){
-  const s = player.size;
-  const cx = player.x + s/2;
-  const bottomY = player.y + s;
-  const sq = player.squash;
-  const sx = 1 / Math.sqrt(sq);
+function drawPowerups(){
+  for (const p of powerups){
+    const y = p.y + Math.sin(p.bob) * 6;
+    ctx.save();
 
-  // ظل أرضي
+    // هالة
+    ctx.shadowBlur = 18;
+    ctx.shadowColor = p.type === 'shield'
+      ? 'rgba(31,139,255,.35)'
+      : 'rgba(255,177,40,.35)';
+
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(p.x, y, p.r, 0, TAU);
+    ctx.fill();
+
+    ctx.shadowBlur = 0;
+    ctx.lineWidth = 2.4;
+    ctx.strokeStyle = p.type === 'shield' ? '#55a9ff' : '#f1b72f';
+    ctx.stroke();
+
+    ctx.font = '900 15px system-ui';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(p.type === 'shield' ? '🛡️' : '🧲', p.x, y + 1);
+
+    ctx.restore();
+  }
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'alphabetic';
+}
+
+/* ============================================================
+   11) ناوي — شخصية بسيطة ب ريأكشنات
+   ============================================================ */
+function drawPlayer(){
+  const s  = player.size;
+  const cx = player.x + s/2;
+  const cy = player.y + s/2;
+  const R  = s/2;
+
+  /* ---------- ظل أرضي ---------- */
   const airH = clamp((groundY - player.y - s) / 170, 0, 1);
   ctx.save();
   ctx.globalAlpha = (isDark ? 0.30 : 0.13) * (1 - airH*0.7);
   ctx.fillStyle = '#000';
   ctx.beginPath();
-  ctx.ellipse(cx, groundY + 5, s*0.42*(1-airH*0.4), 5*(1-airH*0.4), 0, 0, TAU);
+  ctx.ellipse(cx, groundY + 5,
+              s*0.42*(1-airH*0.4),
+              5*(1-airH*0.4),
+              0, 0, TAU);
   ctx.fill();
   ctx.restore();
 
+  /* ---------- هالة المغناطيس ---------- */
+  if (player.magnet > 0){
+    ctx.save();
+    ctx.globalAlpha = 0.35 + Math.sin(performance.now()/140) * 0.15;
+    ctx.strokeStyle = '#f1b72f';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([5, 7]);
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 9, 0, TAU);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  /* ---------- هالة الحماية ---------- */
+  if (player.shield > 0){
+    const pulse = 1 + Math.sin(performance.now()/140) * 0.05;
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.scale(pulse, pulse);
+
+    const sGrad = ctx.createRadialGradient(0,0,R-2, 0,0,R+16);
+    sGrad.addColorStop(0,   'rgba(49,154,255,0)');
+    sGrad.addColorStop(.65, 'rgba(49,154,255,.30)');
+    sGrad.addColorStop(1,   'rgba(49,154,255,0)');
+    ctx.fillStyle = sGrad;
+    ctx.beginPath(); ctx.arc(0, 0, R + 16, 0, TAU); ctx.fill();
+
+    ctx.strokeStyle = 'rgba(90,175,255,.75)';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath(); ctx.arc(0, 0, R + 10, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
+
+  /* ---------- الجسم ---------- */
   ctx.save();
-  ctx.translate(cx, bottomY);
-  ctx.scale(sx, sq);
+  ctx.translate(cx, cy);
 
-  const R   = s/2;
-  const cy  = -R;
+  // squash خفيف جدًا (15% بس عشان يفضل دايرة)
+  const squashClamped = clamp(player.squash, 0.85, 1.15);
+  const sqX = 1 / Math.sqrt(squashClamped);
+  const sqY = squashClamped;
+  ctx.scale(sqX, sqY);
 
-  // الجسم
+  // دوران خفيف
+  ctx.rotate(player.rotation * 0.4);
+
+  // ظل خارجي
+  ctx.save();
+  ctx.shadowColor = 'rgba(20,90,200,.30)';
+  ctx.shadowBlur = 14;
+  ctx.shadowOffsetY = 3;
+  ctx.beginPath();
+  ctx.arc(0, 0, R, 0, TAU);
   ctx.fillStyle = '#2563eb';
-  ctx.beginPath(); ctx.arc(0, cy, R, 0, TAU); ctx.fill();
+  ctx.fill();
+  ctx.restore();
 
-  // لمعة
+  // تدرج ناعم
+  const g = ctx.createLinearGradient(0, -R, 0, R);
+  g.addColorStop(0,   '#4A96F0');
+  g.addColorStop(.55, '#2563EB');
+  g.addColorStop(1,   '#1A4FBF');
+  ctx.beginPath();
+  ctx.arc(0, 0, R, 0, TAU);
+  ctx.fillStyle = g;
+  ctx.fill();
+
+  // لمعة علوية
   ctx.save();
-  ctx.globalAlpha = 0.22;
+  ctx.globalAlpha = 0.30;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.ellipse(-R*0.32, cy - R*0.42, R*0.34, R*0.20, -0.6, 0, TAU);
+  ctx.ellipse(-R*0.32, -R*0.44, R*0.30, R*0.15, -0.5, 0, TAU);
   ctx.fill();
   ctx.restore();
 
-  // عيون
-  const eyeR = R * 0.26;
-  const eyeX = R * 0.42;
-  const eyeY = cy - R * 0.20;
+  /* ---------- الوش (ريأكشنات) ---------- */
 
-  if (player.blinking > 0){
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = R * 0.12;
+  // رمش
+  player.blinkTimer -= 1/60;
+  if (player.blinkTimer <= 0){
+    player.blinking = 0.13;
+    player.blinkTimer = rand(2.2, 5.5);
+  }
+  if (player.blinking > 0) player.blinking -= 1/60;
+  const blinkingNow = player.blinking > 0;
+
+  // بؤبؤ ناعم الحركة
+  player.pupilX += (player.pupilTargetX - player.pupilX) * 0.18;
+  player.pupilY += (player.pupilTargetY - player.pupilY) * 0.18;
+
+  const mood = player.mood;
+
+  if (mood === 'hit'){
+    // X X عيون
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = Math.max(2.2, R*0.13);
+    ctx.lineCap = 'round';
+    const ex = R*0.40, ey = -R*0.05, er = R*0.22;
+    ctx.beginPath();
+    ctx.moveTo(-ex-er, ey-er); ctx.lineTo(-ex+er, ey+er);
+    ctx.moveTo(-ex+er, ey-er); ctx.lineTo(-ex-er, ey+er);
+    ctx.moveTo( ex-er, ey-er); ctx.lineTo( ex+er, ey+er);
+    ctx.moveTo( ex+er, ey-er); ctx.lineTo( ex-er, ey+er);
+    ctx.stroke();
+
+    // فم زجزاج
+    ctx.beginPath();
+    ctx.moveTo(-R*0.28, R*0.32);
+    ctx.lineTo(-R*0.14, R*0.22);
+    ctx.lineTo( 0,      R*0.32);
+    ctx.lineTo( R*0.14, R*0.22);
+    ctx.lineTo( R*0.28, R*0.32);
+    ctx.stroke();
+
+  } else if (mood === 'happy'){
+    // ^ ^ عيون
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = Math.max(2.2, R*0.12);
+    ctx.lineCap = 'round';
+    const ex = R*0.40, ey = -R*0.10, er = R*0.22;
+    ctx.beginPath();
+    ctx.arc(-ex, ey+R*0.05, er, Math.PI*1.15, Math.PI*1.85);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc( ex, ey+R*0.05, er, Math.PI*1.15, Math.PI*1.85);
+    ctx.stroke();
+
+    // ابتسامة كبيرة
+    ctx.beginPath();
+    ctx.arc(0, R*0.05, R*0.40, Math.PI*0.20, Math.PI*0.80);
+    ctx.lineWidth = Math.max(2.4, R*0.12);
+    ctx.stroke();
+
+  } else if (mood === 'record'){
+    // نجوم في العيون
+    ctx.fillStyle = '#fbbf24';
+    for (const dir of [-1, 1]){
+      ctx.save();
+      ctx.translate(dir * R*0.40, -R*0.08);
+      ctx.beginPath();
+      for (let i = 0; i < 10; i++){
+        const a  = -Math.PI/2 + i * Math.PI/5;
+        const rr = (i%2) ? R*0.10 : R*0.22;
+        const px = Math.cos(a)*rr, py = Math.sin(a)*rr;
+        i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+    // ابتسامة
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = Math.max(2.4, R*0.12);
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(-eyeX - eyeR*0.7, eyeY); ctx.lineTo(-eyeX + eyeR*0.7, eyeY);
-    ctx.moveTo( eyeX - eyeR*0.7, eyeY); ctx.lineTo( eyeX + eyeR*0.7, eyeY);
+    ctx.arc(0, R*0.05, R*0.40, Math.PI*0.20, Math.PI*0.80);
     ctx.stroke();
-  } else {
-    ctx.fillStyle = '#ffffff';
-    ctx.beginPath();
-    ctx.arc(-eyeX, eyeY, eyeR, 0, TAU);
-    ctx.arc( eyeX, eyeY, eyeR, 0, TAU);
-    ctx.fill();
 
-    const lookY = clamp(player.vy / 2600, -0.3, 0.3) * eyeR;
+  } else if (mood === 'focus'){
+    // عيون ضيقة + بؤبؤ
+    const eyeW = R*0.28, eyeH = R*0.10;
+    const ex = R*0.40, ey = -R*0.06;
+    ctx.fillStyle = '#fff';
+    for (const dir of [-1, 1]){
+      ctx.beginPath();
+      ctx.ellipse(dir*ex, ey, eyeW, eyeH, 0, 0, TAU);
+      ctx.fill();
+    }
     ctx.fillStyle = '#0f172a';
+    for (const dir of [-1, 1]){
+      ctx.beginPath();
+      ctx.arc(dir*ex + player.pupilX*R*0.4, ey + player.pupilY*R*0.3, R*0.07, 0, TAU);
+      ctx.fill();
+    }
+    // فم مستقيم
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = Math.max(2, R*0.10);
+    ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(-eyeX + eyeR*0.32, eyeY + lookY, eyeR*0.52, 0, TAU);
-    ctx.arc( eyeX + eyeR*0.32, eyeY + lookY, eyeR*0.52, 0, TAU);
-    ctx.fill();
+    ctx.moveTo(-R*0.22, R*0.30);
+    ctx.lineTo( R*0.22, R*0.30);
+    ctx.stroke();
+
+  } else {
+    // عادي — jump/fall/idle
+
+    // العيون البيضا
+    const eyeR = R*0.30;
+    const eyeX = R*0.38;
+    const baseEyeY = -R*0.08;
+
+    if (blinkingNow){
+      // رمش
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = Math.max(2, R*0.10);
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-eyeX - eyeR*0.8, baseEyeY);
+      ctx.lineTo(-eyeX + eyeR*0.8, baseEyeY);
+      ctx.moveTo( eyeX - eyeR*0.8, baseEyeY);
+      ctx.lineTo( eyeX + eyeR*0.8, baseEyeY);
+      ctx.stroke();
+    } else {
+      // بيضا العين
+      ctx.fillStyle = '#fff';
+      ctx.beginPath();
+      ctx.arc(-eyeX, baseEyeY, eyeR, 0, TAU);
+      ctx.arc( eyeX, baseEyeY, eyeR, 0, TAU);
+      ctx.fill();
+
+      // بؤبؤ
+      const pupilR = eyeR * 0.55;
+      ctx.fillStyle = '#0f172a';
+      for (const dir of [-1, 1]){
+        ctx.beginPath();
+        ctx.arc(dir*eyeX + player.pupilX*eyeR*0.5,
+                baseEyeY + player.pupilY*eyeR*0.5,
+                pupilR, 0, TAU);
+        ctx.fill();
+      }
+
+      // لمعة صغيرة
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      for (const dir of [-1, 1]){
+        ctx.beginPath();
+        ctx.arc(dir*eyeX + player.pupilX*eyeR*0.5 - pupilR*0.35,
+                baseEyeY + player.pupilY*eyeR*0.5 - pupilR*0.35,
+                pupilR*0.35, 0, TAU);
+        ctx.fill();
+      }
+    }
+
+    // فم حسب الريأكشن
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = Math.max(2, R*0.10);
+    ctx.lineCap = 'round';
+
+    if (mood === 'jump'){
+      // فم "o" صغير
+      ctx.beginPath();
+      ctx.ellipse(0, R*0.30, R*0.10, R*0.13, 0, 0, TAU);
+      ctx.stroke();
+
+    } else if (mood === 'fall'){
+      // فم "o" أكبر
+      ctx.beginPath();
+      ctx.ellipse(0, R*0.30, R*0.14, R*0.16, 0, 0, TAU);
+      ctx.stroke();
+
+    } else {
+      // ابتسامة خفيفة
+      ctx.beginPath();
+      if (player.grounded){
+        ctx.arc(0, R*0.10, R*0.30, Math.PI*0.25, Math.PI*0.75);
+      } else {
+        ctx.arc(0, R*0.28, R*0.14, 0, TAU);
+      }
+      ctx.stroke();
+    }
   }
 
-  // بقّ
+  // خدود وردية (خفيفة)
   ctx.save();
-  ctx.globalAlpha = 0.25;
+  ctx.globalAlpha = 0.28;
   ctx.fillStyle = '#fb7185';
   ctx.beginPath();
-  ctx.arc(-R*0.62, cy + R*0.18, R*0.15, 0, TAU);
-  ctx.arc( R*0.62, cy + R*0.18, R*0.15, 0, TAU);
+  ctx.arc(-R*0.62, R*0.18, R*0.14, 0, TAU);
+  ctx.arc( R*0.62, R*0.18, R*0.14, 0, TAU);
   ctx.fill();
   ctx.restore();
-
-  // بق
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = R * 0.10;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  if (player.grounded){
-    ctx.arc(0, cy + R*0.10, R*0.30, Math.PI*0.25, Math.PI*0.75);
-  } else {
-    ctx.arc(0, cy + R*0.28, R*0.16, 0, TAU);
-  }
-  ctx.stroke();
 
   ctx.restore();
 }
@@ -622,7 +970,7 @@ function drawParticles(){
     ctx.globalAlpha = a;
 
     if (p.type === 'text'){
-      ctx.font = '800 ' + p.size + 'px system-ui, -apple-system, sans-serif';
+      ctx.font = '900 ' + p.size + 'px system-ui, -apple-system, sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillStyle = p.color;
@@ -654,13 +1002,16 @@ function render(){
   ctx.clearRect(0, 0, W, H);
 
   ctx.save();
-  if (shake > 0.2) ctx.translate(rand(-shake,shake)*0.5, rand(-shake,shake)*0.5);
+  if (shake > 0.2 && !reduceMotion) {
+    ctx.translate(rand(-shake,shake)*0.5, rand(-shake,shake)*0.5);
+  }
 
   drawSky();
   drawClouds();
   drawHills();
   drawGround();
   drawStars();
+  drawPowerups();
   drawObstacles();
   drawParticles();
   if (state !== 'over') drawPlayer();
@@ -669,20 +1020,19 @@ function render(){
 }
 
 /* ============================================================
-   9) الأحداث والمولّدات
+   12) التوليد
    ============================================================ */
 function spawnObstacle(){
   const r = Math.random();
   let w, h;
-  if      (r < 0.42){ w = 26; h = 38; }   // قصير
-  else if (r < 0.78){ w = 22; h = 54; }   // طويل
-  else              { w = 50; h = 30; }   // عريض وواطي
-  obstacles.push({ x: W + 40, w, h, y: groundY - h });
+  if      (r < 0.42){ w = 26; h = 38; }
+  else if (r < 0.78){ w = 22; h = 54; }
+  else              { w = 50; h = 30; }
+  obstacles.push({ x: W + 40, w, h, y: groundY - h, passed:false });
 }
 
 function spawnStarArc(){
   const startX = W + 90;
-  // ما نولّدش نجوم فوق عقبة
   for (const o of obstacles){
     if (o.x < startX + 130 && o.x + o.w > startX - 30) return;
   }
@@ -703,8 +1053,20 @@ function spawnCloud(){
   clouds.push({ x: W + w, y: rand(H*0.08, groundY*0.45), w, spd: rand(6, 16) });
 }
 
+function spawnPowerup(force){
+  if (powerups.length >= 1 && !force) return;
+  const type = Math.random() < 0.55 ? 'shield' : 'magnet';
+  powerups.push({
+    x: W + 60,
+    y: groundY - rand(100, 160),
+    r: 15,
+    type,
+    bob: Math.random() * TAU
+  });
+}
+
 /* ============================================================
-   10) التحديث
+   13) التحديث
    ============================================================ */
 function updateAmbient(dt){
   const worldSpeed = (state === 'playing') ? speed * 60 : 70;
@@ -723,6 +1085,39 @@ function updateAmbient(dt){
   }
 }
 
+function updatePlayerMood(dt){
+  // reset after timers
+  if (player.moodTimer > 0){
+    player.moodTimer -= dt;
+    if (player.moodTimer <= 0){
+      player.mood = player.grounded ? 'idle' : (player.vy < 0 ? 'jump' : 'fall');
+    }
+  } else {
+    // default mood based on state
+    if (!player.grounded){
+      player.mood = player.vy < 0 ? 'jump' : 'fall';
+    } else {
+      player.mood = 'idle';
+    }
+  }
+
+  // pupil target based on velocity (Red Ball 4 style)
+  if (player.mood === 'jump'){
+    player.pupilTargetX = 0.4;
+    player.pupilTargetY = -0.7;
+  } else if (player.mood === 'fall'){
+    player.pupilTargetX = 0.4;
+    player.pupilTargetY = 0.7;
+  } else if (player.mood === 'focus'){
+    player.pupilTargetX = 0.6;
+    player.pupilTargetY = 0;
+  } else {
+    // idle — ينظر للأمام باتجاه الحركة
+    player.pupilTargetX = 0.35;
+    player.pupilTargetY = 0;
+  }
+}
+
 function update(dt){
   /* ---------- فيزياء اللاعب ---------- */
   player.vy = Math.min(player.vy + GRAVITY * dt, MAX_FALL);
@@ -732,7 +1127,7 @@ function update(dt){
 
   if (player.y >= floor){
     if (!player.grounded){
-      player.squash = 0.74;
+      player.squash = 0.82;
       if (!reduceMotion) shake = Math.min(shake + 2, 4);
       burstDust(player.x + player.size/2, groundY, 7);
       sfx('land');
@@ -747,13 +1142,14 @@ function update(dt){
   player.squash += (1 - player.squash) * 12 * dt;
   if (Math.abs(player.squash - 1) < 0.002) player.squash = 1;
 
-  /* ---------- الرمش ---------- */
-  player.blinkTimer -= dt;
-  if (player.blinkTimer <= 0){
-    player.blinking = 0.13;
-    player.blinkTimer = rand(2.2, 5.5);
-  }
-  if (player.blinking > 0) player.blinking -= dt;
+  // coyote + jump buffer
+  if (player.grounded) player.coyote = COYOTE;
+  else player.coyote = Math.max(0, player.coyote - dt);
+
+  player.jumpBuf = Math.max(0, player.jumpBuf - dt);
+
+  // تحديث الريأكشن
+  updatePlayerMood(dt);
 
   /* ---------- النقاط والصعوبة ---------- */
   score += dt * 12;
@@ -768,6 +1164,7 @@ function update(dt){
     milestone = ms;
     showToast(pick(MILESTONES));
     sfx('milestone');
+    setMood('happy', 0.6);
   }
 
   /* ---------- توليد العقبات ---------- */
@@ -789,11 +1186,30 @@ function update(dt){
     if (circleRect(
       player.x + player.size/2,
       player.y + player.size/2,
-      player.size * 0.36,
+      player.size * 0.38,
       o.x, o.y, o.w, o.h
     )){
+      if (player.shield > 0){
+        player.shield = 0;
+        burstSparkle(player.x + player.size/2, player.y + player.size/2, 16);
+        showToast('🛡️ الحماية أنقذتك!');
+        sfx('shield');
+        obstacles.splice(i,1);
+        setMood('happy', 0.5);
+        continue;
+      }
       gameOver();
       return;
+    }
+
+    if (!o.passed && o.x + o.w < player.x){
+      o.passed = true;
+      combo++;
+      comboEl.textContent = combo;
+      if (combo % 3 === 0){
+        showToast('🔥 سلسلة ' + combo);
+        setMood('focus', 0.4);
+      }
     }
   }
 
@@ -803,7 +1219,7 @@ function update(dt){
 
   const pcx = player.x + player.size/2;
   const pcy = player.y + player.size/2;
-  const pickupR = player.size * 0.45;
+  const pickupR = player.size * 0.48;
 
   for (let i = stars.length-1; i >= 0; i--){
     const s = stars[i];
@@ -812,37 +1228,113 @@ function update(dt){
 
     if (s.x < -30){ stars.splice(i,1); continue; }
 
+    // magnet attraction
+    if (player.magnet > 0){
+      const ddx = pcx - s.x;
+      const ddy = pcy - s.y;
+      const d = Math.hypot(ddx, ddy);
+      if (d < 200 && d > 1){
+        const f = 1 - d/200;
+        s.x += ddx * dt * (5 + f*8);
+        s.y += ddy * dt * (5 + f*8);
+      }
+    }
+
     const ddx = pcx - s.x, ddy = pcy - s.y;
     const rr  = s.r + pickupR;
     if (ddx*ddx + ddy*ddy < rr*rr){
       stars.splice(i,1);
       score += 10;
+      starCount++;
+      starsEl.textContent = starCount;
+      combo++;
+      comboEl.textContent = combo;
       burstSparkle(s.x, s.y, 8);
-      spawnText(s.x, s.y - 10, '+10');
+      spawnText(s.x, s.y - 10, '+10', '#f59e0b');
       sfx('coin');
+      setMood('happy', 0.45);
     }
+  }
+
+  /* ---------- القوى (Powers) ---------- */
+  powerTimer -= dt;
+  if (powerTimer <= 0){
+    spawnPowerup();
+    powerTimer = rand(9, 13);
+  }
+
+  for (let i = powerups.length-1; i >= 0; i--){
+    const p = powerups[i];
+    p.x -= dx;
+    p.bob += dt * 4;
+
+    const py = p.y + Math.sin(p.bob) * 6;
+    const d = Math.hypot(pcx - p.x, pcy - py);
+
+    if (d < player.size * 0.7 + p.r){
+      if (p.type === 'shield'){
+        player.shield = 7;
+        showToast('🛡️ حماية 7 ثواني');
+        sfx('shield');
+      } else {
+        player.magnet = 7;
+        showToast('🧲 المغناطيس شغال!');
+        sfx('power');
+      }
+      burstSparkle(p.x, py, 14);
+      powerups.splice(i,1);
+      setMood('happy', 0.5);
+      continue;
+    }
+
+    if (p.x < -60) powerups.splice(i,1);
+  }
+
+  /* ---------- مؤقتات القوى ---------- */
+  if (player.shield > 0){
+    player.shield -= dt;
+    if (player.shield < 0) player.shield = 0;
+    shieldChip.classList.add('show');
+    shieldTime.textContent = Math.ceil(player.shield) + 'ث';
+  } else {
+    shieldChip.classList.remove('show');
+  }
+
+  if (player.magnet > 0){
+    player.magnet -= dt;
+    if (player.magnet < 0) player.magnet = 0;
+    magnetChip.classList.add('show');
+    magnetTime.textContent = Math.ceil(player.magnet) + 'ث';
+  } else {
+    magnetChip.classList.remove('show');
   }
 }
 
 /* ============================================================
-   11) التحكم
+   14) التحكم
    ============================================================ */
 function jump(){
-  if (state !== 'playing' || !player.grounded) return;
-  player.vy = JUMP_V;
-  player.grounded = false;
-  player.squash = 1.22;
-  burstDust(player.x + player.size/2, groundY, 5);
-  sfx('jump');
+  if (state !== 'playing') return;
+  if (player.grounded || player.coyote > 0){
+    player.vy = JUMP_V;
+    player.grounded = false;
+    player.squash = 1.18;
+    player.coyote = 0;
+    player.jumpBuf = 0;
+    burstDust(player.x + player.size/2, groundY, 5);
+    sfx('jump');
+    setMood('jump', 0.25);
+  } else {
+    // سجل النية للقفز القادم
+    player.jumpBuf = JUMP_BUF;
+  }
 }
 
 function onTap(e){
   if (e && e.preventDefault) e.preventDefault();
 
-  if (state === 'playing'){
-    jump();
-    return;
-  }
+  if (state === 'playing'){ jump(); return; }
+  if (state === 'paused'){ resumeGame(); return; }
   if (state === 'over' && performance.now() - overAt < 500) return;
   startGame();
 }
@@ -856,17 +1348,28 @@ window.addEventListener('keydown', e => {
     if (e.repeat) return;
     onTap(null);
   }
+  if (e.code === 'KeyP' || e.code === 'Escape'){
+    if (state === 'playing') pauseGame();
+    else if (state === 'paused') resumeGame();
+  }
 });
 
-muteBtn.addEventListener('click', () => {
+muteBtn.addEventListener('click', e => {
+  e.stopPropagation();
   muted = !muted;
   muteBtn.textContent = muted ? '🔇' : '🔊';
-  try { localStorage.setItem('nawy.muted', muted ? '1' : '0'); } catch(e){}
+  try { localStorage.setItem('nawy.muted.v5', muted ? '1' : '0'); } catch(err){}
   if (!muted) sfx('coin');
 });
 
+pauseBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  if (state === 'playing') pauseGame();
+  else if (state === 'paused') resumeGame();
+});
+
 /* ============================================================
-   12) الواجهة (Overlay / Toast)
+   15) الواجهة
    ============================================================ */
 let toastTimeout = null;
 function showToast(text){
@@ -879,7 +1382,7 @@ function showToast(text){
 function showOverlay(opt){
   ovEmoji.textContent = opt.emoji;
   ovTitle.textContent = opt.title;
-  ovText.textContent  = opt.text;
+  ovText.innerHTML    = opt.text;
   ovBtn.textContent   = opt.btn;
 
   let badge = overlay.querySelector('.badge');
@@ -898,17 +1401,20 @@ function showOverlay(opt){
 }
 
 /* ============================================================
-   13) دورة اللعبة
+   16) دورة اللعبة
    ============================================================ */
 function startGame(){
   score = 0; lastShown = -1; milestone = 0;
+  starCount = 0; combo = 0;
   speed = BASE_SPEED;
   obstacleTimer = 1.1;
   starTimer = rand(1.5, 3);
+  powerTimer = 3;
   shake = 0;
 
   obstacles.length = 0;
-  stars.length     = 0;
+  stars.length = 0;
+  powerups.length = 0;
   particles.length = 0;
 
   player.x = Math.max(46, W * 0.14);
@@ -918,12 +1424,46 @@ function startGame(){
   player.squash = 1;
   player.blinking = 0;
   player.blinkTimer = rand(1, 3);
+  player.coyote = COYOTE;
+  player.jumpBuf = 0;
+  player.shield = 0;
+  player.magnet = 0;
+  player.mood = 'idle';
+  player.moodTimer = 0;
+  player.pupilX = 0; player.pupilY = 0;
+  player.pupilTargetX = 0.3; player.pupilTargetY = 0;
 
   scoreEl.textContent = '0';
+  comboEl.textContent = '0';
+  starsEl.textContent = '0';
+  shieldChip.classList.remove('show');
+  magnetChip.classList.remove('show');
+
   overlay.classList.add('hidden');
+  pauseBtn.textContent = 'Ⅱ';
 
   unlockAudio();
   state = 'playing';
+  spawnPowerup(true);
+}
+
+function pauseGame(){
+  if (state !== 'playing') return;
+  state = 'paused';
+  showOverlay({
+    emoji: '⏸️',
+    title: 'وقفة صغيرة',
+    text : 'خد نفس... ولما تكون جاهز نكمل.',
+    btn  : 'كمّل اللعب'
+  });
+  pauseBtn.textContent = '▶';
+}
+
+function resumeGame(){
+  if (state !== 'paused') return;
+  state = 'playing';
+  overlay.classList.add('hidden');
+  pauseBtn.textContent = 'Ⅱ';
 }
 
 function gameOver(){
@@ -935,43 +1475,49 @@ function gameOver(){
   sfx('hit');
   vibrate(80);
 
+  setMood('hit', 5);
+
   burstConfetti(
     player.x + player.size/2,
     player.y + player.size/2,
-    reduceMotion ? 10 : 28
+    reduceMotion ? 10 : 24
   );
 
   let record = false;
   if (score > best){
     best = score;
     record = true;
-    try { localStorage.setItem('nawy.best', String(best)); } catch(e){}
+    try { localStorage.setItem('nawy.best.v5', String(best)); } catch(e){}
     bestEl.textContent = best;
+    sfx('record');
   }
 
   showOverlay({
     emoji: record ? '🏆' : '😵',
     title: record ? 'رقم قياسي جديد!' : 'ناوي خبط! 😅',
-    text : 'نتيجتك: ' + score + ' — الأفضل: ' + best,
+    text : 'نتيجتك: <b>' + score + '</b> — الأفضل: <b>' + best + '</b>',
     btn  : 'حاول تاني',
     badge: record ? 'أحسنت! 🎉' : null
   });
 
   if (record && !reduceMotion){
-    burstConfetti(W/2, H*0.35, 24);
+    burstConfetti(W/2, H*0.35, 28);
   }
 }
 
-let rafId = 0, lastT2 = 0;
+/* ============================================================
+   17) الحلقة الرئيسية
+   ============================================================ */
+let lastFrameTime = 0;
 
 function frame(t){
-  rafId = requestAnimationFrame(frame);
+  requestAnimationFrame(frame);
 
-  if (!lastT2) lastT2 = t;
-  let dt = (t - lastT2) / 1000;
-  lastT2 = t;
+  if (!lastFrameTime) lastFrameTime = t;
+  let dt = (t - lastFrameTime) / 1000;
+  lastFrameTime = t;
   if (!isFinite(dt) || dt < 0) dt = 0;
-  dt = Math.min(dt, 1/30);            // منع القفزات بعد الرجوع من الخلفية
+  dt = Math.min(dt, 1/30);
 
   if (state === 'playing') update(dt);
   updateAmbient(dt);
@@ -984,7 +1530,14 @@ function frame(t){
 }
 
 /* ============================================================
-   14) التشغيل
+   18) الإيقاف التلقائي عند الخروج
+   ============================================================ */
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && state === 'playing') pauseGame();
+});
+
+/* ============================================================
+   19) التشغيل
    ============================================================ */
 function init(){
   bestEl.textContent = best;
@@ -992,7 +1545,6 @@ function init(){
 
   resize();
 
-  // نجوم وسحاب في البداية
   for (let i = 0; i < 3; i++) spawnCloud();
 
   requestAnimationFrame(frame);
