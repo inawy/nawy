@@ -2,361 +2,400 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#eef7ff">
-<meta name="description" content="العب مع ناوي - لعبة ركض خفيفة وسريعة داخل تطبيق ناوي">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>العب مع ناوي</title>
 
 <style>
-:root{
-  --blue:#1769e0;
-  --blue2:#0d47a1;
-  --sky:#eef7ff;
-  --ink:#10233f;
-  --muted:#718096;
-  --line:#d8e8f8;
-  --white:#fff;
-  --gold:#f6b91a;
-  --mint:#20b486;
-  --purple:#9b5de5;
-  --danger:#ff6b6b;
-}
-
 *{
   box-sizing:border-box;
   -webkit-tap-highlight-color:transparent;
 }
 
 html,body{
-  margin:0;
   width:100%;
   height:100%;
+  margin:0;
   overflow:hidden;
-  background:var(--sky);
-  color:var(--ink);
-  font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;
+  background:#fff;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Tahoma,
+    Arial,
+    sans-serif;
+}
+
+body{
+  color:#152033;
   user-select:none;
   -webkit-user-select:none;
-  touch-action:none;
-  overscroll-behavior:none;
+  touch-action:manipulation;
 }
 
 button{
   font:inherit;
+  border:0;
+  cursor:pointer;
+  user-select:none;
+  -webkit-user-select:none;
 }
 
 .game{
-  width:100vw;
+  width:100%;
   height:100dvh;
+  min-height:100%;
+  display:flex;
+  flex-direction:column;
   position:relative;
   overflow:hidden;
+  background:
+    linear-gradient(
+      180deg,
+      #fafdff 0%,
+      #ffffff 55%,
+      #f8fbfd 100%
+    );
 }
 
-.stage{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-  background:#eef7ff;
-}
-
-canvas{
-  width:100%;
-  height:100%;
-  display:block;
-}
-
-/* ---------- TOP HUD ---------- */
+/* =========================
+   TOP BAR
+========================= */
 
 .topbar{
-  position:absolute;
-  z-index:10;
-  top:max(10px,env(safe-area-inset-top));
-  left:max(10px,env(safe-area-inset-left));
-  right:max(10px,env(safe-area-inset-right));
+  width:100%;
+  min-height:64px;
+  padding:
+    max(10px,env(safe-area-inset-top))
+    max(14px,env(safe-area-inset-right))
+    8px
+    max(14px,env(safe-area-inset-left));
+
   display:flex;
   align-items:center;
-  gap:8px;
-  pointer-events:none;
+  justify-content:space-between;
+  gap:10px;
+  z-index:20;
 }
 
 .brand{
   display:flex;
   align-items:center;
-  gap:7px;
+  gap:9px;
   min-width:0;
-  color:#23415f;
-  font-size:16px;
-  font-weight:950;
-  text-shadow:0 1px 3px #ffffffaa;
 }
 
 .logo{
-  width:34px;
-  height:34px;
-  border-radius:11px;
-  display:grid;
-  place-items:center;
-  color:#fff;
-  font-size:18px;
-  font-weight:950;
-  background:linear-gradient(145deg,#4b9aff,#0d47a1);
-  box-shadow:0 8px 24px #1769e033;
-}
-
-.brand em{
-  font-style:normal;
-  color:var(--blue);
-}
-
-.hud-stats{
-  margin-inline-start:auto;
-  display:flex;
-  align-items:center;
-  gap:6px;
-}
-
-.stat{
-  min-width:64px;
-  padding:6px 10px;
-  border:1px solid #ffffffcc;
-  border-radius:14px;
-  background:#ffffffd9;
-  backdrop-filter:blur(10px);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  line-height:1.05;
-  box-shadow:0 7px 22px #1b5faa18;
-}
-
-.stat small{
-  color:#7589a0;
-  font-size:9px;
-  font-weight:800;
-}
-
-.stat b{
-  margin-top:3px;
-  color:var(--ink);
-  font-size:16px;
-  font-variant-numeric:tabular-nums;
-}
-
-.icon-btn{
-  pointer-events:auto;
-  border:1px solid #ffffffcc;
-  background:#ffffffd9;
-  color:var(--ink);
   width:38px;
   height:38px;
   border-radius:13px;
-  cursor:pointer;
+  display:grid;
+  place-items:center;
+  color:#fff;
+  font-size:23px;
+  font-weight:900;
+  background:linear-gradient(145deg,#1688ff,#0067df);
+  box-shadow:
+    0 7px 18px rgba(0,103,223,.18),
+    inset 0 1px 0 rgba(255,255,255,.4);
+}
+
+.brandText{
+  line-height:1.05;
+}
+
+.brandText strong{
+  display:block;
+  font-size:15px;
+  font-weight:900;
+}
+
+.brandText span{
+  display:block;
+  margin-top:3px;
+  color:#8290a3;
+  font-size:10px;
+  font-weight:700;
+}
+
+.stats{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.stat{
+  min-width:57px;
+  height:40px;
+  padding:5px 9px;
+  border:1px solid #e8edf3;
+  border-radius:13px;
+  background:rgba(255,255,255,.88);
+  box-shadow:0 5px 18px rgba(24,42,65,.045);
+  text-align:center;
+}
+
+.stat span{
+  display:block;
+  color:#8b98a8;
+  font-size:9px;
+  font-weight:800;
+  line-height:12px;
+}
+
+.stat b{
+  display:block;
+  color:#172235;
+  font-size:15px;
+  line-height:17px;
+  font-weight:900;
+}
+
+.iconBtn{
+  width:40px;
+  height:40px;
+  flex:0 0 40px;
+  border:1px solid #e8edf3;
+  border-radius:13px;
+  background:#fff;
+  color:#526174;
+  box-shadow:0 5px 18px rgba(24,42,65,.045);
   display:grid;
   place-items:center;
   font-size:17px;
-  box-shadow:0 7px 22px #1b5faa18;
-  backdrop-filter:blur(10px);
+  transition:transform .12s ease;
 }
 
-.icon-btn:active{
-  transform:scale(.94);
+.iconBtn:active{
+  transform:scale(.92);
 }
 
-/* ---------- POWER HUD ---------- */
+/* =========================
+   GAME AREA
+========================= */
 
-.power-hud{
+.stageWrap{
+  position:relative;
+  flex:1;
+  min-height:0;
+  width:100%;
+  padding:0 8px 8px;
+}
+
+.stage{
+  position:relative;
+  width:100%;
+  height:100%;
+  min-height:260px;
+  overflow:hidden;
+  border-radius:25px;
+  background:#fff;
+  box-shadow:
+    0 18px 55px rgba(20,45,75,.08),
+    0 1px 0 rgba(20,45,75,.05);
+  isolation:isolate;
+}
+
+canvas{
+  display:block;
+  width:100%;
+  height:100%;
+  touch-action:none;
+}
+
+/* =========================
+   HUD
+========================= */
+
+.hud{
   position:absolute;
-  z-index:9;
-  top:78px;
-  left:50%;
-  transform:translateX(-50%);
+  top:12px;
+  left:12px;
+  right:12px;
+  z-index:10;
   display:flex;
-  gap:6px;
+  align-items:center;
+  justify-content:space-between;
   pointer-events:none;
 }
 
-.power-chip{
-  min-width:0;
-  padding:6px 10px;
-  border-radius:99px;
-  background:#ffffffdb;
-  border:1px solid #ffffffb8;
-  color:#365775;
-  font-size:11px;
-  font-weight:950;
-  box-shadow:0 8px 24px #1b5faa16;
-  backdrop-filter:blur(10px);
-  white-space:nowrap;
+.hudLeft,
+.hudRight{
+  display:flex;
+  align-items:center;
+  gap:7px;
 }
 
-.power-chip.hidden{
+.chip{
+  min-height:30px;
+  padding:6px 10px;
+  border:1px solid rgba(225,232,240,.92);
+  border-radius:999px;
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 5px 18px rgba(20,45,75,.055);
+  color:#536174;
+  font-size:11px;
+  font-weight:800;
+}
+
+.chip strong{
+  color:#172235;
+}
+
+#powerChip{
   display:none;
 }
 
-/* ---------- OVERLAY ---------- */
+#shieldChip{
+  display:none;
+}
+
+/* =========================
+   OVERLAY
+========================= */
 
 .overlay{
   position:absolute;
   inset:0;
-  z-index:12;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+  z-index:30;
+  display:grid;
+  place-items:center;
   padding:20px;
-  background:linear-gradient(180deg,#ffffff22,#ffffff70);
-}
-
-.overlay.hidden{
-  display:none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.30),
+      rgba(255,255,255,.72)
+    );
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
 }
 
 .panel{
-  width:min(92vw,360px);
-  padding:24px 20px 18px;
-  border:1px solid #ffffffd9;
+  width:min(420px,92%);
+  padding:27px 24px 22px;
+  border:1px solid rgba(224,231,239,.95);
   border-radius:28px;
-  background:#ffffffee;
+  background:rgba(255,255,255,.96);
   box-shadow:
-    0 24px 70px #0d47a126,
-    0 8px 24px #1769e016;
-  backdrop-filter:blur(16px);
+    0 25px 80px rgba(21,45,72,.13),
+    0 2px 4px rgba(21,45,72,.04);
   text-align:center;
 }
 
-.panel .emoji{
-  font-size:48px;
-  line-height:1;
-  margin-bottom:9px;
+.panelEmoji{
+  width:64px;
+  height:64px;
+  margin:0 auto 14px;
+  border-radius:21px;
+  display:grid;
+  place-items:center;
+  font-size:33px;
+  background:linear-gradient(145deg,#eef7ff,#ffffff);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 12px 25px rgba(22,136,255,.09);
 }
 
 .panel h1{
-  margin:0 0 7px;
-  color:var(--ink);
-  font-size:26px;
+  margin:0;
+  font-size:27px;
+  line-height:1.2;
   font-weight:950;
-  letter-spacing:-.7px;
+  letter-spacing:-.6px;
+  color:#111c2d;
 }
 
 .panel p{
-  margin:0;
-  color:var(--muted);
-  font-size:14px;
-  line-height:1.7;
+  margin:10px auto 18px;
+  max-width:340px;
+  color:#6c7888;
+  font-size:13px;
+  line-height:1.8;
+  font-weight:650;
 }
 
-.primary{
-  margin-top:17px;
-  border:0;
-  border-radius:15px;
-  padding:13px 28px;
-  min-width:160px;
-  background:linear-gradient(135deg,#2784fa,#145bc8);
-  color:#fff;
-  font-size:16px;
-  font-weight:950;
-  cursor:pointer;
-  box-shadow:0 10px 24px #1769e044;
-}
-
-.primary:active{
-  transform:scale(.96);
-}
-
-.result{
-  margin-top:14px;
+.powerPreview{
   display:flex;
   justify-content:center;
-  gap:8px;
+  gap:9px;
+  margin:0 auto 19px;
 }
 
-.result-box{
-  min-width:105px;
-  padding:9px 12px;
+.powerPreviewItem{
+  min-width:108px;
+  padding:10px 12px;
+  border:1px solid #edf1f5;
   border-radius:15px;
-  background:#f5f9ff;
-  border:1px solid #deebf8;
-}
-
-.result-box small{
-  display:block;
-  color:#8094aa;
-  font-size:9px;
+  background:#fafcfe;
+  color:#536174;
+  font-size:11px;
   font-weight:850;
 }
 
-.result-box strong{
-  display:block;
-  margin-top:3px;
-  color:var(--blue);
-  font-size:21px;
+.powerPreviewItem span{
+  font-size:17px;
+  margin-left:4px;
+}
+
+.mainBtn{
+  width:100%;
+  min-height:52px;
+  border-radius:16px;
+  color:#fff;
+  font-size:15px;
   font-weight:950;
-  font-variant-numeric:tabular-nums;
+  background:linear-gradient(135deg,#1489ff,#0069e5);
+  box-shadow:
+    0 12px 25px rgba(0,105,229,.20),
+    inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .12s ease,box-shadow .12s ease;
 }
 
-.power-preview{
-  display:flex;
-  justify-content:center;
-  gap:7px;
-  margin-top:15px;
+.mainBtn:active{
+  transform:translateY(2px) scale(.99);
+  box-shadow:0 7px 15px rgba(0,105,229,.17);
 }
 
-.preview-pill{
-  padding:7px 10px;
-  border-radius:99px;
-  background:#f3f8ff;
-  border:1px solid #e0ebf7;
-  color:#45647f;
-  font-size:11px;
-  font-weight:900;
+.secondaryBtn{
+  margin-top:9px;
+  width:100%;
+  min-height:44px;
+  border-radius:14px;
+  background:#f4f7fa;
+  color:#526174;
+  font-size:12px;
+  font-weight:850;
 }
 
-.actions{
-  display:flex;
-  justify-content:center;
-  gap:7px;
-  margin-top:11px;
-}
-
-.secondary{
-  border:1px solid var(--line);
-  border-radius:13px;
-  padding:9px 13px;
-  background:#fff;
-  color:var(--blue);
-  font-size:13px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.secondary:active{
-  transform:scale(.96);
-}
-
-.tip{
-  margin-top:11px;
-  color:#91a3b8;
-  font-size:10px;
-  font-weight:750;
-}
-
-/* ---------- TOAST ---------- */
+/* =========================
+   TOAST
+========================= */
 
 .toast{
   position:absolute;
-  z-index:20;
-  top:18%;
+  z-index:40;
   left:50%;
-  transform:translate(-50%,10px);
-  background:#1769e0;
-  color:#fff;
-  padding:9px 17px;
-  border-radius:99px;
-  font-size:13px;
-  font-weight:950;
+  bottom:24px;
+  transform:translate(-50%,12px);
   opacity:0;
   pointer-events:none;
+
+  padding:10px 15px;
+  border-radius:999px;
+  background:rgba(22,32,48,.91);
+  color:#fff;
+  box-shadow:0 10px 30px rgba(20,30,45,.16);
+
+  font-size:12px;
+  font-weight:850;
   white-space:nowrap;
-  box-shadow:0 10px 28px #1769e04d;
+
   transition:opacity .18s ease,transform .18s ease;
 }
 
@@ -365,1005 +404,1417 @@ canvas{
   transform:translate(-50%,0);
 }
 
-/* ---------- MODAL ---------- */
+/* =========================
+   FOOTER
+========================= */
 
-.modal{
-  position:absolute;
-  inset:0;
-  z-index:30;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  background:#07142655;
-  backdrop-filter:blur(5px);
+.bottomHint{
+  min-height:30px;
+  padding:
+    3px
+    max(15px,env(safe-area-inset-right))
+    max(8px,env(safe-area-inset-bottom))
+    max(15px,env(safe-area-inset-left));
+
+  text-align:center;
+  color:#98a4b2;
+  font-size:10px;
+  font-weight:750;
 }
 
-.modal.hidden{
-  display:none;
-}
+/* =========================
+   DESKTOP
+========================= */
 
-.modal-card{
-  width:min(92vw,360px);
-  padding:21px;
-  border-radius:23px;
-  background:#fff;
-  box-shadow:0 24px 70px #07142655;
-}
-
-.modal-card h2{
-  margin:0;
-  font-size:21px;
-}
-
-.modal-card p{
-  color:var(--muted);
-  font-size:13px;
-  line-height:1.7;
-}
-
-.close-btn{
-  border:0;
-  background:#edf4fc;
-  color:var(--ink);
-  width:34px;
-  height:34px;
-  border-radius:11px;
-  cursor:pointer;
-  font-size:18px;
-  font-weight:900;
-}
-
-.modal-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-
-/* ---------- DARK MODE ---------- */
-
-@media(prefers-color-scheme:dark){
-
-  :root{
-    --ink:#eaf3ff;
-    --muted:#a8b9cc;
-    --line:#29415c;
-  }
-
-  html,body{
-    background:#0a1729;
+@media (min-width:800px){
+  .stageWrap{
+    padding:0 14px 10px;
   }
 
   .stage{
-    background:#0a1729;
-  }
-
-  .brand{
-    color:#d9e8fa;
-    text-shadow:none;
-  }
-
-  .stat,
-  .icon-btn,
-  .power-chip{
-    background:#112238d9;
-    border-color:#29415c;
-  }
-
-  .stat small{
-    color:#8fa5bd;
-  }
-
-  .stat b{
-    color:#eaf3ff;
-  }
-
-  .panel{
-    background:#102238ed;
-    border-color:#315070;
-  }
-
-  .panel h1{
-    color:#eaf3ff;
-  }
-
-  .result-box,
-  .preview-pill{
-    background:#132a43;
-    border-color:#29415c;
-  }
-
-  .secondary{
-    background:#102238;
-    border-color:#29415c;
-    color:#9bc8ff;
-  }
-
-  .modal-card{
-    background:#102238;
-  }
-
-  .close-btn{
-    background:#18314d;
-    color:#fff;
-  }
-}
-
-@media(max-width:560px){
-
-  .brand{
-    display:none;
+    border-radius:30px;
   }
 
   .topbar{
-    left:8px;
-    right:8px;
+    min-height:70px;
+    padding-left:20px;
+    padding-right:20px;
+  }
+
+  .bottomHint{
+    min-height:32px;
+  }
+}
+
+@media (max-height:620px){
+  .topbar{
+    min-height:54px;
+    padding-top:5px;
+  }
+
+  .logo{
+    width:34px;
+    height:34px;
+    border-radius:11px;
+    font-size:20px;
+  }
+
+  .brandText span{
+    display:none;
   }
 
   .stat{
-    min-width:58px;
-    padding:5px 8px;
+    height:35px;
+    min-width:52px;
   }
 
-  .stat b{
-    font-size:15px;
-  }
-
-  .power-hud{
-    top:66px;
+  .iconBtn{
+    width:35px;
+    height:35px;
+    flex-basis:35px;
   }
 
   .panel{
-    padding:21px 16px 16px;
+    padding:19px;
   }
-}
 
-@media(prefers-reduced-motion:reduce){
-
-  .toast{
-    transition:none;
+  .panelEmoji{
+    width:50px;
+    height:50px;
+    font-size:27px;
+    margin-bottom:9px;
   }
-}
 
-button:focus-visible{
-  outline:3px solid var(--gold);
-  outline-offset:3px;
+  .panel h1{
+    font-size:23px;
+  }
+
+  .panel p{
+    margin:7px auto 12px;
+  }
+
+  .powerPreview{
+    margin-bottom:12px;
+  }
+
+  .mainBtn{
+    min-height:45px;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<main class="game" aria-label="العب مع ناوي">
+<main class="game">
 
-  <section class="stage" id="stage" aria-label="منطقة اللعب">
+  <header class="topbar">
 
-    <canvas id="canvas"></canvas>
+    <div class="brand">
+      <div class="logo">ن</div>
 
-    <!-- Top HUD -->
-    <header class="topbar">
-
-      <div class="brand">
-        <span class="logo" aria-hidden="true">ن</span>
-        <span>العب مع <em>ناوي</em></span>
+      <div class="brandText">
+        <strong>ناوي</strong>
+        <span>العب وارفع رقمك</span>
       </div>
-
-      <div class="hud-stats">
-
-        <div class="stat">
-          <small>النقاط</small>
-          <b id="score">0</b>
-        </div>
-
-        <div class="stat">
-          <small>أفضل نتيجة</small>
-          <b id="best">0</b>
-        </div>
-
-      </div>
-
-      <button
-        class="icon-btn"
-        id="pauseBtn"
-        type="button"
-        aria-label="إيقاف اللعبة مؤقتًا"
-        title="إيقاف مؤقت"
-      >Ⅱ</button>
-
-      <button
-        class="icon-btn"
-        id="muteBtn"
-        type="button"
-        aria-label="كتم الصوت"
-        title="الصوت"
-      >🔊</button>
-
-    </header>
-
-    <!-- Active powers -->
-    <div class="power-hud">
-      <span class="power-chip hidden" id="shieldChip">🛡️ حماية</span>
-      <span class="power-chip hidden" id="magnetChip">🧲 مغناطيس</span>
     </div>
 
-    <!-- Start / Pause / Game Over -->
-    <div class="overlay" id="overlay">
+    <div class="stats">
 
-      <div class="panel">
+      <div class="stat">
+        <span>النقاط</span>
+        <b id="score">0</b>
+      </div>
 
-        <div class="emoji" id="ovEmoji">🔵</div>
+      <div class="stat">
+        <span>أفضل</span>
+        <b id="best">0</b>
+      </div>
 
-        <h1 id="ovTitle">ناوي جاهز؟</h1>
+      <div class="stat">
+        <span>سلسلة</span>
+        <b id="combo">0</b>
+      </div>
 
-        <p id="ovText">
-          اقفز فوق العقبات واجمع النجوم<br>
-          وحاول تكسر أفضل رقم ليك.
-        </p>
+      <button
+        class="iconBtn"
+        id="muteBtn"
+        type="button"
+        aria-label="الصوت"
+      >🔊</button>
 
-        <div class="power-preview">
-          <span class="preview-pill">🛡️ درع حماية</span>
-          <span class="preview-pill">🧲 مغناطيس</span>
+      <button
+        class="iconBtn"
+        id="pauseBtn"
+        type="button"
+        aria-label="إيقاف مؤقت"
+      >Ⅱ</button>
+
+    </div>
+
+  </header>
+
+  <section class="stageWrap">
+
+    <div class="stage">
+
+      <canvas id="gameCanvas"></canvas>
+
+      <div class="hud">
+
+        <div class="hudLeft">
+          <div class="chip" id="powerChip"></div>
+          <div class="chip" id="shieldChip"></div>
         </div>
 
-        <div class="result" id="resultRow" hidden>
-
-          <div class="result-box">
-            <small>نتيجتك</small>
-            <strong id="resultScore">0</strong>
+        <div class="hudRight">
+          <div class="chip">
+            ⭐ <strong id="stars">0</strong>
           </div>
-
-          <div class="result-box">
-            <small>أفضل نتيجة</small>
-            <strong id="resultBest">0</strong>
-          </div>
-
         </div>
 
-        <button class="primary" id="ovBtn" type="button">
-          يلا نبدأ
-        </button>
+      </div>
 
-        <div class="actions">
+      <div class="overlay" id="overlay">
+
+        <div class="panel">
+
+          <div class="panelEmoji" id="panelEmoji">🏃</div>
+
+          <h1 id="panelTitle">ناوي جاهز؟</h1>
+
+          <p id="panelText">
+            اقفز فوق العقبات، اجمع النجوم،
+            وحاول تكسر أفضل نتيجة ليك.
+          </p>
+
+          <div class="powerPreview">
+
+            <div class="powerPreviewItem">
+              <span>🛡️</span>
+              حماية
+            </div>
+
+            <div class="powerPreviewItem">
+              <span>🧲</span>
+              مغناطيس
+            </div>
+
+          </div>
 
           <button
-            class="secondary"
+            class="mainBtn"
+            id="mainBtn"
+            type="button"
+          >
+            يلا نبدأ
+          </button>
+
+          <button
+            class="secondaryBtn"
             id="shareBtn"
             type="button"
             hidden
           >
-            📤 مشاركة
+            📤 شارك نتيجتك
           </button>
 
         </div>
 
-        <div class="tip" id="tipText">
-          اضغط في أي مكان للقفز
-        </div>
-
       </div>
+
+      <div class="toast" id="toast"></div>
 
     </div>
 
-    <div
-      class="toast"
-      id="toast"
-      role="status"
-      aria-live="polite"
-    ></div>
-
-    <div
-      class="modal hidden"
-      id="pauseModal"
-    ></div>
-
   </section>
+
+  <div class="bottomHint">
+    لمس الشاشة أو Space للقفز
+  </div>
 
 </main>
 
+
 <script>
-(function(){
-'use strict';
+"use strict";
 
 /* =========================================================
-   Helpers
+   NAWY RUNNER
+   Local First / Offline / No Dependencies
 ========================================================= */
 
-const TAU = Math.PI * 2;
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d", { alpha:false });
 
-const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const stage = document.querySelector(".stage");
 
-const rand = (a,b) => a + Math.random() * (b-a);
+const scoreEl = document.getElementById("score");
+const bestEl = document.getElementById("best");
+const comboEl = document.getElementById("combo");
+const starsEl = document.getElementById("stars");
 
-const pick = arr => arr[(Math.random()*arr.length)|0];
+const powerChip = document.getElementById("powerChip");
+const shieldChip = document.getElementById("shieldChip");
+
+const overlay = document.getElementById("overlay");
+const panelEmoji = document.getElementById("panelEmoji");
+const panelTitle = document.getElementById("panelTitle");
+const panelText = document.getElementById("panelText");
+const mainBtn = document.getElementById("mainBtn");
+const shareBtn = document.getElementById("shareBtn");
+
+const pauseBtn = document.getElementById("pauseBtn");
+const muteBtn = document.getElementById("muteBtn");
+const toast = document.getElementById("toast");
+
 
 /* =========================================================
-   DOM
+   STORAGE
 ========================================================= */
 
-const stage = document.getElementById('stage');
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+const STORE_KEY = "nawy_runner_best_v2";
+const SOUND_KEY = "nawy_runner_sound_v2";
 
-const scoreEl = document.getElementById('score');
-const bestEl = document.getElementById('best');
-
-const pauseBtn = document.getElementById('pauseBtn');
-const muteBtn = document.getElementById('muteBtn');
-
-const shieldChip = document.getElementById('shieldChip');
-const magnetChip = document.getElementById('magnetChip');
-
-const overlay = document.getElementById('overlay');
-const ovEmoji = document.getElementById('ovEmoji');
-const ovTitle = document.getElementById('ovTitle');
-const ovText = document.getElementById('ovText');
-const ovBtn = document.getElementById('ovBtn');
-
-const resultRow = document.getElementById('resultRow');
-const resultScore = document.getElementById('resultScore');
-const resultBest = document.getElementById('resultBest');
-
-const shareBtn = document.getElementById('shareBtn');
-const tipText = document.getElementById('tipText');
-
-const toastEl = document.getElementById('toast');
-
-/* =========================================================
-   Local storage
-========================================================= */
-
-const store = {
-
-  get(key, fallback){
-    try{
-      return localStorage.getItem(key) ?? fallback;
-    }catch(e){
-      return fallback;
-    }
-  },
-
-  set(key,value){
-    try{
-      localStorage.setItem(key,String(value));
-    }catch(e){}
+function loadNumber(key, fallback=0){
+  try{
+    const value = Number(localStorage.getItem(key));
+    return Number.isFinite(value) ? value : fallback;
+  }catch{
+    return fallback;
   }
+}
 
-};
+function saveNumber(key,value){
+  try{
+    localStorage.setItem(key,String(value));
+  }catch{}
+}
+
 
 /* =========================================================
-   State
+   GAME STATE
 ========================================================= */
 
-let state = 'ready';
+let W = 800;
+let H = 500;
+let DPR = 1;
+
+let state = "ready";
 
 let score = 0;
+let best = loadNumber(STORE_KEY,0);
 
-let best = Number(store.get('nawy.best',0)) || 0;
+let starCount = 0;
+let combo = 0;
 
-let speed = 5.4;
+let muted = loadNumber(SOUND_KEY,0) === 1;
 
-let shield = 0;
+let worldSpeed = 5.4;
+let targetSpeed = 5.4;
 
-let magnet = 0;
+let obstacleTimer = 1.5;
+let powerTimer = 3.2;
+
+let lastTime = 0;
+let elapsed = 0;
+
+let coyoteTime = 0;
+let jumpBuffer = 0;
 
 let shake = 0;
 
-let flash = 0;
-
-let pulse = 0;
-
-let skyClock = 0;
-
-let lastFrame = 0;
-
-let overAt = 0;
-
 let toastTimer = 0;
+let milestone = 0;
 
-let milestoneShown = 0;
-
-let jumpBuffer = 0;
-
-let coyoteTime = 0;
-
-let powerTimer = 3.8;
-
-let obstacleTimer = 1.35;
-
-let starTimer = 1.6;
-
-let cloudTimer = 0;
-
-let groundOffset = 0;
-
-let hill1 = 0;
-
-let hill2 = 0;
 
 /* =========================================================
-   Canvas
+   PLAYER
 ========================================================= */
 
-let W = 0;
-let H = 0;
-let groundY = 0;
+const player = {
+  x:0,
+  y:0,
+  r:19,
 
-let isDark =
-  matchMedia('(prefers-color-scheme: dark)').matches;
+  vy:0,
 
-let reduced =
-  matchMedia('(prefers-reduced-motion: reduce)').matches;
+  grounded:true,
+
+  shield:0,
+  magnet:0,
+
+  squash:1,
+  rotation:0
+};
+
+const GRAVITY = 2500;
+const JUMP_VELOCITY = -850;
+
 
 /* =========================================================
-   Audio
-========================================================= */
-
-let muted = store.get('nawy.muted','0') === '1';
-
-let audio = null;
-
-/* =========================================================
-   Game objects
+   OBJECTS
 ========================================================= */
 
 const obstacles = [];
 const stars = [];
-const clouds = [];
-const particles = [];
 const powerups = [];
+const particles = [];
+
+let clouds = [];
+let hills = [];
+
 
 /* =========================================================
-   Player
+   HELPERS
 ========================================================= */
 
-const player = {
+function clamp(v,min,max){
+  return Math.max(min,Math.min(max,v));
+}
 
-  x: 70,
-  y: 0,
+function rand(min,max){
+  return min + Math.random()*(max-min);
+}
 
-  size: 42,
+function pick(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
 
-  vy: 0,
+function rectsOverlap(a,b){
+  return (
+    a.x < b.x+b.w &&
+    a.x+a.w > b.x &&
+    a.y < b.y+b.h &&
+    a.y+a.h > b.y
+  );
+}
 
-  grounded: true,
+function circleRectCollision(cx,cy,r,rect){
 
-  squash: 1,
+  const closestX = clamp(cx,rect.x,rect.x+rect.w);
+  const closestY = clamp(cy,rect.y,rect.y+rect.h);
 
-  blink: 2,
+  const dx = cx-closestX;
+  const dy = cy-closestY;
 
-  blinkLeft: 0
+  return dx*dx + dy*dy < r*r;
+}
 
-};
-
-const GRAVITY = 2550;
-
-/* أسرع استجابة للقفز */
-const JUMP = -900;
-
-/* لا نخلي السقوط عنيف زيادة */
-const MAX_FALL = 1850;
 
 /* =========================================================
-   Drawing helpers
+   RESIZE
 ========================================================= */
 
-function roundRect(c,x,y,w,h,r){
+function resize(){
 
-  r = Math.min(r,w/2,h/2);
+  const rect = stage.getBoundingClientRect();
 
-  c.beginPath();
+  DPR = Math.min(window.devicePixelRatio || 1,2);
 
-  c.moveTo(x+r,y);
+  W = Math.max(320,rect.width);
+  H = Math.max(260,rect.height);
 
-  c.arcTo(x+w,y,x+w,y+h,r);
+  canvas.width = Math.floor(W*DPR);
+  canvas.height = Math.floor(H*DPR);
 
-  c.arcTo(x+w,y+h,x,y+h,r);
+  canvas.style.width = W+"px";
+  canvas.style.height = H+"px";
 
-  c.arcTo(x,y+h,x,y,r);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
 
-  c.arcTo(x,y,x+w,y,r);
+  player.x = Math.max(70,W*.18);
 
-  c.closePath();
+  if(state !== "playing"){
+    player.y = floorY()-player.r;
+  }
 
+  buildBackground();
 }
 
-function circleRect(cx,cy,r,rx,ry,rw,rh){
+window.addEventListener("resize",resize);
 
-  const nx = clamp(cx,rx,rx+rw);
-  const ny = clamp(cy,ry,ry+rh);
-
-  const dx = cx-nx;
-  const dy = cy-ny;
-
-  return dx*dx+dy*dy < r*r;
-
-}
 
 /* =========================================================
-   Difficulty
-   لا توجد مستويات مرئية.
-   الصعوبة = نتيجة اللاعب فقط.
+   WORLD
 ========================================================= */
 
-function difficulty(){
-
-  return clamp(score / 850,0,1);
-
+function floorY(){
+  return H*.78;
 }
 
-function getWorldSpeed(dt){
-
-  const d = difficulty();
+function getWorldSpeed(){
 
   /*
-    بداية مريحة
-    ثم سرعة تزيد تدريجيًا
-    بدون أي Speed Boost
+    Difficulty is intentionally hidden.
+    The player simply feels the game getting faster.
   */
 
-  const target = 5.4 + d * 4.8;
+  const progress = clamp(score/900,0,1);
 
-  speed +=
-    (target-speed) *
-    Math.min(1,dt*3.8);
-
-  return speed;
-
+  return 5.4 + progress*3.0;
 }
 
-/* =========================================================
-   HUD
-========================================================= */
+function buildBackground(){
 
-function updatePowerUI(){
+  clouds = [];
 
-  if(shield > 0){
+  const count = Math.max(4,Math.floor(W/180));
 
-    shieldChip.classList.remove('hidden');
+  for(let i=0;i<count;i++){
 
-  }else{
-
-    shieldChip.classList.add('hidden');
-
+    clouds.push({
+      x:Math.random()*W,
+      y:rand(H*.13,H*.35),
+      w:rand(65,125),
+      speed:rand(.12,.28),
+      alpha:rand(.35,.65)
+    });
   }
 
-  if(magnet > 0){
+  hills = [];
 
-    magnetChip.textContent =
-      '🧲 مغناطيس ' + Math.ceil(magnet) + 'ث';
+  for(let i=0;i<8;i++){
 
-    magnetChip.classList.remove('hidden');
+    hills.push({
+      x:i*(W/6)-80,
+      y:floorY()+rand(-20,15),
+      w:rand(170,280),
+      h:rand(50,90)
+    });
+  }
+}
 
-  }else{
 
-    magnetChip.classList.add('hidden');
+/* =========================================================
+   START / RESET
+========================================================= */
 
+function resetGame(){
+
+  score = 0;
+  starCount = 0;
+  combo = 0;
+
+  elapsed = 0;
+
+  worldSpeed = 5.4;
+  targetSpeed = 5.4;
+
+  obstacleTimer = 1.35;
+  powerTimer = 3.0;
+
+  coyoteTime = 0;
+  jumpBuffer = 0;
+
+  shake = 0;
+
+  milestone = 0;
+
+  obstacles.length = 0;
+  stars.length = 0;
+  powerups.length = 0;
+  particles.length = 0;
+
+  player.shield = 0;
+  player.magnet = 0;
+
+  player.vy = 0;
+  player.grounded = true;
+  player.squash = 1;
+  player.rotation = 0;
+
+  player.x = Math.max(70,W*.18);
+  player.y = floorY()-player.r;
+
+  updateUI();
+}
+
+function startGame(){
+
+  resetGame();
+
+  state = "playing";
+
+  overlay.style.display = "none";
+
+  playSound("start");
+
+  /*
+    Guaranteed early reward.
+    This lets the player understand powerups immediately.
+  */
+
+  spawnPowerup(true);
+
+  lastTime = performance.now();
+}
+
+function pauseGame(){
+
+  if(state !== "playing") return;
+
+  state = "paused";
+
+  overlay.style.display = "grid";
+
+  panelEmoji.textContent = "⏸️";
+  panelTitle.textContent = "وقفة صغيرة";
+  panelText.innerHTML = "خد نفس... ولما تكون جاهز نكمل من نفس المكان.";
+
+  mainBtn.textContent = "كمّل اللعب";
+
+  shareBtn.hidden = true;
+
+  pauseBtn.textContent = "▶";
+
+}
+
+function resumeGame(){
+
+  if(state !== "paused") return;
+
+  state = "playing";
+
+  overlay.style.display = "none";
+
+  pauseBtn.textContent = "Ⅱ";
+
+  lastTime = performance.now();
+}
+
+
+/* =========================================================
+   JUMP SYSTEM
+========================================================= */
+
+function requestJump(){
+
+  if(state !== "playing") return;
+
+  /*
+    Jump buffer:
+    الضغط قبل ملامسة الأرض مباشرة لا يضيع.
+  */
+
+  jumpBuffer = .13;
+
+  tryJump();
+}
+
+function tryJump(){
+
+  if(state !== "playing") return;
+
+  /*
+    Coyote time:
+    حتى لو اللاعب خرج من الأرض بجزء صغير جدًا
+    يظل القفز مقبولًا.
+  */
+
+  const canJump =
+    player.grounded ||
+    coyoteTime > 0 ||
+    player.y >= floorY()-player.r-2;
+
+  if(!canJump) return;
+
+  player.vy = JUMP_VELOCITY;
+
+  player.grounded = false;
+
+  coyoteTime = 0;
+  jumpBuffer = 0;
+
+  player.squash = .82;
+
+  burst(
+    player.x,
+    player.y+player.r,
+    5,
+    "dust"
+  );
+
+  playSound("jump");
+}
+
+
+/* =========================================================
+   INPUT
+========================================================= */
+
+function handleTap(e){
+
+  if(e){
+    e.preventDefault();
   }
 
+  if(state === "playing"){
+    requestJump();
+    return;
+  }
+
+  if(state === "paused"){
+    resumeGame();
+    return;
+  }
+
+  if(state === "ready" || state === "over"){
+    startGame();
+  }
 }
 
+canvas.addEventListener(
+  "pointerdown",
+  handleTap,
+  {passive:false}
+);
+
+window.addEventListener("keydown",e=>{
+
+  if(
+    e.code === "Space" ||
+    e.code === "ArrowUp" ||
+    e.code === "KeyW"
+  ){
+
+    e.preventDefault();
+
+    if(state === "playing"){
+      requestJump();
+    }
+  }
+
+  if(e.code === "KeyP" || e.code === "Escape"){
+
+    if(state === "playing"){
+      pauseGame();
+    }else if(state === "paused"){
+      resumeGame();
+    }
+  }
+});
+
+
+mainBtn.addEventListener("click",e=>{
+
+  e.stopPropagation();
+
+  if(state === "paused"){
+    resumeGame();
+  }else{
+    startGame();
+  }
+});
+
+shareBtn.addEventListener("click",e=>{
+
+  e.stopPropagation();
+
+  shareScore();
+});
+
+pauseBtn.addEventListener("click",e=>{
+
+  e.stopPropagation();
+
+  if(state === "playing"){
+    pauseGame();
+  }else if(state === "paused"){
+    resumeGame();
+  }
+});
+
+
 /* =========================================================
-   Toast
+   SOUND
 ========================================================= */
 
-function showToast(text){
+let audioCtx = null;
 
-  toastEl.textContent = text;
+function audio(){
 
-  toastEl.classList.add('show');
-
-  clearTimeout(toastTimer);
-
-  toastTimer = setTimeout(() => {
-
-    toastEl.classList.remove('show');
-
-  },1100);
-
-}
-
-/* =========================================================
-   Audio
-========================================================= */
-
-function unlockAudio(){
-
-  if(muted) return;
+  if(muted) return null;
 
   try{
 
-    const AC =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if(!AC) return;
-
-    if(!audio) audio = new AC();
-
-    if(audio.state === 'suspended'){
-      audio.resume();
+    if(!audioCtx){
+      audioCtx = new (
+        window.AudioContext ||
+        window.webkitAudioContext
+      )();
     }
 
-  }catch(e){}
+    if(audioCtx.state === "suspended"){
+      audioCtx.resume();
+    }
 
+    return audioCtx;
+
+  }catch{
+    return null;
+  }
 }
 
-function beep(
-  freq,
-  dur,
-  type='sine',
-  vol=.04,
-  to=0,
-  delay=0
-){
+function tone(freq,duration,type="sine",volume=.035){
+
+  const ac = audio();
+
+  if(!ac) return;
+
+  const osc = ac.createOscillator();
+  const gain = ac.createGain();
+
+  osc.type = type;
+  osc.frequency.value = freq;
+
+  gain.gain.setValueAtTime(volume,ac.currentTime);
+  gain.gain.exponentialRampToValueAtTime(
+    .001,
+    ac.currentTime+duration
+  );
+
+  osc.connect(gain);
+  gain.connect(ac.destination);
+
+  osc.start();
+  osc.stop(ac.currentTime+duration);
+}
+
+function playSound(name){
 
   if(muted) return;
 
-  try{
+  if(name==="jump"){
+    tone(440,.08,"sine",.028);
+  }
 
-    unlockAudio();
+  if(name==="star"){
+    tone(760,.07,"sine",.035);
+    setTimeout(()=>tone(980,.08,"sine",.025),35);
+  }
 
-    if(!audio) return;
+  if(name==="power"){
+    tone(500,.08,"sine",.03);
+    setTimeout(()=>tone(720,.1,"sine",.03),55);
+  }
 
-    const t = audio.currentTime + delay;
+  if(name==="shield"){
+    tone(360,.09,"triangle",.04);
+    setTimeout(()=>tone(560,.13,"sine",.03),60);
+  }
 
-    const o = audio.createOscillator();
+  if(name==="hit"){
+    tone(110,.12,"sawtooth",.035);
+  }
 
-    const g = audio.createGain();
+  if(name==="start"){
+    tone(420,.08,"sine",.025);
+    setTimeout(()=>tone(620,.1,"sine",.025),70);
+  }
 
-    o.type = type;
+  if(name==="record"){
+    tone(660,.08,"sine",.035);
+    setTimeout(()=>tone(830,.08,"sine",.035),75);
+    setTimeout(()=>tone(1040,.13,"sine",.03),150);
+  }
+}
 
-    o.frequency.setValueAtTime(freq,t);
+muteBtn.addEventListener("click",e=>{
 
-    if(to){
+  e.stopPropagation();
 
-      o.frequency.exponentialRampToValueAtTime(
-        Math.max(1,to),
-        t+dur
+  muted = !muted;
+
+  saveNumber(SOUND_KEY,muted?1:0);
+
+  muteBtn.textContent = muted ? "🔇" : "🔊";
+
+  if(!muted){
+    tone(600,.07);
+  }
+});
+
+muteBtn.textContent = muted ? "🔇" : "🔊";
+
+
+/* =========================================================
+   OBSTACLES
+========================================================= */
+
+function spawnObstacle(){
+
+  /*
+    Simple obstacle vocabulary.
+    Fewer types = fewer collision bugs.
+  */
+
+  const type = Math.random() < .72
+    ? "block"
+    : "double";
+
+  const baseY = floorY();
+
+  if(type==="block"){
+
+    const w = rand(24,38);
+    const h = rand(34,62);
+
+    obstacles.push({
+      x:W+40,
+      y:baseY-h,
+      w,
+      h,
+      passed:false
+    });
+
+  }else{
+
+    const w = rand(24,34);
+    const h = rand(32,50);
+
+    obstacles.push({
+      x:W+40,
+      y:baseY-h,
+      w,
+      h,
+      passed:false
+    });
+
+    obstacles.push({
+      x:W+40+w+rand(16,25),
+      y:baseY-rand(27,40),
+      w:rand(20,30),
+      h:rand(27,40),
+      passed:false
+    });
+  }
+}
+
+
+/* =========================================================
+   STARS
+========================================================= */
+
+function spawnStarArc(){
+
+  const startX = W+60;
+
+  const base = floorY();
+
+  const high = Math.random() < .5;
+
+  const y = high
+    ? base-rand(135,185)
+    : base-rand(70,110);
+
+  const amount = Math.random()<.5 ? 3 : 4;
+
+  for(let i=0;i<amount;i++){
+
+    stars.push({
+      x:startX+i*34,
+      y:y-Math.sin((i/(amount-1))*Math.PI)*18,
+      r:8,
+      rotation:Math.random()*Math.PI
+    });
+  }
+}
+
+
+/* =========================================================
+   POWERUPS
+========================================================= */
+
+function spawnPowerup(force=false){
+
+  if(powerups.length>=1 && !force) return;
+
+  /*
+    No speed boost.
+    Only two clear abilities.
+  */
+
+  const type = Math.random()<.55
+    ? "shield"
+    : "magnet";
+
+  powerups.push({
+    x:W+60,
+    y:floorY()-rand(105,165),
+    r:15,
+    type,
+    bob:Math.random()*Math.PI*2
+  });
+}
+
+
+/* =========================================================
+   PARTICLES
+========================================================= */
+
+function burst(x,y,count=8,type="normal"){
+
+  for(let i=0;i<count;i++){
+
+    const angle =
+      Math.random()*Math.PI*2;
+
+    const speed =
+      type==="dust"
+        ? rand(25,80)
+        : rand(50,170);
+
+    particles.push({
+
+      x,
+      y,
+
+      vx:Math.cos(angle)*speed,
+      vy:Math.sin(angle)*speed,
+
+      life:rand(.25,.55),
+      maxLife:.55,
+
+      size:
+        type==="dust"
+          ? rand(2,5)
+          : rand(2,4),
+
+      type
+    });
+  }
+}
+
+
+/* =========================================================
+   UPDATE
+========================================================= */
+
+function update(dt){
+
+  if(state !== "playing") return;
+
+  elapsed += dt;
+
+  /*
+    Smooth difficulty.
+  */
+
+  targetSpeed = getWorldSpeed();
+
+  worldSpeed +=
+    (targetSpeed-worldSpeed)*
+    Math.min(1,dt*2.8);
+
+  score += dt*12;
+
+  if(score >= milestone+100){
+
+    milestone += 100;
+
+    showToast(
+      pick([
+        "برافو يا ناوي! 🔥",
+        "كمّل يا بطل!",
+        "عينك على الرقم القياسي 👀",
+        "ناوي مكمل!",
+        "جامد جدًا 👏",
+        "ولا غلطة!"
+      ])
+    );
+  }
+
+  updatePlayer(dt);
+  updateObstacles(dt);
+  updateStars(dt);
+  updatePowerups(dt);
+  updateParticles(dt);
+
+  obstacleTimer -= dt;
+  powerTimer -= dt;
+
+  if(obstacleTimer<=0){
+
+    spawnObstacle();
+
+    /*
+      Reaction time remains generous.
+      Difficulty comes from speed, not impossible spawning.
+    */
+
+    const difficulty =
+      clamp(score/1000,0,1);
+
+    const reaction =
+      1.20 - difficulty*.20;
+
+    obstacleTimer =
+      reaction +
+      rand(.18,.42);
+  }
+
+  if(powerTimer<=0){
+
+    spawnPowerup();
+
+    powerTimer = rand(9,13);
+  }
+
+  updateUI();
+}
+
+
+/* =========================================================
+   PLAYER PHYSICS
+========================================================= */
+
+function updatePlayer(dt){
+
+  const floor = floorY();
+
+  if(!player.grounded){
+
+    coyoteTime -= dt;
+
+  }else{
+
+    coyoteTime = .10;
+  }
+
+  if(jumpBuffer>0){
+
+    jumpBuffer -= dt;
+
+    if(
+      player.grounded ||
+      coyoteTime>0
+    ){
+      tryJump();
+    }
+  }
+
+  player.vy += GRAVITY*dt;
+
+  player.vy =
+    Math.min(player.vy,1900);
+
+  player.y += player.vy*dt;
+
+  if(player.y+player.r >= floor){
+
+    player.y = floor-player.r;
+
+    if(player.vy>0){
+
+      player.vy = 0;
+
+      if(!player.grounded){
+        player.squash = .82;
+
+        burst(
+          player.x,
+          floor-2,
+          5,
+          "dust"
+        );
+      }
+
+      player.grounded = true;
+      coyoteTime = .10;
+
+      /*
+        If the user tapped exactly as we landed,
+        execute immediately.
+      */
+
+      if(jumpBuffer>0){
+        tryJump();
+      }
+    }
+  }
+
+  player.squash +=
+    (1-player.squash)*
+    Math.min(1,dt*10);
+
+  if(!player.grounded){
+
+    player.rotation =
+      clamp(
+        player.vy/1700,
+        -.35,
+        .35
       );
 
-    }
+  }else{
 
-    g.gain.setValueAtTime(.0001,t);
+    player.rotation *=
+      Math.max(0,1-dt*8);
+  }
 
-    g.gain.exponentialRampToValueAtTime(
-      vol,
-      t+.01
-    );
+  if(player.shield>0){
+    player.shield -= dt;
+  }
 
-    g.gain.exponentialRampToValueAtTime(
-      .0001,
-      t+dur
-    );
-
-    o.connect(g);
-
-    g.connect(audio.destination);
-
-    o.start(t);
-
-    o.stop(t+dur+.03);
-
-  }catch(e){}
-
+  if(player.magnet>0){
+    player.magnet -= dt;
+  }
 }
 
-function sfx(name,level=0){
-
-  if(name==='jump'){
-
-    beep(
-      390+level*18,
-      .11,
-      'square',
-      .035,
-      760+level*28
-    );
-
-  }
-
-  if(name==='land'){
-
-    beep(
-      150,
-      .07,
-      'sine',
-      .025,
-      95
-    );
-
-  }
-
-  if(name==='star'){
-
-    beep(
-      820,
-      .08,
-      'sine',
-      .042,
-      1280
-    );
-
-    beep(
-      1360,
-      .09,
-      'sine',
-      .022,
-      1760,
-      .045
-    );
-
-  }
-
-  if(name==='combo'){
-
-    beep(
-      540+level*20,
-      .09,
-      'triangle',
-      .04,
-      820+level*25
-    );
-
-    beep(
-      820+level*25,
-      .12,
-      'triangle',
-      .03,
-      1160+level*30,
-      .075
-    );
-
-  }
-
-  if(name==='hit'){
-
-    beep(205,.30,'sawtooth',.05,55);
-
-    beep(90,.25,'square',.02,40,.04);
-
-  }
-
-  if(name==='shield'){
-
-    beep(430,.11,'triangle',.04,690);
-
-    beep(690,.18,'sine',.03,1050,.08);
-
-  }
-
-  if(name==='magnet'){
-
-    beep(700,.10,'sine',.035,430);
-
-    beep(430,.17,'triangle',.028,930,.09);
-
-  }
-
-  if(name==='record'){
-
-    beep(520,.11,'triangle',.045,760);
-
-    beep(760,.12,'triangle',.045,1040,.10);
-
-    beep(1040,.17,'triangle',.04,1500,.20);
-
-  }
-
-  if(name==='milestone'){
-
-    beep(600,.10,'triangle',.035,790);
-
-    beep(790,.14,'triangle',.035,1040,.08);
-
-  }
-
-}
 
 /* =========================================================
-   Particles
+   OBSTACLE UPDATE + COLLISION
 ========================================================= */
 
-function addParticle(p){
+function updateObstacles(dt){
 
-  if(particles.length > 280) return;
+  const dx =
+    worldSpeed*60*dt;
 
-  p.max = p.life;
+  const playerBox = {
+    x:player.x-player.r*.65,
+    y:player.y-player.r*.82,
+    w:player.r*1.3,
+    h:player.r*1.65
+  };
 
-  particles.push(p);
+  for(let i=obstacles.length-1;i>=0;i--){
 
-}
+    const o = obstacles[i];
 
-function burstDust(x,y,n){
+    o.x -= dx;
 
-  if(reduced) n = Math.ceil(n/2);
+    /*
+      Slightly forgiving hitbox.
+      Visual object remains normal size.
+    */
 
-  for(let i=0;i<n;i++){
+    const hitbox = {
+      x:o.x+4,
+      y:o.y+5,
+      w:Math.max(1,o.w-8),
+      h:Math.max(1,o.h-6)
+    };
 
-    addParticle({
+    if(rectsOverlap(playerBox,hitbox)){
 
-      type:'dust',
+      if(player.shield>0){
 
-      x:x+rand(-9,9),
+        player.shield = 0;
 
-      y:y+rand(-3,2),
+        shake = .12;
 
-      vx:rand(-110,-20),
+        burst(
+          player.x,
+          player.y,
+          16,
+          "shield"
+        );
 
-      vy:rand(-75,-10),
+        showToast("🛡️ الحماية أنقذتك!");
 
-      g:220,
+        playSound("shield");
 
-      drag:2.5,
+        obstacles.splice(i,1);
 
-      size:rand(2,4.6),
+        continue;
 
-      life:rand(.28,.55),
+      }else{
 
-      color:isDark ? '#5d728d' : '#bdd0e2'
+        playSound("hit");
 
-    });
+        burst(
+          player.x,
+          player.y,
+          18,
+          "hit"
+        );
 
+        gameOver();
+
+        return;
+      }
+    }
+
+    if(
+      !o.passed &&
+      o.x+o.w < player.x
+    ){
+
+      o.passed = true;
+
+      combo++;
+
+      if(combo%3===0){
+        showToast("🔥 سلسلة "+combo);
+      }
+    }
+
+    if(o.x+o.w < -80){
+      obstacles.splice(i,1);
+    }
   }
-
 }
 
-function burstSpark(x,y,n){
 
-  for(let i=0;i<n;i++){
+/* =========================================================
+   STAR UPDATE
+========================================================= */
 
-    const a = rand(0,TAU);
+function updateStars(dt){
 
-    const sp = rand(45,165);
+  const dx =
+    worldSpeed*60*dt;
 
-    addParticle({
+  const px = player.x;
+  const py = player.y;
 
-      type:'spark',
+  for(let i=stars.length-1;i>=0;i--){
 
-      x,
+    const s = stars[i];
 
-      y,
+    s.x -= dx;
 
-      vx:Math.cos(a)*sp,
+    s.rotation += dt*4;
 
-      vy:Math.sin(a)*sp-35,
+    if(player.magnet>0){
 
-      g:250,
+      const ax = px-s.x;
+      const ay = py-s.y;
 
-      drag:1.8,
+      const dist =
+        Math.hypot(ax,ay);
 
-      size:rand(2,4),
+      if(dist<210 && dist>1){
 
-      life:rand(.28,.58),
+        const force =
+          (1-dist/210);
 
-      color:pick([
-        '#f6b91a',
-        '#ffdc67',
-        '#fff2b0',
-        '#20b486',
-        '#54a0ff'
+        s.x +=
+          ax*dt*(4+force*7);
+
+        s.y +=
+          ay*dt*(4+force*7);
+      }
+    }
+
+    const dist =
+      Math.hypot(
+        px-s.x,
+        py-s.y
+      );
+
+    if(dist < player.r+s.r+7){
+
+      collectStar(s);
+
+      stars.splice(i,1);
+
+      continue;
+    }
+
+    if(s.x < -50){
+      stars.splice(i,1);
+    }
+  }
+}
+
+function collectStar(){
+
+  starCount++;
+  combo++;
+
+  burst(
+    player.x,
+    player.y,
+    9,
+    "star"
+  );
+
+  playSound("star");
+
+  if(starCount%5===0){
+
+    showToast(
+      pick([
+        "⭐ عاش يا ناوي!",
+        "⭐ تجميع ممتاز!",
+        "⭐ كمل!",
+        "⭐ عينك على الرقم!"
       ])
-
-    });
-
+    );
   }
-
 }
 
-function burstRing(
-  x,
-  y,
-  color='#f6b91a'
-){
 
-  addParticle({
+/* =========================================================
+   POWERUP UPDATE
+========================================================= */
 
-    type:'ring',
+function updatePowerups(dt){
 
-    x,
+  const dx =
+    worldSpeed*60*dt;
 
-    y,
+  for(let i=powerups.length-1;i>=0;i--){
 
-    vx:0,
+    const p = powerups[i];
 
-    vy:0,
+    p.x -= dx;
 
-    g:0,
+    p.bob += dt*4;
 
-    drag:0,
+    const py =
+      p.y+
+      Math.sin(p.bob)*6;
 
-    size:5,
+    const dist =
+      Math.hypot(
+        player.x-p.x,
+        player.y-py
+      );
 
-    grow:70,
+    if(dist < player.r+p.r+5){
 
-    life:.42,
+      if(p.type==="shield"){
 
-    color
+        player.shield = 7;
 
-  });
+        showToast("🛡️ حماية لمدة 7 ثواني");
 
-}
+      }else{
 
-function burstConfetti(x,y,n){
+        player.magnet = 7;
 
-  for(let i=0;i<n;i++){
+        showToast("🧲 المغناطيس شغال!");
 
-    const a = rand(-Math.PI,0);
+      }
 
-    const sp = rand(120,360);
+      burst(
+        p.x,
+        py,
+        14,
+        "power"
+      );
 
-    addParticle({
+      playSound("power");
 
-      type:'confetti',
+      powerups.splice(i,1);
 
-      x,
+      continue;
+    }
 
-      y,
-
-      vx:Math.cos(a)*sp,
-
-      vy:Math.sin(a)*sp,
-
-      g:680,
-
-      drag:.6,
-
-      size:rand(6,11),
-
-      rot:rand(0,TAU),
-
-      rotSpd:rand(-12,12),
-
-      life:rand(.8,1.5),
-
-      color:pick([
-        '#1769e0',
-        '#54a0ff',
-        '#f6b91a',
-        '#20b486',
-        '#ff7b7b'
-      ])
-
-    });
-
+    if(p.x < -60){
+      powerups.splice(i,1);
+    }
   }
-
 }
 
-function textParticle(
-  x,
-  y,
-  text,
-  color='#f6a900'
-){
 
-  addParticle({
-
-    type:'text',
-
-    x,
-
-    y,
-
-    vx:0,
-
-    vy:-55,
-
-    g:0,
-
-    drag:0,
-
-    life:.78,
-
-    size:15,
-
-    color,
-
-    text
-
-  });
-
-}
+/* =========================================================
+   PARTICLES UPDATE
+========================================================= */
 
 function updateParticles(dt){
 
@@ -1378,613 +1829,436 @@ function updateParticles(dt){
       particles.splice(i,1);
 
       continue;
-
     }
-
-    p.vy += p.g*dt;
-
-    p.vx *= Math.max(0,1-p.drag*dt);
-
-    p.vy *= Math.max(0,1-p.drag*dt);
 
     p.x += p.vx*dt;
-
     p.y += p.vy*dt;
 
-    p.rot =
-      (p.rot||0) +
-      (p.rotSpd||0)*dt;
+    p.vy +=
+      p.type==="dust"
+        ? 100*dt
+        : 280*dt;
 
+    p.vx *=
+      Math.pow(.08,dt);
   }
-
 }
+
 
 /* =========================================================
-   Colors / sky
+   DRAW
 ========================================================= */
 
-function colorMix(a,b,t){
+function draw(){
 
-  const pa = parseInt(a.slice(1),16);
+  ctx.save();
 
-  const pb = parseInt(b.slice(1),16);
+  if(shake>0){
 
-  const ar = pa>>16;
-  const ag = (pa>>8)&255;
-  const ab = pa&255;
+    const amount =
+      shake*10;
 
-  const br = pb>>16;
-  const bg = (pb>>8)&255;
-  const bb = pb&255;
-
-  const r = Math.round(ar+(br-ar)*t);
-  const g = Math.round(ag+(bg-ag)*t);
-  const bl = Math.round(ab+(bb-ab)*t);
-
-  return '#'+
-    [r,g,bl]
-      .map(v=>v.toString(16).padStart(2,'0'))
-      .join('');
-
-}
-
-function skyPalette(){
-
-  const phase =
-    (skyClock%78)/78;
-
-  const day1 = '#bde4ff';
-  const day2 = '#fbfdff';
-
-  const dusk1 = '#f7cdb7';
-  const dusk2 = '#fff0e4';
-
-  const night1 = '#0b1d39';
-  const night2 = '#1d4068';
-
-  if(phase<.22){
-
-    const t = phase/.22;
-
-    return [
-      colorMix(day1,dusk1,t),
-      colorMix(day2,dusk2,t)
-    ];
-
-  }
-
-  if(phase<.43){
-
-    const t = (phase-.22)/.21;
-
-    return [
-      colorMix(dusk1,night1,t),
-      colorMix(dusk2,night2,t)
-    ];
-
-  }
-
-  if(phase<.70){
-
-    return [night1,night2];
-
-  }
-
-  const t = (phase-.70)/.30;
-
-  return [
-    colorMix(night1,day1,t),
-    colorMix(night2,day2,t)
-  ];
-
-}
-
-/* =========================================================
-   Resize
-========================================================= */
-
-function resize(){
-
-  const r =
-    canvas.getBoundingClientRect();
-
-  const dpr =
-    Math.min(devicePixelRatio||1,2);
-
-  const nw =
-    Math.max(1,Math.round(r.width));
-
-  const nh =
-    Math.max(1,Math.round(r.height));
-
-  const oldGround = groundY;
-
-  canvas.width = nw*dpr;
-
-  canvas.height = nh*dpr;
-
-  ctx.setTransform(
-    dpr,
-    0,
-    0,
-    dpr,
-    0,
-    0
-  );
-
-  W = nw;
-
-  H = nh;
-
-  groundY =
-    Math.round(
-      H - Math.max(68,H*.15)
+    ctx.translate(
+      rand(-amount,amount),
+      rand(-amount,amount)
     );
 
-  player.size =
-    clamp(
-      Math.round(H*.075),
-      34,
-      46
-    );
+    shake *= .88;
 
-  if(!oldGround){
-
-    player.y =
-      groundY-player.size;
-
-  }else if(oldGround!==groundY){
-
-    const dy =
-      groundY-oldGround;
-
-    obstacles.forEach(o=>{
-
-      o.y += dy;
-
-      o.base += dy;
-
-    });
-
-    stars.forEach(s=>s.y+=dy);
-
-    player.y += dy;
-
-  }
-
-  player.x =
-    Math.max(42,W*.12);
-
-}
-
-/* =========================================================
-   Clouds / environment
-========================================================= */
-
-function spawnCloud(){
-
-  const w = rand(70,125);
-
-  clouds.push({
-
-    x:W+w,
-
-    y:rand(
-      H*.08,
-      groundY*.42
-    ),
-
-    w,
-
-    spd:rand(7,17)
-
-  });
-
-}
-
-function updateAmbient(dt){
-
-  const world =
-    state==='playing'
-      ? speed*60
-      : 55;
-
-  skyClock =
-    (skyClock + dt*.42)%78;
-
-  hill1 += world*.06*dt;
-
-  hill2 += world*.14*dt;
-
-  groundOffset += world*dt;
-
-  cloudTimer -= dt;
-
-  if(cloudTimer<=0){
-
-    spawnCloud();
-
-    cloudTimer = rand(2.5,5.5);
-
-  }
-
-  for(let i=clouds.length-1;i>=0;i--){
-
-    const c = clouds[i];
-
-    c.x -=
-      (c.spd+world*.05)*dt;
-
-    if(c.x+c.w<-50){
-
-      clouds.splice(i,1);
-
+    if(shake<.01){
+      shake=0;
     }
-
   }
 
+  drawSky();
+  drawClouds();
+  drawHills();
+  drawGround();
+
+  drawStars();
+  drawPowerups();
+  drawObstacles();
+  drawParticles();
+  drawPlayer();
+
+  ctx.restore();
 }
 
+
 /* =========================================================
-   Draw environment
+   SKY
 ========================================================= */
 
 function drawSky(){
 
-  const pal = skyPalette();
+  /*
+    Bright optimistic palette.
+    No dark night cycle.
+    No blue screen wash.
+  */
 
   const g =
     ctx.createLinearGradient(
-      0,
-      0,
-      0,
-      groundY
+      0,0,
+      0,H
     );
 
-  g.addColorStop(0,pal[0]);
-  g.addColorStop(1,pal[1]);
+  g.addColorStop(0,"#f4faff");
+  g.addColorStop(.52,"#ffffff");
+  g.addColorStop(1,"#f7fafc");
 
   ctx.fillStyle = g;
 
   ctx.fillRect(
-    0,
-    0,
-    W,
-    groundY+1
+    0,0,W,H
   );
 
-  const phase =
-    (skyClock%78)/78;
-
-  const night =
-    phase>.38 &&
-    phase<.82;
+  /*
+    Soft sun.
+  */
 
   const sunX = W*.82;
+  const sunY = H*.19;
 
-  const sunY = H*.20;
+  const rg =
+    ctx.createRadialGradient(
+      sunX,
+      sunY,
+      0,
+      sunX,
+      sunY,
+      90
+    );
 
-  ctx.save();
+  rg.addColorStop(
+    0,
+    "rgba(255,218,112,.34)"
+  );
 
-  ctx.globalAlpha =
-    night?.22:.34;
+  rg.addColorStop(
+    1,
+    "rgba(255,218,112,0)"
+  );
 
-  ctx.fillStyle =
-    night
-      ? '#edf7ff'
-      : '#ffd56d';
+  ctx.fillStyle = rg;
+
+  ctx.fillRect(
+    sunX-100,
+    sunY-100,
+    200,
+    200
+  );
+
+  ctx.fillStyle = "#ffd866";
 
   ctx.beginPath();
-
   ctx.arc(
     sunX,
     sunY,
-    night?24:33,
+    21,
     0,
-    TAU
+    Math.PI*2
   );
-
   ctx.fill();
-
-  if(night){
-
-    ctx.globalAlpha = .45;
-
-    ctx.fillStyle = '#fff';
-
-    for(let i=0;i<18;i++){
-
-      const x =
-        (i*83+37)%Math.max(W,1);
-
-      const y =
-        18+
-        (i*47)%Math.max(groundY*.55,1);
-
-      ctx.beginPath();
-
-      ctx.arc(
-        x,
-        y,
-        i%3===0?1.4:1,
-        0,
-        TAU
-      );
-
-      ctx.fill();
-
-    }
-
-  }
-
-  ctx.restore();
-
 }
+
+
+/* =========================================================
+   CLOUDS
+========================================================= */
 
 function drawClouds(){
 
-  const phase =
-    (skyClock%78)/78;
-
-  const night =
-    phase>.38 &&
-    phase<.82;
-
-  ctx.save();
-
-  ctx.fillStyle =
-    night
-      ? '#d8e6f61a'
-      : '#ffffff78';
-
   for(const c of clouds){
 
-    const r = c.w*.30;
+    c.x -=
+      c.speed*
+      worldSpeed*
+      .35;
+
+    if(c.x+c.w < -30){
+      c.x = W+40;
+    }
+
+    ctx.save();
+
+    ctx.globalAlpha=c.alpha;
+
+    ctx.fillStyle="#ffffff";
 
     ctx.beginPath();
 
     ctx.arc(
       c.x,
       c.y,
-      r,
+      c.w*.18,
       0,
-      TAU
+      Math.PI*2
     );
 
     ctx.arc(
-      c.x+r*1.1,
-      c.y-r*.5,
-      r*1.25,
+      c.x+c.w*.22,
+      c.y-8,
+      c.w*.25,
       0,
-      TAU
+      Math.PI*2
     );
 
     ctx.arc(
-      c.x+r*2.3,
+      c.x+c.w*.46,
       c.y,
-      r*.95,
+      c.w*.20,
       0,
-      TAU
+      Math.PI*2
+    );
+
+    ctx.roundRect(
+      c.x-c.w*.02,
+      c.y,
+      c.w*.48,
+      c.w*.17,
+      12
     );
 
     ctx.fill();
 
+    ctx.restore();
   }
-
-  ctx.restore();
-
 }
 
-function hills(
-  off,
-  wl,
-  amp,
-  color
-){
 
-  ctx.beginPath();
-
-  ctx.moveTo(
-    -2,
-    groundY+2
-  );
-
-  for(
-    let x=-2;
-    x<=W+2;
-    x+=12
-  ){
-
-    const y =
-      groundY-
-      27-
-      Math.sin((x+off)/wl)*amp-
-      Math.sin((x+off)/(wl*.42))*amp*.35;
-
-    ctx.lineTo(x,y);
-
-  }
-
-  ctx.lineTo(
-    W+2,
-    groundY+2
-  );
-
-  ctx.closePath();
-
-  ctx.fillStyle=color;
-
-  ctx.fill();
-
-}
+/* =========================================================
+   HILLS
+========================================================= */
 
 function drawHills(){
 
-  const phase =
-    (skyClock%78)/78;
-
-  const night =
-    phase>.38 &&
-    phase<.82;
-
-  hills(
-    hill1,
-    130,
-    22,
-    night?'#1769e033':'#1769e014'
-  );
-
-  hills(
-    hill2,
-    95,
-    16,
-    night?'#1769e04a':'#1769e01e'
-  );
-
-}
-
-function drawGround(){
-
-  const phase =
-    (skyClock%78)/78;
-
-  const night =
-    phase>.38 &&
-    phase<.82;
-
-  ctx.fillStyle =
-    night
-      ? '#0b1b30'
-      : '#ffffff';
-
-  ctx.fillRect(
-    0,
-    groundY,
-    W,
-    H-groundY
-  );
-
-  ctx.strokeStyle =
-    night
-      ? '#466784'
-      : '#17314f';
-
-  ctx.lineWidth=2;
-
-  ctx.beginPath();
-
-  ctx.moveTo(
-    0,
-    groundY+1
-  );
-
-  ctx.lineTo(
-    W,
-    groundY+1
-  );
-
-  ctx.stroke();
-
-  const gap=44;
-
-  const start =
-    -((groundOffset%gap)+gap)%gap;
-
-  ctx.strokeStyle =
-    night
-      ? '#203b58'
-      : '#e4edf7';
-
-  ctx.lineWidth=3;
-
-  ctx.lineCap='round';
-
-  ctx.beginPath();
-
-  for(
-    let x=start;
-    x<W+gap;
-    x+=gap
-  ){
-
-    ctx.moveTo(
-      x,
-      groundY+19
-    );
-
-    ctx.lineTo(
-      x+20,
-      groundY+19
-    );
-
-  }
-
-  ctx.stroke();
-
-  ctx.lineCap='butt';
-
-}
-
-/* =========================================================
-   Draw game objects
-========================================================= */
-
-function drawStar(s){
-
   ctx.save();
 
-  ctx.translate(
-    s.x,
-    s.y
-  );
-
-  ctx.rotate(s.rot);
+  ctx.fillStyle="#eef4f7";
 
   ctx.beginPath();
 
-  for(let i=0;i<10;i++){
+  ctx.moveTo(0,floorY()+15);
 
-    const a =
-      -Math.PI/2+
-      i*Math.PI/5;
+  for(let i=0;i<=W+300;i+=100){
 
-    const rr =
-      i%2
-        ? s.r*.45
-        : s.r;
+    const y =
+      floorY()-
+      42-
+      Math.sin(i*.008)*20;
 
-    const x=Math.cos(a)*rr;
-    const y=Math.sin(a)*rr;
-
-    if(i===0) ctx.moveTo(x,y);
-    else ctx.lineTo(x,y);
-
+    ctx.quadraticCurveTo(
+      i+50,
+      y-30,
+      i+100,
+      floorY()+15
+    );
   }
 
+  ctx.lineTo(W,H);
+  ctx.lineTo(0,H);
   ctx.closePath();
-
-  ctx.fillStyle =
-    s.gold
-      ? '#fff0a8'
-      : '#f6b91a';
 
   ctx.fill();
 
-  ctx.strokeStyle =
-    s.gold
-      ? '#dd9200'
-      : '#d49100';
+  ctx.fillStyle="#f4f7f9";
 
-  ctx.lineWidth =
-    s.gold
-      ? 2.5
-      : 1.5;
+  ctx.beginPath();
 
-  ctx.stroke();
+  ctx.moveTo(0,floorY()+30);
+
+  for(let i=0;i<=W+300;i+=120){
+
+    const y =
+      floorY()-
+      17-
+      Math.sin(i*.012+1)*13;
+
+    ctx.quadraticCurveTo(
+      i+60,
+      y-20,
+      i+120,
+      floorY()+30
+    );
+  }
+
+  ctx.lineTo(W,H);
+  ctx.lineTo(0,H);
+  ctx.closePath();
+
+  ctx.fill();
 
   ctx.restore();
-
 }
+
+
+/* =========================================================
+   GROUND
+========================================================= */
+
+function drawGround(){
+
+  const y=floorY();
+
+  ctx.fillStyle="#edf2f5";
+
+  ctx.fillRect(
+    0,
+    y,
+    W,
+    H-y
+  );
+
+  ctx.fillStyle="#dce4ea";
+
+  ctx.fillRect(
+    0,
+    y,
+    W,
+    2
+  );
+
+  /*
+    Moving tiny ground marks.
+    Very subtle = premium, not noisy.
+  */
+
+  const offset =
+    (elapsed*worldSpeed*45)%42;
+
+  ctx.fillStyle="#dfe6eb";
+
+  for(let x=-50-offset;x<W+50;x+=42){
+
+    ctx.fillRect(
+      x,
+      y+20,
+      16,
+      2
+    );
+  }
+}
+
+
+/* =========================================================
+   STARS DRAW
+========================================================= */
+
+function drawStars(){
+
+  for(const s of stars){
+
+    ctx.save();
+
+    ctx.translate(
+      s.x,
+      s.y
+    );
+
+    ctx.rotate(s.rotation);
+
+    ctx.fillStyle="#ffc928";
+
+    ctx.beginPath();
+
+    for(let i=0;i<10;i++){
+
+      const a =
+        -Math.PI/2+
+        i*Math.PI/5;
+
+      const r =
+        i%2===0
+          ? s.r
+          : s.r*.42;
+
+      const x=Math.cos(a)*r;
+      const y=Math.sin(a)*r;
+
+      if(i===0){
+        ctx.moveTo(x,y);
+      }else{
+        ctx.lineTo(x,y);
+      }
+    }
+
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+  }
+}
+
+
+/* =========================================================
+   POWERUPS DRAW
+========================================================= */
+
+function drawPowerups(){
+
+  for(const p of powerups){
+
+    const y =
+      p.y+
+      Math.sin(p.bob)*6;
+
+    ctx.save();
+
+    /*
+      Soft local glow only.
+      No screen flash.
+    */
+
+    ctx.shadowBlur=16;
+    ctx.shadowColor =
+      p.type==="shield"
+        ? "rgba(31,139,255,.18)"
+        : "rgba(255,177,40,.18)";
+
+    ctx.fillStyle="#ffffff";
+
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      y,
+      p.r,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.shadowBlur=0;
+
+    ctx.lineWidth=2;
+
+    ctx.strokeStyle =
+      p.type==="shield"
+        ? "#55a9ff"
+        : "#f1b72f";
+
+    ctx.stroke();
+
+    ctx.font="15px system-ui";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+
+    ctx.fillText(
+      p.type==="shield" ? "🛡️" : "🧲",
+      p.x,
+      y+1
+    );
+
+    ctx.restore();
+  }
+}
+
+
+/* =========================================================
+   OBSTACLES DRAW
+========================================================= */
 
 function drawObstacles(){
 
@@ -1992,2380 +2266,496 @@ function drawObstacles(){
 
     ctx.save();
 
-    ctx.globalAlpha=.10;
+    /*
+      Simple rounded obstacles.
+      Easy to read and easy to collide with.
+    */
 
-    ctx.fillStyle='#000';
+    ctx.fillStyle="#303b4c";
 
     ctx.beginPath();
 
-    ctx.ellipse(
-      o.x+o.w/2,
-      groundY+4,
-      o.w*.55,
-      4,
-      0,
-      0,
-      TAU
-    );
-
-    ctx.fill();
-
-    ctx.restore();
-
-    let body = '#17314f';
-
-    if(isDark) body='#29435e';
-
-    if(o.type==='rare'){
-      body=isDark?'#68324f':'#7b2f4f';
-    }
-
-    ctx.fillStyle=body;
-
-    roundRect(
-      ctx,
+    ctx.roundRect(
       o.x,
       o.y,
       o.w,
       o.h,
-      8
+      7
     );
 
     ctx.fill();
 
-    let top = '#28547a';
-
-    if(isDark) top='#4e7596';
-
-    if(o.type==='moving'){
-      top='#20b486';
-    }
-
-    if(o.type==='rare'){
-      top='#ff6b6b';
-    }
-
-    ctx.fillStyle=top;
-
-    roundRect(
-      ctx,
-      o.x,
-      o.y,
-      o.w,
-      Math.min(9,o.h*.22),
-      8
-    );
-
-    ctx.fill();
-
-    ctx.fillStyle =
-      isDark
-        ? '#9bd0ff'
-        : '#acd5ff';
-
-    const cols =
-      o.w>=46 ? 3 : 2;
-
-    const rows =
-      o.h>=46 ? 2 : 1;
-
-    for(let r=0;r<rows;r++){
-
-      for(let c=0;c<cols;c++){
-
-        const bw=5;
-        const bh=5;
-
-        const px =
-          o.x+
-          o.w/(cols+1)*(c+1)-
-          bw/2;
-
-        const py =
-          o.y+
-          (
-            rows===1
-              ? o.h*.55
-              : o.h*(.38+r*.34)
-          )-
-          bh/2;
-
-        roundRect(
-          ctx,
-          px,
-          py,
-          bw,
-          bh,
-          1.5
-        );
-
-        ctx.fill();
-
-      }
-
-    }
-
-  }
-
-}
-
-function drawPowerups(){
-
-  for(const p of powerups){
-
-    ctx.save();
-
-    ctx.translate(
-      p.x,
-      p.y
-    );
-
-    ctx.rotate(p.rot);
-
-    const color =
-      p.type==='shield'
-        ? '#20b486'
-        : '#9b5de5';
-
-    ctx.globalAlpha=.17;
-
-    ctx.fillStyle=color;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      0,
-      0,
-      p.r+7,
-      0,
-      TAU
-    );
-
-    ctx.fill();
-
-    ctx.globalAlpha=1;
-
-    ctx.fillStyle='#fff';
-
-    ctx.beginPath();
-
-    ctx.arc(
-      0,
-      0,
-      p.r,
-      0,
-      TAU
-    );
-
-    ctx.fill();
-
-    ctx.font='16px system-ui';
-
-    ctx.textAlign='center';
-
-    ctx.textBaseline='middle';
-
-    ctx.fillText(
-      p.type==='shield'
-        ? '🛡️'
-        : '🧲',
-      0,
-      1
-    );
-
-    ctx.restore();
-
-  }
-
-}
-
-function drawPlayer(){
-
-  const s=player.size;
-
-  const cx=
-    player.x+s/2;
-
-  const bottom=
-    player.y+s;
-
-  const sq=
-    player.squash;
-
-  const sx=
-    1/Math.sqrt(sq);
-
-  const air=
-    clamp(
-      (groundY-player.y-s)/170,
-      0,
-      1
-    );
-
-  /* shadow */
-
-  ctx.save();
-
-  ctx.globalAlpha =
-    (isDark?.30:.13)*
-    (1-air*.7);
-
-  ctx.fillStyle='#000';
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    cx,
-    groundY+5,
-    s*.42*(1-air*.4),
-    5*(1-air*.4),
-    0,
-    0,
-    TAU
-  );
-
-  ctx.fill();
-
-  ctx.restore();
-
-  /* body */
-
-  ctx.save();
-
-  ctx.translate(
-    cx,
-    bottom
-  );
-
-  ctx.scale(
-    sx,
-    sq
-  );
-
-  const R=s/2;
-
-  const cy=-R;
-
-  ctx.fillStyle='#1769e0';
-
-  ctx.beginPath();
-
-  ctx.arc(
-    0,
-    cy,
-    R,
-    0,
-    TAU
-  );
-
-  ctx.fill();
-
-  /* shine */
-
-  ctx.globalAlpha=.22;
-
-  ctx.fillStyle='#fff';
-
-  ctx.beginPath();
-
-  ctx.ellipse(
-    -R*.32,
-    cy-R*.42,
-    R*.34,
-    R*.2,
-    -.6,
-    0,
-    TAU
-  );
-
-  ctx.fill();
-
-  ctx.globalAlpha=1;
-
-  /* eyes */
-
-  const er=R*.26;
-
-  const ex=R*.42;
-
-  const ey=cy-R*.2;
-
-  if(player.blinkLeft>0){
-
-    ctx.strokeStyle='#fff';
-
-    ctx.lineWidth=R*.12;
-
-    ctx.lineCap='round';
-
-    ctx.beginPath();
-
-    ctx.moveTo(
-      -ex-er*.7,
-      ey
-    );
-
-    ctx.lineTo(
-      -ex+er*.7,
-      ey
-    );
-
-    ctx.moveTo(
-      ex-er*.7,
-      ey
-    );
-
-    ctx.lineTo(
-      ex+er*.7,
-      ey
-    );
-
-    ctx.stroke();
-
-  }else{
-
-    ctx.fillStyle='#fff';
-
-    ctx.beginPath();
-
-    ctx.arc(
-      -ex,
-      ey,
-      er,
-      0,
-      TAU
-    );
-
-    ctx.arc(
-      ex,
-      ey,
-      er,
-      0,
-      TAU
-    );
-
-    ctx.fill();
-
-    ctx.fillStyle='#10233f';
-
-    ctx.beginPath();
-
-    const look =
-      clamp(
-        player.vy/2600,
-        -.3,
-        .3
-      )*er;
-
-    ctx.arc(
-      -ex+er*.32,
-      ey+look,
-      er*.52,
-      0,
-      TAU
-    );
-
-    ctx.arc(
-      ex+er*.32,
-      ey+look,
-      er*.52,
-      0,
-      TAU
-    );
-
-    ctx.fill();
-
-  }
-
-  /* cheeks */
-
-  ctx.globalAlpha=.22;
-
-  ctx.fillStyle='#ff6b6b';
-
-  ctx.beginPath();
-
-  ctx.arc(
-    -R*.62,
-    cy+R*.18,
-    R*.15,
-    0,
-    TAU
-  );
-
-  ctx.arc(
-    R*.62,
-    cy+R*.18,
-    R*.15,
-    0,
-    TAU
-  );
-
-  ctx.fill();
-
-  ctx.globalAlpha=1;
-
-  /* mouth */
-
-  ctx.strokeStyle='#fff';
-
-  ctx.lineWidth=R*.10;
-
-  ctx.lineCap='round';
-
-  ctx.beginPath();
-
-  if(player.grounded){
-
-    ctx.arc(
-      0,
-      cy+R*.1,
-      R*.3,
-      Math.PI*.25,
-      Math.PI*.75
-    );
-
-  }else{
-
-    ctx.arc(
-      0,
-      cy+R*.28,
-      R*.16,
-      0,
-      TAU
-    );
-
-  }
-
-  ctx.stroke();
-
-  /* shield */
-
-  if(shield>0){
-
-    ctx.strokeStyle='#f6b91a';
-
-    ctx.lineWidth=3;
-
-    ctx.globalAlpha=.85;
-
-    ctx.beginPath();
-
-    ctx.arc(
-      0,
-      cy,
-      R*1.27,
-      0,
-      TAU
-    );
-
-    ctx.stroke();
-
-  }
-
-  ctx.restore();
-
-}
-
-function drawSoftMotion(){
-
-  if(
-    state!=='playing' ||
-    reduced
-  ) return;
-
-  ctx.save();
-
-  ctx.globalAlpha=.075;
-
-  ctx.fillStyle='#fff';
-
-  for(let i=0;i<3;i++){
-
-    const y =
-      groundY-
-      28-
-      i*18;
-
-    const x =
-      (
-        groundOffset*
-        (.18+i*.04)+
-        i*127
-      )%(W+120)-60;
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-      x,
-      y,
-      30+i*8,
-      2.5,
-      0,
-      0,
-      TAU
-    );
-
-    ctx.fill();
-
-  }
-
-  ctx.restore();
-
-}
-
-function drawScreenEffects(){
-
-  if(flash>0){
-
-    ctx.save();
-
-    ctx.fillStyle =
-      flash>.5
-        ? '#fff'
-        : '#f6b91a';
-
-    ctx.globalAlpha =
-      Math.min(.20,flash*.2);
+    ctx.fillStyle="#485568";
 
     ctx.fillRect(
-      0,
-      0,
-      W,
-      H
+      o.x+5,
+      o.y+5,
+      Math.max(3,o.w-10),
+      4
     );
 
     ctx.restore();
-
   }
-
-  if(pulse>0){
-
-    ctx.save();
-
-    ctx.strokeStyle='#f6b91a';
-
-    ctx.lineWidth=3;
-
-    ctx.globalAlpha =
-      pulse*.28;
-
-    ctx.strokeRect(
-      5,
-      5,
-      W-10,
-      H-10
-    );
-
-    ctx.restore();
-
-  }
-
 }
+
+
+/* =========================================================
+   PARTICLES DRAW
+========================================================= */
 
 function drawParticles(){
 
   for(const p of particles){
 
-    ctx.globalAlpha =
+    const alpha =
       clamp(
-        p.life/p.max,
+        p.life/p.maxLife,
         0,
         1
       );
 
-    if(p.type==='text'){
+    ctx.save();
 
-      ctx.font =
-        '900 '+p.size+'px system-ui';
+    ctx.globalAlpha=alpha;
 
-      ctx.textAlign='center';
-
-      ctx.textBaseline='middle';
-
-      ctx.fillStyle=p.color;
-
-      ctx.fillText(
-        p.text,
-        p.x,
-        p.y
-      );
-
-    }else if(p.type==='confetti'){
-
-      ctx.save();
-
-      ctx.translate(
-        p.x,
-        p.y
-      );
-
-      ctx.rotate(p.rot);
-
-      ctx.fillStyle=p.color;
-
-      ctx.fillRect(
-        -p.size/2,
-        -p.size/4,
-        p.size,
-        p.size/2
-      );
-
-      ctx.restore();
-
-    }else if(p.type==='ring'){
-
-      ctx.save();
-
-      ctx.strokeStyle=p.color;
-
-      ctx.lineWidth=3;
-
-      ctx.globalAlpha =
-        clamp(
-          p.life/p.max,
-          0,
-          1
-        )*.8;
-
-      ctx.beginPath();
-
-      ctx.arc(
-        p.x,
-        p.y,
-        p.size+
-        (1-p.life/p.max)*p.grow,
-        0,
-        TAU
-      );
-
-      ctx.stroke();
-
-      ctx.restore();
-
+    if(p.type==="dust"){
+      ctx.fillStyle="#b9c4ce";
+    }else if(p.type==="shield"){
+      ctx.fillStyle="#55a9ff";
+    }else if(p.type==="star"){
+      ctx.fillStyle="#ffc928";
     }else{
-
-      ctx.fillStyle=p.color;
-
-      ctx.beginPath();
-
-      ctx.arc(
-        p.x,
-        p.y,
-        p.size*
-        (
-          p.type==='spark'
-            ? ctx.globalAlpha
-            : 1
-        ),
-        0,
-        TAU
-      );
-
-      ctx.fill();
-
+      ctx.fillStyle="#7cbcff";
     }
 
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      p.y,
+      p.size,
+      0,
+      Math.PI*2
+    );
+
+    ctx.fill();
+
+    ctx.restore();
   }
-
-  ctx.globalAlpha=1;
-
-  ctx.textAlign='start';
-
-  ctx.textBaseline='alphabetic';
-
 }
 
+
 /* =========================================================
-   Spawn obstacles
+   PLAYER DRAW
 ========================================================= */
 
-function spawnObstacle(){
+function drawPlayer(){
 
-  const d = difficulty();
+  const x=player.x;
+  const y=player.y;
 
-  const r = Math.random();
+  ctx.save();
 
-  let o;
+  ctx.translate(x,y);
+
+  ctx.rotate(player.rotation);
 
   /*
-    البداية: عقبات سهلة وواضحة
-    ثم تظهر الأنواع المتحركة والنادرة تدريجيًا
+    Shadow
   */
 
-  if(d < .20){
-
-    o =
-      r<.72
-        ? {type:'short',w:26,h:38}
-        : r<.90
-          ? {type:'wide',w:48,h:30}
-          : {type:'tall',w:22,h:52};
-
-  }else if(d < .48){
-
-    o =
-      r<.40
-        ? {type:'short',w:26,h:38}
-        : r<.68
-          ? {type:'tall',w:22,h:52}
-          : r<.90
-            ? {type:'wide',w:48,h:30}
-            : {
-                type:'moving',
-                w:28,
-                h:42,
-                amp:9,
-                phase:rand(0,TAU)
-              };
-
-  }else{
-
-    o =
-      r<.30
-        ? {type:'short',w:26,h:38}
-        : r<.52
-          ? {type:'tall',w:22,h:54}
-          : r<.75
-            ? {type:'wide',w:50,h:30}
-            : r<.94
-              ? {
-                  type:'moving',
-                  w:28,
-                  h:42,
-                  amp:10,
-                  phase:rand(0,TAU)
-                }
-              : {
-                  type:'rare',
-                  w:30,
-                  h:60
-                };
-
-  }
-
-  obstacles.push({
-
-    x:W+50,
-
-    w:o.w,
-
-    h:o.h,
-
-    y:groundY-o.h,
-
-    type:o.type,
-
-    amp:o.amp||0,
-
-    base:groundY-o.h,
-
-    phase:o.phase||0
-
-  });
-
-}
-
-/* =========================================================
-   Spawn stars
-========================================================= */
-
-function spawnStarArc(){
-
-  const start =
-    W+100;
-
-  if(
-    obstacles.some(
-      o =>
-        o.x<start+130 &&
-        o.x+o.w>start-30
-    )
-  ){
-
-    return;
-
-  }
-
-  const d = difficulty();
-
-  const count =
-    d>.72
-      ? 4
-      : 3;
-
-  const base =
-    groundY-
-    rand(102,145);
-
-  for(
-    let i=0;
-    i<count;
-    i++
-  ){
-
-    stars.push({
-
-      x:
-        start+
-        i*36,
-
-      y:
-        base-
-        Math.sin(
-          i/(count-1)*Math.PI
-        )*22,
-
-      r:10,
-
-      rot:rand(0,TAU),
-
-      gold:
-        Math.random()<
-        (d>.65?.15:.09)
-
-    });
-
-  }
-
-}
-
-/* =========================================================
-   Spawn power-ups
-   فقط Shield + Magnet
-========================================================= */
-
-function spawnPowerup(){
-
-  if(powerups.length>1) return;
-
-  /*
-    في البداية نظهر تعزيز بدري
-    علشان اللاعب يشوف الميزة
-  */
-
-  const d = difficulty();
-
-  const chance =
-    d<.15
-      ? .72
-      : .38;
-
-  if(Math.random()>chance) return;
-
-  const type =
-    Math.random()<.52
-      ? 'shield'
-      : 'magnet';
-
-  powerups.push({
-
-    x:W+90,
-
-    y:
-      groundY-
-      rand(92,145),
-
-    type,
-
-    r:13,
-
-    rot:0
-
-  });
-
-}
-
-/* =========================================================
-   Jump system
-   Jump Buffer + Coyote Time
-========================================================= */
-
-function requestJump(){
-
-  if(state!=='playing'){
-    return;
-  }
-
-  /*
-    نخزن الضغطة حتى لو الكرة لمست الأرض
-    بعد لحظة صغيرة.
-  */
-
-  jumpBuffer =
-    0.12;
-
-  tryJumpImmediately();
-
-}
-
-function tryJumpImmediately(){
-
-  if(state!=='playing') return;
-
-  if(
-    player.grounded ||
-    coyoteTime>0
-  ){
-
-    performJump();
-
-  }
-
-}
-
-function performJump(){
-
-  if(state!=='playing') return;
-
-  player.vy = JUMP;
-
-  player.grounded = false;
-
-  coyoteTime = 0;
-
-  jumpBuffer = 0;
-
-  player.squash = 1.20;
-
-  burstDust(
-    player.x+player.size/2,
-    groundY,
-    5
+  ctx.save();
+
+  ctx.translate(
+    0,
+    player.r+6
   );
 
-  sfx(
-    'jump',
-    Math.floor(score/40)
+  ctx.scale(
+    player.grounded ? 1 : .72,
+    .25
   );
 
-  pulse =
-    Math.min(
-      1,
-      pulse+.22
+  ctx.fillStyle="rgba(25,40,60,.13)";
+
+  ctx.beginPath();
+
+  ctx.ellipse(
+    0,
+    0,
+    player.r*1.15,
+    player.r*.55,
+    0,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.restore();
+
+
+  /*
+    Shield ring
+  */
+
+  if(player.shield>0){
+
+    const pulse =
+      1+
+      Math.sin(elapsed*8)*.04;
+
+    ctx.save();
+
+    ctx.scale(pulse,pulse);
+
+    ctx.strokeStyle="rgba(49,154,255,.48)";
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      0,
+      0,
+      player.r+8,
+      0,
+      Math.PI*2
     );
 
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+
+  /*
+    Main Nawy character.
+  */
+
+  ctx.scale(
+    1/player.squash,
+    player.squash
+  );
+
+  const gradient =
+    ctx.createLinearGradient(
+      -player.r,
+      -player.r,
+      player.r,
+      player.r
+    );
+
+  gradient.addColorStop(
+    0,
+    "#1a91ff"
+  );
+
+  gradient.addColorStop(
+    1,
+    "#0069e5"
+  );
+
+  ctx.fillStyle=gradient;
+
+  ctx.shadowColor="rgba(0,105,229,.20)";
+  ctx.shadowBlur=14;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    player.r,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  ctx.shadowBlur=0;
+
+
+  /*
+    ن
+  */
+
+  ctx.fillStyle="#fff";
+
+  ctx.font=
+    "900 23px system-ui";
+
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+
+  ctx.fillText(
+    "ن",
+    0,
+    1
+  );
+
+  ctx.restore();
 }
 
+
 /* =========================================================
-   Game physics
+   UI
 ========================================================= */
 
-function baseUpdate(dt){
-
-  flash =
-    Math.max(
-      0,
-      flash-dt*2.8
-    );
-
-  pulse =
-    Math.max(
-      0,
-      pulse-dt*1.8
-    );
-
-  jumpBuffer =
-    Math.max(
-      0,
-      jumpBuffer-dt
-    );
-
-  coyoteTime =
-    Math.max(
-      0,
-      coyoteTime-dt
-    );
-
-  player.vy =
-    Math.min(
-      player.vy+
-      GRAVITY*dt,
-      MAX_FALL
-    );
-
-  player.y +=
-    player.vy*dt;
-
-  const floor =
-    groundY-player.size;
-
-  if(player.y>=floor){
-
-    if(!player.grounded){
-
-      player.squash=.74;
-
-      shake =
-        Math.min(
-          shake+1.6,
-          4
-        );
-
-      burstDust(
-        player.x+player.size/2,
-        groundY,
-        7
-      );
-
-      sfx('land');
-
-    }
-
-    player.y = floor;
-
-    player.vy = 0;
-
-    player.grounded = true;
-
-    /*
-      لو ضغط قبل لمس الأرض
-      نقفز فورًا بمجرد الهبوط.
-    */
-
-    if(jumpBuffer>0){
-
-      performJump();
-
-    }
-
-  }else{
-
-    if(player.grounded){
-
-      /*
-        خرج من الحافة:
-        نعطيه Coyote Time صغير
-      */
-
-      coyoteTime=.10;
-
-    }
-
-    player.grounded=false;
-
-  }
-
-  /*
-    لو ما زال عنده Jump Buffer
-    وكان داخل Coyote Time
-    نقفز فورًا.
-  */
-
-  if(
-    jumpBuffer>0 &&
-    coyoteTime>0
-  ){
-
-    performJump();
-
-  }
-
-  player.squash +=
-    (1-player.squash)*
-    12*dt;
-
-  if(
-    Math.abs(
-      player.squash-1
-    )<.002
-  ){
-
-    player.squash=1;
-
-  }
-
-  player.blink -= dt;
-
-  if(player.blink<=0){
-
-    player.blinkLeft=.13;
-
-    player.blink=
-      rand(2.2,5.5);
-
-  }
-
-  if(player.blinkLeft>0){
-
-    player.blinkLeft -= dt;
-
-  }
-
-  /*
-    النقاط تزيد مع المسافة/الوقت
-  */
-
-  score += dt*12;
-
-  const shown =
-    Math.floor(score);
+function updateUI(){
 
   scoreEl.textContent =
-    shown;
+    Math.floor(score);
 
-  speed =
-    getWorldSpeed(dt);
-
-  /*
-    رسائل حماسية بسيطة
-    بدون Level
-  */
-
-  const milestone =
-    Math.floor(score/100);
-
-  if(
-    milestone >
-    milestoneShown
-  ){
-
-    milestoneShown =
-      milestone;
-
-    showToast(
-      pick([
-        '🔥 ناوي مولّع!',
-        '✨ كمل يا ناوي!',
-        '💙 جامد!',
-        '🚀 كمّل… لسه في كتير!',
-        '⭐ رقمك بيكبر!'
-      ])
-    );
-
-    sfx('milestone');
-
-    pulse=1;
-
-    burstRing(
-      W*.5,
-      H*.34,
-      '#f6b91a'
-    );
-
-  }
-
-  /*
-    لا Combo ظاهر.
-    الاحتفاظ بمكافأة داخلية للنجوم فقط.
-  */
-
-  const dx =
-    speed*60*dt;
-
-  /* -------- obstacles -------- */
-
-  obstacleTimer -= dt;
-
-  if(obstacleTimer<=0){
-
-    spawnObstacle();
-
-    const d =
-      difficulty();
-
-    /*
-      الفجوة تقل بالتدريج
-      لكن تظل محسوبة على السرعة
-      علشان ما يحصلش ظلم.
-    */
-
-    const gap =
-      1.58-
-      d*.36;
-
-    obstacleTimer =
-      gap*
-      rand(.97,1.08);
-
-  }
-
-  for(
-    let i=obstacles.length-1;
-    i>=0;
-    i--
-  ){
-
-    const o =
-      obstacles[i];
-
-    o.x -= dx;
-
-    if(o.type==='moving'){
-
-      o.phase += dt*3;
-
-      o.y =
-        o.base+
-        Math.sin(o.phase)*
-        o.amp;
-
-    }
-
-    if(
-      o.x+o.w < -35
-    ){
-
-      obstacles.splice(i,1);
-
-      continue;
-
-    }
-
-    const hit =
-      circleRect(
-        player.x+
-        player.size/2,
-
-        player.y+
-        player.size/2,
-
-        player.size*.36,
-
-        o.x,
-        o.y,
-        o.w,
-        o.h
-      );
-
-    if(hit){
-
-      if(shield>0){
-
-        shield=0;
-
-        obstacles.splice(i,1);
-
-        burstSpark(
-          o.x+o.w/2,
-          o.y+o.h/2,
-          15
-        );
-
-        burstRing(
-          o.x+o.w/2,
-          o.y+o.h/2,
-          '#20b486'
-        );
-
-        flash=1;
-
-        shake =
-          Math.min(
-            shake+5,
-            9
-          );
-
-        showToast(
-          '🛡️ ناوي اتخضّ… بس كمل!'
-        );
-
-        sfx('shield');
-
-        updatePowerUI();
-
-        continue;
-
-      }
-
-      gameOver();
-
-      return;
-
-    }
-
-  }
-
-  /* -------- stars -------- */
-
-  starTimer -= dt;
-
-  if(starTimer<=0){
-
-    spawnStarArc();
-
-    starTimer =
-      rand(
-        2.3,
-        4.6
-      );
-
-  }
-
-  const pcx =
-    player.x+
-    player.size/2;
-
-  const pcy =
-    player.y+
-    player.size/2;
-
-  const pickup =
-    player.size*.46;
-
-  for(
-    let i=stars.length-1;
-    i>=0;
-    i--
-  ){
-
-    const s =
-      stars[i];
-
-    s.x -= dx;
-
-    s.rot += dt*2.2;
-
-    /*
-      Magnet:
-      يسحب النجمة بسلاسة
-      بدل teleport مفاجئ.
-    */
-
-    if(magnet>0){
-
-      const ax =
-        pcx-s.x;
-
-      const ay =
-        pcy-s.y;
-
-      const dist =
-        Math.hypot(ax,ay);
-
-      if(
-        dist<190 &&
-        dist>1
-      ){
-
-        const pull =
-          clamp(
-            dt*6*
-            (1-dist/190),
-            0,
-            1
-          );
-
-        s.x +=
-          (ax/dist)*
-          250*
-          pull;
-
-        s.y +=
-          (ay/dist)*
-          250*
-          pull;
-
-      }
-
-    }
-
-    if(s.x<-30){
-
-      stars.splice(i,1);
-
-      continue;
-
-    }
-
-    const ddx =
-      pcx-s.x;
-
-    const ddy =
-      pcy-s.y;
-
-    if(
-      ddx*ddx+
-      ddy*ddy<
-      (s.r+pickup)*
-      (s.r+pickup)
-    ){
-
-      stars.splice(i,1);
-
-      const bonus =
-        s.gold
-          ? 25
-          : 10;
-
-      score += bonus;
-
-      missionStarReaction(
-        s.x,
-        s.y,
-        bonus
-      );
-
-    }
-
-  }
-
-}
-
-/* =========================================================
-   Star collection reaction
-========================================================= */
-
-let collectedStars = 0;
-
-function missionStarReaction(
-  x,
-  y,
-  bonus
-){
-
-  collectedStars++;
-
-  burstSpark(
-    x,
-    y,
-    8
-  );
-
-  burstRing(
-    x,
-    y,
-    '#f6b91a'
-  );
-
-  textParticle(
-    x,
-    y-10,
-    '+'+bonus
-  );
-
-  pulse =
-    Math.min(
-      1,
-      pulse+.35
-    );
-
-  sfx('star');
-
-  /*
-    حماس خفيف كل عدة نجوم
-  */
-
-  if(
-    collectedStars>=5 &&
-    collectedStars%5===0
-  ){
-
-    showToast(
-      pick([
-        '⭐ عاش يا ناوي!',
-        '✨ النجوم عليك!',
-        '🔥 كمل كده!'
-      ])
-    );
-
-    sfx(
-      'combo',
-      Math.floor(
-        collectedStars/5
-      )
-    );
-
-  }
-
-}
-
-/* =========================================================
-   Power-up update
-========================================================= */
-
-function updatePowerups(dt){
-
-  const dx =
-    speed*60*dt;
-
-  const pcx =
-    player.x+
-    player.size/2;
-
-  const pcy =
-    player.y+
-    player.size/2;
-
-  for(
-    let i=powerups.length-1;
-    i>=0;
-    i--
-  ){
-
-    const p =
-      powerups[i];
-
-    p.x -= dx;
-
-    p.rot += dt*2.6;
-
-    if(p.x<-35){
-
-      powerups.splice(i,1);
-
-      continue;
-
-    }
-
-    if(
-      Math.hypot(
-        pcx-p.x,
-        pcy-p.y
-      )<
-      p.r+
-      player.size*.52
-    ){
-
-      powerups.splice(i,1);
-
-      if(p.type==='shield'){
-
-        shield=1;
-
-        showToast(
-          '🛡️ ناوي محصّن!'
-        );
-
-      }else{
-
-        magnet=8;
-
-        showToast(
-          '🧲 هات النجوم يا ناوي!'
-        );
-
-      }
-
-      burstSpark(
-        p.x,
-        p.y,
-        13
-      );
-
-      burstRing(
-        p.x,
-        p.y,
-        p.type==='shield'
-          ? '#20b486'
-          : '#9b5de5'
-      );
-
-      pulse=1;
-
-      sfx(p.type);
-
-      updatePowerUI();
-
-    }
-
-  }
-
-}
-
-/* =========================================================
-   Main update
-========================================================= */
-
-function update(dt){
-
-  shield =
-    shield>0
-      ? 1
-      : 0;
-
-  magnet =
+  bestEl.textContent =
     Math.max(
-      0,
-      magnet-dt
+      best,
+      Math.floor(score)
     );
 
-  powerTimer -= dt;
+  comboEl.textContent =
+    combo;
 
-  if(powerTimer<=0){
+  starsEl.textContent =
+    starCount;
 
-    spawnPowerup();
+  if(player.magnet>0){
 
-    /*
-      التعزيزات تظهر مبكرًا
-      ثم تصبح أقل تكرارًا
-    */
+    powerChip.style.display="block";
 
-    powerTimer =
-      difficulty()<.20
-        ? rand(5.5,8)
-        : rand(9,14);
+    powerChip.innerHTML =
+      "🧲 مغناطيس <strong>"+
+      Math.ceil(player.magnet)+
+      "ث</strong>";
 
+  }else{
+
+    powerChip.style.display="none";
   }
 
-  baseUpdate(dt);
+  if(player.shield>0){
 
-  if(state!=='playing') return;
+    shieldChip.style.display="block";
 
-  updatePowerups(dt);
+    shieldChip.innerHTML =
+      "🛡️ حماية <strong>"+
+      Math.ceil(player.shield)+
+      "ث</strong>";
 
-  updatePowerUI();
+  }else{
 
-}
-
-/* =========================================================
-   Overlay
-========================================================= */
-
-function showOverlay(config){
-
-  ovEmoji.textContent =
-    config.emoji;
-
-  ovTitle.textContent =
-    config.title;
-
-  ovText.innerHTML =
-    config.text;
-
-  ovBtn.textContent =
-    config.button;
-
-  resultRow.hidden =
-    !config.showResult;
-
-  shareBtn.hidden =
-    !config.showShare;
-
-  tipText.textContent =
-    config.tip ||
-    'اضغط في أي مكان للقفز';
-
-  overlay.classList.remove('hidden');
-
-}
-
-/* =========================================================
-   Start
-========================================================= */
-
-function startGame(){
-
-  score=0;
-
-  speed=5.4;
-
-  shield=0;
-
-  magnet=0;
-
-  shake=0;
-
-  flash=0;
-
-  pulse=0;
-
-  jumpBuffer=0;
-
-  coyoteTime=0;
-
-  milestoneShown=0;
-
-  collectedStars=0;
-
-  powerTimer=3.2;
-
-  obstacleTimer=1.35;
-
-  starTimer=1.4;
-
-  obstacles.length=0;
-
-  stars.length=0;
-
-  powerups.length=0;
-
-  particles.length=0;
-
-  player.x =
-    Math.max(
-      42,
-      W*.12
-    );
-
-  player.y =
-    groundY-player.size;
-
-  player.vy=0;
-
-  player.grounded=true;
-
-  player.squash=1;
-
-  scoreEl.textContent='0';
-
-  shieldChip.classList.add('hidden');
-
-  magnetChip.classList.add('hidden');
-
-  updatePowerUI();
-
-  shareBtn.hidden=true;
-
-  state='playing';
-
-  pauseBtn.textContent='Ⅱ';
-
-  pauseBtn.setAttribute(
-    'aria-label',
-    'إيقاف اللعبة مؤقتًا'
-  );
-
-  overlay.classList.add('hidden');
-
-  unlockAudio();
-
-}
-
-/* =========================================================
-   Pause
-========================================================= */
-
-function togglePause(){
-
-  if(state==='playing'){
-
-    state='paused';
-
-    pauseBtn.textContent='▶';
-
-    pauseBtn.setAttribute(
-      'aria-label',
-      'متابعة اللعبة'
-    );
-
-    showOverlay({
-
-      emoji:'⏸️',
-
-      title:'ناوي مستنيك',
-
-      text:
-        'خد نفس… ولما تبقى جاهز<br>ارجع كمّل كسر رقمك.',
-
-      button:'كمّل اللعب',
-
-      tip:'اضغط داخل اللعبة للمتابعة'
-
-    });
-
-    return;
-
+    shieldChip.style.display="none";
   }
-
-  if(state==='paused'){
-
-    state='playing';
-
-    overlay.classList.add('hidden');
-
-    pauseBtn.textContent='Ⅱ';
-
-    pauseBtn.setAttribute(
-      'aria-label',
-      'إيقاف اللعبة مؤقتًا'
-    );
-
-    unlockAudio();
-
-  }
-
 }
 
+
 /* =========================================================
-   Game Over
+   TOAST
+========================================================= */
+
+function showToast(text){
+
+  toast.textContent=text;
+
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer=setTimeout(()=>{
+
+    toast.classList.remove("show");
+
+  },1300);
+}
+
+
+/* =========================================================
+   GAME OVER
 ========================================================= */
 
 function gameOver(){
 
-  state='over';
+  state="over";
 
-  overAt=performance.now();
-
-  score =
+  const finalScore =
     Math.floor(score);
 
   const isRecord =
-    score>best;
+    finalScore>best;
 
   if(isRecord){
 
-    best=score;
+    best=finalScore;
 
-    store.set(
-      'nawy.best',
+    saveNumber(
+      STORE_KEY,
       best
     );
 
-    sfx('record');
+    playSound("record");
 
-  }else{
-
-    sfx('hit');
-
-  }
-
-  bestEl.textContent =
-    best;
-
-  resultScore.textContent =
-    score;
-
-  resultBest.textContent =
-    best;
-
-  shake =
-    reduced
-      ? 0
-      : 11;
-
-  flash=1;
-
-  pulse=1;
-
-  if(
-    navigator.vibrate &&
-    !muted
-  ){
-
-    try{
-
-      navigator.vibrate(
-        isRecord
-          ? [35,35,65]
-          : 70
-      );
-
-    }catch(e){}
-
-  }
-
-  burstConfetti(
-    player.x+
-    player.size/2,
-    player.y+
-    player.size/2,
-    isRecord
-      ? 34
-      : 12
-  );
-
-  if(isRecord){
-
-    showToast(
-      '🏆 رقم جديد!'
+    burst(
+      player.x,
+      player.y,
+      28,
+      "star"
     );
 
   }
 
-  showOverlay({
+  updateUI();
 
-    emoji:
-      isRecord
-        ? '🏆'
-        : '😄',
+  overlay.style.display="grid";
 
-    title:
-      isRecord
-        ? 'رقم جديد يا ناوي!'
-        : 'جولة حلوة!',
+  if(isRecord){
 
-    text:
-      isRecord
-        ? 'كسرت أفضل نتيجة! 🔥<br>مين قال إن ناوي هيقف هنا؟'
-        : 'قربت تكسر رقمك!<br>الجولة الجاية أحسن 💙',
+    panelEmoji.textContent="🏆";
 
-    button:'🔄 العب تاني',
+    panelTitle.textContent=
+      "رقمك الجديد!";
 
-    showResult:true,
+    panelText.innerHTML=
+      "حققت <b>"+
+      finalScore+
+      "</b> نقطة!<br>"+
+      "كده عندك أفضل نتيجة جديدة. 🔥";
 
-    showShare:true,
+  }else{
 
-    tip:
-      isRecord
-        ? 'مستعد تعليه أكتر؟'
-        : 'اضغط وجرّب تكسر '+best
+    panelEmoji.textContent="😄";
 
-  });
+    panelTitle.textContent=
+      "جولة حلوة!";
 
+    panelText.innerHTML=
+      "حققت <b>"+
+      finalScore+
+      "</b> نقطة<br>"+
+      "أفضل نتيجة: <b>"+
+      best+
+      "</b><br>"+
+      "جاهز تكسرها؟";
+  }
+
+  mainBtn.textContent=
+    "يلا تاني";
+
+  shareBtn.hidden=false;
+
+  pauseBtn.textContent="Ⅱ";
 }
 
+
 /* =========================================================
-   Sharing
+   SHARE
 ========================================================= */
 
 async function shareScore(){
 
   const text =
-    'حققت '+
+    "حققت "+
     Math.floor(score)+
-    ' نقطة في لعبة العب مع ناوي! 🏆';
-
-  const data = {
-
-    title:'العب مع ناوي',
-
-    text,
-
-    url:location.href
-
-  };
-
-  try{
-
-    if(navigator.share){
-
-      await navigator.share(data);
-
-      showToast(
-        'تم فتح المشاركة'
-      );
-
-    }else if(
-      navigator.clipboard
-    ){
-
-      await navigator.clipboard.writeText(
-        text+
-        ' '+
-        location.href
-      );
-
-      showToast(
-        'تم نسخ النتيجة'
-      );
-
-    }else{
-
-      window.prompt(
-        'انسخ النتيجة:',
-        text+
-        ' '+
-        location.href
-      );
-
-    }
-
-  }catch(e){
-
-    if(
-      e.name!=='AbortError'
-    ){
-
-      showToast(
-        'لم تكتمل المشاركة'
-      );
-
-    }
-
-  }
-
-}
-
-/* =========================================================
-   Input
-========================================================= */
-
-function onTap(e){
-
-  if(e && e.preventDefault){
-    e.preventDefault();
-  }
-
-  if(state==='playing'){
-
-    requestJump();
-
-    return;
-
-  }
+    " نقطة في لعبة ناوي! 🔥\n"+
+    "هل تقدر تكسر رقمي؟";
 
   if(
-    state==='over' &&
-    performance.now()-overAt<500
+    navigator.share
   ){
 
-    return;
+    try{
 
+      await navigator.share({
+        title:"العب مع ناوي",
+        text
+      });
+
+    }catch{}
+
+  }else{
+
+    try{
+
+      await navigator.clipboard.writeText(text);
+
+      showToast("📋 تم نسخ النتيجة");
+
+    }catch{
+
+      showToast(
+        "نتيجتي: "+
+        Math.floor(score)+
+        " نقطة 🔥"
+      );
+    }
   }
-
-  if(state==='paused'){
-
-    togglePause();
-
-    return;
-
-  }
-
-  startGame();
-
 }
 
-/*
-  pointerdown = أسرع استجابة
-  بدل click / pointerup
-*/
-
-canvas.addEventListener(
-  'pointerdown',
-  onTap,
-  {passive:false}
-);
 
 /* =========================================================
-   Buttons
+   MAIN LOOP
 ========================================================= */
 
-ovBtn.addEventListener(
-  'click',
-  e => {
+function loop(now){
 
-    e.stopPropagation();
-
-    if(state==='paused'){
-
-      togglePause();
-
-    }else{
-
-      startGame();
-
-    }
-
-  }
-);
-
-pauseBtn.addEventListener(
-  'click',
-  e => {
-
-    e.stopPropagation();
-
-    togglePause();
-
-  }
-);
-
-shareBtn.addEventListener(
-  'click',
-  e => {
-
-    e.stopPropagation();
-
-    shareScore();
-
-  }
-);
-
-muteBtn.addEventListener(
-  'click',
-  e => {
-
-    e.stopPropagation();
-
-    muted=!muted;
-
-    muteBtn.textContent =
-      muted
-        ? '🔇'
-        : '🔊';
-
-    muteBtn.setAttribute(
-      'aria-label',
-      muted
-        ? 'تشغيل الصوت'
-        : 'كتم الصوت'
-    );
-
-    store.set(
-      'nawy.muted',
-      muted
-        ? '1'
-        : '0'
-    );
-
-    if(!muted){
-
-      sfx('star');
-
-    }
-
-  }
-);
-
-/* =========================================================
-   Keyboard
-========================================================= */
-
-window.addEventListener(
-  'keydown',
-  e => {
-
-    if(
-      e.code==='Space' ||
-      e.code==='ArrowUp'
-    ){
-
-      e.preventDefault();
-
-      if(e.repeat) return;
-
-      onTap(null);
-
-    }
-
-    if(
-      e.code==='KeyP' ||
-      e.code==='Escape'
-    ){
-
-      e.preventDefault();
-
-      togglePause();
-
-    }
-
-  }
-);
-
-/* =========================================================
-   Visibility
-========================================================= */
-
-document.addEventListener(
-  'visibilitychange',
-  () => {
-
-    if(
-      document.hidden &&
-      state==='playing'
-    ){
-
-      togglePause();
-
-    }
-
-  }
-);
-
-/* =========================================================
-   Theme
-========================================================= */
-
-matchMedia(
-  '(prefers-color-scheme: dark)'
-).addEventListener?.(
-  'change',
-  e => {
-
-    isDark=e.matches;
-
-  }
-);
-
-matchMedia(
-  '(prefers-reduced-motion: reduce)'
-).addEventListener?.(
-  'change',
-  e => {
-
-    reduced=e.matches;
-
-  }
-);
-
-/* =========================================================
-   Render
-========================================================= */
-
-function render(){
-
-  ctx.clearRect(
-    0,
-    0,
-    W,
-    H
-  );
-
-  ctx.save();
-
-  if(shake>.2){
-
-    ctx.translate(
-      rand(-shake,shake)*.5,
-      rand(-shake,shake)*.5
-    );
-
-  }
-
-  drawSky();
-
-  drawClouds();
-
-  drawHills();
-
-  drawGround();
-
-  drawSoftMotion();
-
-  stars.forEach(drawStar);
-
-  drawPowerups();
-
-  drawObstacles();
-
-  drawParticles();
-
-  drawPlayer();
-
-  drawScreenEffects();
-
-  ctx.restore();
-
-}
-
-/* =========================================================
-   Main loop
-========================================================= */
-
-function frame(t){
-
-  requestAnimationFrame(frame);
-
-  if(!lastFrame){
-
-    lastFrame=t;
-
+  if(!lastTime){
+    lastTime=now;
   }
 
   let dt =
-    (t-lastFrame)/1000;
+    (now-lastTime)/1000;
 
-  lastFrame=t;
+  lastTime=now;
 
-  if(
-    !isFinite(dt) ||
-    dt<0
-  ){
+  /*
+    Prevent physics explosions
+    after background tab / lag.
+  */
 
-    dt=0;
+  dt=clamp(dt,0,.033);
 
-  }
+  update(dt);
+  draw();
 
-  dt=
-    Math.min(
-      dt,
-      1/30
-    );
-
-  if(state==='playing'){
-
-    update(dt);
-
-  }
-
-  updateAmbient(dt);
-
-  updateParticles(dt);
-
-  shake *=
-    Math.exp(-9*dt);
-
-  if(shake<.15){
-
-    shake=0;
-
-  }
-
-  render();
-
+  requestAnimationFrame(loop);
 }
+
 
 /* =========================================================
-   Init
+   INITIAL SCREEN
 ========================================================= */
 
-function init(){
+function showReady(){
 
-  bestEl.textContent =
-    best;
+  state="ready";
 
-  muteBtn.textContent =
-    muted
-      ? '🔇'
-      : '🔊';
+  overlay.style.display="grid";
 
-  muteBtn.setAttribute(
-    'aria-label',
-    muted
-      ? 'تشغيل الصوت'
-      : 'كتم الصوت'
-  );
+  panelEmoji.textContent="🏃";
+  panelTitle.textContent="ناوي جاهز؟";
 
-  resize();
+  panelText.innerHTML=
+    "اقفز فوق العقبات، اجمع النجوم،<br>"+
+    "وحاول تكسر <b>أفضل نتيجة</b> ليك.";
 
-  for(let i=0;i<3;i++){
+  mainBtn.textContent="يلا نبدأ";
 
-    spawnCloud();
+  shareBtn.hidden=true;
 
-  }
+  pauseBtn.textContent="Ⅱ";
 
-  showOverlay({
-
-    emoji:'🔵',
-
-    title:'ناوي جاهز؟',
-
-    text:
-      'اقفز، اجمع النجوم،<br>وحاول تكسر أفضل رقم ليك.',
-
-    button:'يلا نبدأ',
-
-    tip:'👆 اضغط في أي مكان للقفز'
-
-  });
-
-  requestAnimationFrame(frame);
-
+  updateUI();
 }
+
 
 /* =========================================================
-   Resize events
+   INITIALIZE
 ========================================================= */
 
-window.addEventListener(
-  'resize',
-  resize
-);
+resize();
+resetGame();
+showReady();
 
-window.addEventListener(
-  'orientationchange',
-  () => {
+requestAnimationFrame(loop);
 
-    setTimeout(
-      resize,
-      120
-    );
-
-  }
-);
-
-if(window.ResizeObserver){
-
-  new ResizeObserver(
-    resize
-  ).observe(stage);
-
-}
-
-init();
-
-})();
 </script>
 
 </body>
