@@ -99,7 +99,7 @@
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     pointer-events:none;text-align:center;padding:20px;z-index:10;
-    background:rgba(255,255,255,.35);
+    background:rgba(255,255,255,.5);   /* ✨ منقّح: .5 بدل .35 */
   }
   .overlay.hidden{display:none;}
   .overlay-inner{
@@ -312,12 +312,6 @@ function roundRectPath(c,x,y,w,h,r){
   c.arcTo(x,y,x+w,y,r);
   c.closePath();
 }
-function circleRect(cx,cy,r,rx,ry,rw,rh){
-  const nx = clamp(cx, rx, rx+rw);
-  const ny = clamp(cy, ry, ry+rh);
-  const dx = cx-nx, dy = cy-ny;
-  return dx*dx + dy*dy < r*r;
-}
 
 /* ============================================================
    ELEMENTS
@@ -358,7 +352,7 @@ const GRAVITY    = 2300;
 const JUMP_V     = -800;
 const MAX_FALL   = 1900;
 const BASE_SPEED = 6;
-const MAX_SPEED  = 13.5;            // ✨ LITE: كان 11.5
+const MAX_SPEED  = 13.5;
 const COYOTE     = 0.10;
 const JUMP_BUF   = 0.13;
 const SUN_CYCLE  = 240;
@@ -397,7 +391,7 @@ try { best = Number(localStorage.getItem('nawy.best.v13')) || 0; } catch(e){}
 let shake = 0;
 let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
 let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
-let lastT = 0, overAt = 0;
+let overAt = 0;
 let worldTime = 0;
 let lastRunRecord = false;
 
@@ -811,13 +805,11 @@ function drawPowerups(){
   ctx.textBaseline = 'alphabetic';
 }
 
-// ✨ LITE: لون بيتغير حسب عرض العقبة
 function drawObstacles(){
   for (const o of obstacles){
     ctx.fillStyle = o.w > 40 ? '#1e293b' : '#334155';
     roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
     ctx.fill();
-    // خط علوي فاتح للعمق
     ctx.fillStyle = 'rgba(255,255,255,.10)';
     ctx.fillRect(o.x + 3, o.y + 3, o.w - 6, 2);
   }
@@ -1086,18 +1078,18 @@ function render(){
 /* ============================================================
    SPAWNERS
    ============================================================ */
-// ✨ LITE: asymptotic — بتقرب من 1 للأبد بدون تجمّد
+// ✨ asymptotic — بتقرب من 1 للأبد بدون تجمّد
 function getDifficulty(){
   return 1 - Math.exp(-score / 1400);
 }
 
-// ✨ LITE: cluster patterns (18% فرصة لعقبتين ورا بعض بمسافة ضيقة)
+// ✨ FIX: clusterRoll منفصل عن r
 function spawnObstacle(){
   const d = getDifficulty();
-  const r = Math.random();
+  const clusterRoll = Math.random();
 
-  // Cluster
-  if (r < 0.18 && d > 0.35){
+  // Cluster: 18% فرصة (بعد صعوبة معينة)
+  if (clusterRoll < 0.18 && d > 0.35){
     const w1 = 22, h1 = rand(32, 42);
     const w2 = 22, h2 = rand(32, 42);
     const gap = Math.max(90, 180 - d * 60);
@@ -1105,6 +1097,8 @@ function spawnObstacle(){
     obstacles.push({ x: W + 40 + w1 + gap, w: w2, h: h2, y: groundY - h2, passed:false });
     return;
   }
+
+  const r = Math.random();
 
   let w, h;
   if (d < 0.30){ w = 24; h = rand(28, 38); }
@@ -1229,7 +1223,6 @@ function update(dt){
   score += dt * (11 + getDifficulty() * 6);
   const shown = Math.floor(score);
   if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
-  // ✨ LITE: معامل أبطأ عشان السرعة تكمل تصعد
   speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.012);
 
   const ms = Math.floor(score / 100);
@@ -1250,7 +1243,6 @@ function update(dt){
 
   const dx = speed * 60 * dt;
 
-  // ✨ LITE: hitbox موحّد
   const pHit = {
     x: player.x + player.size * 0.12,
     y: player.y + player.size * 0.10,
@@ -1263,6 +1255,7 @@ function update(dt){
     o.x -= dx;
     if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
 
+    // فحص التصادم (AABB)
     if (pHit.x < o.x + o.w && pHit.x + pHit.w > o.x &&
         pHit.y < o.y + o.h && pHit.y + pHit.h > o.y){
       if (player.shield > 0){
@@ -1278,12 +1271,18 @@ function update(dt){
       return;
     }
 
+    // ✨ FIX: تتبّع أقل مسافة (bottomGap) أثناء ما اللاعب فوق العقبة أفقيًا
+    if (o.x + o.w > player.x && o.x < player.x + player.size){
+      const gap = o.y - (player.y + player.size);
+      if (gap >= 0 && gap < (o.minGap ?? Infinity)) o.minGap = gap;
+    }
+
+    // لما العقبة تعدّي اللاعب
     if (!o.passed && o.x + o.w < player.x){
       o.passed = true;
 
-      // ✨ LITE: Near-miss bonus — لو عدّيت قريب من العقبة
-      const bottomGap = o.y - (player.y + player.size);
-      if (bottomGap >= 0 && bottomGap < 12){
+      // ✨ FIX: نستخدم أقل مسافة اتسجلت
+      if (o.minGap !== undefined && o.minGap < 12){
         score += 5;
         showToast('🎯 قريب!');
         burstSparkle(player.x + player.size/2, o.y, 4);
@@ -1326,7 +1325,6 @@ function update(dt){
     const rr  = s.r + pickupR;
     if (ddx*ddx + ddy*ddy < rr*rr){
       stars.splice(i,1);
-      // ✨ LITE: الكومبو بيأثر على قيمة النجمة
       score += 10 * (1 + Math.floor(combo / 5) * 0.3);
       starCount++;
       starsEl.textContent = starCount;
