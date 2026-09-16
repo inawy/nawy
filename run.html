@@ -262,8 +262,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
-    <!-- ✨ LITE: نص الـ hint محدّث -->
-    <div class="hint" id="hint">فوق للنط — تحت للانزلاق — Space / ↓</div>
+    <div class="hint" id="hint">اضغط في أي مكان للنط — أو Space على الكيبورد</div>
 
     <div class="action-bar">
       <button type="button" class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
@@ -364,7 +363,6 @@ const COYOTE     = 0.10;
 const JUMP_BUF   = 0.13;
 const SUN_CYCLE  = 240;
 const DEATH_DUR  = 0.85;
-const SLIDE_DUR  = 0.48;            // ✨ LITE: جديد
 
 const RENDER_MAX_W = 800;
 const MAX_PARTICLES = 50;
@@ -561,9 +559,6 @@ function buildSprites(){
    ============================================================ */
 const player = {
   x: 80, y: 0, size: 40,
-  h: 40,                        // ✨ LITE: الارتفاع الحالي (بيتغير عند الانزلاق)
-  crouching: false,             // ✨ LITE
-  crouchT: 0,                   // ✨ LITE
   vy: 0, grounded: true, coyote: 0, jumpBuf: 0,
   squash: 1, rotation: 0,
   blinkTimer: 2, blinking: 0,
@@ -625,6 +620,7 @@ function sfx(name){
     case 'record':    beep(660,0.09,'sine',0.045,660);
                       beep(880,0.09,'sine',0.045,880,0.09);
                       beep(1200,0.14,'sine',0.038,1200,0.18); break;
+    case 'nearmiss':  beep(880,0.07,'triangle',0.032,1200); break;
   }
 }
 function vibrate(ms){
@@ -724,18 +720,16 @@ function resize(){
   const oldGround = groundY;
   groundY = Math.round(H - Math.max(60, H * 0.18));
   player.size = clamp(Math.round(H * 0.082), 26, 42);
-  // ✨ LITE: نحافظ على الارتفاع الحالي لو اللاعب بينزلق
-  player.h = player.crouching ? player.size * 0.55 : player.size;
 
   if (!oldGround){
-    player.y = groundY - player.h;
+    player.y = groundY - player.size;
   } else if (oldGround !== groundY){
     const dy = groundY - oldGround;
     for (const o of obstacles) o.y += dy;
     for (const s of stars)     s.y += dy;
     for (const p of powerups)  p.y += dy;
     if (state === 'playing') player.y += dy;
-    else player.y = groundY - player.h;
+    else player.y = groundY - player.size;
   }
   player.x = Math.max(46, W * 0.14);
 
@@ -817,39 +811,26 @@ function drawPowerups(){
   ctx.textBaseline = 'alphabetic';
 }
 
-/* ✨ LITE: يدعم العقبات الطايرة */
+// ✨ LITE: لون بيتغير حسب عرض العقبة
 function drawObstacles(){
   for (const o of obstacles){
-    if (o.type === 'air'){
-      // جسم العقبة
-      ctx.fillStyle = '#475569';
-      roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
-      ctx.fill();
-      // شريط أصفر تحذيري
-      ctx.fillStyle = '#fbbf24';
-      ctx.fillRect(o.x + 3, o.y + o.h - 4, o.w - 6, 3);
-      // خطوط داخلية خفيفة للتمييز
-      ctx.fillStyle = 'rgba(255,255,255,.18)';
-      for (let gx = o.x + 6; gx < o.x + o.w - 4; gx += 8){
-        ctx.fillRect(gx, o.y + 5, 2, o.h - 12);
-      }
-    } else {
-      ctx.fillStyle = '#334155';
-      roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
-      ctx.fill();
-    }
+    ctx.fillStyle = o.w > 40 ? '#1e293b' : '#334155';
+    roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
+    ctx.fill();
+    // خط علوي فاتح للعمق
+    ctx.fillStyle = 'rgba(255,255,255,.10)';
+    ctx.fillRect(o.x + 3, o.y + 3, o.w - 6, 2);
   }
 }
 
 function drawPlayer(){
   const s  = player.size;
-  const h  = player.h;                 // ✨ LITE
   const cx = player.x + s/2;
-  const cy = player.y + h/2;           // ✨ LITE: بيراعي الانزلاق
+  const cy = player.y + s/2;
   const R  = s/2;
 
   const dying = player.deathT >= 0;
-  const airH = clamp((groundY - player.y - h) / 170, 0, 1);  // ✨ LITE
+  const airH = clamp((groundY - player.y - s) / 170, 0, 1);
 
   if (!dying || player.deathT < DEATH_DUR * 0.5){
     ctx.globalAlpha = 0.14 * (1 - airH*0.7);
@@ -863,7 +844,7 @@ function drawPlayer(){
   if (player.shield > 0 && !dying){
     const pulse = 1 + Math.sin(worldTime * 8) * 0.05;
     ctx.save();
-    ctx.translate(cx, player.y + s/2);   // ✨ LITE: الدرع حوالين مركز اللاعب الكامل
+    ctx.translate(cx, cy);
     ctx.scale(pulse, pulse);
     ctx.globalAlpha = 0.22;
     ctx.fillStyle = '#55a9ff';
@@ -876,8 +857,7 @@ function drawPlayer(){
   ctx.translate(cx, cy);
 
   const sq = clamp(player.squash, 0.85, 1.15);
-  const cScale = h / s;                // ✨ LITE: 0.55 عند الانزلاق
-  ctx.scale(1 / Math.sqrt(sq), sq * cScale);
+  ctx.scale(1 / Math.sqrt(sq), sq);
   ctx.rotate(player.rotation * 0.4);
 
   ctx.fillStyle = '#2563eb';
@@ -1111,17 +1091,18 @@ function getDifficulty(){
   return 1 - Math.exp(-score / 1400);
 }
 
-// ✨ LITE: احتمال 20% لعقبة طايرة بعد صعوبة معينة
+// ✨ LITE: cluster patterns (18% فرصة لعقبتين ورا بعض بمسافة ضيقة)
 function spawnObstacle(){
   const d = getDifficulty();
   const r = Math.random();
 
-  if (r < 0.20 && d > 0.15){
-    obstacles.push({
-      x: W + 40, w: 34, h: 28,
-      y: groundY - 100,
-      type: 'air', passed: false
-    });
+  // Cluster
+  if (r < 0.18 && d > 0.35){
+    const w1 = 22, h1 = rand(32, 42);
+    const w2 = 22, h2 = rand(32, 42);
+    const gap = Math.max(90, 180 - d * 60);
+    obstacles.push({ x: W + 40, w: w1, h: h1, y: groundY - h1, passed:false });
+    obstacles.push({ x: W + 40 + w1 + gap, w: w2, h: h2, y: groundY - h2, passed:false });
     return;
   }
 
@@ -1140,8 +1121,9 @@ function spawnObstacle(){
     else if (r < 0.85){ w = rand(46, 56); h = rand(28, 34); }
     else { w = 20; h = rand(56, 64); }
   }
-  obstacles.push({ x: W + 40, w, h, y: groundY - h, type: 'ground', passed:false });
+  obstacles.push({ x: W + 40, w, h, y: groundY - h, passed:false });
 }
+
 function spawnStarArc(){
   const startX = W + 90;
   for (const o of obstacles){
@@ -1211,19 +1193,10 @@ function updateDeath(dt){
    UPDATE
    ============================================================ */
 function update(dt){
-  // ✨ LITE: مدير الانزلاق
-  if (player.crouching){
-    player.crouchT -= dt;
-    if (player.crouchT <= 0){
-      player.crouching = false;
-      player.h = player.size;
-    }
-  }
-
   player.vy = Math.min(player.vy + GRAVITY * dt, MAX_FALL);
   player.y += player.vy * dt;
 
-  const floor = groundY - player.h;   // ✨ LITE: بيراعي الانزلاق
+  const floor = groundY - player.size;
   if (player.y >= floor){
     if (!player.grounded){
       player.squash = 0.84;
@@ -1256,7 +1229,7 @@ function update(dt){
   score += dt * (11 + getDifficulty() * 6);
   const shown = Math.floor(score);
   if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
-  // ✨ LITE: معامل أبطأ (0.012) عشان السرعة تكمل تصعد مدة أطول
+  // ✨ LITE: معامل أبطأ عشان السرعة تكمل تصعد
   speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.012);
 
   const ms = Math.floor(score / 100);
@@ -1277,12 +1250,12 @@ function update(dt){
 
   const dx = speed * 60 * dt;
 
-  // ✨ LITE: hitbox موحّد بيعتمد على player.h (لما بينزلق، الهيت بوكس يقصر)
+  // ✨ LITE: hitbox موحّد
   const pHit = {
     x: player.x + player.size * 0.12,
-    y: player.y + player.h    * 0.10,
+    y: player.y + player.size * 0.10,
     w: player.size * 0.76,
-    h: player.h    * 0.85
+    h: player.size * 0.85
   };
 
   for (let i = obstacles.length-1; i >= 0; i--){
@@ -1290,12 +1263,11 @@ function update(dt){
     o.x -= dx;
     if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
 
-    // ✨ LITE: AABB بالكامل (يدعم العقبات الطايرة)
     if (pHit.x < o.x + o.w && pHit.x + pHit.w > o.x &&
         pHit.y < o.y + o.h && pHit.y + pHit.h > o.y){
       if (player.shield > 0){
         player.shield = 0;
-        burstSparkle(player.x + player.size/2, player.y + player.h/2, 10);
+        burstSparkle(player.x + player.size/2, player.y + player.size/2, 10);
         showToast('🛡️ الحماية أنقذتك!');
         sfx('shield');
         obstacles.splice(i,1);
@@ -1305,8 +1277,19 @@ function update(dt){
       gameOver();
       return;
     }
+
     if (!o.passed && o.x + o.w < player.x){
       o.passed = true;
+
+      // ✨ LITE: Near-miss bonus — لو عدّيت قريب من العقبة
+      const bottomGap = o.y - (player.y + player.size);
+      if (bottomGap >= 0 && bottomGap < 12){
+        score += 5;
+        showToast('🎯 قريب!');
+        burstSparkle(player.x + player.size/2, o.y, 4);
+        sfx('nearmiss');
+      }
+
       combo++;
       comboEl.textContent = combo;
       if (combo % 3 === 0){ showToast('🔥 سلسلة ' + combo); setMood('focus', 0.4); }
@@ -1321,7 +1304,7 @@ function update(dt){
   }
 
   const pcx = player.x + player.size/2;
-  const pcy = player.y + player.h/2;   // ✨ LITE
+  const pcy = player.y + player.size/2;
   const pickupR = player.size * 0.48;
 
   for (let i = stars.length-1; i >= 0; i--){
@@ -1392,37 +1375,12 @@ function update(dt){
    INPUT
    ============================================================ */
 function doJump(){
-  // ✨ LITE: نلغي الانزلاق عند النط
-  if (player.crouching){
-    player.crouching = false;
-    player.crouchT = 0;
-    player.h = player.size;
-    if (player.grounded) player.y = groundY - player.size;
-  }
   player.vy = JUMP_V;
   player.grounded = false;
   player.squash = 1.16;
   player.coyote = 0; player.jumpBuf = 0;
   burstDust(player.x + player.size/2, groundY, 3);
   sfx('jump'); setMood('jump', 0.25);
-  hintEl.classList.add('fade-out');
-}
-
-// ✨ LITE: الانزلاق
-function slide(){
-  if (state !== 'playing') return;
-  if (!player.grounded) return;
-  if (player.crouching){
-    player.crouchT = Math.max(player.crouchT, 0.18);
-    return;
-  }
-  player.crouching = true;
-  player.crouchT = SLIDE_DUR;
-  player.h = player.size * 0.55;
-  player.y = groundY - player.h;
-  player.squash = 0.88;
-  burstDust(player.x + player.size/2, groundY, 4);
-  setMood('focus', SLIDE_DUR);
   hintEl.classList.add('fade-out');
 }
 
@@ -1437,16 +1395,7 @@ function jump(){
 
 function onTap(e){
   if (e && e.preventDefault) e.preventDefault();
-  if (state === 'playing'){
-    // ✨ LITE: لو الضغط في التلت السفلي من الشاشة = انزلاق
-    if (e && e.clientY != null){
-      const rect = canvas.getBoundingClientRect();
-      const localY = e.clientY - rect.top;
-      if (localY > rect.height * 0.62){ slide(); return; }
-    }
-    jump();
-    return;
-  }
+  if (state === 'playing'){ jump(); return; }
   if (state === 'paused'){ resumeGame(); return; }
   if (state === 'over' && performance.now() - overAt < 500) return;
   startGame();
@@ -1470,13 +1419,7 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter'){
     e.preventDefault();
     if (e.repeat) return;
-    if (state === 'playing') jump(); else onTap(null);
-  }
-  // ✨ LITE: ArrowDown / S = انزلاق
-  if (e.code === 'ArrowDown' || e.code === 'KeyS'){
-    e.preventDefault();
-    if (e.repeat) return;
-    if (state === 'playing') slide();
+    onTap(null);
   }
   if (e.code === 'KeyP' || e.code === 'Escape'){
     if (state === 'playing') pauseGame();
@@ -1962,11 +1905,6 @@ function startGame(){
   powerups.length = 0;
   particles.length = 0;
 
-  // ✨ LITE: نصفر حالة الانزلاق
-  player.crouching = false;
-  player.crouchT = 0;
-  player.h = player.size;
-
   player.x = Math.max(46, W * 0.14);
   player.y = groundY - player.size;
   player.vy = 0; player.grounded = true;
@@ -2021,9 +1959,6 @@ function gameOver(){
 
   player.deathT = 0;
   player.deathVy = -600;
-  // ✨ LITE: نصفر الانزلاق عند الموت
-  player.crouching = false;
-  player.h = player.size;
 
   burstConfetti(player.x + player.size/2, player.y + player.size/2, 10);
 
