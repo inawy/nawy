@@ -362,17 +362,26 @@ const MAX_SPEED  = 11.5;
 const COYOTE     = 0.10;
 const JUMP_BUF   = 0.13;
 const SUN_CYCLE  = 240;
+const DEATH_DUR  = 0.85;   // مدة أنيميشن الموت
 
 /* ⚡ إعدادات الخفة */
-const RENDER_MAX_W = 800;       // أقصى عرض للرندر الداخلي
-const MAX_PARTICLES = 50;       // حد الجزيئات
-const FPS_CAP = 60;             // حد الفريمات
+const RENDER_MAX_W = 800;
+const MAX_PARTICLES = 50;
+const FPS_CAP = 60;
 const FRAME_MIN_MS = 1000 / FPS_CAP - 2;
 
 const MILESTONES = [
   'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
   'ناوي مبسوط! 😄','ماشي صح! 🚀','تركيز عالي! 🎯'
 ];
+let lastMilestoneIdx = -1;
+function pickMilestone(){
+  if (MILESTONES.length < 2) return MILESTONES[0];
+  let i;
+  do { i = (Math.random() * MILESTONES.length) | 0; } while (i === lastMilestoneIdx);
+  lastMilestoneIdx = i;
+  return MILESTONES[i];
+}
 
 /* ============================================================
    STATE
@@ -401,7 +410,7 @@ const clouds    = [];
 const particles = [];
 
 /* ============================================================
-   🎨 SPRITES — تُبنى في CSS-pixel space
+   🎨 SPRITES
    ============================================================ */
 let skySprite = null;
 let sunSprite = null;
@@ -435,7 +444,7 @@ function buildSprites(){
     c.fillRect(0, 0, W, groundY + 1);
   }
 
-  /* 2) SUN — صورة صغيرة */
+  /* 2) SUN */
   const sunR = Math.max(20, W * 0.020);
   const haloR = sunR * 3.2;
   const sz = Math.ceil(haloR * 2 + 4);
@@ -461,7 +470,7 @@ function buildSprites(){
     c.beginPath(); c.arc(cx, cx, sunR, 0, TAU); c.fill();
   }
 
-  /* 3) CLOUDS — 2 variants only */
+  /* 3) CLOUDS */
   cloudSprites = [];
   for (let v = 0; v < 2; v++){
     const cw = 100 + v * 35;
@@ -562,7 +571,9 @@ const player = {
   mood: 'idle', moodTimer: 0,
   shield: 0, magnet: 0,
   pupilX: 0, pupilY: 0,
-  pupilTargetX: 0.3, pupilTargetY: 0
+  pupilTargetX: 0.3, pupilTargetY: 0,
+  // أنيميشن الموت — صفر تكلفة ريندر (transform فقط)
+  deathT: -1, deathVy: 0
 };
 function setMood(m, d){ player.mood = m; player.moodTimer = d || 0; }
 
@@ -618,13 +629,13 @@ function sfx(name){
                       beep(1200,0.14,'sine',0.038,1200,0.18); break;
   }
 }
+// الاهتزاز مستقل تماماً عن كتم الصوت
 function vibrate(ms){
-  if (muted) return;
   try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){}
 }
 
 /* ============================================================
-   PARTICLES — limit 50
+   PARTICLES
    ============================================================ */
 function addP(p){
   if (particles.length > MAX_PARTICLES) return;
@@ -683,16 +694,23 @@ function updateParticles(dt){
 }
 
 /* ============================================================
-   ⚡ RESIZE — مع Cap للرندر
+   ⚡ RESIZE — يتخطى لو الأبعاد ما اتغيرتش
    ============================================================ */
+let lastResizeW = 0, lastResizeH = 0;
+
 function resize(){
   const rect = canvas.getBoundingClientRect();
+  const nW = Math.max(1, Math.round(rect.width));
+  const nH = Math.max(1, Math.round(rect.height));
 
-  // أبعاد CSS (لعبة المنطق)
-  W = Math.max(1, Math.round(rect.width));
-  H = Math.max(1, Math.round(rect.height));
+  // ← تخطّي كامل لو نفس الأبعاد (شائع جداً على الموبايل)
+  if (nW === lastResizeW && nH === lastResizeH && groundY) return;
+  lastResizeW = nW;
+  lastResizeH = nH;
 
-  // أبعاد الرندر — محدودة بـ RENDER_MAX_W
+  W = nW;
+  H = nH;
+
   let rw = W, rh = H;
   if (rw > RENDER_MAX_W){
     const s = RENDER_MAX_W / rw;
@@ -703,7 +721,6 @@ function resize(){
   canvas.width  = rw;
   canvas.height = rh;
 
-  // نرسم في CSS px — الكانفس يتكفّل بالتصغير
   const sx = rw / W;
   const sy = rh / H;
   ctx.setTransform(sx, 0, 0, sy, 0, 0);
@@ -761,7 +778,7 @@ function updateClouds(dt){
 }
 
 /* ============================================================
-   DRAW — كل حاجة بسيطة، مفيش gradients
+   DRAW
    ============================================================ */
 function drawStars(){
   for (const s of stars){
@@ -816,17 +833,20 @@ function drawPlayer(){
   const cy = player.y + s/2;
   const R  = s/2;
 
-  // ظل
+  const dying = player.deathT >= 0;
   const airH = clamp((groundY - player.y - s) / 170, 0, 1);
-  ctx.globalAlpha = 0.14 * (1 - airH*0.7);
-  ctx.fillStyle = '#1e293b';
-  ctx.beginPath();
-  ctx.ellipse(cx, groundY + 4, s*0.42*(1-airH*0.4), 4.5*(1-airH*0.4), 0, 0, TAU);
-  ctx.fill();
-  ctx.globalAlpha = 1;
 
-  // shield
-  if (player.shield > 0){
+  // الظل — يتلاشى أثناء الموت
+  if (!dying || player.deathT < DEATH_DUR * 0.5){
+    ctx.globalAlpha = 0.14 * (1 - airH*0.7);
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.ellipse(cx, groundY + 4, s*0.42*(1-airH*0.4), 4.5*(1-airH*0.4), 0, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  if (player.shield > 0 && !dying){
     const pulse = 1 + Math.sin(worldTime * 8) * 0.05;
     ctx.save();
     ctx.translate(cx, cy);
@@ -843,15 +863,14 @@ function drawPlayer(){
 
   const sq = clamp(player.squash, 0.85, 1.15);
   ctx.scale(1 / Math.sqrt(sq), sq);
+  // أثناء الموت: لفّة كاملة مرئية (rotation * 0.4)
   ctx.rotate(player.rotation * 0.4);
 
-  // جسم — لون واحد، بدون gradient
   ctx.fillStyle = '#2563eb';
   ctx.beginPath();
   ctx.arc(0, 0, R, 0, TAU);
   ctx.fill();
 
-  // لمعة بيضا بسيطة
   ctx.globalAlpha = 0.28;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
@@ -1025,7 +1044,7 @@ function drawParticles(){
 }
 
 /* ============================================================
-   RENDER — كله drawImage
+   RENDER
    ============================================================ */
 function render(){
   ctx.save();
@@ -1033,23 +1052,19 @@ function render(){
     ctx.translate(rand(-shake,shake)*0.4, rand(-shake,shake)*0.4);
   }
 
-  // SKY
   ctx.drawImage(skySprite, 0, 0);
 
-  // SUN
   ctx.drawImage(
     sunSprite,
     sunPos.x - sunSprite.cx,
     sunPos.y - sunSprite.cx
   );
 
-  // CLOUDS
   for (const c of clouds){
     const spr = cloudSprites[c.variant];
     if (spr) ctx.drawImage(spr, c.x, c.y);
   }
 
-  // HILLS
   const farY = groundY - farHillsSprite.height + 2;
   const farOff = hillOff1 % W;
   ctx.drawImage(farHillsSprite, -farOff, farY);
@@ -1060,17 +1075,17 @@ function render(){
   ctx.drawImage(nearHillsSprite, -nearOff, nearY);
   ctx.drawImage(nearHillsSprite, W - nearOff, nearY);
 
-  // GROUND
   const gOff = groundOff % W;
   ctx.drawImage(groundSprite, -gOff, groundTop);
   ctx.drawImage(groundSprite, W - gOff, groundTop);
 
-  // DYNAMIC
   drawStars();
   drawPowerups();
   drawObstacles();
   drawParticles();
-  if (state !== 'over') drawPlayer();
+
+  // اللاعب: يتفضل مرسوم طول أنيميشن الموت، بعدين يختفي
+  if (state !== 'over' || player.deathT >= 0) drawPlayer();
 
   ctx.restore();
 }
@@ -1150,6 +1165,21 @@ function updatePlayerMood(dt){
 }
 
 /* ============================================================
+   DEATH ANIMATION — خفيفة جداً (transform فقط)
+   ============================================================ */
+function updateDeath(dt){
+  if (player.deathT < 0) return;
+  player.deathT += dt;
+  if (player.deathT >= DEATH_DUR){
+    player.deathT = -1;
+    return;
+  }
+  player.deathVy += GRAVITY * dt;
+  player.y += player.deathVy * dt;
+  player.rotation += 18 * dt;
+}
+
+/* ============================================================
    UPDATE
    ============================================================ */
 function update(dt){
@@ -1172,7 +1202,14 @@ function update(dt){
 
   if (player.grounded) player.coyote = COYOTE;
   else player.coyote = Math.max(0, player.coyote - dt);
-  player.jumpBuf = Math.max(0, player.jumpBuf - dt);
+
+  // ✅ Jump Buffer شغّال فعلاً — يستقبل الضغطة المخزّنة أول ما يلمس الأرض
+  if (player.grounded && player.jumpBuf > 0){
+    player.jumpBuf = 0;
+    doJump();
+  } else {
+    player.jumpBuf = Math.max(0, player.jumpBuf - dt);
+  }
 
   player.blinkTimer -= dt;
   if (player.blinkTimer <= 0){ player.blinking = 0.13; player.blinkTimer = rand(2.2, 5.5); }
@@ -1188,7 +1225,7 @@ function update(dt){
   const ms = Math.floor(score / 100);
   if (ms > milestone){
     milestone = ms;
-    showToast(pick(MILESTONES));
+    showToast(pickMilestone());
     sfx('milestone');
     setMood('happy', 0.6);
   }
@@ -1197,7 +1234,7 @@ function update(dt){
   if (obstacleTimer <= 0){
     spawnObstacle();
     const d = getDifficulty();
-    const base = 1.5 - d * 0.72;
+    const base = 1.65 - d * 0.72;   // ← توازن أفضل (كان 1.5)
     obstacleTimer = base * rand(0.88, 1.12);
   }
 
@@ -1261,8 +1298,10 @@ function update(dt){
     const rr  = s.r + pickupR;
     if (ddx*ddx + ddy*ddy < rr*rr){
       stars.splice(i,1);
-      score += 10; starCount++; starsEl.textContent = starCount;
-      combo++; comboEl.textContent = combo;
+      score += 10;
+      starCount++;
+      starsEl.textContent = starCount;
+      // ← النجوم ما بتزوّدش الـcombo خلاص (ليها عدّادها)
       burstSparkle(s.x, s.y, 5);
       sfx('coin'); setMood('happy', 0.45);
     }
@@ -1307,17 +1346,23 @@ function update(dt){
 /* ============================================================
    INPUT
    ============================================================ */
+function doJump(){
+  player.vy = JUMP_V;
+  player.grounded = false;
+  player.squash = 1.16;
+  player.coyote = 0; player.jumpBuf = 0;
+  burstDust(player.x + player.size/2, groundY, 3);
+  sfx('jump'); setMood('jump', 0.25);
+  hintEl.classList.add('fade-out');
+}
+
 function jump(){
   if (state !== 'playing') return;
   if (player.grounded || player.coyote > 0){
-    player.vy = JUMP_V;
-    player.grounded = false;
-    player.squash = 1.16;
-    player.coyote = 0; player.jumpBuf = 0;
-    burstDust(player.x + player.size/2, groundY, 3);
-    sfx('jump'); setMood('jump', 0.25);
-    hintEl.classList.add('fade-out');
-  } else player.jumpBuf = JUMP_BUF;
+    doJump();
+  } else {
+    player.jumpBuf = JUMP_BUF;
+  }
 }
 function onTap(e){
   if (e && e.preventDefault) e.preventDefault();
@@ -1496,7 +1541,6 @@ function generateShareCard(){
   c.fillStyle = sunGrad;
   c.beginPath(); c.arc(sunX, sunY, sunR, 0, TAU); c.fill();
 
-  // clouds
   function drawCloudScene(x, y, s, alpha){
     c.globalAlpha = alpha;
     c.fillStyle = '#ffffff';
@@ -1677,11 +1721,37 @@ function generateShareCard(){
 }
 
 /* ============================================================
-   SHARE MODAL
+   SHARE MODAL — Blob مُسبق التوليد (إصلاح iOS Safari)
    ============================================================ */
+let cachedShareBlob = null;
+let shareBlobToken = 0;
+
+function canvasToBlob(){
+  return new Promise((resolve) => {
+    try {
+      if (shareCanvas.toBlob){
+        shareCanvas.toBlob(b => resolve(b), 'image/png', 0.92);
+      } else {
+        const dataUrl = shareCanvas.toDataURL('image/png');
+        const bin = atob(dataUrl.split(',')[1]);
+        const arr = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+        resolve(new Blob([arr], {type: 'image/png'}));
+      }
+    } catch(e){ resolve(null); }
+  });
+}
+
 function openShareModal(){
   generateShareCard();
   shareModal.classList.add('open');
+
+  // ✅ ولّد الـBlob فوراً في الخلفية — بدل ما نعمل await جوه الـclick
+  const token = ++shareBlobToken;
+  cachedShareBlob = null;
+  canvasToBlob().then(b => {
+    if (token === shareBlobToken) cachedShareBlob = b;
+  });
 }
 function closeShareModal(){
   shareModal.classList.remove('open');
@@ -1690,72 +1760,6 @@ ovShareBtn.addEventListener('click', e => { e.stopPropagation(); openShareModal(
 shareClose.addEventListener('click', e => { e.stopPropagation(); closeShareModal(); });
 shareModal.addEventListener('click', e => {
   if (e.target === shareModal) closeShareModal();
-});
-
-function canvasToBlob(){
-  return new Promise((resolve) => {
-    if (shareCanvas.toBlob){
-      shareCanvas.toBlob(b => resolve(b), 'image/png', 0.92);
-    } else {
-      const dataUrl = shareCanvas.toDataURL('image/png');
-      const bin = atob(dataUrl.split(',')[1]);
-      const arr = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-      resolve(new Blob([arr], {type: 'image/png'}));
-    }
-  });
-}
-
-shareStoryBtn.addEventListener('click', async e => {
-  e.stopPropagation();
-  try {
-    const blob = await canvasToBlob();
-    const file = new File([blob], 'nawy-score.png', { type: 'image/png' });
-    if (navigator.canShare && navigator.canShare({ files: [file] })){
-      await navigator.share({
-        files: [file],
-        title: 'العب مع ناوي',
-        text: 'وصلت لـ ' + Math.floor(score) + ' نقطة! هل تقدر تكسر رقمي؟ 🔥'
-      });
-      showToast('✅ تمت المشاركة');
-    } else if (navigator.share){
-      await navigator.share({
-        title: 'العب مع ناوي',
-        text: 'وصلت لـ ' + Math.floor(score) + ' نقطة! 🔥\nهل تقدر تكسر رقمي؟'
-      });
-      showToast('✅ تمت المشاركة');
-    } else {
-      downloadShareImage();
-      showToast('⬇️ تم تحميل الصورة');
-    }
-  } catch(err){
-    if (err && err.name !== 'AbortError') showToast('⚠️ تعذّر المشاركة');
-  }
-});
-
-shareTextBtn.addEventListener('click', async e => {
-  e.stopPropagation();
-  const text =
-    '🎮 العب مع ناوي\n' +
-    'أنا وصلت لـ ' + Math.floor(score) + ' نقطة!\n' +
-    '⭐ نجوم: ' + starCount + '  🔥 سلسلة: ' + combo + '\n' +
-    'هل تقدر تكسر رقمي؟ 💪';
-  try {
-    if (navigator.share){
-      await navigator.share({ title: 'العب مع ناوي', text });
-      showToast('✅ تمت المشاركة');
-    } else {
-      await navigator.clipboard.writeText(text);
-      showToast('📋 تم نسخ النتيجة');
-    }
-  } catch(err){
-    if (err && err.name !== 'AbortError'){
-      try {
-        await navigator.clipboard.writeText(text);
-        showToast('📋 تم نسخ النتيجة');
-      } catch(e2){ showToast('⚠️ تعذّر النسخ'); }
-    }
-  }
 });
 
 function downloadShareImage(){
@@ -1769,6 +1773,67 @@ function downloadShareImage(){
     document.body.removeChild(a);
   } catch(e){}
 }
+
+shareStoryBtn.addEventListener('click', e => {
+  e.stopPropagation();
+
+  // ⚠️ مهم: navigator.share لازم يتنادى قبل أي await (خصوصاً iOS Safari)
+  // ولذلك الـBlob جاهز مسبقاً من openShareModal()
+  if (cachedShareBlob){
+    const file = new File([cachedShareBlob], 'nawy-score.png', { type: 'image/png' });
+    const shareText = 'وصلت لـ ' + Math.floor(score) + ' نقطة! هل تقدر تكسر رقمي؟ 🔥';
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      navigator.share({
+        files: [file],
+        title: 'العب مع ناوي',
+        text: shareText
+      })
+      .then(() => showToast('✅ تمت المشاركة'))
+      .catch(err => { if (err && err.name !== 'AbortError') showToast('⚠️ تعذّر المشاركة'); });
+      return;
+    }
+    if (navigator.share){
+      navigator.share({
+        title: 'العب مع ناوي',
+        text: shareText + '\nهل تقدر تكسر رقمي؟'
+      })
+      .then(() => showToast('✅ تمت المشاركة'))
+      .catch(err => { if (err && err.name !== 'AbortError') showToast('⚠️ تعذّر المشاركة'); });
+      return;
+    }
+  }
+
+  // Fallback: تحميل الصورة
+  downloadShareImage();
+  showToast('⬇️ تم تحميل الصورة');
+});
+
+shareTextBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  const text =
+    '🎮 العب مع ناوي\n' +
+    'أنا وصلت لـ ' + Math.floor(score) + ' نقطة!\n' +
+    '⭐ نجوم: ' + starCount + '  🔥 سلسلة: ' + combo + '\n' +
+    'هل تقدر تكسر رقمي؟ 💪';
+  if (navigator.share){
+    navigator.share({ title: 'العب مع ناوي', text })
+      .then(() => showToast('✅ تمت المشاركة'))
+      .catch(err => {
+        if (err && err.name === 'AbortError') return;
+        try {
+          navigator.clipboard.writeText(text);
+          showToast('📋 تم نسخ النتيجة');
+        } catch(e2){ showToast('⚠️ تعذّر النسخ'); }
+      });
+  } else {
+    try {
+      navigator.clipboard.writeText(text);
+      showToast('📋 تم نسخ النتيجة');
+    } catch(e2){ showToast('⚠️ تعذّر النسخ'); }
+  }
+});
+
 shareDownloadBtn.addEventListener('click', e => {
   e.stopPropagation();
   downloadShareImage();
@@ -1787,6 +1852,7 @@ function startGame(){
   powerTimer = 3;
   shake = 0;
   lastRunRecord = false;
+  lastMilestoneIdx = -1;
 
   obstacles.length = 0;
   stars.length = 0;
@@ -1802,6 +1868,8 @@ function startGame(){
   player.mood = 'idle'; player.moodTimer = 0;
   player.pupilX = 0; player.pupilY = 0;
   player.pupilTargetX = 0.3; player.pupilTargetY = 0;
+  player.rotation = 0;
+  player.deathT = -1; player.deathVy = 0;
 
   scoreEl.textContent = '0';
   comboEl.textContent = '0';
@@ -1842,6 +1910,10 @@ function gameOver(){
   sfx('hit'); vibrate(50);
   setMood('hit', 5);
 
+  // ✅ أنيميشن الموت — خفيف جداً (transform فقط)
+  player.deathT = 0;
+  player.deathVy = -600;
+
   burstConfetti(player.x + player.size/2, player.y + player.size/2, 10);
 
   let record = false;
@@ -1849,7 +1921,8 @@ function gameOver(){
     best = score; record = true;
     try { localStorage.setItem('nawy.best.v13', String(best)); } catch(e){}
     bestEl.textContent = best;
-    sfx('record'); setMood('record', 5);
+    sfx('record');
+    if (player.deathT < 0) setMood('record', 5);
   }
   lastRunRecord = record;
 
@@ -1886,6 +1959,8 @@ function frame(t){
   worldTime += dt;
 
   if (state === 'playing') update(dt);
+  else if (state === 'over') updateDeath(dt);
+
   updateAmbient(dt);
   updateClouds(dt);
   updateParticles(dt);
