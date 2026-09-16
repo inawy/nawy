@@ -99,7 +99,7 @@
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     pointer-events:none;text-align:center;padding:20px;z-index:10;
-    background:rgba(255,255,255,.5);   /* ✨ منقّح: .5 بدل .35 */
+    background:rgba(255,255,255,.35);
   }
   .overlay.hidden{display:none;}
   .overlay-inner{
@@ -262,7 +262,7 @@
     </div>
 
     <div class="toast" id="toast"></div>
-    <div class="hint" id="hint">اضغط في أي مكان للنط — أو Space على الكيبورد</div>
+    <div class="hint" id="hint">اضغط للنط — Space / ↑</div>
 
     <div class="action-bar">
       <button type="button" class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
@@ -349,23 +349,24 @@ const shareDownloadBtn= document.getElementById('shareDownloadBtn');
    CONSTANTS
    ============================================================ */
 const GRAVITY    = 2300;
-const JUMP_V     = -800;
+const JUMP_V     = -820;
 const MAX_FALL   = 1900;
-const BASE_SPEED = 6;
-const MAX_SPEED  = 13.5;
-const COYOTE     = 0.10;
-const JUMP_BUF   = 0.13;
+const BASE_SPEED = 6.2;
+const MAX_SPEED  = 14.2;
+const COYOTE     = 0.12;
+const JUMP_BUF   = 0.14;
 const SUN_CYCLE  = 240;
 const DEATH_DUR  = 0.85;
 
 const RENDER_MAX_W = 800;
-const MAX_PARTICLES = 50;
+const MAX_PARTICLES = 60;
 const FPS_CAP = 60;
 const FRAME_MIN_MS = 1000 / FPS_CAP - 2;
 
 const MILESTONES = [
   'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
-  'ناوي مبسوط! 😄','ماشي صح! 🚀','تركيز عالي! 🎯'
+  'ناوي مبسوط! 😄','ماشي صح! 🚀','تركيز عالي! 🎯',
+  'يلا كمان! ⚡','أنت نجم! 🌟','مستمر! 💥'
 ];
 let lastMilestoneIdx = -1;
 function pickMilestone(){
@@ -386,12 +387,12 @@ let score = 0, lastShown = -1, milestone = 0;
 let starCount = 0, combo = 0;
 let speed = BASE_SPEED;
 let best = 0;
-try { best = Number(localStorage.getItem('nawy.best.v13')) || 0; } catch(e){}
+try { best = Number(localStorage.getItem('nawy.best.v14')) || 0; } catch(e){}
 
 let shake = 0;
 let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
 let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
-let overAt = 0;
+let lastT = 0, overAt = 0;
 let worldTime = 0;
 let lastRunRecord = false;
 
@@ -569,7 +570,7 @@ function setMood(m, d){ player.mood = m; player.moodTimer = d || 0; }
    ============================================================ */
 let audioCtx = null;
 let muted = false;
-try { muted = localStorage.getItem('nawy.muted.v13') === '1'; } catch(e){}
+try { muted = localStorage.getItem('nawy.muted.v14') === '1'; } catch(e){}
 
 function unlockAudio(){
   if (muted) return;
@@ -614,7 +615,6 @@ function sfx(name){
     case 'record':    beep(660,0.09,'sine',0.045,660);
                       beep(880,0.09,'sine',0.045,880,0.09);
                       beep(1200,0.14,'sine',0.038,1200,0.18); break;
-    case 'nearmiss':  beep(880,0.07,'triangle',0.032,1200); break;
   }
 }
 function vibrate(ms){
@@ -635,34 +635,34 @@ function burstDust(x, y, n){
   for (let i=0;i<n;i++){
     addP({
       type:'dust', x: x + rand(-6,6), y: y + rand(-3,2),
-      vx: rand(-70,-15), vy: rand(-55,-8),
-      g: 200, drag: 2.6, size: rand(1.8,3.4),
-      life: rand(0.25,0.45), color: '#b0bcc9'
+      vx: rand(-90,-20), vy: rand(-65,-10),
+      g: 220, drag: 2.8, size: rand(1.8,3.6),
+      life: rand(0.28,0.50), color: '#b0bcc9'
     });
   }
 }
 function burstSparkle(x, y, n){
   for (let i=0;i<n;i++){
-    const a = rand(0,TAU), sp = rand(40,130);
+    const a = rand(0,TAU), sp = rand(45,150);
     addP({
       type:'spark', x, y,
-      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 25,
-      g: 240, drag: 2.0, size: rand(1.8,3),
-      life: rand(0.28,0.48),
-      color: pick(['#fbbf24','#fcd34d','#f59e0b'])
+      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 30,
+      g: 260, drag: 2.1, size: rand(1.8,3.2),
+      life: rand(0.30,0.52),
+      color: pick(['#fbbf24','#fcd34d','#f59e0b','#fde68a'])
     });
   }
 }
 function burstConfetti(x, y, n){
-  const colors = ['#2563eb','#60a5fa','#fbbf24','#34d399'];
+  const colors = ['#2563eb','#60a5fa','#fbbf24','#34d399','#f472b6'];
   for (let i=0;i<n;i++){
-    const a = rand(-Math.PI, 0), sp = rand(110, 280);
+    const a = rand(-Math.PI, 0), sp = rand(120, 300);
     addP({
       type:'confetti', x, y,
       vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
-      g: 680, drag: 0.7, size: rand(5,8),
-      rot: rand(0,TAU), rotSpd: rand(-10,10),
-      life: rand(0.6,1.1),
+      g: 700, drag: 0.65, size: rand(5,9),
+      rot: rand(0,TAU), rotSpd: rand(-12,12),
+      life: rand(0.65,1.2),
       color: pick(colors)
     });
   }
@@ -807,11 +807,32 @@ function drawPowerups(){
 
 function drawObstacles(){
   for (const o of obstacles){
-    ctx.fillStyle = o.w > 40 ? '#1e293b' : '#334155';
-    roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
+    // ظل خفيف
+    ctx.fillStyle = 'rgba(30,41,59,.12)';
+    ctx.beginPath();
+    ctx.ellipse(o.x + o.w/2, groundY + 3, o.w*0.45, 3.5, 0, 0, TAU);
     ctx.fill();
-    ctx.fillStyle = 'rgba(255,255,255,.10)';
-    ctx.fillRect(o.x + 3, o.y + 3, o.w - 6, 2);
+
+    if (o.wide){
+      // عقبة عريضة
+      ctx.fillStyle = '#1e293b';
+      roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
+      ctx.fill();
+      // شريط تحذيري
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(o.x + 4, o.y + 4, o.w - 8, 4);
+      ctx.fillStyle = 'rgba(255,255,255,.12)';
+      for (let gx = o.x + 8; gx < o.x + o.w - 6; gx += 10){
+        ctx.fillRect(gx, o.y + 12, 3, o.h - 20);
+      }
+    } else {
+      ctx.fillStyle = '#334155';
+      roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
+      ctx.fill();
+      // تفاصيل بسيطة
+      ctx.fillStyle = 'rgba(255,255,255,.15)';
+      ctx.fillRect(o.x + 4, o.y + 5, 3, o.h - 12);
+    }
   }
 }
 
@@ -848,7 +869,7 @@ function drawPlayer(){
   ctx.save();
   ctx.translate(cx, cy);
 
-  const sq = clamp(player.squash, 0.85, 1.15);
+  const sq = clamp(player.squash, 0.82, 1.18);
   ctx.scale(1 / Math.sqrt(sq), sq);
   ctx.rotate(player.rotation * 0.4);
 
@@ -1078,67 +1099,83 @@ function render(){
 /* ============================================================
    SPAWNERS
    ============================================================ */
-// ✨ asymptotic — بتقرب من 1 للأبد بدون تجمّد
 function getDifficulty(){
-  return 1 - Math.exp(-score / 1400);
+  // منحنى أنعم وأعدل
+  return 1 - Math.exp(-score / 1600);
 }
 
-// ✨ FIX: clusterRoll منفصل عن r
 function spawnObstacle(){
   const d = getDifficulty();
-  const clusterRoll = Math.random();
+  const r = Math.random();
 
-  // Cluster: 18% فرصة (بعد صعوبة معينة)
-  if (clusterRoll < 0.18 && d > 0.35){
-    const w1 = 22, h1 = rand(32, 42);
-    const w2 = 22, h2 = rand(32, 42);
-    const gap = Math.max(90, 180 - d * 60);
-    obstacles.push({ x: W + 40, w: w1, h: h1, y: groundY - h1, passed:false });
-    obstacles.push({ x: W + 40 + w1 + gap, w: w2, h: h2, y: groundY - h2, passed:false });
+  // فرصة لعقبة مزدوجة (اثنين قريبين)
+  if (d > 0.25 && r < 0.18){
+    const h1 = rand(30, 48);
+    const h2 = rand(28, 52);
+    obstacles.push({
+      x: W + 40, w: 22, h: h1,
+      y: groundY - h1, wide: false, passed: false
+    });
+    obstacles.push({
+      x: W + 40 + rand(55, 78), w: 22, h: h2,
+      y: groundY - h2, wide: false, passed: false
+    });
     return;
   }
 
-  const r = Math.random();
-
-  let w, h;
-  if (d < 0.30){ w = 24; h = rand(28, 38); }
-  else if (d < 0.60){
-    if (r < 0.55){ w = 24; h = rand(32, 44); }
-    else         { w = 22; h = rand(42, 54); }
-  } else if (d < 0.85){
-    if (r < 0.40){ w = 24; h = rand(34, 46); }
-    else if (r < 0.75){ w = 22; h = rand(46, 58); }
-    else { w = rand(44, 54); h = rand(28, 34); }
-  } else {
-    if (r < 0.30){ w = 24; h = rand(36, 48); }
-    else if (r < 0.60){ w = 22; h = rand(48, 60); }
-    else if (r < 0.85){ w = rand(46, 56); h = rand(28, 34); }
-    else { w = 20; h = rand(56, 64); }
+  // عقبة عريضة
+  if (d > 0.35 && r < 0.28){
+    const w = rand(48, 68);
+    const h = rand(26, 36);
+    obstacles.push({
+      x: W + 40, w, h,
+      y: groundY - h, wide: true, passed: false
+    });
+    return;
   }
-  obstacles.push({ x: W + 40, w, h, y: groundY - h, passed:false });
+
+  // عقبات عادية متنوعة حسب الصعوبة
+  let w, h;
+  if (d < 0.25){
+    w = 24; h = rand(28, 40);
+  } else if (d < 0.50){
+    if (r < 0.55){ w = 24; h = rand(32, 46); }
+    else         { w = 22; h = rand(40, 54); }
+  } else if (d < 0.75){
+    if (r < 0.40){ w = 24; h = rand(34, 48); }
+    else if (r < 0.75){ w = 22; h = rand(44, 58); }
+    else { w = 20; h = rand(52, 64); }
+  } else {
+    if (r < 0.30){ w = 24; h = rand(36, 50); }
+    else if (r < 0.60){ w = 22; h = rand(46, 62); }
+    else if (r < 0.85){ w = 20; h = rand(54, 68); }
+    else { w = 18; h = rand(58, 72); }
+  }
+  obstacles.push({ x: W + 40, w, h, y: groundY - h, wide: false, passed:false });
 }
 
 function spawnStarArc(){
   const startX = W + 90;
   for (const o of obstacles){
-    if (o.x < startX + 130 && o.x + o.w > startX - 30) return;
+    if (o.x < startX + 140 && o.x + o.w > startX - 40) return;
   }
   const d = getDifficulty();
-  const n = d > 0.5 ? (Math.random() < 0.5 ? 4 : 5) : 3;
-  const baseY = groundY - rand(95, 135);
+  const n = d > 0.45 ? (Math.random() < 0.55 ? 4 : 5) : 3;
+  const baseY = groundY - rand(100, 145);
   for (let i = 0; i < n; i++){
     stars.push({
       x: startX + i*34,
-      y: baseY - Math.sin((i/(n-1)) * Math.PI) * 22,
+      y: baseY - Math.sin((i/(n-1 || 1)) * Math.PI) * 26,
       r: 10, rot: rand(0, TAU)
     });
   }
 }
+
 function spawnPowerup(force){
   if (powerups.length >= 1 && !force) return;
   const type = Math.random() < 0.55 ? 'shield' : 'magnet';
   powerups.push({
-    x: W + 60, y: groundY - rand(100, 165),
+    x: W + 60, y: groundY - rand(105, 170),
     r: 15, type, bob: Math.random() * TAU
   });
 }
@@ -1193,15 +1230,15 @@ function update(dt){
   const floor = groundY - player.size;
   if (player.y >= floor){
     if (!player.grounded){
-      player.squash = 0.84;
-      if (shake < 2) shake = Math.min(shake + 1.2, 2);
-      burstDust(player.x + player.size/2, groundY, 3);
+      player.squash = 0.82;
+      if (shake < 2) shake = Math.min(shake + 1.4, 2.2);
+      burstDust(player.x + player.size/2, groundY, 4);
       sfx('land');
     }
     player.y = floor; player.vy = 0; player.grounded = true;
   } else player.grounded = false;
 
-  player.squash += (1 - player.squash) * 12 * dt;
+  player.squash += (1 - player.squash) * 13 * dt;
   if (Math.abs(player.squash - 1) < 0.002) player.squash = 1;
 
   if (player.grounded) player.coyote = COYOTE;
@@ -1220,34 +1257,37 @@ function update(dt){
 
   updatePlayerMood(dt);
 
-  score += dt * (11 + getDifficulty() * 6);
+  score += dt * (12 + getDifficulty() * 7);
   const shown = Math.floor(score);
   if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
-  speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.012);
+
+  // منحنى سرعة أكثر سلاسة
+  speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.0115);
 
   const ms = Math.floor(score / 100);
   if (ms > milestone){
     milestone = ms;
     showToast(pickMilestone());
     sfx('milestone');
-    setMood('happy', 0.6);
+    setMood('happy', 0.65);
   }
 
   obstacleTimer -= dt;
   if (obstacleTimer <= 0){
     spawnObstacle();
     const d = getDifficulty();
-    const base = 1.65 - d * 0.72;
-    obstacleTimer = base * rand(0.88, 1.12);
+    const base = 1.55 - d * 0.68;
+    obstacleTimer = base * rand(0.86, 1.14);
   }
 
   const dx = speed * 60 * dt;
 
+  // hitbox ثابت (بدون انزلاق)
   const pHit = {
-    x: player.x + player.size * 0.12,
-    y: player.y + player.size * 0.10,
-    w: player.size * 0.76,
-    h: player.size * 0.85
+    x: player.x + player.size * 0.14,
+    y: player.y + player.size * 0.12,
+    w: player.size * 0.72,
+    h: player.size * 0.82
   };
 
   for (let i = obstacles.length-1; i >= 0; i--){
@@ -1255,43 +1295,28 @@ function update(dt){
     o.x -= dx;
     if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
 
-    // فحص التصادم (AABB)
     if (pHit.x < o.x + o.w && pHit.x + pHit.w > o.x &&
         pHit.y < o.y + o.h && pHit.y + pHit.h > o.y){
       if (player.shield > 0){
         player.shield = 0;
-        burstSparkle(player.x + player.size/2, player.y + player.size/2, 10);
+        burstSparkle(player.x + player.size/2, player.y + player.size/2, 12);
         showToast('🛡️ الحماية أنقذتك!');
         sfx('shield');
         obstacles.splice(i,1);
-        setMood('happy', 0.5);
+        setMood('happy', 0.55);
         continue;
       }
       gameOver();
       return;
     }
-
-    // ✨ FIX: تتبّع أقل مسافة (bottomGap) أثناء ما اللاعب فوق العقبة أفقيًا
-    if (o.x + o.w > player.x && o.x < player.x + player.size){
-      const gap = o.y - (player.y + player.size);
-      if (gap >= 0 && gap < (o.minGap ?? Infinity)) o.minGap = gap;
-    }
-
-    // لما العقبة تعدّي اللاعب
     if (!o.passed && o.x + o.w < player.x){
       o.passed = true;
-
-      // ✨ FIX: نستخدم أقل مسافة اتسجلت
-      if (o.minGap !== undefined && o.minGap < 12){
-        score += 5;
-        showToast('🎯 قريب!');
-        burstSparkle(player.x + player.size/2, o.y, 4);
-        sfx('nearmiss');
-      }
-
       combo++;
       comboEl.textContent = combo;
-      if (combo % 3 === 0){ showToast('🔥 سلسلة ' + combo); setMood('focus', 0.4); }
+      if (combo % 4 === 0){
+        showToast('🔥 سلسلة ' + combo);
+        setMood('focus', 0.45);
+      }
     }
   }
 
@@ -1299,7 +1324,7 @@ function update(dt){
   if (starTimer <= 0){
     spawnStarArc();
     const d = getDifficulty();
-    starTimer = rand(2.4, 4.8) * (1 - d * 0.3);
+    starTimer = rand(2.2, 4.5) * (1 - d * 0.28);
   }
 
   const pcx = player.x + player.size/2;
@@ -1314,10 +1339,10 @@ function update(dt){
     if (player.magnet > 0){
       const ddx = pcx - s.x, ddy = pcy - s.y;
       const d = Math.hypot(ddx, ddy);
-      if (d < 200 && d > 1){
-        const f = 1 - d/200;
-        s.x += ddx * dt * (5 + f*8);
-        s.y += ddy * dt * (5 + f*8);
+      if (d < 210 && d > 1){
+        const f = 1 - d/210;
+        s.x += ddx * dt * (5.5 + f*9);
+        s.y += ddy * dt * (5.5 + f*9);
       }
     }
 
@@ -1325,16 +1350,17 @@ function update(dt){
     const rr  = s.r + pickupR;
     if (ddx*ddx + ddy*ddy < rr*rr){
       stars.splice(i,1);
-      score += 10 * (1 + Math.floor(combo / 5) * 0.3);
+      // الكومبو يؤثر على قيمة النجمة
+      score += 10 * (1 + Math.floor(combo / 4) * 0.35);
       starCount++;
       starsEl.textContent = starCount;
-      burstSparkle(s.x, s.y, 5);
+      burstSparkle(s.x, s.y, 6);
       sfx('coin'); setMood('happy', 0.45);
     }
   }
 
   powerTimer -= dt;
-  if (powerTimer <= 0){ spawnPowerup(); powerTimer = rand(9, 13); }
+  if (powerTimer <= 0){ spawnPowerup(); powerTimer = rand(8.5, 12.5); }
 
   for (let i = powerups.length-1; i >= 0; i--){
     const p = powerups[i];
@@ -1343,12 +1369,12 @@ function update(dt){
     const d = Math.hypot(pcx - p.x, pcy - py);
     if (d < player.size * 0.7 + p.r){
       if (p.type === 'shield'){
-        player.shield = 7; showToast('🛡️ حماية 7 ثواني'); sfx('shield');
+        player.shield = 7.5; showToast('🛡️ حماية 7.5 ثواني'); sfx('shield');
       } else {
-        player.magnet = 7; showToast('🧲 المغناطيس شغال!'); sfx('power');
+        player.magnet = 7.5; showToast('🧲 المغناطيس شغال!'); sfx('power');
       }
-      burstSparkle(p.x, py, 8);
-      powerups.splice(i,1); setMood('happy', 0.5);
+      burstSparkle(p.x, py, 9);
+      powerups.splice(i,1); setMood('happy', 0.55);
       continue;
     }
     if (p.x < -60) powerups.splice(i,1);
@@ -1375,10 +1401,10 @@ function update(dt){
 function doJump(){
   player.vy = JUMP_V;
   player.grounded = false;
-  player.squash = 1.16;
+  player.squash = 1.18;
   player.coyote = 0; player.jumpBuf = 0;
-  burstDust(player.x + player.size/2, groundY, 3);
-  sfx('jump'); setMood('jump', 0.25);
+  burstDust(player.x + player.size/2, groundY, 4);
+  sfx('jump'); setMood('jump', 0.28);
   hintEl.classList.add('fade-out');
 }
 
@@ -1393,7 +1419,10 @@ function jump(){
 
 function onTap(e){
   if (e && e.preventDefault) e.preventDefault();
-  if (state === 'playing'){ jump(); return; }
+  if (state === 'playing'){
+    jump();
+    return;
+  }
   if (state === 'paused'){ resumeGame(); return; }
   if (state === 'over' && performance.now() - overAt < 500) return;
   startGame();
@@ -1417,7 +1446,7 @@ window.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter'){
     e.preventDefault();
     if (e.repeat) return;
-    onTap(null);
+    if (state === 'playing') jump(); else onTap(null);
   }
   if (e.code === 'KeyP' || e.code === 'Escape'){
     if (state === 'playing') pauseGame();
@@ -1428,7 +1457,7 @@ muteBtn.addEventListener('click', e => {
   e.stopPropagation();
   muted = !muted;
   muteBtn.textContent = muted ? '🔇' : '🔊';
-  try { localStorage.setItem('nawy.muted.v13', muted ? '1' : '0'); } catch(err){}
+  try { localStorage.setItem('nawy.muted.v14', muted ? '1' : '0'); } catch(err){}
   if (!muted) sfx('coin');
 });
 pauseBtn.addEventListener('click', e => {
@@ -1891,9 +1920,9 @@ function startGame(){
   score = 0; lastShown = -1; milestone = 0;
   starCount = 0; combo = 0;
   speed = BASE_SPEED;
-  obstacleTimer = 1.1;
-  starTimer = rand(1.5, 3);
-  powerTimer = 3;
+  obstacleTimer = 1.05;
+  starTimer = rand(1.4, 2.8);
+  powerTimer = 2.8;
   shake = 0;
   lastRunRecord = false;
   lastMilestoneIdx = -1;
@@ -1951,19 +1980,19 @@ function gameOver(){
   state = 'over';
   overAt = performance.now();
   score = Math.floor(score);
-  shake = 3;
+  shake = 3.5;
   sfx('hit'); vibrate(50);
   setMood('hit', 5);
 
   player.deathT = 0;
-  player.deathVy = -600;
+  player.deathVy = -620;
 
-  burstConfetti(player.x + player.size/2, player.y + player.size/2, 10);
+  burstConfetti(player.x + player.size/2, player.y + player.size/2, 12);
 
   let record = false;
   if (score > best){
     best = score; record = true;
-    try { localStorage.setItem('nawy.best.v13', String(best)); } catch(e){}
+    try { localStorage.setItem('nawy.best.v14', String(best)); } catch(e){}
     bestEl.textContent = best;
     sfx('record');
     setMood('record', 5);
@@ -1980,7 +2009,7 @@ function gameOver(){
     badge: record ? 'أحسنت! 🎉' : null
   });
 
-  if (record) burstConfetti(W * 0.5, H * 0.35, 12);
+  if (record) burstConfetti(W * 0.5, H * 0.35, 14);
 }
 
 /* ============================================================
