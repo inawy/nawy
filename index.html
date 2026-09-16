@@ -1086,6 +1086,10 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="m7 14 5 5 5-5"/><path d="M5 5h14"/></svg>
         <span class="menu-text" data-i18n="importData">استورد نواياك</span>
       </button>
+      <button class="menu-item" id="takeBreakBtn" type="button">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>
+        <span class="menu-text" data-i18n="takeBreak">خد استراحة</span>
+      </button>
       </div>
       <div class="account-menu-panel" id="backupMenuPanel" hidden>
         <div class="account-menu-subhead">
@@ -1315,7 +1319,7 @@
         achievedAction: "حققت النية", reactivateAction: "أعد فتح النية",
         edit: "تعديل", retreat: "تراجع عن النية", delete: "حذف نهائي", restore: "استرجاع",
         copy: "نسخ النص", share: "مشاركة كصورة",
-        settings: "الإعدادات", archive: "أرشيف ناوي", exportData: "صدّر نواياك", importData: "استورد نواياك",
+        settings: "الإعدادات", archive: "أرشيف ناوي", exportData: "صدّر نواياك", importData: "استورد نواياك", takeBreak: "خد استراحة",
         language: "اللغة", languageName: "لغة ناوي", appearance: "المظهر", mode: "الوضع",
         dark: "داكن", light: "نهاري", fontSize: "حجم الخط", small: "صغير", medium: "متوسط", large: "كبير",
         color: "اللون", nawyColor: "سمة ناوي", notification: "إشعار الصباح",
@@ -1377,7 +1381,7 @@
         achievedAction: "Achieved", reactivateAction: "Reopen",
         edit: "Edit", retreat: "Retreat", delete: "Delete Forever", restore: "Restore",
         copy: "Copy Text", share: "Share as Image",
-        settings: "Settings", archive: "NAWY Archive", exportData: "Export intentions", importData: "Import intentions",
+        settings: "Settings", archive: "NAWY Archive", exportData: "Export intentions", importData: "Import intentions", takeBreak: "Take a break",
         language: "Language", languageName: "NAWY Language", appearance: "Appearance", mode: "Mode",
         dark: "Dark", light: "Light", fontSize: "Font Size", small: "Small", medium: "Medium", large: "Large",
         color: "Color", nawyColor: "NAWY Color", notification: "Morning Reminder",
@@ -3197,6 +3201,12 @@
       closeOverlay($("#menuOverlay"));
       $("#menuBtn").setAttribute("aria-expanded", "false");
       $("#importFileInput").click();
+    });
+
+    $("#takeBreakBtn").addEventListener("click", () => {
+      closeOverlay($("#menuOverlay"));
+      $("#menuBtn").setAttribute("aria-expanded", "false");
+      window.location.href = "./play.html";
     });
 
     $("#syncBtn").addEventListener("click", () => {
