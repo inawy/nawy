@@ -1821,6 +1821,7 @@
         exported: "تم تصدير البيانات 💾", imported: "تم استيراد البيانات ✅",
         backupSuccess: "✓ نواياك محفوظة", backupProgress: "☁️ جاري حفظ نواياك...",
         backupConfig: "فعّل الحفظ الاحتياطي أولًا", backupError: "⚠️ تعذر حفظ نواياك الآن، سنحاول مرة أخرى",
+        storageWriteError: "⚠️ تعذر حفظ التعديل على جهازك — تأكد إن فيه مساحة كافية",
         restoreFound: "☁️ لقينا نواياك محفوظة", restoreConfirm: "هنضيف آخر نسخة لنواياك الموجودة على الجهاز. هل تريد المتابعة؟",
         restoreNotFound: "☁️ لسه مفيش نسخة محفوظة\nفعّل الحفظ الاحتياطي علشان نخلي نواياك محفوظة ليك بعد كده.",
         enableBackupConfirm: "هل تريد تفعيل الحفظ الاحتياطي وإنشاء أول نسخة الآن؟",
@@ -1943,6 +1944,7 @@
         exported: "Data exported 💾", imported: "Data imported ✅",
         backupSuccess: "✓ Intentions saved", backupProgress: "☁️ Saving your intentions...",
         backupConfig: "Enable backup first", backupError: "⚠️ Could not save your intentions; we will try again",
+        storageWriteError: "⚠️ Could not save this change on your device — check you have enough storage space",
         restoreFound: "☁️ We found your saved intentions", restoreConfirm: "We will add the latest backup to your device data. Continue?",
         restoreNotFound: "☁️ No saved backup yet\nEnable backup to keep your intentions safe.",
         enableBackupConfirm: "Enable backup and create the first backup now?",
@@ -2086,8 +2088,8 @@
       });
 
       if (idsChanged) {
-        localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
-        localStorage.setItem(STORAGE_KEYS.archive, JSON.stringify(archive));
+        safeLocalStorageSet(STORAGE_KEYS.tasks, JSON.stringify(tasks));
+        safeLocalStorageSet(STORAGE_KEYS.archive, JSON.stringify(archive));
       }
 
       const savedSettings = safeParse(localStorage.getItem(STORAGE_KEYS.settings), {});
@@ -2106,23 +2108,43 @@
         : 0;
     }
 
+    // بيحاول يحفظ في localStorage، ولو فشل (المساحة خلصت، أو المتصفح
+    // في وضع خاص بيمنع التخزين، إلخ) بيوريك رسالة واضحة بدل ما التعديل
+    // يضيع بصمت من غير ما تعرف. التعديل نفسه فاضل شغال في الشاشة لحد
+    // آخر الجلسة، بس ممكن يرجع للنسخة القديمة لو قفلت وفتحت تاني.
+    let storageWarningShownAt = 0;
+    function safeLocalStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        console.error("Local storage write failed", key, error);
+        const now = Date.now();
+        if (now - storageWarningShownAt > 5000) {
+          storageWarningShownAt = now;
+          showToast(t("storageWriteError"));
+        }
+        return false;
+      }
+    }
+
     function saveTasks() {
-      localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
+      safeLocalStorageSet(STORAGE_KEYS.tasks, JSON.stringify(tasks));
     }
 
     function saveArchive() {
-      localStorage.setItem(STORAGE_KEYS.archive, JSON.stringify(archive));
+      safeLocalStorageSet(STORAGE_KEYS.archive, JSON.stringify(archive));
       updateMenuStatusLine();
     }
 
     function saveDeletedIds() {
-      localStorage.setItem(STORAGE_KEYS.deletedIds, JSON.stringify(deletedIds));
+      safeLocalStorageSet(STORAGE_KEYS.deletedIds, JSON.stringify(deletedIds));
     }
 
     function saveSettings() {
       settingsUpdatedAt = Date.now();
-      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
-      localStorage.setItem(STORAGE_KEYS.settingsUpdatedAt, String(settingsUpdatedAt));
+      safeLocalStorageSet(STORAGE_KEYS.settings, JSON.stringify(settings));
+      safeLocalStorageSet(STORAGE_KEYS.settingsUpdatedAt, String(settingsUpdatedAt));
     }
 
     function showToast(message, canUndo = false, undoCallback = null, subtitle = "") {
@@ -3480,7 +3502,7 @@
 
     function markBackupSuccessful(email) {
       lastBackupTimestamp = Date.now();
-      localStorage.setItem("nawy_last_backup_ts", String(lastBackupTimestamp));
+      safeLocalStorageSet("nawy_last_backup_ts", String(lastBackupTimestamp));
       if (email) lastGoogleAccountEmail = email;
       setMenuBadge(false);
       updateMenuStatusLine();
@@ -4012,13 +4034,13 @@
       settings = normalizeSettings(normalized.settings);
       settingsUpdatedAt = normalized.settingsUpdatedAt;
 
-      localStorage.setItem(STORAGE_KEYS.tasks, JSON.stringify(tasks));
-      localStorage.setItem(STORAGE_KEYS.archive, JSON.stringify(archive));
-      localStorage.setItem(STORAGE_KEYS.settings, JSON.stringify(settings));
-      localStorage.setItem(STORAGE_KEYS.deletedIds, JSON.stringify(deletedIds));
+      safeLocalStorageSet(STORAGE_KEYS.tasks, JSON.stringify(tasks));
+      safeLocalStorageSet(STORAGE_KEYS.archive, JSON.stringify(archive));
+      safeLocalStorageSet(STORAGE_KEYS.settings, JSON.stringify(settings));
+      safeLocalStorageSet(STORAGE_KEYS.deletedIds, JSON.stringify(deletedIds));
 
       if (settingsUpdatedAt > 0) {
-        localStorage.setItem(STORAGE_KEYS.settingsUpdatedAt, String(settingsUpdatedAt));
+        safeLocalStorageSet(STORAGE_KEYS.settingsUpdatedAt, String(settingsUpdatedAt));
       } else {
         localStorage.removeItem(STORAGE_KEYS.settingsUpdatedAt);
       }
