@@ -25,7 +25,6 @@
   .stage{position:absolute;inset:0;overflow:hidden;isolation:isolate;}
   canvas{width:100%;height:100%;display:block;touch-action:none;}
 
-  /* ================= TOP BAR — معلومات فقط ================= */
   .topbar{
     position:absolute;top:0;left:0;right:0;z-index:50;
     padding:max(10px,env(safe-area-inset-top))
@@ -38,10 +37,7 @@
     color:var(--ink);text-shadow:0 1px 2px rgba(255,255,255,.6);
   }
   .brand em{font-style:normal;color:#2563eb;}
-  .stats{
-    margin-inline-start:auto;
-    display:flex;gap:6px;align-items:center;white-space:nowrap;
-  }
+  .stats{margin-inline-start:auto;display:flex;gap:6px;align-items:center;white-space:nowrap;}
   .stat{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     min-width:56px;height:44px;padding:3px 10px;
@@ -54,10 +50,8 @@
   .stat span{font-size:9px;color:var(--ink-muted);font-weight:800;margin-bottom:3px;letter-spacing:.2px;}
   .stat b{font-size:15px;color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums;}
 
-  /* ================= BOTTOM ACTION BAR ================= */
   .action-bar{
-    position:absolute;
-    left:0;right:0;
+    position:absolute;left:0;right:0;
     bottom:max(14px, env(safe-area-inset-bottom));
     z-index:50;
     display:flex;justify-content:space-between;align-items:center;
@@ -71,16 +65,14 @@
     background:var(--card-bg);
     border-radius:16px;
     font-size:20px;line-height:1;
-    display:grid;place-items:center;
-    cursor:pointer;
-    transition:transform .12s ease, background .12s ease;
+    display:grid;place-items:center;cursor:pointer;
+    transition:transform .12s ease;
     color:var(--ink);
     box-shadow:0 4px 14px rgba(24,42,65,.10);
     backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   }
   .action-btn:active{transform:scale(.92);}
 
-  /* ================= HUD ================= */
   .hud{
     position:absolute;
     top:max(72px,calc(env(safe-area-inset-top) + 62px));
@@ -104,7 +96,6 @@
   .chip.stars{color:#b45309;border-color:#fde6b5;background:rgba(255,250,235,.9);display:inline-flex;align-items:center;gap:5px;}
   .chip b{color:inherit;font-variant-numeric:tabular-nums;}
 
-  /* ================= OVERLAY ================= */
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     pointer-events:none;text-align:center;padding:20px;z-index:10;
@@ -142,9 +133,7 @@
     background:#f1f5f9;color:#334155;
     box-shadow:0 3px 10px rgba(15,23,42,.06);
   }
-  .button.secondary:active{transform:scale(.97) translateY(1px);}
 
-  /* ================= TOAST ================= */
   .toast{
     position:absolute;top:15%;left:50%;transform:translate(-50%,12px);
     background:rgba(30,41,59,.92);color:#fff;padding:10px 20px;
@@ -169,32 +158,24 @@
 
   /* ================= SHARE MODAL ================= */
   .share-modal{
-    position:absolute;inset:0;
-    z-index:100;
-    display:none;
-    align-items:center;justify-content:center;
+    position:absolute;inset:0;z-index:100;
+    display:none;align-items:center;justify-content:center;
     padding:16px;
     background:rgba(10,20,40,.72);
     backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
     animation:shareFadeIn .22s ease;
   }
   .share-modal.open{display:flex;}
-  @keyframes shareFadeIn{
-    from{opacity:0;}
-    to{opacity:1;}
-  }
-  @keyframes sharePopIn{
-    from{transform:scale(.94);opacity:0;}
-    to{transform:scale(1);opacity:1;}
-  }
+  @keyframes shareFadeIn{from{opacity:0;}to{opacity:1;}}
+  @keyframes sharePopIn{from{transform:scale(.94);opacity:0;}to{transform:scale(1);opacity:1;}}
 
   .share-card{
     position:relative;
-    width:min(420px, 94vw);
+    width:min(430px, 94vw);
     max-height:96vh;
     background:#ffffff;
     border-radius:28px;
-    padding:18px;
+    padding:20px;
     box-shadow:0 30px 80px rgba(10,20,40,.4);
     display:flex;flex-direction:column;
     gap:14px;
@@ -210,43 +191,34 @@
     font-size:16px;font-weight:900;
     display:grid;place-items:center;cursor:pointer;
     transition:transform .12s;
+    z-index:5;
   }
   .share-close:active{transform:scale(.9);}
 
-  .share-header{
-    text-align:center;padding:0 34px;
-  }
-  .share-header h2{
-    margin:0 0 4px;
-    font-size:19px;font-weight:950;
-    letter-spacing:-.3px;color:#0f172a;
-  }
-  .share-header p{
-    margin:0;font-size:12px;font-weight:700;color:#64748b;
-  }
+  .share-header{text-align:center;padding:0 34px;}
+  .share-header h2{margin:0 0 4px;font-size:20px;font-weight:950;letter-spacing:-.3px;color:#0f172a;}
+  .share-header p{margin:0;font-size:12px;font-weight:700;color:#64748b;}
 
   .share-preview{
     flex:0 0 auto;
     display:flex;align-items:center;justify-content:center;
-    padding:6px;
+    padding:8px;
     border-radius:18px;
-    background:linear-gradient(135deg, #eef5ff 0%, #e0eaff 100%);
+    background:linear-gradient(135deg, #eef5ff 0%, #dceaff 100%);
     overflow:hidden;
   }
   #shareCanvas{
     display:block;
     width:auto;
     height:auto;
-    max-height:min(48vh, 400px);
+    max-height:min(50vh, 420px);
     max-width:100%;
-    border-radius:14px;
+    border-radius:12px;
     box-shadow:0 8px 24px rgba(10,30,70,.22);
   }
 
-  .share-actions{
-    display:flex;flex-direction:column;gap:8px;
-    flex:0 0 auto;
-  }
+  .share-actions{display:flex;flex-direction:column;gap:8px;flex:0 0 auto;}
+
   .share-btn{
     width:100%;
     border:0;border-radius:14px;
@@ -263,16 +235,7 @@
     color:#fff;
     box-shadow:0 8px 20px rgba(0,105,229,.28),inset 0 1px 0 rgba(255,255,255,.35);
   }
-  .share-btn.ghost{
-    background:#f1f5f9;
-    color:#334155;
-    font-size:13px;
-  }
-  .share-btn.gold{
-    background:linear-gradient(135deg,#fbbf24,#f59e0b);
-    color:#fff;
-    box-shadow:0 8px 20px rgba(245,158,11,.28),inset 0 1px 0 rgba(255,255,255,.35);
-  }
+  .share-btn.ghost{background:#f1f5f9;color:#334155;font-size:13px;}
 
   @media (max-width:520px){
     .brand{font-size:15px;}
@@ -280,13 +243,12 @@
     .stat b{font-size:14px;}
     .action-btn{width:48px;height:48px;font-size:18px;border-radius:14px;}
   }
-
   @media (max-height:680px){
     .share-header h2{font-size:17px;}
-    #shareCanvas{max-height:42vh;}
+    #shareCanvas{max-height:44vh;}
     .share-btn{padding:11px 16px;font-size:13px;}
+    .share-card{padding:16px;gap:10px;}
   }
-
   @media (prefers-reduced-motion: reduce){
     .toast,.button,.action-btn,.hint,.chip,.share-modal,.share-card,.share-btn,.share-close{transition:none;animation:none;}
   }
@@ -298,7 +260,6 @@
   <div class="stage" id="stage">
     <canvas id="canvas"></canvas>
 
-    <!-- Top: معلومات -->
     <div class="topbar">
       <div class="brand">🎮 العب مع <em>ناوي</em></div>
       <div class="stats">
@@ -308,7 +269,6 @@
       </div>
     </div>
 
-    <!-- HUD chips -->
     <div class="hud">
       <div class="hud-side">
         <div class="chip shield" id="shieldChip">🛡️ <b id="shieldTime">0</b></div>
@@ -319,7 +279,6 @@
       </div>
     </div>
 
-    <!-- Overlay -->
     <div class="overlay" id="overlay">
       <div class="overlay-inner">
         <div class="emoji" id="ovEmoji">🔵</div>
@@ -333,7 +292,6 @@
     <div class="toast" id="toast"></div>
     <div class="hint" id="hint">اضغط في أي مكان — أو Space على الكيبورد</div>
 
-    <!-- Bottom action bar (سهل الوصول) -->
     <div class="action-bar">
       <button class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
       <button class="action-btn" id="pauseBtn" aria-label="إيقاف مؤقت">Ⅱ</button>
@@ -346,7 +304,7 @@
 
         <div class="share-header">
           <h2>شارك نتيجتك 🎉</h2>
-          <p>خلّي أصحابك يعرفوا إنك جامد</p>
+          <p>خلّي أصحابك يجربوا يكسرون رقمك</p>
         </div>
 
         <div class="share-preview">
@@ -461,7 +419,7 @@ let score = 0, lastShown = -1, milestone = 0;
 let starCount = 0, combo = 0;
 let speed = BASE_SPEED;
 let best = 0;
-try { best = Number(localStorage.getItem('nawy.best.v10')) || 0; } catch(e){}
+try { best = Number(localStorage.getItem('nawy.best.v11')) || 0; } catch(e){}
 
 let shake = 0;
 let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
@@ -498,7 +456,7 @@ function setMood(m, d){ player.mood = m; player.moodTimer = d || 0; }
    ============================================================ */
 let audioCtx = null;
 let muted = false;
-try { muted = localStorage.getItem('nawy.muted.v10') === '1'; } catch(e){}
+try { muted = localStorage.getItem('nawy.muted.v11') === '1'; } catch(e){}
 
 function unlockAudio(){
   if (muted) return;
@@ -658,7 +616,7 @@ function updateSunPos(){
 }
 
 /* ============================================================
-   DRAW SKY & SCENE
+   DRAW SCENE
    ============================================================ */
 function drawSky(){
   const g = ctx.createLinearGradient(0, 0, 0, groundY + 1);
@@ -725,9 +683,7 @@ function drawHillsFar(){
   ctx.beginPath();
   ctx.moveTo(-2, groundY + 2);
   for (let x = -2; x <= W + 2; x += 16){
-    const y = groundY - 30
-      - Math.sin((x + hillOff1) / 200) * 18
-      - Math.sin((x + hillOff1) / 88) * 6;
+    const y = groundY - 30 - Math.sin((x + hillOff1) / 200) * 18 - Math.sin((x + hillOff1) / 88) * 6;
     ctx.lineTo(x, y);
   }
   ctx.lineTo(W + 2, groundY + 2);
@@ -741,9 +697,7 @@ function drawHillsNear(){
   ctx.beginPath();
   ctx.moveTo(-2, groundY + 2);
   for (let x = -2; x <= W + 2; x += 16){
-    const y = groundY - 14
-      - Math.sin((x + hillOff2) / 150) * 12
-      - Math.sin((x + hillOff2) / 62) * 5;
+    const y = groundY - 14 - Math.sin((x + hillOff2) / 150) * 12 - Math.sin((x + hillOff2) / 62) * 5;
     ctx.lineTo(x, y);
   }
   ctx.lineTo(W + 2, groundY + 2);
@@ -775,8 +729,8 @@ function drawBush(x, y){
   ctx.save();
   ctx.fillStyle = '#a8d5a8';
   ctx.beginPath();
-  ctx.arc(x,      y - 4, 6, 0, TAU);
-  ctx.arc(x + 8,  y - 6, 8, 0, TAU);
+  ctx.arc(x, y - 4, 6, 0, TAU);
+  ctx.arc(x + 8, y - 6, 8, 0, TAU);
   ctx.arc(x + 18, y - 4, 6, 0, TAU);
   ctx.fill();
   ctx.fillStyle = 'rgba(120,170,120,.35)';
@@ -794,11 +748,9 @@ function drawObstacles(){
     ctx.ellipse(o.x + o.w/2, groundY + 2, o.w*0.55, 3, 0, 0, TAU);
     ctx.fill();
     ctx.restore();
-
     ctx.fillStyle = '#334155';
     roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
     ctx.fill();
-
     ctx.fillStyle = '#4a5a72';
     roundRectPath(ctx, o.x + 2, o.y + 2, o.w - 4, Math.min(6, o.h * 0.18), 4);
     ctx.fill();
@@ -1188,7 +1140,7 @@ function spawnPowerup(force){
 }
 
 /* ============================================================
-   AMBIENT / MOOD
+   AMBIENT
    ============================================================ */
 function updateAmbient(dt){
   const worldSpeed = (state === 'playing') ? speed * 60 : 60;
@@ -1409,7 +1361,7 @@ muteBtn.addEventListener('click', e => {
   e.stopPropagation();
   muted = !muted;
   muteBtn.textContent = muted ? '🔇' : '🔊';
-  try { localStorage.setItem('nawy.muted.v10', muted ? '1' : '0'); } catch(err){}
+  try { localStorage.setItem('nawy.muted.v11', muted ? '1' : '0'); } catch(err){}
   if (!muted) sfx('coin');
 });
 pauseBtn.addEventListener('click', e => {
@@ -1447,14 +1399,14 @@ function showOverlay(opt){
 }
 
 /* ============================================================
-   SHARE — كارت بريميم 1080×1920
+   SHARE CARD — تصميم أنيق + دعوة للتجربة
    ============================================================ */
 function drawNawyForShare(c, cx, cy, R, mood){
-  // ظل خارجي
+  // ظل
   c.save();
-  c.shadowColor = 'rgba(20,90,200,.55)';
-  c.shadowBlur = 60;
-  c.shadowOffsetY = 14;
+  c.shadowColor = 'rgba(20,90,200,.35)';
+  c.shadowBlur = 30;
+  c.shadowOffsetY = 8;
   c.beginPath();
   c.arc(cx, cy, R, 0, TAU);
   c.fillStyle = '#2563eb';
@@ -1471,7 +1423,7 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.fillStyle = g;
   c.fill();
 
-  // لمعة علوية
+  // لمعة
   c.save();
   c.globalAlpha = 0.38;
   c.fillStyle = '#ffffff';
@@ -1498,7 +1450,6 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.arc(cx + eyeX + eyeR*0.15, baseEyeY, pupilR, 0, TAU);
   c.fill();
 
-  // لمعة
   c.fillStyle = 'rgba(255,255,255,.9)';
   c.beginPath();
   c.arc(cx - eyeX + eyeR*0.15 - pupilR*0.35, baseEyeY - pupilR*0.35, pupilR*0.35, 0, TAU);
@@ -1507,29 +1458,26 @@ function drawNawyForShare(c, cx, cy, R, mood){
 
   // ابتسامة
   c.strokeStyle = '#0f172a';
-  c.lineWidth = Math.max(6, R * 0.11);
+  c.lineWidth = Math.max(4, R * 0.10);
   c.lineCap = 'round';
   c.beginPath();
-  if (mood === 'record'){
-    c.arc(cx, cy + R*0.05, R*0.42, Math.PI*0.18, Math.PI*0.82);
-  } else {
-    c.arc(cx, cy + R*0.10, R*0.32, Math.PI*0.22, Math.PI*0.78);
-  }
+  c.arc(cx, cy + R*0.10, R*0.32, Math.PI*0.22, Math.PI*0.78);
   c.stroke();
 
   // خدود
   c.save();
-  c.globalAlpha = 0.30;
+  c.globalAlpha = 0.32;
   c.fillStyle = '#fb7185';
   c.beginPath();
-  c.arc(cx - R*0.62, cy + R*0.18, R*0.14, 0, TAU);
-  c.arc(cx + R*0.62, cy + R*0.18, R*0.14, 0, TAU);
+  c.arc(cx - R*0.62, cy + R*0.18, R*0.13, 0, TAU);
+  c.arc(cx + R*0.62, cy + R*0.18, R*0.13, 0, TAU);
   c.fill();
   c.restore();
 }
 
-function drawStar(c, x, y, r, color){
+function drawSceneStar(c, x, y, r, alpha){
   c.save();
+  c.globalAlpha = alpha;
   c.translate(x, y);
   c.beginPath();
   for (let i = 0; i < 10; i++){
@@ -1540,8 +1488,11 @@ function drawStar(c, x, y, r, color){
     i ? c.lineTo(px, py) : c.moveTo(px, py);
   }
   c.closePath();
-  c.fillStyle = color;
+  c.fillStyle = '#fbbf24';
   c.fill();
+  c.strokeStyle = '#f59e0b';
+  c.lineWidth = Math.max(1, r * 0.12);
+  c.stroke();
   c.restore();
 }
 
@@ -1553,80 +1504,191 @@ function generateShareCard(){
 
   const finalScore = Math.floor(score);
   const isRecord = lastRunRecord;
-  const isBest = finalScore >= best;
 
-  /* خلفية متدرجة */
+  /* ===== 1. خلفية الكارت (فاتحة زي اللعبة) ===== */
   const bg = c.createLinearGradient(0, 0, 0, CH);
-  bg.addColorStop(0,    '#0a2540');
-  bg.addColorStop(0.35, '#1a4fc7');
-  bg.addColorStop(0.70, '#2563eb');
-  bg.addColorStop(1,    '#0d3d99');
+  bg.addColorStop(0,    '#c9e4f8');
+  bg.addColorStop(0.45, '#dceeff');
+  bg.addColorStop(1,    '#eaf4fd');
   c.fillStyle = bg;
   c.fillRect(0, 0, CW, CH);
 
-  /* هالة ضوء وسط */
-  const centerGlow = c.createRadialGradient(CW/2, CH*0.42, 0, CW/2, CH*0.42, CW*0.75);
-  centerGlow.addColorStop(0, 'rgba(120,180,255,.35)');
-  centerGlow.addColorStop(0.6, 'rgba(60,120,220,.15)');
-  centerGlow.addColorStop(1, 'rgba(60,120,220,0)');
-  c.fillStyle = centerGlow;
-  c.fillRect(0, 0, CW, CH);
-
-  /* نقط نجوم صغيرة متناثرة */
-  const dotsSeed = [
-    [80, 180], [280, 120], [180, 340], [900, 240], [1000, 420], [820, 100],
-    [120, 620], [960, 720], [140, 1520], [940, 1620], [200, 1780], [880, 1840],
-    [420, 90], [700, 140], [560, 1820], [340, 1880]
-  ];
+  /* ===== 2. براند أعلى ===== */
   c.save();
-  for (const [x, y] of dotsSeed){
-    c.globalAlpha = 0.35 + Math.random() * 0.35;
-    c.fillStyle = '#ffffff';
-    c.beginPath();
-    c.arc(x, y, 2 + Math.random() * 2.5, 0, TAU);
-    c.fill();
-  }
-  c.restore();
-
-  /* نجوم ذهبية زخرفية */
-  const goldStars = [
-    [120, 240, 14], [960, 300, 12], [180, 480, 10], [880, 520, 16],
-    [140, 1700, 12], [940, 1720, 14]
-  ];
-  for (const [x, y, r] of goldStars){
-    c.save();
-    c.globalAlpha = 0.55;
-    drawStar(c, x, y, r, '#fbbf24');
-    c.restore();
-  }
-
-  /* Top branding */
-  c.save();
-  c.fillStyle = 'rgba(255,255,255,.85)';
-  c.font = '800 32px system-ui, -apple-system, sans-serif';
+  c.fillStyle = '#1e293b';
+  c.font = '900 46px system-ui, -apple-system, sans-serif';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
-  c.fillText('🎮 العب مع ناوي', CW/2, 120);
+  c.fillText('🎮 العب مع ناوي', CW/2, 130);
   c.restore();
 
-  /* ناوي في النص */
-  const nawyCY = CH * 0.32;
-  const nawyR = 240;
-  drawNawyForShare(c, CW/2, nawyCY, nawyR, isRecord ? 'record' : 'happy');
+  /* ===== 3. المشهد داخل إطار (نافذة من اللعبة) ===== */
+  const sceneX = 90;
+  const sceneY = 220;
+  const sceneW = CW - 180;
+  const sceneH = 620;
+  const sceneR = 44;
 
-  /* لو رقم قياسي → شارة */
+  c.save();
+  roundRectPath(c, sceneX, sceneY, sceneW, sceneH, sceneR);
+  c.clip();
+
+  // سماء المشهد
+  const skyGrad = c.createLinearGradient(sceneX, sceneY, sceneX, sceneY + sceneH);
+  skyGrad.addColorStop(0,    '#bfddf5');
+  skyGrad.addColorStop(0.55, '#d8ebfa');
+  skyGrad.addColorStop(1,    '#ecf5fc');
+  c.fillStyle = skyGrad;
+  c.fillRect(sceneX, sceneY, sceneW, sceneH);
+
+  // شمس
+  const sunX = sceneX + sceneW * 0.78;
+  const sunY = sceneY + sceneH * 0.22;
+  const sunR = 46;
+
+  const sunHalo = c.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3.4);
+  sunHalo.addColorStop(0, 'rgba(255,240,180,.6)');
+  sunHalo.addColorStop(0.45, 'rgba(255,240,180,.22)');
+  sunHalo.addColorStop(1, 'rgba(255,240,180,0)');
+  c.fillStyle = sunHalo;
+  c.beginPath();
+  c.arc(sunX, sunY, sunR * 3.4, 0, TAU);
+  c.fill();
+
+  const sunGrad = c.createRadialGradient(
+    sunX - sunR*0.2, sunY - sunR*0.2, 0,
+    sunX, sunY, sunR
+  );
+  sunGrad.addColorStop(0, '#fffbe8');
+  sunGrad.addColorStop(.6, '#ffeaa7');
+  sunGrad.addColorStop(1, '#fdd97a');
+  c.fillStyle = sunGrad;
+  c.beginPath();
+  c.arc(sunX, sunY, sunR, 0, TAU);
+  c.fill();
+
+  // سحب صغيرة
+  function drawCloudInScene(x, y, s, alpha){
+    c.save();
+    c.globalAlpha = alpha;
+    c.fillStyle = '#ffffff';
+    const r = 32 * s;
+    c.beginPath();
+    c.arc(x,             y,           r,        0, TAU);
+    c.arc(x + r*1.15,    y - r*0.55,  r*1.20,   0, TAU);
+    c.arc(x + r*2.30,    y,           r*0.92,   0, TAU);
+    c.arc(x + r*1.20,    y + r*0.35,  r*0.85,   0, TAU);
+    c.fill();
+    c.restore();
+  }
+  drawCloudInScene(sceneX + 130, sceneY + 120, 1.05, 0.85);
+  drawCloudInScene(sceneX + 480, sceneY + 90, 0.80, 0.65);
+
+  // تلال بعيدة
+  c.save();
+  c.fillStyle = 'rgba(190,215,240,.60)';
+  c.beginPath();
+  c.moveTo(sceneX - 5, sceneY + sceneH * 0.70);
+  for (let x = -5; x <= sceneW + 5; x += 30){
+    const y = sceneY + sceneH * 0.70 - Math.sin(x / 140) * 18 - Math.sin(x / 70) * 7;
+    c.lineTo(sceneX + x, y);
+  }
+  c.lineTo(sceneX + sceneW + 5, sceneY + sceneH + 5);
+  c.lineTo(sceneX - 5, sceneY + sceneH + 5);
+  c.closePath();
+  c.fill();
+  c.restore();
+
+  // تلال قريبة
+  c.save();
+  c.fillStyle = 'rgba(210,228,245,.82)';
+  c.beginPath();
+  c.moveTo(sceneX - 5, sceneY + sceneH * 0.82);
+  for (let x = -5; x <= sceneW + 5; x += 30){
+    const y = sceneY + sceneH * 0.82 - Math.sin(x / 110) * 13 - Math.sin(x / 55) * 5;
+    c.lineTo(sceneX + x, y);
+  }
+  c.lineTo(sceneX + sceneW + 5, sceneY + sceneH + 5);
+  c.lineTo(sceneX - 5, sceneY + sceneH + 5);
+  c.closePath();
+  c.fill();
+  c.restore();
+
+  // أرضية المشهد
+  const groundLine = sceneY + sceneH * 0.87;
+  c.fillStyle = '#f5f9fc';
+  c.fillRect(sceneX, groundLine, sceneW, sceneY + sceneH - groundLine + 5);
+  c.fillStyle = '#334155';
+  c.fillRect(sceneX, groundLine, sceneW, 3);
+
+  // شجيرات
+  function drawBushInScene(x, y){
+    c.save();
+    c.fillStyle = '#a8d5a8';
+    c.beginPath();
+    c.arc(x,      y - 3, 6, 0, TAU);
+    c.arc(x + 8,  y - 5, 7, 0, TAU);
+    c.arc(x + 17, y - 3, 6, 0, TAU);
+    c.fill();
+    c.fillStyle = 'rgba(120,170,120,.35)';
+    c.beginPath();
+    c.arc(x + 8, y - 2, 6, 0, TAU);
+    c.fill();
+    c.restore();
+  }
+  drawBushInScene(sceneX + 130, groundLine + 4);
+  drawBushInScene(sceneX + 480, groundLine + 4);
+  drawBushInScene(sceneX + 680, groundLine + 4);
+
+  // نجوم ذهبية في المشهد
+  drawSceneStar(c, sceneX + 230, sceneY + 330, 18, 0.95);
+  drawSceneStar(c, sceneX + 730, sceneY + 280, 15, 0.85);
+  drawSceneStar(c, sceneX + 480, sceneY + 200, 13, 0.75);
+
+  // ناوي — حجم متوسط
+  const nawyX = sceneX + sceneW * 0.62;
+  const nawyY = groundLine - 70;
+  const nawyR = 85;
+  drawNawyForShare(c, nawyX, nawyY, nawyR, 'happy');
+
+  // ظل ناوي
+  c.save();
+  c.globalAlpha = 0.16;
+  c.fillStyle = '#1e293b';
+  c.beginPath();
+  c.ellipse(nawyX, groundLine + 6, nawyR * 0.85, 7, 0, 0, TAU);
+  c.fill();
+  c.restore();
+
+  c.restore(); // end clip
+
+  // إطار المشهد الخارجي
+  c.save();
+  c.strokeStyle = 'rgba(255,255,255,.7)';
+  c.lineWidth = 3;
+  roundRectPath(c, sceneX + 5, sceneY + 5, sceneW - 10, sceneH - 10, sceneR - 5);
+  c.stroke();
+  c.strokeStyle = 'rgba(120,160,200,.32)';
+  c.lineWidth = 2;
+  roundRectPath(c, sceneX, sceneY, sceneW, sceneH, sceneR);
+  c.stroke();
+  c.restore();
+
+  /* ===== 4. شارة الرقم القياسي ===== */
+  let yCursor = sceneY + sceneH + 70;
+
   if (isRecord){
-    const badgeY = nawyCY + nawyR + 70;
-    const badgeW = 420;
-    const badgeH = 74;
+    const badgeW = 380;
+    const badgeH = 78;
     const badgeX = CW/2 - badgeW/2;
+    const badgeY = yCursor;
 
     c.save();
-    c.shadowColor = 'rgba(251,191,36,.6)';
-    c.shadowBlur = 40;
+    c.shadowColor = 'rgba(251,191,36,.55)';
+    c.shadowBlur = 24;
     c.fillStyle = '#fbbf24';
-    roundRectPath(c, badgeX, badgeY - badgeH/2, badgeW, badgeH, badgeH/2);
+    roundRectPath(c, badgeX, badgeY, badgeW, badgeH, badgeH/2);
     c.fill();
     c.restore();
 
@@ -1636,88 +1698,136 @@ function generateShareCard(){
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.direction = 'rtl';
-    c.fillText('🏆 رقم قياسي جديد', CW/2, badgeY + 2);
+    c.fillText('🏆 رقم قياسي جديد', CW/2, badgeY + badgeH/2 + 2);
     c.restore();
+
+    yCursor += badgeH + 32;
   }
 
-  /* النقاط — الرقم الكبير */
-  const scoreY = isRecord ? CH * 0.60 : CH * 0.62;
-
+  /* ===== 5. النقاط — بطريقة أنيقة ===== */
+  // "نتيجتك"
   c.save();
-  c.fillStyle = 'rgba(255,255,255,.75)';
-  c.font = '700 34px system-ui, -apple-system, sans-serif';
+  c.fillStyle = '#64748b';
+  c.font = '800 32px system-ui, -apple-system, sans-serif';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
-  c.fillText('وصلت لـ', CW/2, scoreY - 30);
+  c.fillText('نتيجتك', CW/2, yCursor + 10);
   c.restore();
 
+  // الرقم
   c.save();
-  c.shadowColor = 'rgba(120,180,255,.55)';
-  c.shadowBlur = 50;
-  c.fillStyle = '#ffffff';
-  c.font = '900 240px system-ui, -apple-system, sans-serif';
+  c.fillStyle = '#0f172a';
+  c.font = '900 200px system-ui, -apple-system, sans-serif';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'ltr';
-  c.fillText(String(finalScore), CW/2, scoreY + 140);
+  c.fillText(String(finalScore), CW/2, yCursor + 150);
   c.restore();
 
+  // "نقطة"
   c.save();
-  c.fillStyle = 'rgba(255,255,255,.85)';
-  c.font = '800 44px system-ui, -apple-system, sans-serif';
+  c.fillStyle = '#2563eb';
+  c.font = '900 42px system-ui, -apple-system, sans-serif';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
-  c.fillText('نقطة', CW/2, scoreY + 290);
+  c.fillText('نقطة', CW/2, yCursor + 290);
   c.restore();
 
-  /* Stats — نجوم + سلسلة */
-  const statsY = CH * 0.86;
-  const statGap = 260;
+  /* ===== 6. Stats pills ===== */
+  const statsY = yCursor + 380;
+  const pillW = 220;
+  const pillH = 86;
+  const pillGap = 40;
+  const totalW = pillW * 2 + pillGap;
+  const startX = CW/2 - totalW/2;
 
-  // نجمة
+  // نجوم
   c.save();
-  c.fillStyle = 'rgba(255,255,255,.18)';
-  roundRectPath(c, CW/2 - statGap - 100, statsY - 60, 200, 120, 32);
+  c.fillStyle = 'rgba(251,191,36,.16)';
+  roundRectPath(c, startX, statsY, pillW, pillH, pillH/2);
   c.fill();
-  c.fillStyle = 'rgba(255,255,255,.95)';
-  c.font = '900 52px system-ui, -apple-system, sans-serif';
+  c.strokeStyle = 'rgba(251,191,36,.55)';
+  c.lineWidth = 2;
+  roundRectPath(c, startX, statsY, pillW, pillH, pillH/2);
+  c.stroke();
+  c.fillStyle = '#92400e';
+  c.font = '900 38px system-ui, -apple-system, sans-serif';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
-  c.fillText('⭐ ' + starCount, CW/2 - statGap, statsY);
+  c.direction = 'rtl';
+  c.fillText('⭐ ' + starCount, startX + pillW/2, statsY + pillH/2 + 2);
   c.restore();
 
   // سلسلة
+  const pill2X = startX + pillW + pillGap;
   c.save();
-  c.fillStyle = 'rgba(255,255,255,.18)';
-  roundRectPath(c, CW/2 + statGap - 100, statsY - 60, 200, 120, 32);
+  c.fillStyle = 'rgba(96,165,250,.14)';
+  roundRectPath(c, pill2X, statsY, pillW, pillH, pillH/2);
   c.fill();
-  c.fillStyle = 'rgba(255,255,255,.95)';
-  c.font = '900 52px system-ui, -apple-system, sans-serif';
-  c.textAlign = 'center';
-  c.textBaseline = 'middle';
-  c.fillText('🔥 ' + combo, CW/2 + statGap, statsY);
-  c.restore();
-
-  /* CTA */
-  const ctaY = CH * 0.94;
-
-  c.save();
-  c.fillStyle = 'rgba(255,255,255,.95)';
-  c.font = '800 38px system-ui, -apple-system, sans-serif';
+  c.strokeStyle = 'rgba(96,165,250,.55)';
+  c.lineWidth = 2;
+  roundRectPath(c, pill2X, statsY, pillW, pillH, pillH/2);
+  c.stroke();
+  c.fillStyle = '#1e40af';
+  c.font = '900 38px system-ui, -apple-system, sans-serif';
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
-  c.fillText('هل تقدر تكسر رقمي؟ 💪', CW/2, ctaY);
+  c.fillText('🔥 ' + combo, pill2X + pillW/2, statsY + pillH/2 + 2);
   c.restore();
 
-  /* إطار رفيع داير */
+  /* ===== 7. دعوة للتجربة (CTA قوي) ===== */
+  const ctaBoxY = statsY + pillH + 90;
+  const ctaBoxW = CW - 220;
+  const ctaBoxH = 150;
+  const ctaBoxX = CW/2 - ctaBoxW/2;
+
+  // بوكس CTA بخلفية بيضا وأزرق
   c.save();
-  c.strokeStyle = 'rgba(255,255,255,.18)';
-  c.lineWidth = 4;
-  roundRectPath(c, 40, 40, CW - 80, CH - 80, 60);
+  c.shadowColor = 'rgba(37,99,235,.15)';
+  c.shadowBlur = 25;
+  c.shadowOffsetY = 6;
+  c.fillStyle = '#ffffff';
+  roundRectPath(c, ctaBoxX, ctaBoxY, ctaBoxW, ctaBoxH, 30);
+  c.fill();
+  c.restore();
+
+  c.save();
+  c.strokeStyle = 'rgba(37,99,235,.18)';
+  c.lineWidth = 2;
+  roundRectPath(c, ctaBoxX, ctaBoxY, ctaBoxW, ctaBoxH, 30);
   c.stroke();
+  c.restore();
+
+  // نص CTA
+  c.save();
+  c.fillStyle = '#0f172a';
+  c.font = '900 40px system-ui, -apple-system, sans-serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.direction = 'rtl';
+  c.fillText('هل تقدر تكسر رقمي؟ 💪', CW/2, ctaBoxY + 58);
+  c.restore();
+
+  c.save();
+  c.fillStyle = '#2563eb';
+  c.font = '800 30px system-ui, -apple-system, sans-serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.direction = 'rtl';
+  c.fillText('العب مع ناوي دلوقتي', CW/2, ctaBoxY + 108);
+  c.restore();
+
+  /* ===== 8. توقيع صغير ===== */
+  c.save();
+  c.fillStyle = 'rgba(100,116,139,.75)';
+  c.font = '700 26px system-ui, -apple-system, sans-serif';
+  c.textAlign = 'center';
+  c.textBaseline = 'middle';
+  c.direction = 'rtl';
+  c.fillText('ناوي · العب وارفع رقمك', CW/2, CH - 80);
   c.restore();
 
   return shareCanvas;
@@ -1743,12 +1853,9 @@ shareClose.addEventListener('click', e => {
   closeShareModal();
 });
 shareModal.addEventListener('click', e => {
-  if (e.target === shareModal){
-    closeShareModal();
-  }
+  if (e.target === shareModal) closeShareModal();
 });
 
-/* تحويل الكانفس لـ Blob */
 function canvasToBlob(){
   return new Promise((resolve) => {
     if (shareCanvas.toBlob){
@@ -1763,7 +1870,6 @@ function canvasToBlob(){
   });
 }
 
-/* زر 1: شارك على ستوري (Web Share مع صورة) */
 shareStoryBtn.addEventListener('click', async e => {
   e.stopPropagation();
   try {
@@ -1778,14 +1884,12 @@ shareStoryBtn.addEventListener('click', async e => {
       });
       showToast('✅ تمت المشاركة');
     } else if (navigator.share){
-      // بعض الأجهزة بتدعم share نصي بدون صور
       await navigator.share({
         title: 'العب مع ناوي',
         text: 'وصلت لـ ' + Math.floor(score) + ' نقطة! 🔥\nهل تقدر تكسر رقمي؟'
       });
       showToast('✅ تمت المشاركة');
     } else {
-      // fallback: حمّل الصورة
       downloadShareImage();
       showToast('⬇️ تم تحميل الصورة — شاركها يدويًا');
     }
@@ -1796,7 +1900,6 @@ shareStoryBtn.addEventListener('click', async e => {
   }
 });
 
-/* زر 2: شارك كرسالة نصية */
 shareTextBtn.addEventListener('click', async e => {
   e.stopPropagation();
   const text =
@@ -1825,7 +1928,6 @@ shareTextBtn.addEventListener('click', async e => {
   }
 });
 
-/* زر 3: احفظ الصورة */
 function downloadShareImage(){
   try {
     const url = shareCanvas.toDataURL('image/png');
@@ -1916,7 +2018,7 @@ function gameOver(){
   let record = false;
   if (score > best){
     best = score; record = true;
-    try { localStorage.setItem('nawy.best.v10', String(best)); } catch(e){}
+    try { localStorage.setItem('nawy.best.v11', String(best)); } catch(e){}
     bestEl.textContent = best;
     sfx('record'); setMood('record', 5);
   }
