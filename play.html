@@ -3,20 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="theme-color" content="#0b1220">
+<meta name="theme-color" content="#c5e0f7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>العب مع ناوي 🎮</title>
 <style>
   :root{
-    --ink:#0f172a; --ink-muted:#64748b;
-    --card-bg:rgba(255,255,255,.9); --card-border:#e8edf3;
-    --btn-ink:#526174;
+    --ink:#1e293b;
+    --ink-muted:#64748b;
+    --card-bg:rgba(255,255,255,.85);
+    --card-border:rgba(203,213,225,.7);
   }
   *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{
     margin:0;width:100%;height:100%;overflow:hidden;
     font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:#0b1220;user-select:none;-webkit-user-select:none;
+    background:#c5e0f7;user-select:none;-webkit-user-select:none;
     touch-action:manipulation;overscroll-behavior:none;
     position:fixed;inset:0;
   }
@@ -29,74 +30,75 @@
     padding:max(10px,env(safe-area-inset-top))
             max(14px,env(safe-area-inset-right))
             10px max(14px,env(safe-area-inset-left));
-    display:flex;align-items:center;gap:10px;
-    pointer-events:none;transition:color .4s ease;
+    display:flex;align-items:center;gap:10px;pointer-events:none;
   }
   .brand,.stats{pointer-events:auto;}
   .brand{
     font-size:17px;font-weight:900;white-space:nowrap;letter-spacing:-.3px;
-    color:var(--ink);text-shadow:0 1px 3px rgba(0,0,0,.06);
-    transition:color .6s ease;
+    color:var(--ink);text-shadow:0 1px 2px rgba(255,255,255,.6);
   }
   .brand em{font-style:normal;color:#2563eb;}
   .stats{margin-inline-start:auto;display:flex;gap:7px;align-items:center;white-space:nowrap;}
+
   .stat{
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-width:52px;height:40px;padding:3px 9px;
+    min-width:54px;height:42px;padding:3px 9px;
     border:1px solid var(--card-border);border-radius:12px;
     background:var(--card-bg);
-    box-shadow:0 4px 14px rgba(24,42,65,.06);line-height:1;
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-    transition:background .6s,border-color .6s;
+    box-shadow:0 2px 8px rgba(24,42,65,.06);
+    line-height:1;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
-  .stat span{font-size:9px;color:var(--ink-muted);font-weight:800;margin-bottom:2px;}
-  .stat b{font-size:15px;color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums;transition:color .6s;}
+  .stat span{font-size:9px;color:var(--ink-muted);font-weight:800;margin-bottom:3px;letter-spacing:.2px;}
+  .stat b{font-size:15px;color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums;}
+
   .icon-btn{
-    border:1px solid var(--card-border);background:var(--card-bg);
-    font-size:16px;line-height:1;width:40px;height:40px;flex:0 0 40px;
+    border:1px solid var(--card-border);
+    background:var(--card-bg);
+    font-size:16px;line-height:1;width:42px;height:42px;flex:0 0 42px;
     border-radius:12px;cursor:pointer;display:grid;place-items:center;
-    transition:transform .12s,background .6s,border-color .6s;
-    color:var(--btn-ink);
-    box-shadow:0 4px 14px rgba(24,42,65,.06);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    transition:transform .12s;
+    color:var(--ink-muted);
+    box-shadow:0 2px 8px rgba(24,42,65,.06);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
   .icon-btn:active{transform:scale(.92);}
 
   .hud{
     position:absolute;
-    top:max(70px,calc(env(safe-area-inset-top) + 60px));
+    top:max(72px,calc(env(safe-area-inset-top) + 62px));
     left:14px;right:14px;z-index:20;
     display:flex;justify-content:space-between;align-items:flex-start;
     pointer-events:none;gap:8px;
   }
   .hud-side{display:flex;gap:6px;flex-wrap:wrap;}
   .chip{
-    padding:5px 11px;border-radius:999px;background:var(--card-bg);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    padding:5px 12px;border-radius:999px;
+    background:var(--card-bg);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     border:1px solid var(--card-border);
-    box-shadow:0 4px 14px rgba(20,45,75,.06);
+    box-shadow:0 2px 8px rgba(20,45,75,.06);
     font-size:11px;font-weight:800;color:var(--ink-muted);
     display:none;align-items:center;gap:5px;
-    transition:background .6s,border-color .6s,color .6s;
   }
   .chip.show{display:inline-flex;}
-  .chip.shield{color:#1f6feb;border-color:#c9dfff;}
-  .chip.magnet{color:#b45309;border-color:#fde6b5;}
-  .chip.stars{color:#b45309;border-color:#fde6b5;display:inline-flex;align-items:center;gap:5px;}
+  .chip.shield{color:#1f6feb;border-color:#bfdbff;background:rgba(235,245,255,.9);}
+  .chip.magnet{color:#b45309;border-color:#fde6b5;background:rgba(255,250,235,.9);}
+  .chip.stars{color:#b45309;border-color:#fde6b5;background:rgba(255,250,235,.9);display:inline-flex;align-items:center;gap:5px;}
   .chip b{color:inherit;font-variant-numeric:tabular-nums;}
 
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     pointer-events:none;text-align:center;padding:20px;z-index:10;
-    background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.28));
+    background:rgba(255,255,255,.35);
     backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
   }
   .overlay.hidden{display:none;}
   .overlay-inner{
-    padding:26px 26px 22px;border-radius:26px;
-    background:rgba(255,255,255,.97);
+    padding:26px 26px 22px;border-radius:24px;
+    background:#ffffff;
     border:1px solid rgba(224,231,239,.9);
-    box-shadow:0 24px 70px rgba(10,20,40,.28);
+    box-shadow:0 20px 50px rgba(20,50,90,.12);
     max-width:min(400px,92vw);pointer-events:auto;
   }
   .overlay h1{margin:0 0 6px;font-size:25px;font-weight:950;letter-spacing:-.5px;color:#0f172a;}
@@ -112,20 +114,20 @@
     background:linear-gradient(135deg,#1489ff,#0069e5);color:#fff;
     font-size:15px;font-weight:900;letter-spacing:.2px;
     cursor:pointer;pointer-events:auto;font-family:inherit;
-    box-shadow:0 8px 22px rgba(0,105,229,.32),inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow:0 6px 18px rgba(0,105,229,.28),inset 0 1px 0 rgba(255,255,255,.35);
     transition:transform .12s;
   }
   .button:active{transform:scale(.96) translateY(1px);}
 
   .toast{
     position:absolute;top:15%;left:50%;transform:translate(-50%,12px);
-    background:rgba(15,23,42,.94);color:#fff;padding:10px 20px;
+    background:rgba(30,41,59,.92);color:#fff;padding:10px 20px;
     border-radius:999px;font-weight:850;font-size:13px;
     opacity:0;pointer-events:none;
     transition:opacity .22s ease,transform .22s ease;
-    white-space:nowrap;box-shadow:0 10px 30px rgba(10,20,40,.35);
+    white-space:nowrap;box-shadow:0 8px 24px rgba(10,20,40,.25);
     z-index:30;
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
   .toast.show{opacity:1;transform:translate(-50%,0);}
 
@@ -134,19 +136,19 @@
     bottom:max(10px,env(safe-area-inset-bottom));
     z-index:20;text-align:center;
     font-size:11px;font-weight:700;
-    color:var(--ink-muted);opacity:.7;pointer-events:none;
-    transition:color .6s ease,opacity .4s ease;
+    color:var(--ink-muted);opacity:.65;pointer-events:none;
+    transition:opacity .4s ease;
   }
   .hint.fade-out{opacity:0;}
 
   @media (max-width:520px){
     .brand{font-size:15px;}
-    .stat{min-width:48px;height:38px;padding:3px 7px;}
+    .stat{min-width:50px;height:40px;padding:3px 7px;}
     .stat b{font-size:14px;}
-    .icon-btn{width:38px;height:38px;flex-basis:38px;}
+    .icon-btn{width:40px;height:40px;flex-basis:40px;}
   }
   @media (prefers-reduced-motion: reduce){
-    .toast,.button,.icon-btn,.brand,.stat,.hint,.chip{transition:none;}
+    .toast,.button,.icon-btn,.hint,.chip{transition:none;}
   }
 </style>
 </head>
@@ -219,17 +221,6 @@ function circleRect(cx,cy,r,rx,ry,rw,rh){
   const dx = cx-nx, dy = cy-ny;
   return dx*dx + dy*dy < r*r;
 }
-function lerpColor(a, b, t){
-  return [
-    Math.round(a[0] + (b[0]-a[0])*t),
-    Math.round(a[1] + (b[1]-a[1])*t),
-    Math.round(a[2] + (b[2]-a[2])*t)
-  ];
-}
-function rgb(c, a){
-  if (a === undefined) return `rgb(${c[0]},${c[1]},${c[2]})`;
-  return `rgba(${c[0]},${c[1]},${c[2]},${a})`;
-}
 
 /* ============================================================
    ELEMENTS
@@ -262,15 +253,14 @@ reduceMQ.addEventListener?.('change', e => { reduceMotion = e.matches; });
 /* ============================================================
    CONSTANTS
    ============================================================ */
-const GRAVITY   = 2300;
-const JUMP_V    = -800;
-const MAX_FALL  = 1900;
+const GRAVITY    = 2300;
+const JUMP_V     = -800;
+const MAX_FALL   = 1900;
 const BASE_SPEED = 6;
 const MAX_SPEED  = 11.5;
-const COYOTE    = 0.10;
-const JUMP_BUF  = 0.13;
-
-const DAY_CYCLE = 120;   // 120 ثانية لدورة كاملة
+const COYOTE     = 0.10;
+const JUMP_BUF   = 0.13;
+const SUN_CYCLE  = 240;  // 4 دقايق — الشمس تتحرك ببطء شديد
 
 const MILESTONES = [
   'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
@@ -287,49 +277,22 @@ let score = 0, lastShown = -1, milestone = 0;
 let starCount = 0, combo = 0;
 let speed = BASE_SPEED;
 let best = 0;
-try { best = Number(localStorage.getItem('nawy.best.v8')) || 0; } catch(e){}
+try { best = Number(localStorage.getItem('nawy.best.v9')) || 0; } catch(e){}
 
 let shake = 0;
 let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
-let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
+let hillOff1 = 0, hillOff2 = 0, groundOff = 0, grassOff = 0;
 let lastT = 0, overAt = 0;
+let worldTime = 0;
 
-/* نبدأ الظهر */
-let worldTime = 0.42 * DAY_CYCLE;
-let skyPhase  = 0.42;
-let sunPos    = { x:0, y:0, visible:false };
-let moonPos   = { x:0, y:0, visible:false };
-let dayness   = 1;
-
-/* 🆕 مؤثرات جوية */
-let shootingStars = [];
-let shootingStarTimer = 0;
-let birds = [];
-let birdTimer = 0;
-let rainDrops = [];
-let rainIntensity = 0;       // 0 → 1
-let rainTarget = 0;
-let rainNextChangeTimer = 20;
-let fogIntensity = 0;        // 0 → 1
-let splashParticles = [];    // نظام موحد — بس نستخدم particles العادي
+/* الشمس */
+let sunPos = { x: 0, y: 0 };
 
 const obstacles = [];
 const stars     = [];
 const powerups  = [];
 const clouds    = [];
 const particles = [];
-const skyStars  = [];
-
-for (let i = 0; i < 90; i++){
-  skyStars.push({
-    x: Math.random(),
-    y: Math.random() * 0.72,
-    size: rand(0.5, 1.7),
-    twinkle: Math.random() * TAU,
-    speed: rand(0.4, 1.6),
-    depth: rand(0.4, 1)
-  });
-}
 
 /* ============================================================
    PLAYER
@@ -351,7 +314,7 @@ function setMood(m, d){ player.mood = m; player.moodTimer = d || 0; }
    ============================================================ */
 let audioCtx = null;
 let muted = false;
-try { muted = localStorage.getItem('nawy.muted.v8') === '1'; } catch(e){}
+try { muted = localStorage.getItem('nawy.muted.v9') === '1'; } catch(e){}
 
 function unlockAudio(){
   if (muted) return;
@@ -384,18 +347,18 @@ function beep(f, dur, type, vol, slideTo, delay){
 }
 function sfx(name){
   switch(name){
-    case 'jump':      beep(430,0.13,'square',0.045,720); break;
-    case 'land':      beep(160,0.07,'sine',0.035,110); break;
-    case 'coin':      beep(1000,0.09,'sine',0.055,1500);
-                      beep(1500,0.09,'sine',0.030,1900,0.06); break;
-    case 'hit':       beep(220,0.40,'sawtooth',0.070,55); break;
-    case 'power':     beep(500,0.09,'sine',0.045,800); break;
-    case 'shield':    beep(360,0.10,'triangle',0.055,560); break;
-    case 'milestone': beep(660,0.12,'triangle',0.050,660);
-                      beep(880,0.16,'triangle',0.050,880,0.11); break;
-    case 'record':    beep(660,0.10,'sine',0.055,660);
-                      beep(880,0.10,'sine',0.055,880,0.10);
-                      beep(1200,0.16,'sine',0.045,1200,0.20); break;
+    case 'jump':      beep(430,0.11,'square',0.038,720); break;
+    case 'land':      beep(160,0.06,'sine',0.028,110); break;
+    case 'coin':      beep(1000,0.08,'sine',0.045,1500);
+                      beep(1500,0.08,'sine',0.025,1900,0.06); break;
+    case 'hit':       beep(220,0.35,'sawtooth',0.055,55); break;
+    case 'power':     beep(500,0.08,'sine',0.038,800); break;
+    case 'shield':    beep(360,0.09,'triangle',0.045,560); break;
+    case 'milestone': beep(660,0.11,'triangle',0.042,660);
+                      beep(880,0.14,'triangle',0.042,880,0.10); break;
+    case 'record':    beep(660,0.09,'sine',0.045,660);
+                      beep(880,0.09,'sine',0.045,880,0.09);
+                      beep(1200,0.14,'sine',0.038,1200,0.18); break;
   }
 }
 function vibrate(ms){
@@ -404,10 +367,10 @@ function vibrate(ms){
 }
 
 /* ============================================================
-   PARTICLES
+   PARTICLES — قليلة ومحلية
    ============================================================ */
 function addP(p){
-  if (particles.length > 300) return;
+  if (particles.length > 160) return;
   p.rot = p.rot || 0; p.rotSpd = p.rotSpd || 0;
   p.g = p.g || 0; p.drag = p.drag || 0;
   p.maxLife = p.life;
@@ -417,22 +380,22 @@ function burstDust(x, y, n){
   if (reduceMotion) n = Math.ceil(n/2);
   for (let i=0;i<n;i++){
     addP({
-      type:'dust', x: x + rand(-8,8), y: y + rand(-4,2),
-      vx: rand(-90,-20), vy: rand(-70,-8),
-      g: 220, drag: 2.4, size: rand(2,4.5),
-      life: rand(0.3,0.6),
-      color: dayness > 0.5 ? '#cbd5e1' : '#475569'
+      type:'dust', x: x + rand(-6,6), y: y + rand(-3,2),
+      vx: rand(-70,-15), vy: rand(-55,-8),
+      g: 200, drag: 2.6, size: rand(1.8,3.6),
+      life: rand(0.25,0.5),
+      color: '#b0bcc9'
     });
   }
 }
 function burstSparkle(x, y, n){
   for (let i=0;i<n;i++){
-    const a = rand(0,TAU), sp = rand(40,150);
+    const a = rand(0,TAU), sp = rand(40,130);
     addP({
       type:'spark', x, y,
-      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 30,
-      g: 260, drag: 1.8, size: rand(2,4),
-      life: rand(0.3,0.55),
+      vx: Math.cos(a)*sp, vy: Math.sin(a)*sp - 25,
+      g: 240, drag: 2.0, size: rand(1.8,3.2),
+      life: rand(0.28,0.5),
       color: pick(['#fbbf24','#fcd34d','#f59e0b','#fff7cc'])
     });
   }
@@ -440,19 +403,19 @@ function burstSparkle(x, y, n){
 function burstConfetti(x, y, n){
   const colors = ['#2563eb','#60a5fa','#fbbf24','#34d399','#f472b6','#a78bfa'];
   for (let i=0;i<n;i++){
-    const a = rand(-Math.PI, 0), sp = rand(120, 380);
+    const a = rand(-Math.PI, 0), sp = rand(110, 320);
     addP({
       type:'confetti', x, y,
       vx: Math.cos(a)*sp, vy: Math.sin(a)*sp,
-      g: 700, drag: 0.6, size: rand(6,11),
-      rot: rand(0,TAU), rotSpd: rand(-12,12),
-      life: rand(0.8,1.6),
+      g: 680, drag: 0.7, size: rand(5,9),
+      rot: rand(0,TAU), rotSpd: rand(-10,10),
+      life: rand(0.7,1.3),
       color: pick(colors)
     });
   }
 }
 function spawnText(x, y, text, color){
-  addP({ type:'text', x, y, vx:0, vy:-58, life:0.85, size:15,
+  addP({ type:'text', x, y, vx:0, vy:-52, life:0.8, size:14,
          color: color || '#f59e0b', text });
 }
 function updateParticles(dt){
@@ -483,7 +446,7 @@ function resize(){
 
   const oldGround = groundY;
   W = nw; H = nh;
-  groundY = Math.round(H - Math.max(60, H * 0.16));
+  groundY = Math.round(H - Math.max(60, H * 0.18));
   player.size = clamp(Math.round(H * 0.082), 26, 42);
 
   if (!oldGround){
@@ -503,563 +466,123 @@ window.addEventListener('orientationchange', () => setTimeout(resize, 120));
 if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
 
 /* ============================================================
-   SKY CYCLE
+   SUN POSITION
    ============================================================ */
-const skyKeyframes = [
-  { t:0.00, top:[12,18,40],    mid:[22,32,60],   bot:[40,50,80]   },
-  { t:0.08, top:[20,28,60],    mid:[38,48,88],   bot:[85,85,120]  },
-  { t:0.15, top:[60,90,150],   mid:[130,140,185],bot:[230,175,155]},
-  { t:0.24, top:[110,165,225], mid:[175,205,240],bot:[240,225,205]},
-  { t:0.40, top:[130,190,245], mid:[190,215,245],bot:[235,240,250]},
-  { t:0.60, top:[130,190,245], mid:[190,215,245],bot:[235,240,250]},
-  { t:0.70, top:[145,185,235], mid:[210,205,220],bot:[248,215,185]},
-  { t:0.78, top:[215,145,130], mid:[240,175,145],bot:[250,210,175]},
-  { t:0.86, top:[115,85,140],  mid:[145,105,145],bot:[195,125,135]},
-  { t:0.94, top:[35,42,85],    mid:[45,55,100],  bot:[65,75,115]},
-  { t:1.00, top:[12,18,40],    mid:[22,32,60],   bot:[40,50,80]   }
-];
-
-function getSkyColors(phase){
-  for (let i = 0; i < skyKeyframes.length - 1; i++){
-    const a = skyKeyframes[i], b = skyKeyframes[i+1];
-    if (phase >= a.t && phase <= b.t){
-      const t = (phase - a.t) / (b.t - a.t);
-      return {
-        top: lerpColor(a.top, b.top, t),
-        mid: lerpColor(a.mid, b.mid, t),
-        bot: lerpColor(a.bot, b.bot, t)
-      };
-    }
-  }
-  return { top: skyKeyframes[0].top, mid: skyKeyframes[0].mid, bot: skyKeyframes[0].bot };
-}
-
-function updateSkyPhase(){
-  skyPhase = (worldTime % DAY_CYCLE) / DAY_CYCLE;
-
-  const dayStart = 0.10, dayEnd = 0.80;
-
-  if (skyPhase >= dayStart && skyPhase <= dayEnd){
-    const t = (skyPhase - dayStart) / (dayEnd - dayStart);
-    sunPos.x = W * (0.96 - t * 0.92);
-    sunPos.y = groundY - Math.sin(t * Math.PI) * H * 0.62;
-    sunPos.visible = true;
-    dayness = Math.sin(t * Math.PI);
-  } else {
-    sunPos.visible = false;
-    dayness = 0;
-  }
-
-  let nightPhase = skyPhase - 0.86;
-  if (nightPhase < 0) nightPhase += 1;
-  const nightLen = 0.24;
-
-  if (nightPhase < nightLen){
-    const t = nightPhase / nightLen;
-    moonPos.x = W * (0.96 - t * 0.92);
-    moonPos.y = groundY - Math.sin(t * Math.PI) * H * 0.55;
-    moonPos.visible = true;
-  } else {
-    moonPos.visible = false;
-  }
-
-  /* 🌫️ ضباب الصباح — من 0.13 لـ 0.30 */
-  const fStart = 0.13, fEnd = 0.30;
-  if (skyPhase >= fStart && skyPhase <= fEnd){
-    const t = (skyPhase - fStart) / (fEnd - fStart);
-    // ارتفع ثم انزل
-    fogIntensity = Math.sin(t * Math.PI) * 0.9;
-  } else {
-    fogIntensity = 0;
-  }
-
-  /* 🌧️ المطر — بالليل فقط */
-  const isNightTime = dayness < 0.15;
-  rainNextChangeTimer -= 1 / 60;
-
-  if (isNightTime){
-    if (rainNextChangeTimer <= 0){
-      rainTarget = Math.random() < 0.4 ? rand(0.35, 0.85) : 0;
-      rainNextChangeTimer = rand(20, 45);
-    }
-  } else {
-    rainTarget = 0;
-  }
-  rainIntensity += (rainTarget - rainIntensity) * 0.008;
-
-  /* UI tinting */
-  const isDaytime = dayness > 0.42;
-  const root = document.documentElement.style;
-  root.setProperty('--ink',         isDaytime ? '#0f172a' : '#f1f5f9');
-  root.setProperty('--ink-muted',   isDaytime ? '#64748b' : '#94a3b8');
-  root.setProperty('--card-bg',     isDaytime ? 'rgba(255,255,255,.9)' : 'rgba(15,23,42,.65)');
-  root.setProperty('--card-border', isDaytime ? '#e8edf3' : 'rgba(100,116,139,.35)');
-  root.setProperty('--btn-ink',     isDaytime ? '#526174' : '#94a3b8');
+function updateSunPos(){
+  const t = (worldTime % SUN_CYCLE) / SUN_CYCLE;
+  // قوس ناعم جدًا في أعلى السماء — من يمين لشمال
+  sunPos.x = W * (0.82 - t * 0.64);
+  sunPos.y = H * 0.10 + Math.sin(t * Math.PI) * H * 0.10;
 }
 
 /* ============================================================
-   DRAW — SKY
+   DRAW — SKY (ثابت، هادي)
    ============================================================ */
 function drawSky(){
-  const sky = getSkyColors(skyPhase);
   const g = ctx.createLinearGradient(0, 0, 0, groundY + 1);
-  g.addColorStop(0,    rgb(sky.top));
-  g.addColorStop(0.55, rgb(sky.mid));
-  g.addColorStop(1,    rgb(sky.bot));
+  g.addColorStop(0,    '#bfddf5');
+  g.addColorStop(0.55, '#d8ebfa');
+  g.addColorStop(1,    '#ecf5fc');
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, W, groundY + 1);
 }
 
-function drawNightStars(){
-  const nightness = 1 - dayness;
-  if (nightness < 0.08) return;
-  const starsAlpha = (nightness - 0.08) / 0.92 * 0.55;
-  ctx.save();
-  for (const s of skyStars){
-    const tw = 0.55 + Math.sin(worldTime * s.speed + s.twinkle) * 0.45;
-    ctx.globalAlpha = starsAlpha * tw * s.depth;
-    ctx.fillStyle = '#ffffff';
-    const size = s.size * (1 + Math.sin(worldTime + s.twinkle) * 0.15);
-    ctx.beginPath();
-    ctx.arc(s.x * W, s.y * groundY, size, 0, TAU);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-
-/* ☄️ الشهب */
-function updateShootingStars(dt){
-  if (reduceMotion) return;
-
-  /* نولّد شهب بالليل فقط */
-  if (dayness < 0.2 && rainIntensity < 0.3){
-    shootingStarTimer -= dt;
-    if (shootingStarTimer <= 0){
-      shootingStarTimer = rand(6, 18);
-      const fromRight = Math.random() < 0.5;
-      shootingStars.push({
-        x: fromRight ? W * rand(0.55, 0.95) : W * rand(0.05, 0.4),
-        y: rand(H * 0.05, groundY * 0.35),
-        vx: (fromRight ? -1 : 1) * rand(350, 550),
-        vy: rand(180, 280),
-        life: 1.4,
-        maxLife: 1.4,
-        len: rand(60, 120),
-        size: rand(1.5, 2.5)
-      });
-    }
-  }
-
-  for (let i = shootingStars.length - 1; i >= 0; i--){
-    const s = shootingStars[i];
-    s.x += s.vx * dt;
-    s.y += s.vy * dt;
-    s.life -= dt;
-    if (s.life <= 0 || s.x < -100 || s.x > W + 100 || s.y > groundY){
-      shootingStars.splice(i, 1);
-    }
-  }
-}
-
-function drawShootingStars(){
-  for (const s of shootingStars){
-    const t = s.life / s.maxLife;
-    const fade = t < 0.3 ? t / 0.3 : Math.min(1, (1 - t) * 5 + 0.2);
-    const dir = Math.atan2(s.vy, s.vx);
-    const len = s.len * (0.6 + t * 0.4);
-
-    const tailX = s.x - Math.cos(dir) * len;
-    const tailY = s.y - Math.sin(dir) * len;
-
-    // خط الذيل
-    const grad = ctx.createLinearGradient(tailX, tailY, s.x, s.y);
-    grad.addColorStop(0, 'rgba(255,255,200,0)');
-    grad.addColorStop(0.7, `rgba(255,240,180,${0.6 * fade})`);
-    grad.addColorStop(1, `rgba(255,255,255,${fade})`);
-
-    ctx.save();
-    ctx.strokeStyle = grad;
-    ctx.lineWidth = s.size;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(tailX, tailY);
-    ctx.lineTo(s.x, s.y);
-    ctx.stroke();
-
-    // رأس لامع
-    ctx.shadowColor = `rgba(255,255,220,${fade})`;
-    ctx.shadowBlur = 12;
-    ctx.fillStyle = `rgba(255,255,255,${fade})`;
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, s.size, 0, TAU);
-    ctx.fill();
-    ctx.restore();
-  }
-}
-
-/* 🐦 الطيور */
-function updateBirds(dt){
-  if (reduceMotion) return;
-
-  /* نهارًا فقط، ووقت مش مطر */
-  if (dayness > 0.5 && rainIntensity < 0.2){
-    birdTimer -= dt;
-    if (birdTimer <= 0){
-      birdTimer = rand(12, 28);
-      const fromRight = Math.random() < 0.7;
-      const count = Math.floor(rand(3, 6));
-      const baseY = rand(H * 0.10, groundY * 0.35);
-      for (let i = 0; i < count; i++){
-        birds.push({
-          x: (fromRight ? W + 30 : -30) + (fromRight ? -i*22 : i*22),
-          y: baseY + rand(-14, 14) + i * 4,
-          vx: (fromRight ? -1 : 1) * rand(70, 110),
-          flap: rand(0, TAU),
-          flapSpeed: rand(7, 11),
-          size: rand(0.85, 1.15),
-          alpha: rand(0.55, 0.85)
-        });
-      }
-    }
-  }
-
-  for (let i = birds.length - 1; i >= 0; i--){
-    const b = birds[i];
-    b.x += b.vx * dt;
-    b.flap += dt * b.flapSpeed;
-    b.y += Math.sin(b.flap * 0.6) * 4 * dt;
-
-    if (b.x < -60 || b.x > W + 60){
-      birds.splice(i, 1);
-    }
-  }
-}
-
-function drawBirds(){
-  if (birds.length === 0) return;
-  ctx.save();
-  ctx.strokeStyle = '#1e293b';
-  ctx.lineCap = 'round';
-
-  for (const b of birds){
-    const flap = Math.sin(b.flap);
-    const wingSpan = 8 * b.size;
-
-    ctx.globalAlpha = b.alpha;
-    ctx.lineWidth = Math.max(1.4, 1.8 * b.size);
-
-    ctx.beginPath();
-    ctx.moveTo(b.x - wingSpan, b.y + flap * 4);
-    ctx.quadraticCurveTo(b.x - wingSpan * 0.5, b.y - 4 * b.size + flap * 2,
-                          b.x, b.y);
-    ctx.quadraticCurveTo(b.x + wingSpan * 0.5, b.y - 4 * b.size + flap * 2,
-                          b.x + wingSpan, b.y + flap * 4);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-/* 🌧️ المطر */
-function updateRain(dt){
-  if (reduceMotion || rainIntensity < 0.02){
-    if (rainDrops.length > 0) rainDrops.length = 0;
-    return;
-  }
-
-  const targetCount = Math.floor(rainIntensity * 130);
-  while (rainDrops.length < targetCount){
-    rainDrops.push({
-      x: rand(-30, W + 30),
-      y: rand(-H * 0.4, groundY),
-      vy: rand(450, 700),
-      vx: -rand(40, 80),
-      len: rand(8, 16),
-      alpha: rand(0.28, 0.55)
-    });
-  }
-  while (rainDrops.length > targetCount){
-    rainDrops.pop();
-  }
-
-  for (let i = rainDrops.length - 1; i >= 0; i--){
-    const d = rainDrops[i];
-    d.x += d.vx * dt;
-    d.y += d.vy * dt;
-
-    /* لما يوصل الأرض → رشة صغيرة */
-    if (d.y > groundY + 2){
-      if (Math.random() < 0.25 && particles.length < 240){
-        addP({
-          type:'dust',
-          x: d.x, y: groundY + 2,
-          vx: rand(-15, 15),
-          vy: rand(-45, -15),
-          g: 320, drag: 1.6,
-          size: rand(1, 2.2),
-          life: rand(0.15, 0.3),
-          color: 'rgba(200,215,235,.9)'
-        });
-      }
-      /* نرجعها فوق */
-      d.x = rand(-30, W + 30);
-      d.y = rand(-H * 0.3, -20);
-    }
-
-    /* إعادة تدوير لو خرج من الجنب */
-    if (d.x < -40) d.x = W + 40;
-  }
-}
-
-function drawRain(){
-  if (rainDrops.length === 0) return;
-  ctx.save();
-  ctx.lineCap = 'round';
-  ctx.strokeStyle = 'rgba(200,215,235,1)';
-
-  for (const d of rainDrops){
-    ctx.globalAlpha = d.alpha * rainIntensity;
-    ctx.lineWidth = 1.1;
-    ctx.beginPath();
-    ctx.moveTo(d.x, d.y);
-    ctx.lineTo(d.x + d.vx * 0.02, d.y + d.len);
-    ctx.stroke();
-  }
-  ctx.restore();
-}
-
-/* 🌫️ الضباب */
-function drawFog(){
-  if (fogIntensity < 0.02) return;
-
-  ctx.save();
-  ctx.globalAlpha = fogIntensity * 0.55;
-
-  /* طبقات أفقية من الضباب */
-  for (let i = 0; i < 3; i++){
-    const y = groundY - 40 - i * 45 + Math.sin(worldTime * 0.4 + i) * 8;
-    const h = 50 + i * 15;
-
-    const g = ctx.createLinearGradient(0, y - h, 0, y + h);
-    g.addColorStop(0,   'rgba(255,255,255,0)');
-    g.addColorStop(0.5, `rgba(255,255,255,${0.6 - i * 0.15})`);
-    g.addColorStop(1,   'rgba(255,255,255,0)');
-
-    ctx.fillStyle = g;
-    ctx.fillRect(0, y - h, W, h * 2);
-  }
-  ctx.restore();
-}
-
 function drawSun(){
-  if (!sunPos.visible) return;
-  const sunR = Math.max(14, W * 0.018);
-  const warm = 1 - dayness * 0.6;
+  const sunR = Math.max(22, W * 0.022);
 
-  const sr = 255;
-  const sg = Math.round(255 - warm * 55);
-  const sb = Math.round(255 - warm * 120);
-
-  /* ☀️ أشعة الشمس */
-  if (dayness > 0.35 && rainIntensity < 0.3){
-    ctx.save();
-    ctx.globalAlpha = (dayness - 0.35) * 0.35;
-    ctx.translate(sunPos.x, sunPos.y);
-    const raysCount = 12;
-    for (let i = 0; i < raysCount; i++){
-      const a = (i / raysCount) * TAU + worldTime * 0.15;
-      const r1 = sunR * 1.4;
-      const r2 = sunR * 3.2;
-      const g = ctx.createLinearGradient(
-        Math.cos(a) * r1, Math.sin(a) * r1,
-        Math.cos(a) * r2, Math.sin(a) * r2
-      );
-      g.addColorStop(0, `rgba(255,240,200,.7)`);
-      g.addColorStop(1, `rgba(255,240,200,0)`);
-      ctx.strokeStyle = g;
-      ctx.lineWidth = 2.2;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(a) * r1, Math.sin(a) * r1);
-      ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2);
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
-
-  /* هالة */
-  const haloR = sunR * 3.5;
+  // هالة ناعمة
+  const haloR = sunR * 3.8;
   const halo = ctx.createRadialGradient(sunPos.x, sunPos.y, 0, sunPos.x, sunPos.y, haloR);
-  halo.addColorStop(0, `rgba(${sr},${sg},${sb},0.28)`);
-  halo.addColorStop(0.5, `rgba(${sr},${sg},${sb},0.10)`);
-  halo.addColorStop(1, `rgba(${sr},${sg},${sb},0)`);
-  ctx.save();
-  ctx.globalAlpha = 0.75;
+  halo.addColorStop(0, 'rgba(255,240,180,.42)');
+  halo.addColorStop(0.4, 'rgba(255,240,180,.18)');
+  halo.addColorStop(1, 'rgba(255,240,180,0)');
   ctx.fillStyle = halo;
   ctx.beginPath();
   ctx.arc(sunPos.x, sunPos.y, haloR, 0, TAU);
   ctx.fill();
-  ctx.restore();
 
-  /* القرص */
-  ctx.save();
-  ctx.globalAlpha = 0.85;
+  // قرص الشمس
   const sunG = ctx.createRadialGradient(
     sunPos.x - sunR*0.2, sunPos.y - sunR*0.2, 0,
     sunPos.x, sunPos.y, sunR
   );
-  sunG.addColorStop(0,  '#ffffff');
-  sunG.addColorStop(.55, `rgb(${sr},${sg},${sb})`);
-  sunG.addColorStop(1,  `rgb(${Math.max(220, sr-30)},${Math.max(180, sg-60)},${Math.max(120, sb-100)})`);
+  sunG.addColorStop(0,  '#fffbe8');
+  sunG.addColorStop(.6, '#ffeaa7');
+  sunG.addColorStop(1,  '#fdd97a');
   ctx.fillStyle = sunG;
   ctx.beginPath();
   ctx.arc(sunPos.x, sunPos.y, sunR, 0, TAU);
   ctx.fill();
-  ctx.restore();
 }
 
-function drawMoon(){
-  if (!moonPos.visible) return;
-  const moonR = Math.max(12, W * 0.015);
-
-  const haloR = moonR * 3;
-  const halo = ctx.createRadialGradient(moonPos.x, moonPos.y, 0, moonPos.x, moonPos.y, haloR);
-  halo.addColorStop(0, 'rgba(220,230,255,.22)');
-  halo.addColorStop(1, 'rgba(220,230,255,0)');
-  ctx.save();
-  ctx.globalAlpha = 0.7;
-  ctx.fillStyle = halo;
-  ctx.beginPath();
-  ctx.arc(moonPos.x, moonPos.y, haloR, 0, TAU);
-  ctx.fill();
-  ctx.restore();
-
-  ctx.save();
-  ctx.globalAlpha = 0.78;
-  ctx.fillStyle = '#eef2ff';
-  ctx.beginPath();
-  ctx.arc(moonPos.x, moonPos.y, moonR, 0, TAU);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(180,195,225,.5)';
-  ctx.beginPath();
-  ctx.arc(moonPos.x - moonR*0.35, moonPos.y - moonR*0.20, moonR*0.18, 0, TAU);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(moonPos.x + moonR*0.22, moonPos.y + moonR*0.30, moonR*0.14, 0, TAU);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(moonPos.x + moonR*0.32, moonPos.y - moonR*0.28, moonR*0.11, 0, TAU);
-  ctx.fill();
-  ctx.restore();
+/* ============================================================
+   CLOUDS — قليلة، بسيطة، ببطء
+   ============================================================ */
+function spawnCloud(){
+  const w = rand(70, 120);
+  clouds.push({
+    x: W + w,
+    y: rand(H * 0.08, groundY * 0.32),
+    w,
+    spd: rand(6, 12)
+  });
 }
-
-/* 🏔️ الجبال */
-function drawMountainPath(points, color){
-  ctx.beginPath();
-  ctx.moveTo(points[0][0], points[0][1]);
-  for (let i = 1; i < points.length; i++){
-    ctx.lineTo(points[i][0], points[i][1]);
+function updateClouds(dt){
+  const worldSpeed = (state === 'playing') ? speed * 60 : 60;
+  cloudTimer -= dt;
+  if (cloudTimer <= 0){
+    spawnCloud();
+    cloudTimer = rand(4, 9);
   }
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
+  for (let i = clouds.length-1; i >= 0; i--){
+    const c = clouds[i];
+    c.x -= (c.spd + worldSpeed * 0.04) * dt;
+    if (c.x + c.w < -40) clouds.splice(i, 1);
+  }
 }
-
-function drawMountains(){
-  const sky = getSkyColors(skyPhase);
-  const mountainBase = lerpColor(sky.mid, [25, 40, 70], 0.45);
-  const mountainTip  = lerpColor(mountainBase, [255, 255, 255], 0.10);
-
-  const grad = ctx.createLinearGradient(0, groundY - H * 0.42, 0, groundY);
-  grad.addColorStop(0, rgb(mountainTip, 0.88));
-  grad.addColorStop(1, rgb(mountainBase, 0.88));
-
-  /* جبل الشرق (يمين) */
-  drawMountainPath([
-    [W * 0.58, groundY + 4],
-    [W * 0.66, groundY - H * 0.08],
-    [W * 0.73, groundY - H * 0.20],
-    [W * 0.80, groundY - H * 0.17],
-    [W * 0.86, groundY - H * 0.32],
-    [W * 0.90, groundY - H * 0.42],
-    [W * 0.94, groundY - H * 0.38],
-    [W * 1.00, groundY - H * 0.30],
-    [W + 20, groundY - H * 0.22],
-    [W + 20, groundY + 4]
-  ], grad);
-
-  /* جبل الغرب (شمال) */
-  drawMountainPath([
-    [-20, groundY + 4],
-    [-20, groundY - H * 0.22],
-    [W * 0.00, groundY - H * 0.30],
-    [W * 0.06, groundY - H * 0.38],
-    [W * 0.10, groundY - H * 0.42],
-    [W * 0.14, groundY - H * 0.32],
-    [W * 0.20, groundY - H * 0.17],
-    [W * 0.27, groundY - H * 0.20],
-    [W * 0.34, groundY - H * 0.08],
-    [W * 0.42, groundY + 4]
-  ], grad);
-}
-
-/* السحب */
 function drawClouds(){
-  const sky = getSkyColors(skyPhase);
-  const cloudCol = lerpColor(sky.mid, [255,255,255], dayness * 0.70 + 0.20);
-  const cloudAlpha = 0.28 + dayness * 0.35;
-
   ctx.save();
+  ctx.fillStyle = 'rgba(255,255,255,.78)';
   for (const c of clouds){
-    const r = c.w * 0.30;
-
-    ctx.fillStyle = rgb(lerpColor(cloudCol, [0,0,0], 0.10), cloudAlpha * 0.5);
+    const r = c.w * 0.28;
     ctx.beginPath();
-    ctx.arc(c.x, c.y + 2, r * 0.9, 0, TAU);
-    ctx.arc(c.x + r*1.10, c.y + 1, r * 1.05, 0, TAU);
-    ctx.arc(c.x + r*2.30, c.y + 2, r * 0.8, 0, TAU);
-    ctx.fill();
-
-    ctx.fillStyle = rgb(cloudCol, cloudAlpha);
-    ctx.beginPath();
-    ctx.arc(c.x,           c.y,          r,      0, TAU);
-    ctx.arc(c.x + r*1.10,  c.y - r*0.50, r*1.25, 0, TAU);
-    ctx.arc(c.x + r*2.30,  c.y,          r*0.95, 0, TAU);
-    ctx.fill();
-
-    ctx.fillStyle = rgb([255,255,255], cloudAlpha * 0.42);
-    ctx.beginPath();
-    ctx.arc(c.x + r*1.10, c.y - r*0.65, r*0.7, 0, TAU);
+    ctx.arc(c.x,             c.y,           r,        0, TAU);
+    ctx.arc(c.x + r*1.15,    c.y - r*0.55,  r*1.20,   0, TAU);
+    ctx.arc(c.x + r*2.30,    c.y,           r*0.92,   0, TAU);
+    ctx.arc(c.x + r*1.20,    c.y + r*0.35,  r*0.85,   0, TAU);
     ctx.fill();
   }
   ctx.restore();
 }
 
-/* Hills */
-function drawHills(){
-  const sky = getSkyColors(skyPhase);
-  const hill1Col = lerpColor(sky.bot, [255,255,255], 0.55 + dayness * 0.10);
-  const hill2Col = lerpColor(sky.bot, [255,255,255], 0.30 + dayness * 0.15);
-
+/* ============================================================
+   HILLS — طبقتين بعيدتين، فاتحتين جدًا
+   ============================================================ */
+function drawHillsFar(){
   ctx.save();
-  ctx.fillStyle = rgb(hill1Col, 0.85);
+  ctx.fillStyle = 'rgba(190,215,240,.55)';
   ctx.beginPath();
   ctx.moveTo(-2, groundY + 2);
-  for (let x = -2; x <= W + 2; x += 14){
-    const y = groundY - 40
-      - Math.sin((x + hillOff1) / 145) * 26
-      - Math.sin((x + hillOff1) / 62) * 9;
+  for (let x = -2; x <= W + 2; x += 16){
+    const y = groundY - 30
+      - Math.sin((x + hillOff1) / 200) * 18
+      - Math.sin((x + hillOff1) / 88) * 6;
     ctx.lineTo(x, y);
   }
   ctx.lineTo(W + 2, groundY + 2);
   ctx.closePath();
   ctx.fill();
-
-  ctx.fillStyle = rgb(hill2Col, 0.85);
+  ctx.restore();
+}
+function drawHillsNear(){
+  ctx.save();
+  ctx.fillStyle = 'rgba(210,228,245,.7)';
   ctx.beginPath();
   ctx.moveTo(-2, groundY + 2);
-  for (let x = -2; x <= W + 2; x += 14){
-    const y = groundY - 22
-      - Math.sin((x + hillOff2) / 108) * 18
-      - Math.sin((x + hillOff2) / 48) * 7;
+  for (let x = -2; x <= W + 2; x += 16){
+    const y = groundY - 14
+      - Math.sin((x + hillOff2) / 150) * 12
+      - Math.sin((x + hillOff2) / 62) * 5;
     ctx.lineTo(x, y);
   }
   ctx.lineTo(W + 2, groundY + 2);
@@ -1068,92 +591,102 @@ function drawHills(){
   ctx.restore();
 }
 
-/* Ground */
+/* ============================================================
+   GROUND — نضيف بخط واضح
+   ============================================================ */
 function drawGround(){
-  const groundCol = lerpColor([15,22,42], [255,255,255], dayness * 0.94 + 0.03);
-  const lineCol   = lerpColor([45,58,85],  [30,41,59],   dayness * 0.85);
-  const dotCol    = lerpColor([40,55,85],  [226,232,240],dayness * 0.9);
-
-  ctx.fillStyle = rgb(groundCol);
+  // الأرض
+  ctx.fillStyle = '#f5f9fc';
   ctx.fillRect(0, groundY, W, H - groundY);
 
-  ctx.strokeStyle = rgb(lineCol);
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(0, groundY + 1);
-  ctx.lineTo(W, groundY + 1);
-  ctx.stroke();
-
-  const gap = 44;
-  const start = -((groundOff % gap) + gap) % gap;
-  ctx.strokeStyle = rgb(dotCol);
-  ctx.lineWidth = 3;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  for (let x = start; x < W + gap; x += gap){
-    ctx.moveTo(x, groundY + 20);
-    ctx.lineTo(x + 20, groundY + 20);
-  }
-  ctx.stroke();
-  ctx.lineCap = 'butt';
+  // خط داكن واضح
+  ctx.fillStyle = '#334155';
+  ctx.fillRect(0, groundY, W, 2);
 }
 
-/* Obstacles */
-function drawObstacles(){
-  const isNight = dayness < 0.4;
+function drawGroundDecor(){
+  // شرطات على الأرض (زي Dino)
+  const gap = 56;
+  const start = -((groundOff % gap) + gap) % gap;
+  ctx.fillStyle = '#cbd5e1';
+  for (let x = start; x < W + gap; x += gap){
+    ctx.beginPath();
+    ctx.arc(x, groundY + 22, 1.6, 0, TAU);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x + 12, groundY + 30, 1.2, 0, TAU);
+    ctx.fill();
+  }
 
+  // شجيرات صغيرة — كل ~340 بكسل
+  const bushGap = 340;
+  const bushStart = -((grassOff % bushGap) + bushGap) % bushGap;
+  for (let x = bushStart - 50; x < W + bushGap; x += bushGap){
+    drawBush(x, groundY);
+  }
+}
+function drawBush(x, y){
+  ctx.save();
+  // شجيرة خضرا خفيفة
+  ctx.fillStyle = '#a8d5a8';
+  ctx.beginPath();
+  ctx.arc(x,      y - 4, 6, 0, TAU);
+  ctx.arc(x + 8,  y - 6, 8, 0, TAU);
+  ctx.arc(x + 18, y - 4, 6, 0, TAU);
+  ctx.fill();
+
+  // ظل خفيف
+  ctx.fillStyle = 'rgba(120,170,120,.35)';
+  ctx.beginPath();
+  ctx.arc(x + 8, y - 3, 7, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+
+/* ============================================================
+   OBSTACLES — بسيطة وواضحة
+   ============================================================ */
+function drawObstacles(){
   for (const o of obstacles){
+    // ظل خفيف
     ctx.save();
     ctx.globalAlpha = 0.10;
     ctx.fillStyle = '#000';
     ctx.beginPath();
-    ctx.ellipse(o.x + o.w/2, groundY + 4, o.w*0.55, 4, 0, 0, TAU);
+    ctx.ellipse(o.x + o.w/2, groundY + 2, o.w*0.55, 3, 0, 0, TAU);
     ctx.fill();
     ctx.restore();
 
-    ctx.fillStyle = isNight ? '#1a2538' : '#1e293b';
-    roundRectPath(ctx, o.x, o.y, o.w, o.h, 7);
+    // الجسم — داكن وواضح
+    ctx.fillStyle = '#334155';
+    roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
     ctx.fill();
 
-    ctx.fillStyle = isNight ? '#2c3a55' : '#334155';
-    roundRectPath(ctx, o.x, o.y, o.w, Math.min(9, o.h*0.22), 7);
+    // شريط علوي فاتح خفيف
+    ctx.fillStyle = '#4a5a72';
+    roundRectPath(ctx, o.x + 2, o.y + 2, o.w - 4, Math.min(6, o.h * 0.18), 4);
     ctx.fill();
-
-    const winCol = isNight ? '#fbbf24' : (dayness > 0.6 ? '#bfdbfe' : '#93c5fd');
-    ctx.fillStyle = winCol;
-    if (isNight){
-      ctx.shadowColor = 'rgba(251,191,36,.6)';
-      ctx.shadowBlur = 8;
-    }
-    const cols = o.w >= 46 ? 3 : 2;
-    const rows = o.h >= 46 ? 2 : 1;
-    const bw = 5, bh = 5;
-    for (let r = 0; r < rows; r++){
-      for (let c = 0; c < cols; c++){
-        const px = o.x + (o.w/(cols+1))*(c+1) - bw/2;
-        const py = o.y + (rows === 1 ? o.h*0.55 : o.h*(0.38 + r*0.34)) - bh/2;
-        roundRectPath(ctx, px, py, bw, bh, 1.5);
-        ctx.fill();
-      }
-    }
-    ctx.shadowBlur = 0;
   }
 }
 
-/* Collectible stars */
-function drawCollectibleStars(){
+/* ============================================================
+   STARS — أبرز عنصر بعد ناوي
+   ============================================================ */
+function drawStars(){
   for (const s of stars){
     ctx.save();
     ctx.translate(s.x, s.y);
     ctx.rotate(s.rot);
 
-    ctx.globalAlpha = 0.22 + (1 - dayness) * 0.28;
+    // هالة ذهبية
+    ctx.globalAlpha = 0.28;
     ctx.fillStyle = '#fbbf24';
     ctx.beginPath();
-    ctx.arc(0, 0, s.r * 1.6, 0, TAU);
+    ctx.arc(0, 0, s.r * 1.7, 0, TAU);
     ctx.fill();
     ctx.globalAlpha = 1;
 
+    // النجمة
     ctx.beginPath();
     for (let i = 0; i < 10; i++){
       const a  = -Math.PI/2 + i * Math.PI/5;
@@ -1172,23 +705,30 @@ function drawCollectibleStars(){
   }
 }
 
-/* Powerups */
+/* ============================================================
+   POWERUPS — واضحة جدًا
+   ============================================================ */
 function drawPowerups(){
   for (const p of powerups){
-    const y = p.y + Math.sin(p.bob) * 6;
+    const y = p.y + Math.sin(p.bob) * 5;
     ctx.save();
-    ctx.shadowBlur = 18;
+
+    // هالة
+    ctx.shadowBlur = 14;
     ctx.shadowColor = p.type === 'shield'
-      ? 'rgba(31,139,255,.5)'
-      : 'rgba(255,177,40,.5)';
-    ctx.fillStyle = '#fff';
+      ? 'rgba(31,139,255,.45)'
+      : 'rgba(255,177,40,.45)';
+
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(p.x, y, p.r, 0, TAU);
     ctx.fill();
+
     ctx.shadowBlur = 0;
-    ctx.lineWidth = 2.4;
+    ctx.lineWidth = 2.5;
     ctx.strokeStyle = p.type === 'shield' ? '#55a9ff' : '#f1b72f';
     ctx.stroke();
+
     ctx.font = '900 15px system-ui';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
@@ -1199,40 +739,26 @@ function drawPowerups(){
   ctx.textBaseline = 'alphabetic';
 }
 
-/* 🌑 Vignette */
-function drawVignette(){
-  const nightness = 1 - dayness;
-  if (nightness < 0.15) return;
-
-  const intensity = (nightness - 0.15) / 0.85 * 0.45;
-
-  const g = ctx.createRadialGradient(
-    W * 0.5, H * 0.5, Math.min(W, H) * 0.35,
-    W * 0.5, H * 0.5, Math.max(W, H) * 0.85
-  );
-  g.addColorStop(0, 'rgba(0,8,20,0)');
-  g.addColorStop(1, `rgba(0,8,20,${intensity})`);
-
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, H);
-}
-
-/* Player */
+/* ============================================================
+   NAWY — الأبرز على الشاشة
+   ============================================================ */
 function drawPlayer(){
   const s  = player.size;
   const cx = player.x + s/2;
   const cy = player.y + s/2;
   const R  = s/2;
 
+  // ظل أرضي
   const airH = clamp((groundY - player.y - s) / 170, 0, 1);
   ctx.save();
-  ctx.globalAlpha = (dayness > 0.5 ? 0.13 : 0.30) * (1 - airH*0.7);
-  ctx.fillStyle = '#000';
+  ctx.globalAlpha = 0.14 * (1 - airH*0.7);
+  ctx.fillStyle = '#1e293b';
   ctx.beginPath();
-  ctx.ellipse(cx, groundY + 5, s*0.42*(1-airH*0.4), 5*(1-airH*0.4), 0, 0, TAU);
+  ctx.ellipse(cx, groundY + 4, s*0.42*(1-airH*0.4), 4.5*(1-airH*0.4), 0, 0, TAU);
   ctx.fill();
   ctx.restore();
 
+  // هالة المغناطيس
   if (player.magnet > 0){
     ctx.save();
     ctx.globalAlpha = 0.35 + Math.sin(worldTime * 7) * 0.15;
@@ -1246,6 +772,7 @@ function drawPlayer(){
     ctx.restore();
   }
 
+  // هالة الحماية
   if (player.shield > 0){
     const pulse = 1 + Math.sin(worldTime * 8) * 0.05;
     ctx.save();
@@ -1272,9 +799,10 @@ function drawPlayer(){
   ctx.scale(sqX, sqY);
   ctx.rotate(player.rotation * 0.4);
 
+  // ظل خارجي قوي — عشان ناوي يبان
   ctx.save();
-  ctx.shadowColor = 'rgba(20,90,200,.30)';
-  ctx.shadowBlur = 14;
+  ctx.shadowColor = 'rgba(20,90,200,.35)';
+  ctx.shadowBlur = 16;
   ctx.shadowOffsetY = 3;
   ctx.beginPath();
   ctx.arc(0, 0, R, 0, TAU);
@@ -1282,6 +810,7 @@ function drawPlayer(){
   ctx.fill();
   ctx.restore();
 
+  // تدرج
   const g = ctx.createLinearGradient(0, -R, 0, R);
   g.addColorStop(0,   '#4A96F0');
   g.addColorStop(.55, '#2563EB');
@@ -1291,18 +820,19 @@ function drawPlayer(){
   ctx.fillStyle = g;
   ctx.fill();
 
+  // لمعة علوية
   ctx.save();
-  ctx.globalAlpha = 0.30;
+  ctx.globalAlpha = 0.32;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
   ctx.ellipse(-R*0.32, -R*0.44, R*0.30, R*0.15, -0.5, 0, TAU);
   ctx.fill();
   ctx.restore();
 
+  // الوش (ريأكشنات)
   const blinkingNow = player.blinking > 0;
   player.pupilX += (player.pupilTargetX - player.pupilX) * 0.18;
   player.pupilY += (player.pupilTargetY - player.pupilY) * 0.18;
-
   const mood = player.mood;
 
   if (mood === 'hit'){
@@ -1442,6 +972,7 @@ function drawPlayer(){
     }
   }
 
+  // خدود
   ctx.save();
   ctx.globalAlpha = 0.28;
   ctx.fillStyle = '#fb7185';
@@ -1454,7 +985,9 @@ function drawPlayer(){
   ctx.restore();
 }
 
-/* Particles draw */
+/* ============================================================
+   PARTICLES
+   ============================================================ */
 function drawParticles(){
   for (const p of particles){
     const a = clamp(p.life / p.maxLife, 0, 1);
@@ -1494,33 +1027,27 @@ function render(){
 
   ctx.save();
   if (shake > 0.2 && !reduceMotion){
-    ctx.translate(rand(-shake,shake)*0.5, rand(-shake,shake)*0.5);
+    ctx.translate(rand(-shake,shake)*0.4, rand(-shake,shake)*0.4);
   }
 
   drawSky();
-  drawNightStars();
-  drawShootingStars();     // ☄️
   drawSun();
-  drawMoon();
-  drawMountains();
-  drawFog();               // 🌫️ فوق الجبال
   drawClouds();
-  drawBirds();             // 🐦
-  drawHills();
+  drawHillsFar();
+  drawHillsNear();
   drawGround();
-  drawCollectibleStars();
+  drawGroundDecor();
+  drawStars();
   drawPowerups();
   drawObstacles();
-  drawRain();              // 🌧️ فوق كل حاجة (قبل اللاعب)
   drawParticles();
   if (state !== 'over') drawPlayer();
-  drawVignette();          // 🌑 vignette فوق كل حاجة
 
   ctx.restore();
 }
 
 /* ============================================================
-   SPAWNERS
+   SPAWNERS + DIFFICULTY
    ============================================================ */
 function getDifficulty(){ return clamp(score / 1200, 0, 1); }
 
@@ -1529,22 +1056,23 @@ function spawnObstacle(){
   const r = Math.random();
   let w, h;
   if (d < 0.30){
-    w = 24; h = rand(28, 40);
+    w = 24; h = rand(28, 38);
   } else if (d < 0.60){
-    if (r < 0.55){ w = 24; h = rand(32, 46); }
-    else         { w = 22; h = rand(44, 56); }
+    if (r < 0.55){ w = 24; h = rand(32, 44); }
+    else         { w = 22; h = rand(42, 54); }
   } else if (d < 0.85){
     if (r < 0.40){ w = 24; h = rand(34, 46); }
-    else if (r < 0.75){ w = 22; h = rand(46, 60); }
+    else if (r < 0.75){ w = 22; h = rand(46, 58); }
     else { w = rand(44, 54); h = rand(28, 34); }
   } else {
     if (r < 0.30){ w = 24; h = rand(36, 48); }
-    else if (r < 0.60){ w = 22; h = rand(48, 62); }
+    else if (r < 0.60){ w = 22; h = rand(48, 60); }
     else if (r < 0.85){ w = rand(46, 56); h = rand(28, 34); }
-    else { w = 20; h = rand(56, 66); }
+    else { w = 20; h = rand(56, 64); }
   }
   obstacles.push({ x: W + 40, w, h, y: groundY - h, passed:false });
 }
+
 function spawnStarArc(){
   const startX = W + 90;
   for (const o of obstacles){
@@ -1552,7 +1080,7 @@ function spawnStarArc(){
   }
   const d = getDifficulty();
   const n = d > 0.5 ? (Math.random() < 0.5 ? 4 : 5) : 3;
-  const baseY = groundY - rand(95, 140);
+  const baseY = groundY - rand(95, 135);
   for (let i = 0; i < n; i++){
     stars.push({
       x: startX + i*34,
@@ -1561,10 +1089,7 @@ function spawnStarArc(){
     });
   }
 }
-function spawnCloud(){
-  const w = rand(60, 130);
-  clouds.push({ x: W + w, y: rand(H*0.05, groundY*0.42), w, spd: rand(4, 14) });
-}
+
 function spawnPowerup(force){
   if (powerups.length >= 1 && !force) return;
   const type = Math.random() < 0.55 ? 'shield' : 'magnet';
@@ -1578,19 +1103,11 @@ function spawnPowerup(force){
    AMBIENT / MOOD
    ============================================================ */
 function updateAmbient(dt){
-  const worldSpeed = (state === 'playing') ? speed * 60 : 70;
-  hillOff1  += worldSpeed * 0.06 * dt;
-  hillOff2  += worldSpeed * 0.14 * dt;
+  const worldSpeed = (state === 'playing') ? speed * 60 : 60;
+  hillOff1  += worldSpeed * 0.04 * dt;
+  hillOff2  += worldSpeed * 0.10 * dt;
   groundOff += worldSpeed * dt;
-
-  cloudTimer -= dt;
-  if (cloudTimer <= 0){ spawnCloud(); cloudTimer = rand(2.5, 6); }
-
-  for (let i = clouds.length-1; i >= 0; i--){
-    const c = clouds[i];
-    c.x -= (c.spd + worldSpeed * 0.05) * dt;
-    if (c.x + c.w < -40) clouds.splice(i, 1);
-  }
+  grassOff  += worldSpeed * dt;
 }
 
 function updatePlayerMood(dt){
@@ -1613,15 +1130,16 @@ function updatePlayerMood(dt){
    UPDATE
    ============================================================ */
 function update(dt){
+  // فيزياء اللاعب
   player.vy = Math.min(player.vy + GRAVITY * dt, MAX_FALL);
   player.y += player.vy * dt;
 
   const floor = groundY - player.size;
   if (player.y >= floor){
     if (!player.grounded){
-      player.squash = 0.82;
-      if (!reduceMotion) shake = Math.min(shake + 2, 4);
-      burstDust(player.x + player.size/2, groundY, 7);
+      player.squash = 0.84;
+      if (!reduceMotion) shake = Math.min(shake + 1.2, 2);
+      burstDust(player.x + player.size/2, groundY, 5);
       sfx('land');
     }
     player.y = floor; player.vy = 0; player.grounded = true;
@@ -1634,17 +1152,20 @@ function update(dt){
   else player.coyote = Math.max(0, player.coyote - dt);
   player.jumpBuf = Math.max(0, player.jumpBuf - dt);
 
+  // رمش
   player.blinkTimer -= dt;
   if (player.blinkTimer <= 0){ player.blinking = 0.13; player.blinkTimer = rand(2.2, 5.5); }
   if (player.blinking > 0) player.blinking -= dt;
 
   updatePlayerMood(dt);
 
+  // نقاط
   score += dt * (11 + getDifficulty() * 6);
   const shown = Math.floor(score);
   if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
   speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.018);
 
+  // محطات
   const ms = Math.floor(score / 100);
   if (ms > milestone){
     milestone = ms;
@@ -1653,6 +1174,7 @@ function update(dt){
     setMood('happy', 0.6);
   }
 
+  // توليد
   obstacleTimer -= dt;
   if (obstacleTimer <= 0){
     spawnObstacle();
@@ -1663,6 +1185,7 @@ function update(dt){
 
   const dx = speed * 60 * dt;
 
+  // تصادم
   for (let i = obstacles.length-1; i >= 0; i--){
     const o = obstacles[i];
     o.x -= dx;
@@ -1673,7 +1196,7 @@ function update(dt){
     )){
       if (player.shield > 0){
         player.shield = 0;
-        burstSparkle(player.x + player.size/2, player.y + player.size/2, 16);
+        burstSparkle(player.x + player.size/2, player.y + player.size/2, 14);
         showToast('🛡️ الحماية أنقذتك!');
         sfx('shield');
         obstacles.splice(i,1);
@@ -1691,6 +1214,7 @@ function update(dt){
     }
   }
 
+  // نجوم
   starTimer -= dt;
   if (starTimer <= 0){
     spawnStarArc();
@@ -1706,6 +1230,7 @@ function update(dt){
     const s = stars[i];
     s.x -= dx; s.rot += dt * 2.2;
     if (s.x < -30){ stars.splice(i,1); continue; }
+
     if (player.magnet > 0){
       const ddx = pcx - s.x, ddy = pcy - s.y;
       const d = Math.hypot(ddx, ddy);
@@ -1715,25 +1240,27 @@ function update(dt){
         s.y += ddy * dt * (5 + f*8);
       }
     }
+
     const ddx = pcx - s.x, ddy = pcy - s.y;
     const rr  = s.r + pickupR;
     if (ddx*ddx + ddy*ddy < rr*rr){
       stars.splice(i,1);
       score += 10; starCount++; starsEl.textContent = starCount;
       combo++; comboEl.textContent = combo;
-      burstSparkle(s.x, s.y, 8);
+      burstSparkle(s.x, s.y, 7);
       spawnText(s.x, s.y - 10, '+10', '#f59e0b');
       sfx('coin'); setMood('happy', 0.45);
     }
   }
 
+  // قوى
   powerTimer -= dt;
   if (powerTimer <= 0){ spawnPowerup(); powerTimer = rand(9, 13); }
 
   for (let i = powerups.length-1; i >= 0; i--){
     const p = powerups[i];
     p.x -= dx; p.bob += dt * 4;
-    const py = p.y + Math.sin(p.bob) * 6;
+    const py = p.y + Math.sin(p.bob) * 5;
     const d = Math.hypot(pcx - p.x, pcy - py);
     if (d < player.size * 0.7 + p.r){
       if (p.type === 'shield'){
@@ -1741,7 +1268,7 @@ function update(dt){
       } else {
         player.magnet = 7; showToast('🧲 المغناطيس شغال!'); sfx('power');
       }
-      burstSparkle(p.x, py, 14);
+      burstSparkle(p.x, py, 12);
       powerups.splice(i,1); setMood('happy', 0.5);
       continue;
     }
@@ -1771,9 +1298,9 @@ function jump(){
   if (player.grounded || player.coyote > 0){
     player.vy = JUMP_V;
     player.grounded = false;
-    player.squash = 1.18;
+    player.squash = 1.16;
     player.coyote = 0; player.jumpBuf = 0;
-    burstDust(player.x + player.size/2, groundY, 5);
+    burstDust(player.x + player.size/2, groundY, 4);
     sfx('jump'); setMood('jump', 0.25);
     hintEl.classList.add('fade-out');
   } else player.jumpBuf = JUMP_BUF;
@@ -1802,7 +1329,7 @@ muteBtn.addEventListener('click', e => {
   e.stopPropagation();
   muted = !muted;
   muteBtn.textContent = muted ? '🔇' : '🔊';
-  try { localStorage.setItem('nawy.muted.v8', muted ? '1' : '0'); } catch(err){}
+  try { localStorage.setItem('nawy.muted.v9', muted ? '1' : '0'); } catch(err){}
   if (!muted) sfx('coin');
 });
 pauseBtn.addEventListener('click', e => {
@@ -1854,14 +1381,6 @@ function startGame(){
   stars.length = 0;
   powerups.length = 0;
   particles.length = 0;
-  shootingStars.length = 0;
-  birds.length = 0;
-  rainDrops.length = 0;
-  rainIntensity = 0;
-  rainTarget = 0;
-  rainNextChangeTimer = 20;
-  shootingStarTimer = 4;
-  birdTimer = 6;
 
   player.x = Math.max(46, W * 0.14);
   player.y = groundY - player.size;
@@ -1907,16 +1426,21 @@ function gameOver(){
   state = 'over';
   overAt = performance.now();
   score = Math.floor(score);
-  if (!reduceMotion) shake = 12;
-  sfx('hit'); vibrate(80);
+  if (!reduceMotion) shake = 5;
+  sfx('hit'); vibrate(60);
   setMood('hit', 5);
-  burstConfetti(player.x + player.size/2, player.y + player.size/2,
-                reduceMotion ? 10 : 24);
+
+  // confetti محلي وصغير
+  burstConfetti(
+    player.x + player.size/2,
+    player.y + player.size/2,
+    reduceMotion ? 6 : 14
+  );
 
   let record = false;
   if (score > best){
     best = score; record = true;
-    try { localStorage.setItem('nawy.best.v8', String(best)); } catch(e){}
+    try { localStorage.setItem('nawy.best.v9', String(best)); } catch(e){}
     bestEl.textContent = best;
     sfx('record'); setMood('record', 5);
   }
@@ -1929,7 +1453,9 @@ function gameOver(){
     badge: record ? 'أحسنت! 🎉' : null
   });
 
-  if (record && !reduceMotion) burstConfetti(W/2, H*0.35, 28);
+  if (record && !reduceMotion){
+    burstConfetti(W * 0.5, H * 0.35, 16);
+  }
 }
 
 /* ============================================================
@@ -1948,13 +1474,11 @@ function frame(t){
 
   if (state === 'playing') update(dt);
   updateAmbient(dt);
+  updateClouds(dt);
   updateParticles(dt);
-  updateSkyPhase();
-  updateShootingStars(dt);
-  updateBirds(dt);
-  updateRain(dt);
+  updateSunPos();
 
-  shake *= Math.exp(-9 * dt);
+  shake *= Math.exp(-10 * dt);
   if (shake < 0.15) shake = 0;
 
   render();
@@ -1971,8 +1495,8 @@ function init(){
   bestEl.textContent = best;
   muteBtn.textContent = muted ? '🔇' : '🔊';
   resize();
-  updateSkyPhase();
-  for (let i = 0; i < 4; i++) spawnCloud();
+  updateSunPos();
+  for (let i = 0; i < 3; i++) spawnCloud();
   requestAnimationFrame(frame);
 }
 init();
