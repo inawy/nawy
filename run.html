@@ -256,8 +256,8 @@
         <div class="emoji" id="ovEmoji">🔵</div>
         <h1 id="ovTitle">ناوي جاهز؟</h1>
         <p id="ovText">اضغط في أي مكان عشان تبدأ</p>
-        <button class="button" id="ovBtn">يلا نبدأ</button>
-        <button class="button secondary" id="ovShareBtn" style="display:none;margin-top:8px;">📤 شارك نتيجتك</button>
+        <button type="button" class="button" id="ovBtn">يلا نبدأ</button>
+        <button type="button" class="button secondary" id="ovShareBtn" style="display:none;margin-top:8px;">📤 شارك نتيجتك</button>
       </div>
     </div>
 
@@ -265,13 +265,13 @@
     <div class="hint" id="hint">اضغط في أي مكان — أو Space على الكيبورد</div>
 
     <div class="action-bar">
-      <button class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
-      <button class="action-btn" id="pauseBtn" aria-label="إيقاف">Ⅱ</button>
+      <button type="button" class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
+      <button type="button" class="action-btn" id="pauseBtn" aria-label="إيقاف">Ⅱ</button>
     </div>
 
     <div class="share-modal" id="shareModal">
       <div class="share-card" role="dialog" aria-modal="true">
-        <button class="share-close" id="shareClose" aria-label="إغلاق">✕</button>
+        <button type="button" class="share-close" id="shareClose" aria-label="إغلاق">✕</button>
         <div class="share-header">
           <h2>شارك نتيجتك 🎉</h2>
           <p>خلّي أصحابك يجربوا يكسرون رقمك</p>
@@ -280,9 +280,9 @@
           <canvas id="shareCanvas" width="1080" height="1920"></canvas>
         </div>
         <div class="share-actions">
-          <button class="share-btn primary" id="shareStoryBtn">📸 شارك على ستوري</button>
-          <button class="share-btn ghost" id="shareTextBtn">💬 شارك كرسالة</button>
-          <button class="share-btn ghost" id="shareDownloadBtn">⬇️ احفظ الصورة</button>
+          <button type="button" class="share-btn primary" id="shareStoryBtn">📸 شارك على ستوري</button>
+          <button type="button" class="share-btn ghost" id="shareTextBtn">💬 شارك كرسالة</button>
+          <button type="button" class="share-btn ghost" id="shareDownloadBtn">⬇️ احفظ الصورة</button>
         </div>
       </div>
     </div>
@@ -387,6 +387,7 @@ function pickMilestone(){
    ============================================================ */
 let W=0, H=0, groundY=0;
 let state = 'ready';
+let ovAction = 'start';   // ← جديد: 'start' | 'resume'
 let score = 0, lastShown = -1, milestone = 0;
 let starCount = 0, combo = 0;
 let speed = BASE_SPEED;
@@ -429,7 +430,6 @@ function drawBushOnSprite(c, x, baseY){
 }
 
 function buildSprites(){
-  /* 1) SKY */
   skySprite = document.createElement('canvas');
   skySprite.width = Math.max(1, W);
   skySprite.height = Math.max(1, groundY + 1);
@@ -443,7 +443,6 @@ function buildSprites(){
     c.fillRect(0, 0, W, groundY + 1);
   }
 
-  /* 2) SUN */
   const sunR = Math.max(20, W * 0.020);
   const haloR = sunR * 3.2;
   const sz = Math.ceil(haloR * 2 + 4);
@@ -469,7 +468,6 @@ function buildSprites(){
     c.beginPath(); c.arc(cx, cx, sunR, 0, TAU); c.fill();
   }
 
-  /* 3) CLOUDS */
   cloudSprites = [];
   for (let v = 0; v < 2; v++){
     const cw = 100 + v * 35;
@@ -491,7 +489,6 @@ function buildSprites(){
     cloudSprites.push(cv);
   }
 
-  /* 4) FAR HILLS */
   const farH = 60;
   farHillsSprite = document.createElement('canvas');
   farHillsSprite.width = Math.max(1, W);
@@ -510,7 +507,6 @@ function buildSprites(){
     c.fill();
   }
 
-  /* 5) NEAR HILLS */
   const nearH = 46;
   nearHillsSprite = document.createElement('canvas');
   nearHillsSprite.width = Math.max(1, W);
@@ -529,7 +525,6 @@ function buildSprites(){
     c.fill();
   }
 
-  /* 6) GROUND */
   groundTop = groundY - 14;
   const gH = H - groundTop;
   groundSprite = document.createElement('canvas');
@@ -691,7 +686,7 @@ function updateParticles(dt){
 }
 
 /* ============================================================
-   ⚡ RESIZE
+   RESIZE
    ============================================================ */
 let lastResizeW = 0, lastResizeH = 0;
 
@@ -1364,11 +1359,21 @@ function onTap(e){
 }
 canvas.addEventListener('pointerdown', onTap, { passive:false });
 
-/* ✅ الإصلاح: الزر بيفرّق بين pause و start */
-ovBtn.addEventListener('click', e => {
+/* ============================================================
+   ✅ زر overlay — بيستخدم ovAction المسجّل
+   + منع أي bubbling يمكن يوصل للـ canvas
+   ============================================================ */
+ovBtn.addEventListener('pointerdown', e => {
   e.stopPropagation();
-  if (state === 'paused') resumeGame();
-  else startGame();
+});
+ovBtn.addEventListener('click', e => {
+  e.preventDefault();
+  e.stopPropagation();
+  if (ovAction === 'resume'){
+    resumeGame();
+  } else {
+    startGame();
+  }
 });
 
 window.addEventListener('keydown', e => {
@@ -1410,6 +1415,7 @@ function showOverlay(opt){
   ovTitle.textContent = opt.title;
   ovText.innerHTML    = opt.text;
   ovBtn.textContent   = opt.btn;
+  ovAction = opt.action || 'start';   // ← مهم: بيتسجّل وقت العرض
   ovShareBtn.style.display = opt.showShare ? 'flex' : 'none';
   let badge = overlay.querySelector('.badge');
   if (opt.badge){
@@ -1840,6 +1846,12 @@ shareDownloadBtn.addEventListener('click', e => {
    GAME FLOW
    ============================================================ */
 function startGame(){
+  /* ✅ حماية: لو اللعبة paused، منصفّرش — نكمّل بس */
+  if (state === 'paused'){
+    resumeGame();
+    return;
+  }
+
   score = 0; lastShown = -1; milestone = 0;
   starCount = 0; combo = 0;
   speed = BASE_SPEED;
@@ -1888,6 +1900,7 @@ function pauseGame(){
     emoji: '⏸️', title: 'وقفة صغيرة',
     text : 'خد نفس... ولما تكون جاهز نكمل.',
     btn  : 'كمّل اللعب',
+    action: 'resume',   // ← مهم جداً
     showShare: false
   });
   pauseBtn.textContent = '▶';
@@ -1926,6 +1939,7 @@ function gameOver(){
     title: record ? 'رقم قياسي جديد!' : 'ناوي خبط! 😅',
     text : 'نتيجتك: <b>' + score + '</b> — الأفضل: <b>' + best + '</b>',
     btn  : 'حاول تاني',
+    action: 'start',   // ← لعبة جديدة
     showShare: true,
     badge: record ? 'أحسنت! 🎉' : null
   });
