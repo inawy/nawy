@@ -45,7 +45,6 @@
     background:var(--card-bg);
     box-shadow:0 2px 8px rgba(24,42,65,.06);
     line-height:1;
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
   .stat span{font-size:9px;color:var(--ink-muted);font-weight:800;margin-bottom:3px;letter-spacing:.2px;}
   .stat b{font-size:15px;color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums;}
@@ -69,7 +68,6 @@
     transition:transform .12s ease;
     color:var(--ink);
     box-shadow:0 4px 14px rgba(24,42,65,.10);
-    backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   }
   .action-btn:active{transform:scale(.92);}
 
@@ -84,7 +82,6 @@
   .chip{
     padding:5px 12px;border-radius:999px;
     background:var(--card-bg);
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
     border:1px solid var(--card-border);
     box-shadow:0 2px 8px rgba(20,45,75,.06);
     font-size:11px;font-weight:800;color:var(--ink-muted);
@@ -100,7 +97,6 @@
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
     pointer-events:none;text-align:center;padding:20px;z-index:10;
     background:rgba(255,255,255,.35);
-    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
   }
   .overlay.hidden{display:none;}
   .overlay-inner{
@@ -123,16 +119,13 @@
     background:linear-gradient(135deg,#1489ff,#0069e5);color:#fff;
     font-size:15px;font-weight:900;letter-spacing:.2px;
     cursor:pointer;pointer-events:auto;font-family:inherit;
-    box-shadow:0 6px 18px rgba(0,105,229,.28),inset 0 1px 0 rgba(255,255,255,.35);
+    box-shadow:0 6px 18px rgba(0,105,229,.28);
     transition:transform .12s;
     width:100%;
     display:flex;align-items:center;justify-content:center;gap:8px;
   }
   .button:active{transform:scale(.97) translateY(1px);}
-  .button.secondary{
-    background:#f1f5f9;color:#334155;
-    box-shadow:0 3px 10px rgba(15,23,42,.06);
-  }
+  .button.secondary{background:#f1f5f9;color:#334155;box-shadow:0 3px 10px rgba(15,23,42,.06);}
 
   .toast{
     position:absolute;top:15%;left:50%;transform:translate(-50%,12px);
@@ -142,7 +135,6 @@
     transition:opacity .22s ease,transform .22s ease;
     white-space:nowrap;box-shadow:0 8px 24px rgba(10,20,40,.25);
     z-index:60;
-    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   }
   .toast.show{opacity:1;transform:translate(-50%,0);}
 
@@ -156,19 +148,13 @@
   }
   .hint.fade-out{opacity:0;}
 
-  /* ================= SHARE MODAL ================= */
   .share-modal{
     position:absolute;inset:0;z-index:100;
     display:none;align-items:center;justify-content:center;
     padding:16px;
     background:rgba(10,20,40,.72);
-    backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-    animation:shareFadeIn .22s ease;
   }
   .share-modal.open{display:flex;}
-  @keyframes shareFadeIn{from{opacity:0;}to{opacity:1;}}
-  @keyframes sharePopIn{from{transform:scale(.94);opacity:0;}to{transform:scale(1);opacity:1;}}
-
   .share-card{
     position:relative;
     width:min(430px, 94vw);
@@ -179,10 +165,8 @@
     box-shadow:0 30px 80px rgba(10,20,40,.4);
     display:flex;flex-direction:column;
     gap:14px;
-    animation:sharePopIn .28s cubic-bezier(.2,.9,.3,1.2);
     overflow:hidden;
   }
-
   .share-close{
     position:absolute;
     top:14px;inset-inline-end:14px;
@@ -190,50 +174,38 @@
     background:#f1f5f9;border:0;color:#64748b;
     font-size:16px;font-weight:900;
     display:grid;place-items:center;cursor:pointer;
-    transition:transform .12s;
     z-index:5;
   }
   .share-close:active{transform:scale(.9);}
-
   .share-header{text-align:center;padding:0 34px;}
-  .share-header h2{margin:0 0 4px;font-size:20px;font-weight:950;letter-spacing:-.3px;color:#0f172a;}
+  .share-header h2{margin:0 0 4px;font-size:20px;font-weight:950;color:#0f172a;}
   .share-header p{margin:0;font-size:12px;font-weight:700;color:#64748b;}
-
   .share-preview{
     flex:0 0 auto;
     display:flex;align-items:center;justify-content:center;
-    padding:8px;
-    border-radius:18px;
+    padding:8px;border-radius:18px;
     background:linear-gradient(135deg, #eef5ff 0%, #dceaff 100%);
     overflow:hidden;
   }
   #shareCanvas{
-    display:block;
-    width:auto;
-    height:auto;
+    display:block;width:auto;height:auto;
     max-height:min(50vh, 420px);
     max-width:100%;
     border-radius:12px;
     box-shadow:0 8px 24px rgba(10,30,70,.22);
   }
-
   .share-actions{display:flex;flex-direction:column;gap:8px;flex:0 0 auto;}
-
   .share-btn{
-    width:100%;
-    border:0;border-radius:14px;
-    padding:13px 18px;
-    font-family:inherit;
-    font-size:14px;font-weight:900;
-    cursor:pointer;
+    width:100%;border:0;border-radius:14px;
+    padding:13px 18px;font-family:inherit;
+    font-size:14px;font-weight:900;cursor:pointer;
     display:flex;align-items:center;justify-content:center;gap:8px;
     transition:transform .12s;
   }
   .share-btn:active{transform:scale(.97);}
   .share-btn.primary{
-    background:linear-gradient(135deg,#1489ff,#0069e5);
-    color:#fff;
-    box-shadow:0 8px 20px rgba(0,105,229,.28),inset 0 1px 0 rgba(255,255,255,.35);
+    background:linear-gradient(135deg,#1489ff,#0069e5);color:#fff;
+    box-shadow:0 8px 20px rgba(0,105,229,.28);
   }
   .share-btn.ghost{background:#f1f5f9;color:#334155;font-size:13px;}
 
@@ -248,9 +220,6 @@
     #shareCanvas{max-height:44vh;}
     .share-btn{padding:11px 16px;font-size:13px;}
     .share-card{padding:16px;gap:10px;}
-  }
-  @media (prefers-reduced-motion: reduce){
-    .toast,.button,.action-btn,.hint,.chip,.share-modal,.share-card,.share-btn,.share-close{transition:none;animation:none;}
   }
 </style>
 </head>
@@ -294,33 +263,23 @@
 
     <div class="action-bar">
       <button class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
-      <button class="action-btn" id="pauseBtn" aria-label="إيقاف مؤقت">Ⅱ</button>
+      <button class="action-btn" id="pauseBtn" aria-label="إيقاف">Ⅱ</button>
     </div>
 
-    <!-- Share Modal -->
     <div class="share-modal" id="shareModal">
       <div class="share-card" role="dialog" aria-modal="true">
         <button class="share-close" id="shareClose" aria-label="إغلاق">✕</button>
-
         <div class="share-header">
           <h2>شارك نتيجتك 🎉</h2>
           <p>خلّي أصحابك يجربوا يكسرون رقمك</p>
         </div>
-
         <div class="share-preview">
           <canvas id="shareCanvas" width="1080" height="1920"></canvas>
         </div>
-
         <div class="share-actions">
-          <button class="share-btn primary" id="shareStoryBtn">
-            📸 شارك على ستوري
-          </button>
-          <button class="share-btn ghost" id="shareTextBtn">
-            💬 شارك كرسالة
-          </button>
-          <button class="share-btn ghost" id="shareDownloadBtn">
-            ⬇️ احفظ الصورة
-          </button>
+          <button class="share-btn primary" id="shareStoryBtn">📸 شارك على ستوري</button>
+          <button class="share-btn ghost" id="shareTextBtn">💬 شارك كرسالة</button>
+          <button class="share-btn ghost" id="shareDownloadBtn">⬇️ احفظ الصورة</button>
         </div>
       </div>
     </div>
@@ -362,7 +321,7 @@ function circleRect(cx,cy,r,rx,ry,rw,rh){
    ============================================================ */
 const stage       = document.getElementById('stage');
 const canvas      = document.getElementById('canvas');
-const ctx         = canvas.getContext('2d');
+const ctx         = canvas.getContext('2d', { alpha: false });
 const scoreEl     = document.getElementById('score');
 const bestEl      = document.getElementById('best');
 const comboEl     = document.getElementById('combo');
@@ -389,10 +348,6 @@ const shareStoryBtn   = document.getElementById('shareStoryBtn');
 const shareTextBtn    = document.getElementById('shareTextBtn');
 const shareDownloadBtn= document.getElementById('shareDownloadBtn');
 
-const reduceMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
-let reduceMotion = reduceMQ.matches;
-reduceMQ.addEventListener?.('change', e => { reduceMotion = e.matches; });
-
 /* ============================================================
    CONSTANTS
    ============================================================ */
@@ -404,6 +359,7 @@ const MAX_SPEED  = 11.5;
 const COYOTE     = 0.10;
 const JUMP_BUF   = 0.13;
 const SUN_CYCLE  = 240;
+const MAX_PARTICLES = 90;
 
 const MILESTONES = [
   'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
@@ -419,11 +375,11 @@ let score = 0, lastShown = -1, milestone = 0;
 let starCount = 0, combo = 0;
 let speed = BASE_SPEED;
 let best = 0;
-try { best = Number(localStorage.getItem('nawy.best.v11')) || 0; } catch(e){}
+try { best = Number(localStorage.getItem('nawy.best.v12')) || 0; } catch(e){}
 
 let shake = 0;
 let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
-let hillOff1 = 0, hillOff2 = 0, groundOff = 0, grassOff = 0;
+let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
 let lastT = 0, overAt = 0;
 let worldTime = 0;
 let lastRunRecord = false;
@@ -435,6 +391,177 @@ const stars     = [];
 const powerups  = [];
 const clouds    = [];
 const particles = [];
+
+/* ============================================================
+   🎨 SPRITE CACHE — أسرع بـ ~70%
+   ============================================================ */
+let skySprite = null;
+let sunSprite = null;
+let cloudSprites = [];
+let farHillsSprite = null;
+let nearHillsSprite = null;
+let groundSprite = null;
+let groundTop = 0;
+
+function drawBushOnSprite(c, x, baseY){
+  c.fillStyle = '#a8d5a8';
+  c.beginPath();
+  c.arc(x,      baseY - 4, 6, 0, TAU);
+  c.arc(x + 8,  baseY - 6, 8, 0, TAU);
+  c.arc(x + 18, baseY - 4, 6, 0, TAU);
+  c.fill();
+  c.fillStyle = 'rgba(120,170,120,.35)';
+  c.beginPath();
+  c.arc(x + 8, baseY - 3, 7, 0, TAU);
+  c.fill();
+}
+
+function buildSprites(){
+  /* ----- 1) SKY ----- */
+  skySprite = document.createElement('canvas');
+  skySprite.width = Math.max(1, W);
+  skySprite.height = Math.max(1, groundY + 1);
+  {
+    const c = skySprite.getContext('2d');
+    const g = c.createLinearGradient(0, 0, 0, groundY + 1);
+    g.addColorStop(0,    '#bfddf5');
+    g.addColorStop(0.55, '#d8ebfa');
+    g.addColorStop(1,    '#ecf5fc');
+    c.fillStyle = g;
+    c.fillRect(0, 0, W, groundY + 1);
+  }
+
+  /* ----- 2) SUN + HALO ----- */
+  const sunR = Math.max(22, W * 0.022);
+  const haloR = sunR * 3.6;
+  const sunSprSize = Math.ceil(haloR * 2 + 4);
+  sunSprite = {
+    canvas: document.createElement('canvas'),
+    cx: sunSprSize / 2
+  };
+  sunSprite.canvas.width = sunSprSize;
+  sunSprite.canvas.height = sunSprSize;
+  {
+    const c = sunSprite.canvas.getContext('2d');
+    const cx = sunSprSize / 2;
+    const halo = c.createRadialGradient(cx, cx, 0, cx, cx, haloR);
+    halo.addColorStop(0,   'rgba(255,240,180,.42)');
+    halo.addColorStop(0.4, 'rgba(255,240,180,.16)');
+    halo.addColorStop(1,   'rgba(255,240,180,0)');
+    c.fillStyle = halo;
+    c.beginPath(); c.arc(cx, cx, haloR, 0, TAU); c.fill();
+
+    const sunG = c.createRadialGradient(cx - sunR*0.2, cx - sunR*0.2, 0, cx, cx, sunR);
+    sunG.addColorStop(0,  '#fffbe8');
+    sunG.addColorStop(.6, '#ffeaa7');
+    sunG.addColorStop(1,  '#fdd97a');
+    c.fillStyle = sunG;
+    c.beginPath(); c.arc(cx, cx, sunR, 0, TAU); c.fill();
+  }
+
+  /* ----- 3) CLOUD SPRITES (3 variants) ----- */
+  cloudSprites = [];
+  for (let v = 0; v < 3; v++){
+    const cw = 110 + v * 30;
+    const ch = Math.round(cw * 0.58);
+    const cv = document.createElement('canvas');
+    cv.width = cw;
+    cv.height = ch;
+    const c = cv.getContext('2d');
+    c.fillStyle = 'rgba(255,255,255,.82)';
+    const r = cw * 0.20;
+    const bx = cw * 0.18;
+    const by = ch * 0.62;
+    c.beginPath();
+    c.arc(bx,             by,           r,        0, TAU);
+    c.arc(bx + r*1.15,    by - r*0.55,  r*1.20,   0, TAU);
+    c.arc(bx + r*2.30,    by,           r*0.92,   0, TAU);
+    c.arc(bx + r*1.20,    by + r*0.35,  r*0.85,   0, TAU);
+    c.fill();
+    cloudSprites.push(cv);
+  }
+
+  /* ----- 4) FAR HILLS (tileable) ----- */
+  const farH = 70;
+  farHillsSprite = document.createElement('canvas');
+  farHillsSprite.width = Math.max(1, W);
+  farHillsSprite.height = farH;
+  {
+    const c = farHillsSprite.getContext('2d');
+    c.fillStyle = 'rgba(190,215,240,.55)';
+    c.beginPath();
+    c.moveTo(0, farH);
+    for (let x = 0; x <= W; x += 8){
+      const y = farH - 30
+        - Math.sin(x / W * TAU * 2) * 18
+        - Math.sin(x / W * TAU * 5) * 6;
+      c.lineTo(x, y);
+    }
+    c.lineTo(W, farH);
+    c.closePath();
+    c.fill();
+  }
+
+  /* ----- 5) NEAR HILLS ----- */
+  const nearH = 55;
+  nearHillsSprite = document.createElement('canvas');
+  nearHillsSprite.width = Math.max(1, W);
+  nearHillsSprite.height = nearH;
+  {
+    const c = nearHillsSprite.getContext('2d');
+    c.fillStyle = 'rgba(210,228,245,.7)';
+    c.beginPath();
+    c.moveTo(0, nearH);
+    for (let x = 0; x <= W; x += 8){
+      const y = nearH - 14
+        - Math.sin(x / W * TAU * 3) * 12
+        - Math.sin(x / W * TAU * 7) * 5;
+      c.lineTo(x, y);
+    }
+    c.lineTo(W, nearH);
+    c.closePath();
+    c.fill();
+  }
+
+  /* ----- 6) GROUND + DASHES + BUSHES (tileable) ----- */
+  groundTop = groundY - 14;
+  const gH = H - groundTop;
+  groundSprite = document.createElement('canvas');
+  groundSprite.width = Math.max(1, W);
+  groundSprite.height = Math.max(1, gH);
+  {
+    const c = groundSprite.getContext('2d');
+    const lineY = 14;
+
+    // ground fill
+    c.fillStyle = '#f5f9fc';
+    c.fillRect(0, lineY, W, gH - lineY);
+
+    // top line
+    c.fillStyle = '#334155';
+    c.fillRect(0, lineY, W, 2);
+
+    // dashes — fit evenly to tile
+    const dashTarget = 56;
+    const dashCount = Math.max(2, Math.round(W / dashTarget));
+    const dashGap = W / dashCount;
+    c.fillStyle = '#cbd5e1';
+    for (let i = 0; i < dashCount; i++){
+      const x = i * dashGap;
+      c.beginPath(); c.arc(x, lineY + 20, 1.6, 0, TAU); c.fill();
+      c.beginPath(); c.arc(x + 12, lineY + 28, 1.2, 0, TAU); c.fill();
+    }
+
+    // bushes — fit evenly to tile
+    const bushTarget = 340;
+    const bushCount = Math.max(1, Math.round(W / bushTarget));
+    const bushGap = W / bushCount;
+    for (let i = 0; i < bushCount; i++){
+      const x = i * bushGap + bushGap * 0.3;
+      drawBushOnSprite(c, x, lineY);
+    }
+  }
+}
 
 /* ============================================================
    PLAYER
@@ -456,7 +583,7 @@ function setMood(m, d){ player.mood = m; player.moodTimer = d || 0; }
    ============================================================ */
 let audioCtx = null;
 let muted = false;
-try { muted = localStorage.getItem('nawy.muted.v11') === '1'; } catch(e){}
+try { muted = localStorage.getItem('nawy.muted.v12') === '1'; } catch(e){}
 
 function unlockAudio(){
   if (muted) return;
@@ -509,17 +636,16 @@ function vibrate(ms){
 }
 
 /* ============================================================
-   PARTICLES
+   PARTICLES — limit 90
    ============================================================ */
 function addP(p){
-  if (particles.length > 160) return;
+  if (particles.length > MAX_PARTICLES) return;
   p.rot = p.rot || 0; p.rotSpd = p.rotSpd || 0;
   p.g = p.g || 0; p.drag = p.drag || 0;
   p.maxLife = p.life;
   particles.push(p);
 }
 function burstDust(x, y, n){
-  if (reduceMotion) n = Math.ceil(n/2);
   for (let i=0;i<n;i++){
     addP({
       type:'dust', x: x + rand(-6,6), y: y + rand(-3,2),
@@ -577,7 +703,8 @@ function updateParticles(dt){
    ============================================================ */
 function resize(){
   const rect = canvas.getBoundingClientRect();
-  const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+  // ⚡ DPR = 1.5 (أسرع 40% من 2)
+  const dpr  = Math.min(window.devicePixelRatio || 1, 1.5);
   const nw = Math.max(1, Math.round(rect.width));
   const nh = Math.max(1, Math.round(rect.height));
 
@@ -601,13 +728,15 @@ function resize(){
     else player.y = groundY - player.size;
   }
   player.x = Math.max(46, W * 0.14);
+
+  buildSprites();
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', () => setTimeout(resize, 120));
 if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
 
 /* ============================================================
-   SUN
+   SUN POSITION
    ============================================================ */
 function updateSunPos(){
   const t = (worldTime % SUN_CYCLE) / SUN_CYCLE;
@@ -616,42 +745,19 @@ function updateSunPos(){
 }
 
 /* ============================================================
-   DRAW SCENE
+   CLOUDS
    ============================================================ */
-function drawSky(){
-  const g = ctx.createLinearGradient(0, 0, 0, groundY + 1);
-  g.addColorStop(0,    '#bfddf5');
-  g.addColorStop(0.55, '#d8ebfa');
-  g.addColorStop(1,    '#ecf5fc');
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, W, groundY + 1);
-}
-function drawSun(){
-  const sunR = Math.max(22, W * 0.022);
-  const haloR = sunR * 3.8;
-  const halo = ctx.createRadialGradient(sunPos.x, sunPos.y, 0, sunPos.x, sunPos.y, haloR);
-  halo.addColorStop(0, 'rgba(255,240,180,.42)');
-  halo.addColorStop(0.4, 'rgba(255,240,180,.18)');
-  halo.addColorStop(1, 'rgba(255,240,180,0)');
-  ctx.fillStyle = halo;
-  ctx.beginPath();
-  ctx.arc(sunPos.x, sunPos.y, haloR, 0, TAU);
-  ctx.fill();
-  const sunG = ctx.createRadialGradient(
-    sunPos.x - sunR*0.2, sunPos.y - sunR*0.2, 0,
-    sunPos.x, sunPos.y, sunR
-  );
-  sunG.addColorStop(0,  '#fffbe8');
-  sunG.addColorStop(.6, '#ffeaa7');
-  sunG.addColorStop(1,  '#fdd97a');
-  ctx.fillStyle = sunG;
-  ctx.beginPath();
-  ctx.arc(sunPos.x, sunPos.y, sunR, 0, TAU);
-  ctx.fill();
-}
 function spawnCloud(){
-  const w = rand(70, 120);
-  clouds.push({ x: W + w, y: rand(H * 0.08, groundY * 0.32), w, spd: rand(6, 12) });
+  const variant = Math.floor(Math.random() * cloudSprites.length);
+  const spr = cloudSprites[variant];
+  clouds.push({
+    x: W + 40,
+    y: rand(H * 0.08, groundY * 0.32),
+    w: spr.width,
+    h: spr.height,
+    variant,
+    spd: rand(6, 12)
+  });
 }
 function updateClouds(dt){
   const worldSpeed = (state === 'playing') ? speed * 60 : 60;
@@ -663,99 +769,10 @@ function updateClouds(dt){
     if (c.x + c.w < -40) clouds.splice(i, 1);
   }
 }
-function drawClouds(){
-  ctx.save();
-  ctx.fillStyle = 'rgba(255,255,255,.78)';
-  for (const c of clouds){
-    const r = c.w * 0.28;
-    ctx.beginPath();
-    ctx.arc(c.x,             c.y,           r,        0, TAU);
-    ctx.arc(c.x + r*1.15,    c.y - r*0.55,  r*1.20,   0, TAU);
-    ctx.arc(c.x + r*2.30,    c.y,           r*0.92,   0, TAU);
-    ctx.arc(c.x + r*1.20,    c.y + r*0.35,  r*0.85,   0, TAU);
-    ctx.fill();
-  }
-  ctx.restore();
-}
-function drawHillsFar(){
-  ctx.save();
-  ctx.fillStyle = 'rgba(190,215,240,.55)';
-  ctx.beginPath();
-  ctx.moveTo(-2, groundY + 2);
-  for (let x = -2; x <= W + 2; x += 16){
-    const y = groundY - 30 - Math.sin((x + hillOff1) / 200) * 18 - Math.sin((x + hillOff1) / 88) * 6;
-    ctx.lineTo(x, y);
-  }
-  ctx.lineTo(W + 2, groundY + 2);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-function drawHillsNear(){
-  ctx.save();
-  ctx.fillStyle = 'rgba(210,228,245,.7)';
-  ctx.beginPath();
-  ctx.moveTo(-2, groundY + 2);
-  for (let x = -2; x <= W + 2; x += 16){
-    const y = groundY - 14 - Math.sin((x + hillOff2) / 150) * 12 - Math.sin((x + hillOff2) / 62) * 5;
-    ctx.lineTo(x, y);
-  }
-  ctx.lineTo(W + 2, groundY + 2);
-  ctx.closePath();
-  ctx.fill();
-  ctx.restore();
-}
-function drawGround(){
-  ctx.fillStyle = '#f5f9fc';
-  ctx.fillRect(0, groundY, W, H - groundY);
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(0, groundY, W, 2);
-}
-function drawGroundDecor(){
-  const gap = 56;
-  const start = -((groundOff % gap) + gap) % gap;
-  ctx.fillStyle = '#cbd5e1';
-  for (let x = start; x < W + gap; x += gap){
-    ctx.beginPath(); ctx.arc(x, groundY + 22, 1.6, 0, TAU); ctx.fill();
-    ctx.beginPath(); ctx.arc(x + 12, groundY + 30, 1.2, 0, TAU); ctx.fill();
-  }
-  const bushGap = 340;
-  const bushStart = -((grassOff % bushGap) + bushGap) % bushGap;
-  for (let x = bushStart - 50; x < W + bushGap; x += bushGap){
-    drawBush(x, groundY);
-  }
-}
-function drawBush(x, y){
-  ctx.save();
-  ctx.fillStyle = '#a8d5a8';
-  ctx.beginPath();
-  ctx.arc(x, y - 4, 6, 0, TAU);
-  ctx.arc(x + 8, y - 6, 8, 0, TAU);
-  ctx.arc(x + 18, y - 4, 6, 0, TAU);
-  ctx.fill();
-  ctx.fillStyle = 'rgba(120,170,120,.35)';
-  ctx.beginPath();
-  ctx.arc(x + 8, y - 3, 7, 0, TAU);
-  ctx.fill();
-  ctx.restore();
-}
-function drawObstacles(){
-  for (const o of obstacles){
-    ctx.save();
-    ctx.globalAlpha = 0.10;
-    ctx.fillStyle = '#000';
-    ctx.beginPath();
-    ctx.ellipse(o.x + o.w/2, groundY + 2, o.w*0.55, 3, 0, 0, TAU);
-    ctx.fill();
-    ctx.restore();
-    ctx.fillStyle = '#334155';
-    roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
-    ctx.fill();
-    ctx.fillStyle = '#4a5a72';
-    roundRectPath(ctx, o.x + 2, o.y + 2, o.w - 4, Math.min(6, o.h * 0.18), 4);
-    ctx.fill();
-  }
-}
+
+/* ============================================================
+   DRAW — DYNAMIC ONLY
+   ============================================================ */
 function drawStars(){
   for (const s of stars){
     ctx.save();
@@ -782,17 +799,20 @@ function drawStars(){
     ctx.restore();
   }
 }
+
 function drawPowerups(){
   for (const p of powerups){
     const y = p.y + Math.sin(p.bob) * 5;
     ctx.save();
-    ctx.shadowBlur = 14;
-    ctx.shadowColor = p.type === 'shield' ? 'rgba(31,139,255,.45)' : 'rgba(255,177,40,.45)';
+    // no shadowBlur — just a soft outer circle
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = p.type === 'shield' ? '#55a9ff' : '#f1b72f';
+    ctx.beginPath(); ctx.arc(p.x, y, p.r + 6, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 1;
     ctx.fillStyle = '#ffffff';
     ctx.beginPath();
     ctx.arc(p.x, y, p.r, 0, TAU);
     ctx.fill();
-    ctx.shadowBlur = 0;
     ctx.lineWidth = 2.5;
     ctx.strokeStyle = p.type === 'shield' ? '#55a9ff' : '#f1b72f';
     ctx.stroke();
@@ -805,6 +825,25 @@ function drawPowerups(){
   ctx.textAlign = 'start';
   ctx.textBaseline = 'alphabetic';
 }
+
+function drawObstacles(){
+  for (const o of obstacles){
+    ctx.save();
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.ellipse(o.x + o.w/2, groundY + 2, o.w*0.55, 3, 0, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+    ctx.fillStyle = '#334155';
+    roundRectPath(ctx, o.x, o.y, o.w, o.h, 6);
+    ctx.fill();
+    ctx.fillStyle = '#4a5a72';
+    roundRectPath(ctx, o.x + 2, o.y + 2, o.w - 4, Math.min(6, o.h * 0.18), 4);
+    ctx.fill();
+  }
+}
+
 function drawPlayer(){
   const s  = player.size;
   const cx = player.x + s/2;
@@ -812,6 +851,8 @@ function drawPlayer(){
   const R  = s/2;
 
   const airH = clamp((groundY - player.y - s) / 170, 0, 1);
+
+  // shadow (no shadowBlur)
   ctx.save();
   ctx.globalAlpha = 0.14 * (1 - airH*0.7);
   ctx.fillStyle = '#1e293b';
@@ -838,13 +879,11 @@ function drawPlayer(){
     ctx.save();
     ctx.translate(cx, cy);
     ctx.scale(pulse, pulse);
-    const sGrad = ctx.createRadialGradient(0,0,R-2, 0,0,R+16);
-    sGrad.addColorStop(0,   'rgba(49,154,255,0)');
-    sGrad.addColorStop(.65, 'rgba(49,154,255,.30)');
-    sGrad.addColorStop(1,   'rgba(49,154,255,0)');
-    ctx.fillStyle = sGrad;
-    ctx.beginPath(); ctx.arc(0, 0, R + 16, 0, TAU); ctx.fill();
-    ctx.strokeStyle = 'rgba(90,175,255,.75)';
+    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = '#55a9ff';
+    ctx.beginPath(); ctx.arc(0, 0, R + 12, 0, TAU); ctx.fill();
+    ctx.globalAlpha = 0.75;
+    ctx.strokeStyle = 'rgba(90,175,255,.85)';
     ctx.lineWidth = 2.4;
     ctx.beginPath(); ctx.arc(0, 0, R + 10, 0, TAU); ctx.stroke();
     ctx.restore();
@@ -859,16 +898,7 @@ function drawPlayer(){
   ctx.scale(sqX, sqY);
   ctx.rotate(player.rotation * 0.4);
 
-  ctx.save();
-  ctx.shadowColor = 'rgba(20,90,200,.35)';
-  ctx.shadowBlur = 16;
-  ctx.shadowOffsetY = 3;
-  ctx.beginPath();
-  ctx.arc(0, 0, R, 0, TAU);
-  ctx.fillStyle = '#2563eb';
-  ctx.fill();
-  ctx.restore();
-
+  // body — solid circle, no shadowBlur
   const g = ctx.createLinearGradient(0, -R, 0, R);
   g.addColorStop(0,   '#4A96F0');
   g.addColorStop(.55, '#2563EB');
@@ -878,6 +908,7 @@ function drawPlayer(){
   ctx.fillStyle = g;
   ctx.fill();
 
+  // glossy highlight
   ctx.save();
   ctx.globalAlpha = 0.32;
   ctx.fillStyle = '#ffffff';
@@ -1039,6 +1070,7 @@ function drawPlayer(){
 
   ctx.restore();
 }
+
 function drawParticles(){
   for (const p of particles){
     const a = clamp(p.life / p.maxLife, 0, 1);
@@ -1069,24 +1101,57 @@ function drawParticles(){
   ctx.textAlign = 'start';
   ctx.textBaseline = 'alphabetic';
 }
+
+/* ============================================================
+   RENDER — كله drawImage
+   ============================================================ */
 function render(){
-  ctx.clearRect(0, 0, W, H);
   ctx.save();
-  if (shake > 0.2 && !reduceMotion){
+  if (shake > 0.2){
     ctx.translate(rand(-shake,shake)*0.4, rand(-shake,shake)*0.4);
   }
-  drawSky();
-  drawSun();
-  drawClouds();
-  drawHillsFar();
-  drawHillsNear();
-  drawGround();
-  drawGroundDecor();
+
+  // 1) Sky — drawImage
+  ctx.drawImage(skySprite, 0, 0);
+
+  // 2) Sun — drawImage sprite
+  ctx.drawImage(
+    sunSprite.canvas,
+    sunPos.x - sunSprite.cx,
+    sunPos.y - sunSprite.cx
+  );
+
+  // 3) Clouds — drawImage sprites
+  for (const c of clouds){
+    const spr = cloudSprites[c.variant];
+    if (!spr) continue;
+    ctx.drawImage(spr, c.x, c.y);
+  }
+
+  // 4) Far hills — tiled scroll
+  const farY = groundY - farHillsSprite.height + 2;
+  const farOff = hillOff1 % W;
+  ctx.drawImage(farHillsSprite, -farOff, farY);
+  ctx.drawImage(farHillsSprite, W - farOff, farY);
+
+  // 5) Near hills
+  const nearY = groundY - nearHillsSprite.height + 2;
+  const nearOff = hillOff2 % W;
+  ctx.drawImage(nearHillsSprite, -nearOff, nearY);
+  ctx.drawImage(nearHillsSprite, W - nearOff, nearY);
+
+  // 6) Ground — tiled scroll
+  const gOff = groundOff % W;
+  ctx.drawImage(groundSprite, -gOff, groundTop);
+  ctx.drawImage(groundSprite, W - gOff, groundTop);
+
+  // 7) Dynamic
   drawStars();
   drawPowerups();
   drawObstacles();
   drawParticles();
   if (state !== 'over') drawPlayer();
+
   ctx.restore();
 }
 
@@ -1147,7 +1212,6 @@ function updateAmbient(dt){
   hillOff1  += worldSpeed * 0.04 * dt;
   hillOff2  += worldSpeed * 0.10 * dt;
   groundOff += worldSpeed * dt;
-  grassOff  += worldSpeed * dt;
 }
 function updatePlayerMood(dt){
   if (player.moodTimer > 0){
@@ -1176,8 +1240,8 @@ function update(dt){
   if (player.y >= floor){
     if (!player.grounded){
       player.squash = 0.84;
-      if (!reduceMotion) shake = Math.min(shake + 1.2, 2);
-      burstDust(player.x + player.size/2, groundY, 5);
+      if (shake < 2) shake = Math.min(shake + 1.2, 2);
+      burstDust(player.x + player.size/2, groundY, 4);
       sfx('land');
     }
     player.y = floor; player.vy = 0; player.grounded = true;
@@ -1229,7 +1293,7 @@ function update(dt){
     )){
       if (player.shield > 0){
         player.shield = 0;
-        burstSparkle(player.x + player.size/2, player.y + player.size/2, 14);
+        burstSparkle(player.x + player.size/2, player.y + player.size/2, 12);
         showToast('🛡️ الحماية أنقذتك!');
         sfx('shield');
         obstacles.splice(i,1);
@@ -1279,7 +1343,7 @@ function update(dt){
       stars.splice(i,1);
       score += 10; starCount++; starsEl.textContent = starCount;
       combo++; comboEl.textContent = combo;
-      burstSparkle(s.x, s.y, 7);
+      burstSparkle(s.x, s.y, 6);
       spawnText(s.x, s.y - 10, '+10', '#f59e0b');
       sfx('coin'); setMood('happy', 0.45);
     }
@@ -1299,7 +1363,7 @@ function update(dt){
       } else {
         player.magnet = 7; showToast('🧲 المغناطيس شغال!'); sfx('power');
       }
-      burstSparkle(p.x, py, 12);
+      burstSparkle(p.x, py, 10);
       powerups.splice(i,1); setMood('happy', 0.5);
       continue;
     }
@@ -1361,7 +1425,7 @@ muteBtn.addEventListener('click', e => {
   e.stopPropagation();
   muted = !muted;
   muteBtn.textContent = muted ? '🔇' : '🔊';
-  try { localStorage.setItem('nawy.muted.v11', muted ? '1' : '0'); } catch(err){}
+  try { localStorage.setItem('nawy.muted.v12', muted ? '1' : '0'); } catch(err){}
   if (!muted) sfx('coin');
 });
 pauseBtn.addEventListener('click', e => {
@@ -1399,10 +1463,9 @@ function showOverlay(opt){
 }
 
 /* ============================================================
-   SHARE CARD — تصميم أنيق + دعوة للتجربة
+   SHARE CARD
    ============================================================ */
-function drawNawyForShare(c, cx, cy, R, mood){
-  // ظل
+function drawNawyForShare(c, cx, cy, R){
   c.save();
   c.shadowColor = 'rgba(20,90,200,.35)';
   c.shadowBlur = 30;
@@ -1413,7 +1476,6 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.fill();
   c.restore();
 
-  // تدرج
   const g = c.createLinearGradient(cx, cy - R, cx, cy + R);
   g.addColorStop(0,   '#5aa5ff');
   g.addColorStop(.55, '#2563EB');
@@ -1423,7 +1485,6 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.fillStyle = g;
   c.fill();
 
-  // لمعة
   c.save();
   c.globalAlpha = 0.38;
   c.fillStyle = '#ffffff';
@@ -1432,7 +1493,6 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.fill();
   c.restore();
 
-  // عيون
   const eyeR = R * 0.30;
   const eyeX = R * 0.38;
   const baseEyeY = cy - R * 0.08;
@@ -1456,7 +1516,6 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.arc(cx + eyeX + eyeR*0.15 - pupilR*0.35, baseEyeY - pupilR*0.35, pupilR*0.35, 0, TAU);
   c.fill();
 
-  // ابتسامة
   c.strokeStyle = '#0f172a';
   c.lineWidth = Math.max(4, R * 0.10);
   c.lineCap = 'round';
@@ -1464,7 +1523,6 @@ function drawNawyForShare(c, cx, cy, R, mood){
   c.arc(cx, cy + R*0.10, R*0.32, Math.PI*0.22, Math.PI*0.78);
   c.stroke();
 
-  // خدود
   c.save();
   c.globalAlpha = 0.32;
   c.fillStyle = '#fb7185';
@@ -1505,7 +1563,7 @@ function generateShareCard(){
   const finalScore = Math.floor(score);
   const isRecord = lastRunRecord;
 
-  /* ===== 1. خلفية الكارت (فاتحة زي اللعبة) ===== */
+  // خلفية
   const bg = c.createLinearGradient(0, 0, 0, CH);
   bg.addColorStop(0,    '#c9e4f8');
   bg.addColorStop(0.45, '#dceeff');
@@ -1513,7 +1571,7 @@ function generateShareCard(){
   c.fillStyle = bg;
   c.fillRect(0, 0, CW, CH);
 
-  /* ===== 2. براند أعلى ===== */
+  // براند
   c.save();
   c.fillStyle = '#1e293b';
   c.font = '900 46px system-ui, -apple-system, sans-serif';
@@ -1523,18 +1581,15 @@ function generateShareCard(){
   c.fillText('🎮 العب مع ناوي', CW/2, 130);
   c.restore();
 
-  /* ===== 3. المشهد داخل إطار (نافذة من اللعبة) ===== */
-  const sceneX = 90;
-  const sceneY = 220;
-  const sceneW = CW - 180;
-  const sceneH = 620;
+  // مشهد
+  const sceneX = 90, sceneY = 220;
+  const sceneW = CW - 180, sceneH = 620;
   const sceneR = 44;
 
   c.save();
   roundRectPath(c, sceneX, sceneY, sceneW, sceneH, sceneR);
   c.clip();
 
-  // سماء المشهد
   const skyGrad = c.createLinearGradient(sceneX, sceneY, sceneX, sceneY + sceneH);
   skyGrad.addColorStop(0,    '#bfddf5');
   skyGrad.addColorStop(0.55, '#d8ebfa');
@@ -1542,50 +1597,39 @@ function generateShareCard(){
   c.fillStyle = skyGrad;
   c.fillRect(sceneX, sceneY, sceneW, sceneH);
 
-  // شمس
   const sunX = sceneX + sceneW * 0.78;
   const sunY = sceneY + sceneH * 0.22;
   const sunR = 46;
-
   const sunHalo = c.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 3.4);
   sunHalo.addColorStop(0, 'rgba(255,240,180,.6)');
   sunHalo.addColorStop(0.45, 'rgba(255,240,180,.22)');
   sunHalo.addColorStop(1, 'rgba(255,240,180,0)');
   c.fillStyle = sunHalo;
-  c.beginPath();
-  c.arc(sunX, sunY, sunR * 3.4, 0, TAU);
-  c.fill();
+  c.beginPath(); c.arc(sunX, sunY, sunR * 3.4, 0, TAU); c.fill();
 
-  const sunGrad = c.createRadialGradient(
-    sunX - sunR*0.2, sunY - sunR*0.2, 0,
-    sunX, sunY, sunR
-  );
+  const sunGrad = c.createRadialGradient(sunX - sunR*0.2, sunY - sunR*0.2, 0, sunX, sunY, sunR);
   sunGrad.addColorStop(0, '#fffbe8');
   sunGrad.addColorStop(.6, '#ffeaa7');
   sunGrad.addColorStop(1, '#fdd97a');
   c.fillStyle = sunGrad;
-  c.beginPath();
-  c.arc(sunX, sunY, sunR, 0, TAU);
-  c.fill();
+  c.beginPath(); c.arc(sunX, sunY, sunR, 0, TAU); c.fill();
 
-  // سحب صغيرة
   function drawCloudInScene(x, y, s, alpha){
     c.save();
     c.globalAlpha = alpha;
     c.fillStyle = '#ffffff';
     const r = 32 * s;
     c.beginPath();
-    c.arc(x,             y,           r,        0, TAU);
-    c.arc(x + r*1.15,    y - r*0.55,  r*1.20,   0, TAU);
-    c.arc(x + r*2.30,    y,           r*0.92,   0, TAU);
-    c.arc(x + r*1.20,    y + r*0.35,  r*0.85,   0, TAU);
+    c.arc(x, y, r, 0, TAU);
+    c.arc(x + r*1.15, y - r*0.55, r*1.20, 0, TAU);
+    c.arc(x + r*2.30, y, r*0.92, 0, TAU);
+    c.arc(x + r*1.20, y + r*0.35, r*0.85, 0, TAU);
     c.fill();
     c.restore();
   }
   drawCloudInScene(sceneX + 130, sceneY + 120, 1.05, 0.85);
   drawCloudInScene(sceneX + 480, sceneY + 90, 0.80, 0.65);
 
-  // تلال بعيدة
   c.save();
   c.fillStyle = 'rgba(190,215,240,.60)';
   c.beginPath();
@@ -1600,7 +1644,6 @@ function generateShareCard(){
   c.fill();
   c.restore();
 
-  // تلال قريبة
   c.save();
   c.fillStyle = 'rgba(210,228,245,.82)';
   c.beginPath();
@@ -1615,44 +1658,21 @@ function generateShareCard(){
   c.fill();
   c.restore();
 
-  // أرضية المشهد
   const groundLine = sceneY + sceneH * 0.87;
   c.fillStyle = '#f5f9fc';
   c.fillRect(sceneX, groundLine, sceneW, sceneY + sceneH - groundLine + 5);
   c.fillStyle = '#334155';
   c.fillRect(sceneX, groundLine, sceneW, 3);
 
-  // شجيرات
-  function drawBushInScene(x, y){
-    c.save();
-    c.fillStyle = '#a8d5a8';
-    c.beginPath();
-    c.arc(x,      y - 3, 6, 0, TAU);
-    c.arc(x + 8,  y - 5, 7, 0, TAU);
-    c.arc(x + 17, y - 3, 6, 0, TAU);
-    c.fill();
-    c.fillStyle = 'rgba(120,170,120,.35)';
-    c.beginPath();
-    c.arc(x + 8, y - 2, 6, 0, TAU);
-    c.fill();
-    c.restore();
-  }
-  drawBushInScene(sceneX + 130, groundLine + 4);
-  drawBushInScene(sceneX + 480, groundLine + 4);
-  drawBushInScene(sceneX + 680, groundLine + 4);
-
-  // نجوم ذهبية في المشهد
   drawSceneStar(c, sceneX + 230, sceneY + 330, 18, 0.95);
   drawSceneStar(c, sceneX + 730, sceneY + 280, 15, 0.85);
   drawSceneStar(c, sceneX + 480, sceneY + 200, 13, 0.75);
 
-  // ناوي — حجم متوسط
   const nawyX = sceneX + sceneW * 0.62;
   const nawyY = groundLine - 70;
   const nawyR = 85;
-  drawNawyForShare(c, nawyX, nawyY, nawyR, 'happy');
+  drawNawyForShare(c, nawyX, nawyY, nawyR);
 
-  // ظل ناوي
   c.save();
   c.globalAlpha = 0.16;
   c.fillStyle = '#1e293b';
@@ -1661,9 +1681,8 @@ function generateShareCard(){
   c.fill();
   c.restore();
 
-  c.restore(); // end clip
+  c.restore();
 
-  // إطار المشهد الخارجي
   c.save();
   c.strokeStyle = 'rgba(255,255,255,.7)';
   c.lineWidth = 3;
@@ -1675,37 +1694,29 @@ function generateShareCard(){
   c.stroke();
   c.restore();
 
-  /* ===== 4. شارة الرقم القياسي ===== */
   let yCursor = sceneY + sceneH + 70;
 
   if (isRecord){
-    const badgeW = 380;
-    const badgeH = 78;
+    const badgeW = 380, badgeH = 78;
     const badgeX = CW/2 - badgeW/2;
-    const badgeY = yCursor;
-
     c.save();
     c.shadowColor = 'rgba(251,191,36,.55)';
     c.shadowBlur = 24;
     c.fillStyle = '#fbbf24';
-    roundRectPath(c, badgeX, badgeY, badgeW, badgeH, badgeH/2);
+    roundRectPath(c, badgeX, yCursor, badgeW, badgeH, badgeH/2);
     c.fill();
     c.restore();
-
     c.save();
     c.fillStyle = '#7c2d12';
     c.font = '900 36px system-ui, -apple-system, sans-serif';
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.direction = 'rtl';
-    c.fillText('🏆 رقم قياسي جديد', CW/2, badgeY + badgeH/2 + 2);
+    c.fillText('🏆 رقم قياسي جديد', CW/2, yCursor + badgeH/2 + 2);
     c.restore();
-
     yCursor += badgeH + 32;
   }
 
-  /* ===== 5. النقاط — بطريقة أنيقة ===== */
-  // "نتيجتك"
   c.save();
   c.fillStyle = '#64748b';
   c.font = '800 32px system-ui, -apple-system, sans-serif';
@@ -1715,7 +1726,6 @@ function generateShareCard(){
   c.fillText('نتيجتك', CW/2, yCursor + 10);
   c.restore();
 
-  // الرقم
   c.save();
   c.fillStyle = '#0f172a';
   c.font = '900 200px system-ui, -apple-system, sans-serif';
@@ -1725,7 +1735,6 @@ function generateShareCard(){
   c.fillText(String(finalScore), CW/2, yCursor + 150);
   c.restore();
 
-  // "نقطة"
   c.save();
   c.fillStyle = '#2563eb';
   c.font = '900 42px system-ui, -apple-system, sans-serif';
@@ -1735,15 +1744,11 @@ function generateShareCard(){
   c.fillText('نقطة', CW/2, yCursor + 290);
   c.restore();
 
-  /* ===== 6. Stats pills ===== */
   const statsY = yCursor + 380;
-  const pillW = 220;
-  const pillH = 86;
-  const pillGap = 40;
+  const pillW = 220, pillH = 86, pillGap = 40;
   const totalW = pillW * 2 + pillGap;
   const startX = CW/2 - totalW/2;
 
-  // نجوم
   c.save();
   c.fillStyle = 'rgba(251,191,36,.16)';
   roundRectPath(c, startX, statsY, pillW, pillH, pillH/2);
@@ -1760,7 +1765,6 @@ function generateShareCard(){
   c.fillText('⭐ ' + starCount, startX + pillW/2, statsY + pillH/2 + 2);
   c.restore();
 
-  // سلسلة
   const pill2X = startX + pillW + pillGap;
   c.save();
   c.fillStyle = 'rgba(96,165,250,.14)';
@@ -1778,13 +1782,11 @@ function generateShareCard(){
   c.fillText('🔥 ' + combo, pill2X + pillW/2, statsY + pillH/2 + 2);
   c.restore();
 
-  /* ===== 7. دعوة للتجربة (CTA قوي) ===== */
   const ctaBoxY = statsY + pillH + 90;
   const ctaBoxW = CW - 220;
   const ctaBoxH = 150;
   const ctaBoxX = CW/2 - ctaBoxW/2;
 
-  // بوكس CTA بخلفية بيضا وأزرق
   c.save();
   c.shadowColor = 'rgba(37,99,235,.15)';
   c.shadowBlur = 25;
@@ -1801,7 +1803,6 @@ function generateShareCard(){
   c.stroke();
   c.restore();
 
-  // نص CTA
   c.save();
   c.fillStyle = '#0f172a';
   c.font = '900 40px system-ui, -apple-system, sans-serif';
@@ -1820,7 +1821,6 @@ function generateShareCard(){
   c.fillText('العب مع ناوي دلوقتي', CW/2, ctaBoxY + 108);
   c.restore();
 
-  /* ===== 8. توقيع صغير ===== */
   c.save();
   c.fillStyle = 'rgba(100,116,139,.75)';
   c.font = '700 26px system-ui, -apple-system, sans-serif';
@@ -1843,15 +1843,8 @@ function openShareModal(){
 function closeShareModal(){
   shareModal.classList.remove('open');
 }
-
-ovShareBtn.addEventListener('click', e => {
-  e.stopPropagation();
-  openShareModal();
-});
-shareClose.addEventListener('click', e => {
-  e.stopPropagation();
-  closeShareModal();
-});
+ovShareBtn.addEventListener('click', e => { e.stopPropagation(); openShareModal(); });
+shareClose.addEventListener('click', e => { e.stopPropagation(); closeShareModal(); });
 shareModal.addEventListener('click', e => {
   if (e.target === shareModal) closeShareModal();
 });
@@ -1875,7 +1868,6 @@ shareStoryBtn.addEventListener('click', async e => {
   try {
     const blob = await canvasToBlob();
     const file = new File([blob], 'nawy-score.png', { type: 'image/png' });
-
     if (navigator.canShare && navigator.canShare({ files: [file] })){
       await navigator.share({
         files: [file],
@@ -1891,12 +1883,10 @@ shareStoryBtn.addEventListener('click', async e => {
       showToast('✅ تمت المشاركة');
     } else {
       downloadShareImage();
-      showToast('⬇️ تم تحميل الصورة — شاركها يدويًا');
+      showToast('⬇️ تم تحميل الصورة');
     }
   } catch(err){
-    if (err && err.name !== 'AbortError'){
-      showToast('⚠️ تعذّر المشاركة');
-    }
+    if (err && err.name !== 'AbortError') showToast('⚠️ تعذّر المشاركة');
   }
 });
 
@@ -1907,7 +1897,6 @@ shareTextBtn.addEventListener('click', async e => {
     'أنا وصلت لـ ' + Math.floor(score) + ' نقطة!\n' +
     '⭐ نجوم: ' + starCount + '  🔥 سلسلة: ' + combo + '\n' +
     'هل تقدر تكسر رقمي؟ 💪';
-
   try {
     if (navigator.share){
       await navigator.share({ title: 'العب مع ناوي', text });
@@ -1921,9 +1910,7 @@ shareTextBtn.addEventListener('click', async e => {
       try {
         await navigator.clipboard.writeText(text);
         showToast('📋 تم نسخ النتيجة');
-      } catch(e2){
-        showToast('⚠️ تعذّر النسخ');
-      }
+      } catch(e2){ showToast('⚠️ تعذّر النسخ'); }
     }
   }
 });
@@ -2008,17 +1995,16 @@ function gameOver(){
   state = 'over';
   overAt = performance.now();
   score = Math.floor(score);
-  if (!reduceMotion) shake = 5;
+  shake = 3;
   sfx('hit'); vibrate(60);
   setMood('hit', 5);
 
-  burstConfetti(player.x + player.size/2, player.y + player.size/2,
-                reduceMotion ? 6 : 14);
+  burstConfetti(player.x + player.size/2, player.y + player.size/2, 12);
 
   let record = false;
   if (score > best){
     best = score; record = true;
-    try { localStorage.setItem('nawy.best.v11', String(best)); } catch(e){}
+    try { localStorage.setItem('nawy.best.v12', String(best)); } catch(e){}
     bestEl.textContent = best;
     sfx('record'); setMood('record', 5);
   }
@@ -2033,13 +2019,15 @@ function gameOver(){
     badge: record ? 'أحسنت! 🎉' : null
   });
 
-  if (record && !reduceMotion) burstConfetti(W * 0.5, H * 0.35, 16);
+  if (record) burstConfetti(W * 0.5, H * 0.35, 14);
 }
 
 /* ============================================================
    MAIN LOOP
    ============================================================ */
 let lastFrameTime = 0;
+let fpsAccum = 0, fpsFrames = 0;
+
 function frame(t){
   requestAnimationFrame(frame);
   if (!lastFrameTime) lastFrameTime = t;
@@ -2064,6 +2052,7 @@ function frame(t){
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && state === 'playing') pauseGame();
+  if (document.hidden) lastFrameTime = 0;
 });
 
 /* ============================================================
