@@ -677,6 +677,7 @@
     html[dir="rtl"] #settingsBtn > .icon:last-child,
     html[dir="rtl"] #backupMenuBtn > .icon:last-child,
     html[dir="rtl"] #archiveBtn > .icon:last-child,
+    html[dir="rtl"] #runBtn > .icon:last-child,
     html[dir="rtl"] .account-menu-back .icon { transform: scaleX(-1); }
     .backup-group { padding: 8px 8px 4px; }
     .backup-group-head { display: flex; align-items: center; gap: 10px; min-height: 38px; color: var(--text); font-weight: 700; }
@@ -1324,6 +1325,9 @@
       <button class="sheet-close-small" type="button" data-close="menuOverlay" aria-label="إغلاق">×</button>
       <div class="sheet-handle"></div>
       <div class="account-menu-panel" id="mainMenuPanel">
+      <span id="statsMenuSub" hidden></span>
+      <span id="backupMenuSub" hidden></span>
+      <span id="archiveMenuSub" hidden></span>
       <div class="account-menu-head">
         <div class="account-menu-avatar">
           <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="9" r="3"/><path d="M7.5 18c.9-2.3 2.5-3.5 4.5-3.5s3.6 1.2 4.5 3.5"/></svg>
@@ -1337,7 +1341,6 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15v3M12 11v7M17 7v11"/></svg>
         <span class="menu-item-copy">
           <span class="menu-item-title" data-i18n="stats">إحصائياتي</span>
-          <span class="menu-item-sub" id="statsMenuSub"></span>
         </span>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </button>
@@ -1345,7 +1348,6 @@
         <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
         <span class="menu-item-copy">
           <span class="menu-item-title" data-i18n="settings">الإعدادات</span>
-          <span class="menu-item-sub" data-i18n="settingsSub">المظهر، الصوت، التنبيهات</span>
         </span>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </button>
@@ -1353,7 +1355,6 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M4 7h16v14H4z"/><path d="M7 7V4h10v3M8 12h8"/></svg>
         <span class="menu-item-copy">
           <span class="menu-item-title" data-i18n="backupTitle">النسخ الاحتياطي</span>
-          <span class="menu-item-sub" id="backupMenuSub" data-i18n="backupMenuSub">Google Drive، محلي</span>
         </span>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </button>
@@ -1361,7 +1362,6 @@
         <svg class="icon" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8V21H20V8"/><path d="M10 12H14"/></svg>
         <span class="menu-item-copy">
           <span class="menu-item-title" data-i18n="archive">أرشيف ناوي</span>
-          <span class="menu-item-sub" id="archiveMenuSub"></span>
         </span>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </button>
@@ -1373,7 +1373,7 @@
         <span class="menu-item-copy">
           <span class="menu-item-title">خذ استراحة</span>
         </span>
-        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="transform:scaleX(-1);"><path d="m9 5 7 7-7 7"/></svg>
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </button>
       </div>
       <div class="account-menu-panel" id="backupMenuPanel" hidden>
