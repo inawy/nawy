@@ -40,39 +40,60 @@
     color:var(--ink);text-shadow:0 1px 2px rgba(255,255,255,.6);
   }
   .brand em{font-style:normal;color:#2563eb;}
-  .stats{margin-inline-start:auto;display:flex;gap:6px;align-items:center;white-space:nowrap;}
-  .stat{
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    min-width:56px;height:44px;padding:3px 10px;
-    border:1px solid var(--card-border);border-radius:13px;
-    background:var(--card-bg);
-    box-shadow:0 2px 8px rgba(24,42,65,.06);
-    line-height:1;
+  .stats{margin-inline-start:auto;display:flex;gap:16px;align-items:baseline;white-space:nowrap;}
+  .stat{display:flex;flex-direction:column;align-items:center;line-height:1;}
+  .stat.combo{
+    opacity:0;transform:translateY(-4px);
+    transition:opacity .22s ease,transform .22s ease;
   }
-  .stat span{font-size:9px;color:var(--ink-muted);font-weight:800;margin-bottom:3px;letter-spacing:.2px;}
-  .stat b{font-size:15px;color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums;}
+  .stat.combo.show{opacity:1;transform:translateY(0);}
+  .stat span{
+    font-size:9px;color:rgba(30,41,59,.5);font-weight:800;
+    letter-spacing:.2px;margin-bottom:2px;
+    text-shadow:0 1px 2px rgba(255,255,255,.55);
+  }
+  .stat b{
+    font-size:17px;color:var(--ink);font-weight:900;
+    font-variant-numeric:tabular-nums;
+    text-shadow:0 1px 3px rgba(255,255,255,.6);
+  }
 
-  .action-bar{
-    position:absolute;left:0;right:0;
+  .control-bar{
+    position:absolute;
+    left:50%; transform:translateX(-50%);
     bottom:max(14px, env(safe-area-inset-bottom));
     z-index:50;
-    display:flex;justify-content:space-between;align-items:center;
-    padding:0 max(16px, env(safe-area-inset-left)) 0 max(16px, env(safe-area-inset-right));
-    pointer-events:none;
-  }
-  .action-btn{
+    display:flex;align-items:center;gap:2px;
+    padding:6px;border-radius:999px;
+    background:rgba(255,255,255,.52);
+    -webkit-backdrop-filter:blur(18px) saturate(180%);
+    backdrop-filter:blur(18px) saturate(180%);
+    border:1px solid rgba(255,255,255,.6);
+    box-shadow:0 10px 28px rgba(20,40,70,.16), inset 0 1px 0 rgba(255,255,255,.7);
     pointer-events:auto;
-    width:52px;height:52px;
-    border:1px solid var(--card-border);
-    background:var(--card-bg);
-    border-radius:16px;
-    font-size:20px;line-height:1;
-    display:grid;place-items:center;cursor:pointer;
-    transition:transform .12s ease;
-    color:var(--ink);
-    box-shadow:0 4px 14px rgba(24,42,65,.10);
   }
-  .action-btn:active{transform:scale(.92);}
+  .ctrl-btn{
+    width:42px;height:42px;
+    border:none;background:transparent;
+    border-radius:50%;
+    display:grid;place-items:center;cursor:pointer;
+    color:var(--ink);
+    transition:transform .14s ease, background .16s ease;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .ctrl-btn svg{ width:20px;height:20px;display:block; }
+  .ctrl-btn:active{ transform:scale(.86); background:rgba(255,255,255,.55); }
+  .ctrl-btn.exit{ color:#dc2626; }
+  .ctrl-sep{
+    width:1px;height:22px;
+    background:rgba(30,41,59,.14);
+    margin:0 2px;
+  }
+  @media (orientation:landscape) and (max-height:480px){
+    .control-bar{ bottom:max(8px, env(safe-area-inset-bottom)); padding:4px; gap:0; }
+    .ctrl-btn{ width:36px;height:36px; }
+    .ctrl-btn svg{ width:18px;height:18px; }
+  }
 
   .hud{
     position:absolute;
@@ -81,20 +102,17 @@
     display:flex;justify-content:space-between;align-items:flex-start;
     pointer-events:none;gap:8px;
   }
-  .hud-side{display:flex;gap:6px;flex-wrap:wrap;}
+  .hud-side{display:flex;gap:14px;flex-wrap:wrap;}
   .chip{
-    padding:5px 12px;border-radius:999px;
-    background:var(--card-bg);
-    border:1px solid var(--card-border);
-    box-shadow:0 2px 8px rgba(20,45,75,.06);
-    font-size:11px;font-weight:800;color:var(--ink-muted);
-    display:none;align-items:center;gap:5px;
+    font-size:14px;font-weight:900;color:var(--ink);
+    display:none;align-items:center;gap:4px;
+    text-shadow:0 1px 3px rgba(255,255,255,.65);
   }
   .chip.show{display:inline-flex;}
-  .chip.shield{color:#1f6feb;border-color:#bfdbff;background:rgba(235,245,255,.9);}
-  .chip.magnet{color:#b45309;border-color:#fde6b5;background:rgba(255,250,235,.9);}
-  .chip.stars{color:#b45309;border-color:#fde6b5;background:rgba(255,250,235,.9);display:inline-flex;align-items:center;gap:5px;}
-  .chip b{color:inherit;font-variant-numeric:tabular-nums;}
+  .chip.shield{color:#1f6feb;}
+  .chip.magnet{color:#b45309;}
+  .chip.stars{color:#b45309;display:inline-flex;}
+  .chip b{color:inherit;font-variant-numeric:tabular-nums;font-weight:900;}
 
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -112,7 +130,7 @@
   .overlay h1{margin:0 0 6px;font-size:25px;font-weight:950;letter-spacing:-.5px;color:#0f172a;}
   .overlay p{margin:0;color:#64748b;font-size:13px;font-weight:650;line-height:1.7;}
   .overlay p b{color:#0f172a;}
-  .overlay .emoji{font-size:46px;line-height:1;margin-bottom:10px;}
+  .overlay .ov-nawy{width:84px;height:84px;display:block;margin:0 auto 10px;}
   .badge{
     display:inline-block;margin-top:10px;padding:5px 14px;border-radius:999px;
     background:#fef3c7;color:#92400e;font-weight:900;font-size:12px;
@@ -131,15 +149,22 @@
   .button.secondary{background:#f1f5f9;color:#334155;box-shadow:0 3px 10px rgba(15,23,42,.06);}
 
   .toast{
-    position:absolute;top:15%;left:50%;transform:translate(-50%,12px);
-    background:rgba(30,41,59,.92);color:#fff;padding:10px 20px;
-    border-radius:999px;font-weight:850;font-size:13px;
+    position:absolute;
+    top:max(72px,calc(env(safe-area-inset-top) + 62px));
+    left:50%;transform:translate(-50%,-6px) scale(.94);
+    background:rgba(255,255,255,.62);
+    -webkit-backdrop-filter:blur(18px) saturate(180%);
+    backdrop-filter:blur(18px) saturate(180%);
+    color:#0f172a;padding:8px 18px;
+    border:1px solid rgba(255,255,255,.65);
+    border-radius:999px;font-weight:800;font-size:12.5px;
     opacity:0;pointer-events:none;
-    transition:opacity .22s ease,transform .22s ease;
-    white-space:nowrap;box-shadow:0 8px 24px rgba(10,20,40,.25);
-    z-index:60;
+    transition:opacity .32s ease,transform .32s cubic-bezier(.22,.9,.32,1);
+    white-space:nowrap;
+    box-shadow:0 10px 26px rgba(20,45,80,.14), inset 0 1px 0 rgba(255,255,255,.7);
+    z-index:45;
   }
-  .toast.show{opacity:1;transform:translate(-50%,0);}
+  .toast.show{opacity:1;transform:translate(-50%,0) scale(1);}
 
   .hint{
     position:absolute;left:0;right:0;
@@ -214,9 +239,10 @@
 
   @media (max-width:520px){
     .brand{font-size:15px;}
-    .stat{min-width:52px;height:42px;padding:3px 8px;}
-    .stat b{font-size:14px;}
-    .action-btn{width:48px;height:48px;font-size:18px;border-radius:14px;}
+    .stats{gap:12px;}
+    .stat b{font-size:15px;}
+    .ctrl-btn{width:38px;height:38px;}
+    .ctrl-btn svg{width:18px;height:18px;}
   }
   @media (max-height:680px){
     .share-header h2{font-size:17px;}
@@ -237,7 +263,7 @@
       <div class="stats">
         <div class="stat"><span>النقاط</span><b id="score">0</b></div>
         <div class="stat"><span>الأفضل</span><b id="best">0</b></div>
-        <div class="stat"><span>سلسلة</span><b id="combo">0</b></div>
+        <div class="stat combo" id="comboStat"><span>سلسلة</span><b id="combo">0</b></div>
       </div>
     </div>
 
@@ -247,13 +273,13 @@
         <div class="chip magnet" id="magnetChip">🧲 <b id="magnetTime">0</b></div>
       </div>
       <div class="hud-side">
-        <div class="chip stars">⭐ <b id="stars">0</b></div>
+        <div class="chip stars" id="starsChip">⭐ <b id="stars">0</b></div>
       </div>
     </div>
 
     <div class="overlay" id="overlay">
       <div class="overlay-inner">
-        <div class="emoji" id="ovEmoji">🔵</div>
+        <canvas class="ov-nawy" id="ovNawy" width="168" height="168"></canvas>
         <h1 id="ovTitle">ناوي جاهز؟</h1>
         <p id="ovText">اضغط في أي مكان عشان تبدأ</p>
         <button type="button" class="button" id="ovBtn">يلا نبدأ</button>
@@ -264,9 +290,11 @@
     <div class="toast" id="toast"></div>
     <div class="hint" id="hint">اضغط للنط — Space / ↑</div>
 
-    <div class="action-bar">
-      <button type="button" class="action-btn" id="muteBtn" aria-label="الصوت">🔊</button>
-      <button type="button" class="action-btn" id="pauseBtn" aria-label="إيقاف">Ⅱ</button>
+    <div class="control-bar">
+      <button type="button" class="ctrl-btn exit" id="exitBtn" aria-label="رجوع"></button>
+      <div class="ctrl-sep"></div>
+      <button type="button" class="ctrl-btn" id="muteBtn" aria-label="الصوت"></button>
+      <button type="button" class="ctrl-btn" id="pauseBtn" aria-label="إيقاف"></button>
     </div>
 
     <div class="share-modal" id="shareModal">
@@ -322,9 +350,10 @@ const ctx         = canvas.getContext('2d', { alpha: false });
 const scoreEl     = document.getElementById('score');
 const bestEl      = document.getElementById('best');
 const comboEl     = document.getElementById('combo');
+const comboStat   = document.getElementById('comboStat');
 const starsEl     = document.getElementById('stars');
 const overlay     = document.getElementById('overlay');
-const ovEmoji     = document.getElementById('ovEmoji');
+const ovNawy      = document.getElementById('ovNawy');
 const ovTitle     = document.getElementById('ovTitle');
 const ovText      = document.getElementById('ovText');
 const ovBtn       = document.getElementById('ovBtn');
@@ -332,6 +361,7 @@ const ovShareBtn  = document.getElementById('ovShareBtn');
 const toastEl     = document.getElementById('toast');
 const muteBtn     = document.getElementById('muteBtn');
 const pauseBtn    = document.getElementById('pauseBtn');
+const exitBtn       = document.getElementById('exitBtn');
 const hintEl      = document.getElementById('hint');
 const shieldChip  = document.getElementById('shieldChip');
 const shieldTime  = document.getElementById('shieldTime');
@@ -390,6 +420,7 @@ let best = 0;
 try { best = Number(localStorage.getItem('nawy.best.v14')) || 0; } catch(e){}
 
 let shake = 0;
+let hitStop = 0;
 let obstacleTimer = 0, starTimer = 0, powerTimer = 0, cloudTimer = 0;
 let hillOff1 = 0, hillOff2 = 0, groundOff = 0;
 let lastT = 0, overAt = 0;
@@ -616,6 +647,11 @@ function sfx(name){
                       beep(880,0.09,'sine',0.045,880,0.09);
                       beep(1200,0.14,'sine',0.038,1200,0.18); break;
   }
+}
+function sfxCoin(tier){
+  const base = 1000 + Math.min(tier, 6) * 60;
+  beep(base,     0.08, 'sine', 0.045, base * 1.5);
+  beep(base*1.5, 0.08, 'sine', 0.025, base * 1.9, 0.06);
 }
 function vibrate(ms){
   try { if (navigator.vibrate) navigator.vibrate(ms); } catch(e){}
@@ -1114,11 +1150,11 @@ function spawnObstacle(){
     const h2 = rand(28, 52);
     obstacles.push({
       x: W + 40, w: 22, h: h1,
-      y: groundY - h1, wide: false, passed: false
+      y: groundY - h1, wide: false, passed: false, minGap: Infinity
     });
     obstacles.push({
       x: W + 40 + rand(55, 78), w: 22, h: h2,
-      y: groundY - h2, wide: false, passed: false
+      y: groundY - h2, wide: false, passed: false, minGap: Infinity
     });
     return;
   }
@@ -1129,7 +1165,7 @@ function spawnObstacle(){
     const h = rand(26, 36);
     obstacles.push({
       x: W + 40, w, h,
-      y: groundY - h, wide: true, passed: false
+      y: groundY - h, wide: true, passed: false, minGap: Infinity
     });
     return;
   }
@@ -1151,7 +1187,7 @@ function spawnObstacle(){
     else if (r < 0.85){ w = 20; h = rand(54, 68); }
     else { w = 18; h = rand(58, 72); }
   }
-  obstacles.push({ x: W + 40, w, h, y: groundY - h, wide: false, passed:false });
+  obstacles.push({ x: W + 40, w, h, y: groundY - h, wide: false, passed:false, minGap: Infinity });
 }
 
 function spawnStarArc(){
@@ -1231,7 +1267,6 @@ function update(dt){
   if (player.y >= floor){
     if (!player.grounded){
       player.squash = 0.82;
-      if (shake < 2) shake = Math.min(shake + 1.4, 2.2);
       burstDust(player.x + player.size/2, groundY, 4);
       sfx('land');
     }
@@ -1282,12 +1317,12 @@ function update(dt){
 
   const dx = speed * 60 * dt;
 
-  // hitbox ثابت (بدون انزلاق)
+  // hitbox أصغر شوية وأكثر عدلًا مع اللاعب
   const pHit = {
-    x: player.x + player.size * 0.14,
-    y: player.y + player.size * 0.12,
-    w: player.size * 0.72,
-    h: player.size * 0.82
+    x: player.x + player.size * 0.22,
+    y: player.y + player.size * 0.20,
+    w: player.size * 0.58,
+    h: player.size * 0.68
   };
 
   for (let i = obstacles.length-1; i >= 0; i--){
@@ -1295,12 +1330,17 @@ function update(dt){
     o.x -= dx;
     if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
 
+    // تتبع أقرب مسافة عمودية وقت التداخل الأفقي — لإحساس "نجا بالزق"
+    if (o.x < player.x + player.size && o.x + o.w > player.x){
+      const gap = o.y - (player.y + player.size);
+      if (gap < o.minGap) o.minGap = gap;
+    }
+
     if (pHit.x < o.x + o.w && pHit.x + pHit.w > o.x &&
         pHit.y < o.y + o.h && pHit.y + pHit.h > o.y){
       if (player.shield > 0){
         player.shield = 0;
         burstSparkle(player.x + player.size/2, player.y + player.size/2, 12);
-        showToast('🛡️ الحماية أنقذتك!');
         sfx('shield');
         obstacles.splice(i,1);
         setMood('happy', 0.55);
@@ -1313,9 +1353,12 @@ function update(dt){
       o.passed = true;
       combo++;
       comboEl.textContent = combo;
-      if (combo % 4 === 0){
-        showToast('🔥 سلسلة ' + combo);
+      if (combo >= 2) comboStat.classList.add('show');
+      if (combo % 10 === 0){
         setMood('focus', 0.45);
+      }
+      if (o.minGap < player.size * 0.3){
+        burstSparkle(player.x + player.size/2, player.y + player.size*0.2, 4);
       }
     }
   }
@@ -1355,7 +1398,7 @@ function update(dt){
       starCount++;
       starsEl.textContent = starCount;
       burstSparkle(s.x, s.y, 6);
-      sfx('coin'); setMood('happy', 0.45);
+      sfxCoin(Math.floor(combo / 4)); setMood('happy', 0.45);
     }
   }
 
@@ -1369,9 +1412,9 @@ function update(dt){
     const d = Math.hypot(pcx - p.x, pcy - py);
     if (d < player.size * 0.7 + p.r){
       if (p.type === 'shield'){
-        player.shield = 7.5; showToast('🛡️ حماية 7.5 ثواني'); sfx('shield');
+        player.shield = 10; sfx('shield');
       } else {
-        player.magnet = 7.5; showToast('🧲 المغناطيس شغال!'); sfx('power');
+        player.magnet = 10; sfx('power');
       }
       burstSparkle(p.x, py, 9);
       powerups.splice(i,1); setMood('happy', 0.55);
@@ -1453,10 +1496,21 @@ window.addEventListener('keydown', e => {
     else if (state === 'paused') resumeGame();
   }
 });
+const ICONS = {
+  back:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
+  pause:    '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>',
+  play:     '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>',
+  soundOn:  '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>',
+  soundOff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M16 9l6 6M22 9l-6 6"/></svg>'
+};
+exitBtn.innerHTML  = ICONS.back;
+muteBtn.innerHTML  = muted ? ICONS.soundOff : ICONS.soundOn;
+pauseBtn.innerHTML = ICONS.pause;
+
 muteBtn.addEventListener('click', e => {
   e.stopPropagation();
   muted = !muted;
-  muteBtn.textContent = muted ? '🔇' : '🔊';
+  muteBtn.innerHTML = muted ? ICONS.soundOff : ICONS.soundOn;
   try { localStorage.setItem('nawy.muted.v14', muted ? '1' : '0'); } catch(err){}
   if (!muted) sfx('coin');
 });
@@ -1466,18 +1520,153 @@ pauseBtn.addEventListener('click', e => {
   else if (state === 'paused') resumeGame();
 });
 
+function goBack(){
+  // رجوع سلس داخل التطبيق — نفس سلوك زر الرجوع العادي في أي صفحة متصفح
+  try {
+    if (window.history.length > 1){ history.back(); }
+    else { window.location.href = 'https://nawy.app'; }
+  } catch(e){
+    try { window.location.href = 'https://nawy.app'; } catch(e2){}
+  }
+}
+exitBtn.addEventListener('click', e => { e.stopPropagation(); goBack(); });
+
 /* ============================================================
    UI
    ============================================================ */
-let toastTimeout = null;
-function showToast(text){
+let toastQueue = [];
+let toastBusy = false;
+function processToastQueue(){
+  if (toastBusy || toastQueue.length === 0) return;
+  toastBusy = true;
+  const text = toastQueue.shift();
   toastEl.textContent = text;
   toastEl.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 1300);
+  setTimeout(() => {
+    toastEl.classList.remove('show');
+    setTimeout(() => { toastBusy = false; processToastQueue(); }, 180);
+  }, 1300);
 }
+function showToast(text){
+  // لو في رسالة ظاهرة وواحدة منتظرة بالفعل، ما نزودش الزحمة
+  if (toastBusy && toastQueue.length >= 1) return;
+  toastQueue.push(text);
+  processToastQueue();
+}
+/* ============================================================
+   NAWY MINI PORTRAIT (overlay)
+   ============================================================ */
+function drawNawyPortrait(canvas, mood){
+  const c  = canvas.getContext('2d');
+  const w  = canvas.width, h = canvas.height;
+  c.clearRect(0, 0, w, h);
+
+  const cx = w / 2, cy = h / 2, R = Math.min(w, h) / 2 * 0.86;
+
+  // جسم ناوي
+  c.fillStyle = '#2563eb';
+  c.beginPath(); c.arc(cx, cy, R, 0, TAU); c.fill();
+
+  // لمعة
+  c.globalAlpha = 0.32;
+  c.fillStyle = '#ffffff';
+  c.beginPath();
+  c.ellipse(cx - R*0.32, cy - R*0.44, R*0.30, R*0.15, -0.5, 0, TAU);
+  c.fill();
+  c.globalAlpha = 1;
+
+  // عيون أعلى شوية وأصغر عشان تسيب مساحة كافية للفم من غير ما يتلامسوا
+  const eyeR = R*0.26, eyeX = R*0.36, eyeY = cy - R*0.20;
+
+  if (mood === 'sad'){
+    // خبط — عيون X رفيعة وفم مموج ناعم (مش زاويّ) وبينهم مسافة واضحة
+    c.strokeStyle = '#0f172a';
+    c.lineWidth = Math.max(2.4, R*0.065);
+    c.lineCap = 'round';
+    const er = eyeR*0.62;
+    c.beginPath();
+    c.moveTo(cx-eyeX-er, eyeY-er); c.lineTo(cx-eyeX+er, eyeY+er);
+    c.moveTo(cx-eyeX+er, eyeY-er); c.lineTo(cx-eyeX-er, eyeY+er);
+    c.moveTo(cx+eyeX-er, eyeY-er); c.lineTo(cx+eyeX+er, eyeY+er);
+    c.moveTo(cx+eyeX+er, eyeY-er); c.lineTo(cx+eyeX-er, eyeY+er);
+    c.stroke();
+
+    c.lineWidth = Math.max(2.6, R*0.07);
+    c.beginPath();
+    c.moveTo(cx-R*0.22, cy+R*0.36);
+    c.quadraticCurveTo(cx-R*0.11, cy+R*0.27, cx, cy+R*0.36);
+    c.quadraticCurveTo(cx+R*0.11, cy+R*0.45, cx+R*0.22, cy+R*0.36);
+    c.stroke();
+  } else if (mood === 'record'){
+    // رقم قياسي — نجوم صغيرة بدل العيون وابتسامة كبيرة هادية
+    c.fillStyle = '#fbbf24';
+    for (const dir of [-1, 1]){
+      c.save();
+      c.translate(cx + dir*eyeX, eyeY);
+      c.beginPath();
+      for (let i = 0; i < 10; i++){
+        const a  = -Math.PI/2 + i * Math.PI/5;
+        const rr = (i%2) ? eyeR*0.30 : eyeR*0.66;
+        const px = Math.cos(a)*rr, py = Math.sin(a)*rr;
+        i ? c.lineTo(px,py) : c.moveTo(px,py);
+      }
+      c.closePath(); c.fill();
+      c.restore();
+    }
+    c.strokeStyle = '#0f172a';
+    c.lineWidth = Math.max(2.8, R*0.09);
+    c.lineCap = 'round';
+    c.beginPath();
+    c.arc(cx, cy+R*0.10, R*0.36, Math.PI*0.20, Math.PI*0.80);
+    c.stroke();
+  } else if (mood === 'paused'){
+    // بياخد نفس — عيون مغمضة ناعمة وابتسامة صغيرة هادية
+    c.strokeStyle = '#0f172a';
+    c.lineWidth = Math.max(2.4, R*0.065);
+    c.lineCap = 'round';
+    c.beginPath();
+    c.arc(cx-eyeX, eyeY+eyeR*0.15, eyeR*0.62, Math.PI*1.08, Math.PI*1.92);
+    c.stroke();
+    c.beginPath();
+    c.arc(cx+eyeX, eyeY+eyeR*0.15, eyeR*0.62, Math.PI*1.08, Math.PI*1.92);
+    c.stroke();
+
+    c.lineWidth = Math.max(2.6, R*0.07);
+    c.beginPath();
+    c.arc(cx, cy+R*0.24, R*0.16, Math.PI*0.18, Math.PI*0.82);
+    c.stroke();
+  } else {
+    // جاهز — عيون مفتوحة وابتسامة هادئة
+    c.fillStyle = '#fff';
+    c.beginPath();
+    c.arc(cx-eyeX, eyeY, eyeR, 0, TAU);
+    c.arc(cx+eyeX, eyeY, eyeR, 0, TAU);
+    c.fill();
+    c.fillStyle = '#0f172a';
+    c.beginPath();
+    c.arc(cx-eyeX+eyeR*0.16, eyeY, eyeR*0.5, 0, TAU);
+    c.arc(cx+eyeX+eyeR*0.16, eyeY, eyeR*0.5, 0, TAU);
+    c.fill();
+    c.strokeStyle = '#0f172a';
+    c.lineWidth = Math.max(2.6, R*0.07);
+    c.lineCap = 'round';
+    c.beginPath();
+    c.arc(cx, cy+R*0.18, R*0.28, Math.PI*0.22, Math.PI*0.78);
+    c.stroke();
+  }
+
+  // خدود
+  c.globalAlpha = 0.28;
+  c.fillStyle = '#fb7185';
+  c.beginPath();
+  c.arc(cx-R*0.62, cy+R*0.18, R*0.13, 0, TAU);
+  c.arc(cx+R*0.62, cy+R*0.18, R*0.13, 0, TAU);
+  c.fill();
+  c.globalAlpha = 1;
+}
+
 function showOverlay(opt){
-  ovEmoji.textContent = opt.emoji;
+  drawNawyPortrait(ovNawy, opt.mood || 'idle');
   ovTitle.textContent = opt.title;
   ovText.innerHTML    = opt.text;
   ovBtn.textContent   = opt.btn;
@@ -1946,13 +2135,14 @@ function startGame(){
 
   scoreEl.textContent = '0';
   comboEl.textContent = '0';
+  comboStat.classList.remove('show');
   starsEl.textContent = '0';
   shieldChip.classList.remove('show');
   magnetChip.classList.remove('show');
   hintEl.classList.remove('fade-out');
 
   overlay.classList.add('hidden');
-  pauseBtn.textContent = 'Ⅱ';
+  pauseBtn.innerHTML = ICONS.pause;
 
   unlockAudio();
   state = 'playing';
@@ -1962,25 +2152,26 @@ function pauseGame(){
   if (state !== 'playing') return;
   state = 'paused';
   showOverlay({
-    emoji: '⏸️', title: 'وقفة صغيرة',
+    mood: 'paused', title: 'وقفة صغيرة',
     text : 'خد نفس... ولما تكون جاهز نكمل.',
     btn  : 'كمّل اللعب',
     action: 'resume',
     showShare: false
   });
-  pauseBtn.textContent = '▶';
+  pauseBtn.innerHTML = ICONS.play;
 }
 function resumeGame(){
   if (state !== 'paused') return;
   state = 'playing';
   overlay.classList.add('hidden');
-  pauseBtn.textContent = 'Ⅱ';
+  pauseBtn.innerHTML = ICONS.pause;
 }
 function gameOver(){
   state = 'over';
   overAt = performance.now();
   score = Math.floor(score);
   shake = 3.5;
+  hitStop = 0.08;
   sfx('hit'); vibrate(50);
   setMood('hit', 5);
 
@@ -2000,8 +2191,8 @@ function gameOver(){
   lastRunRecord = record;
 
   showOverlay({
-    emoji: record ? '🏆' : '😵',
-    title: record ? 'رقم قياسي جديد!' : 'ناوي خبط! 😅',
+    mood: record ? 'record' : 'sad',
+    title: record ? 'رقم قياسي جديد!' : 'ناوي خبط!',
     text : 'نتيجتك: <b>' + score + '</b> — الأفضل: <b>' + best + '</b>',
     btn  : 'حاول تاني',
     action: 'start',
@@ -2030,6 +2221,12 @@ function frame(t){
   if (!isFinite(dt) || dt < 0) dt = 0;
   dt = Math.min(dt, 1/30);
 
+  if (hitStop > 0){
+    hitStop -= dt;
+    render();
+    return;
+  }
+
   worldTime += dt;
 
   if (state === 'playing') update(dt);
@@ -2056,7 +2253,8 @@ document.addEventListener('visibilitychange', () => {
    ============================================================ */
 function init(){
   bestEl.textContent = best;
-  muteBtn.textContent = muted ? '🔇' : '🔊';
+  drawNawyPortrait(ovNawy, 'idle');
+
   resize();
   updateSunPos();
   for (let i = 0; i < 2; i++) spawnCloud();
