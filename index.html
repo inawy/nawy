@@ -446,7 +446,7 @@
       background: rgba(0,0,0, calc(.34 + var(--sheet-drag-progress) * .08));
       opacity: 0;
       visibility: hidden;
-      transition: opacity 0.2s ease, visibility 0.2s ease;
+      transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .overlay::before {
       content: "";
@@ -457,7 +457,7 @@
       opacity: calc(.42 + var(--sheet-drag-progress) * .42);
       -webkit-backdrop-filter: blur(1px) saturate(105%);
       backdrop-filter: blur(1px) saturate(105%);
-      transition: opacity .18s ease;
+      transition: opacity .28s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .overlay.show { opacity: 1; visibility: visible; }
     .overlay .sheet { z-index: 1; }
@@ -478,14 +478,16 @@
       box-shadow: 0 22px 70px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.12);
       -webkit-backdrop-filter: blur(28px) saturate(150%);
       backdrop-filter: blur(28px) saturate(150%);
-      transform: translateY(28px) scale(.97);
+      transform: translateY(22px);
       opacity: 0;
-      transition: transform .42s cubic-bezier(.34, 1.56, .64, 1), opacity .22s ease;
+      transition: transform .32s cubic-bezier(0.22, 1, 0.36, 1), opacity .28s cubic-bezier(0.22, 1, 0.36, 1);
       position: relative;
-      will-change: transform;
+      will-change: transform, opacity;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
       touch-action: pan-y;
     }
-    .overlay.show .sheet { transform: translateY(0) scale(1); opacity: 1; }
+    .overlay.show .sheet { transform: translateY(0); opacity: 1; }
     #menuOverlay .sheet { max-height: min(78dvh, 620px); }
     #taskOverlay .sheet { max-height: min(76dvh, 620px); }
     #settingsOverlay .sheet { max-height: min(84dvh, 720px); }
@@ -4910,7 +4912,7 @@
           const horizontalDismiss = mode === "horizontal" && dx * direction > 90;
           const verticalDismiss = mode === "vertical" && dy > 105;
 
-          sheet.style.transition = "transform .34s cubic-bezier(.34, 1.56, .64, 1), opacity .22s ease";
+          sheet.style.transition = "transform .3s cubic-bezier(0.22, 1, 0.36, 1), opacity .26s cubic-bezier(0.22, 1, 0.36, 1)";
 
           if (horizontalDismiss) {
             sheet.style.transform = `translateX(${direction * 105}%) scale(.98)`;
@@ -4928,7 +4930,7 @@
           setTimeout(() => {
             closeOverlay(overlay);
             resetSheet();
-          }, 240);
+          }, 300);
         };
 
         sheet.addEventListener("pointerup", finish);
