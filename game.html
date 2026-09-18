@@ -8,7 +8,7 @@
 <title>العب مع ناوي 🎮</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#1e293b;
@@ -56,7 +56,8 @@
     text-shadow:0 1px 2px rgba(255,255,255,.55);
   }
   .stat b{
-    font-size:17px;color:var(--ink);font-weight:900;
+    font-family:'Fredoka',system-ui,sans-serif;
+    font-size:17px;color:var(--ink);font-weight:700;
     font-variant-numeric:tabular-nums;
     text-shadow:0 1px 3px rgba(255,255,255,.6);
   }
@@ -115,7 +116,7 @@
   .chip.shield{color:#1f6feb;}
   .chip.magnet{color:#b45309;}
   .chip.stars{color:#b45309;display:inline-flex;}
-  .chip b{color:inherit;font-variant-numeric:tabular-nums;font-weight:900;}
+  .chip b{color:inherit;font-family:'Fredoka',system-ui,sans-serif;font-variant-numeric:tabular-nums;font-weight:700;}
 
   .overlay{
     position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -133,7 +134,7 @@
   }
   .overlay h1{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.4px;color:#0f172a;}
   .overlay p{margin:0;color:#5b6b82;font-size:13px;font-weight:750;line-height:1.7;}
-  .overlay p b{color:#0f172a;}
+  .overlay p b{color:#0f172a;font-family:'Fredoka',system-ui,sans-serif;font-variant-numeric:tabular-nums;}
   .overlay .ov-nawy{
     position:absolute;top:-50px;left:50%;transform:translateX(-50%);
     width:96px;height:96px;border-radius:50%;
@@ -1991,7 +1992,7 @@ function generateShareCard(){
   c.fillText('نتيجتك', CW/2, yCursor + 10);
 
   c.fillStyle = '#0f172a';
-  c.font = "900 200px Cairo, system-ui, sans-serif";
+  c.font = "700 200px Fredoka, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'ltr';
