@@ -1570,10 +1570,6 @@
               <button class="segment" data-language="en" type="button">English</button>
             </div>
           </div>
-          <button class="setting-row" id="settingsBackupLink" type="button" style="width:100%; text-align:start; cursor:pointer;">
-            <div class="setting-name" data-i18n="backupTitle">النسخ الاحتياطي</div>
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" style="width:16px;height:16px;color:var(--muted);"><path d="m9 5 7 7-7 7"/></svg>
-          </button>
         </div>
       </div>
     </div>
@@ -4515,10 +4511,6 @@
     $("#settingsMenuBackBtn").addEventListener("click", () => {
       $("#settingsMenuPanel").hidden = true;
       $("#mainMenuPanel").hidden = false;
-    });
-    $("#settingsBackupLink").addEventListener("click", () => {
-      $("#settingsMenuPanel").hidden = true;
-      $("#backupMenuPanel").hidden = false;
     });
     $("#menuBtn").addEventListener("click", () => {
       const menu = $("#menuOverlay");
