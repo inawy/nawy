@@ -427,19 +427,7 @@ const MAX_PARTICLES = 60;
 const FPS_CAP = 60;
 const FRAME_MIN_MS = 1000 / FPS_CAP - 2;
 
-const MILESTONES = [
-  'برافو! 🔥','كمّل يا بطل! 💪','إيه الحلاوة دي! ✨',
-  'ناوي مبسوط! 😄','ماشي صح! 🚀','تركيز عالي! 🎯',
-  'يلا كمان! ⚡','أنت نجم! 🌟','مستمر! 💥'
-];
-let lastMilestoneIdx = -1;
-function pickMilestone(){
-  if (MILESTONES.length < 2) return MILESTONES[0];
-  let i;
-  do { i = (Math.random() * MILESTONES.length) | 0; } while (i === lastMilestoneIdx);
-  lastMilestoneIdx = i;
-  return MILESTONES[i];
-}
+const START_MESSAGE = 'بسم الله 🤲';
 
 /* ============================================================
    STATE
@@ -1336,10 +1324,10 @@ function update(dt){
   const ms = Math.floor(score / 100);
   if (ms > milestone){
     milestone = ms;
-    showThought(pickMilestone());
     sfx('milestone');
     setMood('happy', 0.65);
   }
+  updatePendingThought(dt);
 
   obstacleTimer -= dt;
   if (obstacleTimer <= 0){
@@ -1588,6 +1576,7 @@ function showToast(text){
   processToastQueue();
 }
 
+const THOUGHT_DURATION_MS = 1900;
 let thoughtTimeout = null;
 let thoughtVisible = false;
 function showThought(text){
@@ -1595,7 +1584,7 @@ function showThought(text){
   thoughtVisible = true;
   thoughtEl.classList.add('show');
   clearTimeout(thoughtTimeout);
-  thoughtTimeout = setTimeout(() => { thoughtVisible = false; thoughtEl.classList.remove('show'); }, 1900);
+  thoughtTimeout = setTimeout(() => { thoughtVisible = false; thoughtEl.classList.remove('show'); }, THOUGHT_DURATION_MS);
   updateThoughtPos();
 }
 function updateThoughtPos(){
@@ -1603,6 +1592,30 @@ function updateThoughtPos(){
   // بيتابع مكان ناوي الفعلي كل فريم (بما فيه وقت القفز) — نفس نظام إحداثيات اللعب
   thoughtEl.style.left = (player.x + player.size * 0.55) + 'px';
   thoughtEl.style.top  = (player.y - 6) + 'px';
+}
+
+let pendingThought = null;
+let pendingThoughtWait = 0;
+function queueThought(text){
+  pendingThought = text;
+  pendingThoughtWait = 0;
+}
+function isPathClear(){
+  // مفيش عقبة في مسافة كافية قدام ناوي — عشان يقدر يقرا من غير ما يخبط
+  const safeGap = W * 0.35;
+  for (const o of obstacles){
+    if (o.x + o.w > player.x && o.x < player.x + safeGap) return false;
+  }
+  return true;
+}
+function updatePendingThought(dt){
+  if (!pendingThought) return;
+  pendingThoughtWait += dt;
+  if (!thoughtVisible && (isPathClear() || pendingThoughtWait > 3)){
+    showThought(pendingThought);
+    pendingThought = null;
+    pendingThoughtWait = 0;
+  }
 }
 /* ============================================================
    NAWY MINI PORTRAIT (overlay)
@@ -2094,7 +2107,7 @@ shareStoryBtn.addEventListener('click', e => {
 
   if (cachedShareBlob){
     const file = new File([cachedShareBlob], 'nawy-score.png', { type: 'image/png' });
-    const shareUrl = 'https://nawy.app/run';
+    const shareUrl = 'https://nawy.app/game';
     const shareText = 'وصلت لـ ' + Math.floor(score) + ' نقطة! هل تقدر تكسر رقمي؟ 🔥\n' + shareUrl;
 
     if (navigator.canShare && navigator.canShare({ files: [file] })){
@@ -2124,7 +2137,7 @@ shareStoryBtn.addEventListener('click', e => {
 
 shareTextBtn.addEventListener('click', e => {
   e.stopPropagation();
-  const shareUrl = 'https://nawy.app/run';
+  const shareUrl = 'https://nawy.app/game';
   const text =
     '🎮 العب مع ناوي\n' +
     'أنا وصلت لـ ' + Math.floor(score) + ' نقطة!\n' +
@@ -2167,12 +2180,11 @@ function startGame(){
   score = 0; lastShown = -1; milestone = 0;
   starCount = 0; combo = 0;
   speed = BASE_SPEED;
-  obstacleTimer = 1.05;
+  obstacleTimer = THOUGHT_DURATION_MS / 1000; // نفس مدة ظهور رسالة "بسم الله" بالظبط، من غير ديلاي زيادة
   starTimer = rand(1.4, 2.8);
   powerTimer = 2.8;
   shake = 0;
   lastRunRecord = false;
-  lastMilestoneIdx = -1;
 
   obstacles.length = 0;
   stars.length = 0;
@@ -2201,6 +2213,9 @@ function startGame(){
   clearTimeout(thoughtTimeout);
   thoughtVisible = false;
   thoughtEl.classList.remove('show');
+  pendingThought = null;
+  pendingThoughtWait = 0;
+  queueThought(START_MESSAGE);
 
   overlay.classList.add('hidden');
   pauseBtn.innerHTML = ICONS.pause;
