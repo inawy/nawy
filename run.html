@@ -169,6 +169,30 @@
   }
   .toast.show{opacity:1;transform:translate(-50%,0) scale(1);}
 
+  .thought{
+    position:absolute;
+    transform:translate(-50%,-100%) scale(.85);
+    transform-origin:bottom center;
+    background:#ffffff;
+    border:2.5px solid #0f172a;
+    border-radius:16px;
+    padding:6px 13px;
+    font-weight:800;font-size:12px;color:#0f172a;
+    white-space:nowrap;
+    box-shadow:2px 3px 0 rgba(15,23,42,.85);
+    opacity:0;pointer-events:none;
+    transition:opacity .16s ease, transform .16s ease;
+    z-index:40;
+  }
+  .thought.show{ opacity:1; transform:translate(-50%,-118%) scale(1); }
+  .thought .tdot{
+    position:absolute;
+    background:#ffffff;
+    border-radius:50%;
+  }
+  .thought .tdot.d1{ width:11px;height:11px; border:2.2px solid #0f172a; bottom:-16px; left:44%; margin-left:-5.5px; }
+  .thought .tdot.d2{ width:6px;height:6px; border:1.6px solid #0f172a; bottom:-25px; left:37%; margin-left:-3px; }
+
   .hint{
     position:absolute;left:0;right:0;
     bottom:max(80px,calc(env(safe-area-inset-bottom) + 72px));
@@ -291,6 +315,11 @@
     </div>
 
     <div class="toast" id="toast"></div>
+    <div class="thought" id="thought">
+      <span id="thoughtText"></span>
+      <i class="tdot d1"></i>
+      <i class="tdot d2"></i>
+    </div>
     <div class="hint" id="hint">اضغط للنط — Space / ↑</div>
 
     <div class="control-bar">
@@ -362,6 +391,8 @@ const ovText      = document.getElementById('ovText');
 const ovBtn       = document.getElementById('ovBtn');
 const ovShareBtn  = document.getElementById('ovShareBtn');
 const toastEl     = document.getElementById('toast');
+const thoughtEl   = document.getElementById('thought');
+const thoughtText = document.getElementById('thoughtText');
 const muteBtn     = document.getElementById('muteBtn');
 const pauseBtn    = document.getElementById('pauseBtn');
 const exitBtn       = document.getElementById('exitBtn');
@@ -1305,7 +1336,7 @@ function update(dt){
   const ms = Math.floor(score / 100);
   if (ms > milestone){
     milestone = ms;
-    showToast(pickMilestone());
+    showThought(pickMilestone());
     sfx('milestone');
     setMood('happy', 0.65);
   }
@@ -1555,6 +1586,23 @@ function showToast(text){
   if (toastBusy && toastQueue.length >= 1) return;
   toastQueue.push(text);
   processToastQueue();
+}
+
+let thoughtTimeout = null;
+let thoughtVisible = false;
+function showThought(text){
+  thoughtText.textContent = text;
+  thoughtVisible = true;
+  thoughtEl.classList.add('show');
+  clearTimeout(thoughtTimeout);
+  thoughtTimeout = setTimeout(() => { thoughtVisible = false; thoughtEl.classList.remove('show'); }, 1900);
+  updateThoughtPos();
+}
+function updateThoughtPos(){
+  if (!thoughtVisible) return;
+  // بيتابع مكان ناوي الفعلي كل فريم (بما فيه وقت القفز) — نفس نظام إحداثيات اللعب
+  thoughtEl.style.left = (player.x + player.size * 0.55) + 'px';
+  thoughtEl.style.top  = (player.y - 6) + 'px';
 }
 /* ============================================================
    NAWY MINI PORTRAIT (overlay)
@@ -2150,6 +2198,9 @@ function startGame(){
   shieldChip.classList.remove('show');
   magnetChip.classList.remove('show');
   hintEl.classList.remove('fade-out');
+  clearTimeout(thoughtTimeout);
+  thoughtVisible = false;
+  thoughtEl.classList.remove('show');
 
   overlay.classList.add('hidden');
   pauseBtn.innerHTML = ICONS.pause;
@@ -2246,6 +2297,7 @@ function frame(t){
   updateClouds(dt);
   updateParticles(dt);
   updateSunPos();
+  updateThoughtPos();
 
   shake *= Math.exp(-10 * dt);
   if (shake < 0.15) shake = 0;
