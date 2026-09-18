@@ -373,6 +373,15 @@
    UTIL
    ============================================================ */
 const TAU = Math.PI * 2;
+
+// هندسة وش ناوي — نسب ثابتة (كنسبة من نصف القطر R) تضمن عدم تداخل العينين
+// مع الخدود ومع الفم في أي مود، مأخوذة من نسب الصورة المرجعية للشخصية.
+const FACE = {
+  eyeX: 0.36, eyeY: -0.12, eyeR: 0.27, pupilRatio: 0.60,
+  cheekX: 0.64, cheekY: 0.32, cheekR: 0.115,
+  mouthCY: 0.05, mouthR: 0.283, mouthA0: Math.PI*0.25, mouthA1: Math.PI*0.75,
+  shineX: -0.40, shineY: -0.62, shineW: 0.26, shineH: 0.12, shineRot: -0.5
+};
 const clamp = (v,a,b)=> v<a?a:(v>b?b:v);
 const rand  = (a,b)=> a + Math.random()*(b-a);
 const pick  = arr => arr[(Math.random()*arr.length)|0];
@@ -954,7 +963,7 @@ function drawPlayer(){
   ctx.globalAlpha = 0.28;
   ctx.fillStyle = '#ffffff';
   ctx.beginPath();
-  ctx.ellipse(-R*0.30, -R*0.42, R*0.28, R*0.14, -0.5, 0, TAU);
+  ctx.ellipse(FACE.shineX*R, FACE.shineY*R, FACE.shineW*R, FACE.shineH*R, FACE.shineRot, 0, TAU);
   ctx.fill();
   ctx.globalAlpha = 1;
 
@@ -963,130 +972,127 @@ function drawPlayer(){
   player.pupilY += (player.pupilTargetY - player.pupilY) * 0.18;
   const mood = player.mood;
 
+  const eyeX = FACE.eyeX*R, eyeY = FACE.eyeY*R, eyeR = FACE.eyeR*R;
+
   if (mood === 'hit'){
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = Math.max(2.2, R*0.13);
+    ctx.lineWidth = Math.max(2.2, R*0.10);
     ctx.lineCap = 'round';
-    const ex = R*0.40, ey = -R*0.05, er = R*0.22;
+    const er = eyeR*0.55;
     ctx.beginPath();
-    ctx.moveTo(-ex-er, ey-er); ctx.lineTo(-ex+er, ey+er);
-    ctx.moveTo(-ex+er, ey-er); ctx.lineTo(-ex-er, ey+er);
-    ctx.moveTo( ex-er, ey-er); ctx.lineTo( ex+er, ey+er);
-    ctx.moveTo( ex+er, ey-er); ctx.lineTo( ex-er, ey+er);
+    ctx.moveTo(-eyeX-er, eyeY-er); ctx.lineTo(-eyeX+er, eyeY+er);
+    ctx.moveTo(-eyeX+er, eyeY-er); ctx.lineTo(-eyeX-er, eyeY+er);
+    ctx.moveTo( eyeX-er, eyeY-er); ctx.lineTo( eyeX+er, eyeY+er);
+    ctx.moveTo( eyeX+er, eyeY-er); ctx.lineTo( eyeX-er, eyeY+er);
     ctx.stroke();
+    ctx.lineWidth = Math.max(2.4, R*0.09);
     ctx.beginPath();
-    ctx.moveTo(-R*0.28, R*0.32); ctx.lineTo(-R*0.14, R*0.22);
-    ctx.lineTo( 0,      R*0.32); ctx.lineTo( R*0.14, R*0.22);
-    ctx.lineTo( R*0.28, R*0.32); ctx.stroke();
+    ctx.moveTo(-R*0.20, R*0.36); ctx.lineTo(-R*0.10, R*0.27);
+    ctx.lineTo( 0,      R*0.36); ctx.lineTo( R*0.10, R*0.27);
+    ctx.lineTo( R*0.20, R*0.36);
+    ctx.stroke();
   } else if (mood === 'happy'){
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = Math.max(2.2, R*0.12);
+    ctx.lineWidth = Math.max(2.2, R*0.11);
     ctx.lineCap = 'round';
-    const ex = R*0.40, ey = -R*0.10, er = R*0.22;
+    const er = eyeR*0.62;
+    ctx.beginPath(); ctx.arc(-eyeX, eyeY+R*0.05, er, Math.PI*1.15, Math.PI*1.85); ctx.stroke();
+    ctx.beginPath(); ctx.arc( eyeX, eyeY+R*0.05, er, Math.PI*1.15, Math.PI*1.85); ctx.stroke();
+    ctx.lineWidth = Math.max(2.4, R*0.11);
     ctx.beginPath();
-    ctx.arc(-ex, ey+R*0.05, er, Math.PI*1.15, Math.PI*1.85);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc( ex, ey+R*0.05, er, Math.PI*1.15, Math.PI*1.85);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(0, R*0.05, R*0.40, Math.PI*0.20, Math.PI*0.80);
-    ctx.lineWidth = Math.max(2.4, R*0.12);
+    ctx.arc(0, FACE.mouthCY*R, FACE.mouthR*R, FACE.mouthA0, FACE.mouthA1);
     ctx.stroke();
   } else if (mood === 'record'){
     ctx.fillStyle = '#fbbf24';
     for (const dir of [-1, 1]){
       ctx.save();
-      ctx.translate(dir * R*0.40, -R*0.08);
+      ctx.translate(dir*eyeX, eyeY);
       ctx.beginPath();
       for (let i = 0; i < 10; i++){
         const a  = -Math.PI/2 + i * Math.PI/5;
-        const rr = (i%2) ? R*0.10 : R*0.22;
+        const rr = (i%2) ? eyeR*0.26 : eyeR*0.58;
         const px = Math.cos(a)*rr, py = Math.sin(a)*rr;
         i ? ctx.lineTo(px,py) : ctx.moveTo(px,py);
       }
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
+      ctx.closePath(); ctx.fill(); ctx.restore();
     }
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = Math.max(2.4, R*0.12);
+    ctx.lineWidth = Math.max(2.4, R*0.11);
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.arc(0, R*0.05, R*0.40, Math.PI*0.20, Math.PI*0.80);
+    ctx.arc(0, FACE.mouthCY*R, FACE.mouthR*R, FACE.mouthA0, FACE.mouthA1);
     ctx.stroke();
   } else if (mood === 'focus'){
-    const eyeW = R*0.28, eyeH = R*0.10;
-    const ex = R*0.40, ey = -R*0.06;
+    const eyeW = eyeR*0.85, eyeH = eyeR*0.32;
     ctx.fillStyle = '#fff';
     for (const dir of [-1, 1]){
       ctx.beginPath();
-      ctx.ellipse(dir*ex, ey, eyeW, eyeH, 0, 0, TAU);
+      ctx.ellipse(dir*eyeX, eyeY, eyeW, eyeH, 0, 0, TAU);
       ctx.fill();
     }
     ctx.fillStyle = '#0f172a';
     for (const dir of [-1, 1]){
       ctx.beginPath();
-      ctx.arc(dir*ex + player.pupilX*R*0.4, ey + player.pupilY*R*0.3, R*0.07, 0, TAU);
+      ctx.arc(dir*eyeX + player.pupilX*R*0.4, eyeY + player.pupilY*R*0.25, R*0.065, 0, TAU);
       ctx.fill();
     }
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = Math.max(2, R*0.10);
+    ctx.lineWidth = Math.max(2, R*0.09);
     ctx.lineCap = 'round';
     ctx.beginPath();
-    ctx.moveTo(-R*0.22, R*0.30);
-    ctx.lineTo( R*0.22, R*0.30);
+    ctx.moveTo(-R*0.18, R*0.30);
+    ctx.lineTo( R*0.18, R*0.30);
     ctx.stroke();
   } else {
-    const eyeR = R*0.30;
-    const eyeX = R*0.38;
-    const baseEyeY = -R*0.08;
-
     if (blinkingNow){
       ctx.strokeStyle = '#0f172a';
-      ctx.lineWidth = Math.max(2, R*0.10);
+      ctx.lineWidth = Math.max(2, R*0.09);
       ctx.lineCap = 'round';
       ctx.beginPath();
-      ctx.moveTo(-eyeX - eyeR*0.8, baseEyeY);
-      ctx.lineTo(-eyeX + eyeR*0.8, baseEyeY);
-      ctx.moveTo( eyeX - eyeR*0.8, baseEyeY);
-      ctx.lineTo( eyeX + eyeR*0.8, baseEyeY);
+      ctx.moveTo(-eyeX - eyeR*0.75, eyeY);
+      ctx.lineTo(-eyeX + eyeR*0.75, eyeY);
+      ctx.moveTo( eyeX - eyeR*0.75, eyeY);
+      ctx.lineTo( eyeX + eyeR*0.75, eyeY);
       ctx.stroke();
     } else {
       ctx.fillStyle = '#fff';
       ctx.beginPath();
-      ctx.arc(-eyeX, baseEyeY, eyeR, 0, TAU);
-      ctx.arc( eyeX, baseEyeY, eyeR, 0, TAU);
+      ctx.arc(-eyeX, eyeY, eyeR, 0, TAU);
+      ctx.arc( eyeX, eyeY, eyeR, 0, TAU);
       ctx.fill();
-      const pupilR = eyeR * 0.55;
-      ctx.fillStyle = '#0f172a';
+      const pupilR = eyeR * FACE.pupilRatio;
       for (const dir of [-1, 1]){
+        const px = dir*eyeX + player.pupilX*eyeR*0.5;
+        const py = eyeY + player.pupilY*eyeR*0.5;
+        ctx.fillStyle = '#0f172a';
         ctx.beginPath();
-        ctx.arc(dir*eyeX + player.pupilX*eyeR*0.5,
-                baseEyeY + player.pupilY*eyeR*0.5,
-                pupilR, 0, TAU);
+        ctx.arc(px, py, pupilR, 0, TAU);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(px - pupilR*0.32, py - pupilR*0.32, pupilR*0.26, 0, TAU);
         ctx.fill();
       }
     }
 
     ctx.strokeStyle = '#0f172a';
-    ctx.lineWidth = Math.max(2, R*0.10);
+    ctx.lineWidth = Math.max(2, R*0.09);
     ctx.lineCap = 'round';
 
     if (mood === 'jump'){
       ctx.beginPath();
-      ctx.ellipse(0, R*0.30, R*0.10, R*0.13, 0, 0, TAU);
+      ctx.ellipse(0, R*0.28, R*0.09, R*0.12, 0, 0, TAU);
       ctx.stroke();
     } else if (mood === 'fall'){
       ctx.beginPath();
-      ctx.ellipse(0, R*0.30, R*0.14, R*0.16, 0, 0, TAU);
+      ctx.ellipse(0, R*0.28, R*0.13, R*0.15, 0, 0, TAU);
       ctx.stroke();
     } else {
       ctx.beginPath();
       if (player.grounded){
-        ctx.arc(0, R*0.10, R*0.30, Math.PI*0.25, Math.PI*0.75);
+        ctx.arc(0, FACE.mouthCY*R, FACE.mouthR*R, FACE.mouthA0, FACE.mouthA1);
       } else {
-        ctx.arc(0, R*0.28, R*0.14, 0, TAU);
+        ctx.arc(0, R*0.26, R*0.13, 0, TAU);
       }
       ctx.stroke();
     }
@@ -1095,8 +1101,8 @@ function drawPlayer(){
   ctx.globalAlpha = 0.28;
   ctx.fillStyle = '#fb7185';
   ctx.beginPath();
-  ctx.arc(-R*0.62, R*0.18, R*0.14, 0, TAU);
-  ctx.arc( R*0.62, R*0.18, R*0.14, 0, TAU);
+  ctx.arc(-FACE.cheekX*R, FACE.cheekY*R, FACE.cheekR*R, 0, TAU);
+  ctx.arc( FACE.cheekX*R, FACE.cheekY*R, FACE.cheekR*R, 0, TAU);
   ctx.fill();
   ctx.globalAlpha = 1;
 
@@ -1650,19 +1656,18 @@ function drawNawyPortrait(canvas, mood){
   c.globalAlpha = 0.32;
   c.fillStyle = '#ffffff';
   c.beginPath();
-  c.ellipse(cx - R*0.32, cy - R*0.44, R*0.30, R*0.15, -0.5, 0, TAU);
+  c.ellipse(cx + FACE.shineX*R, cy + FACE.shineY*R, FACE.shineW*R, FACE.shineH*R, FACE.shineRot, 0, TAU);
   c.fill();
   c.globalAlpha = 1;
 
-  // عيون أعلى شوية وأصغر عشان تسيب مساحة كافية للفم من غير ما يتلامسوا
-  const eyeR = R*0.26, eyeX = R*0.36, eyeY = cy - R*0.20;
+  const eyeR = FACE.eyeR*R, eyeX = FACE.eyeX*R, eyeY = cy + FACE.eyeY*R;
 
   if (mood === 'sad'){
     // خبط — عيون X رفيعة وفم مموج ناعم (مش زاويّ) وبينهم مسافة واضحة
     c.strokeStyle = '#0f172a';
     c.lineWidth = Math.max(2.4, R*0.065);
     c.lineCap = 'round';
-    const er = eyeR*0.62;
+    const er = eyeR*0.55;
     c.beginPath();
     c.moveTo(cx-eyeX-er, eyeY-er); c.lineTo(cx-eyeX+er, eyeY+er);
     c.moveTo(cx-eyeX+er, eyeY-er); c.lineTo(cx-eyeX-er, eyeY+er);
@@ -1672,9 +1677,9 @@ function drawNawyPortrait(canvas, mood){
 
     c.lineWidth = Math.max(2.6, R*0.07);
     c.beginPath();
-    c.moveTo(cx-R*0.22, cy+R*0.36);
-    c.quadraticCurveTo(cx-R*0.11, cy+R*0.27, cx, cy+R*0.36);
-    c.quadraticCurveTo(cx+R*0.11, cy+R*0.45, cx+R*0.22, cy+R*0.36);
+    c.moveTo(cx-R*0.20, cy+R*0.36);
+    c.quadraticCurveTo(cx-R*0.10, cy+R*0.27, cx, cy+R*0.36);
+    c.quadraticCurveTo(cx+R*0.10, cy+R*0.45, cx+R*0.20, cy+R*0.36);
     c.stroke();
   } else if (mood === 'record'){
     // رقم قياسي — نجوم صغيرة بدل العيون وابتسامة كبيرة هادية
@@ -1685,7 +1690,7 @@ function drawNawyPortrait(canvas, mood){
       c.beginPath();
       for (let i = 0; i < 10; i++){
         const a  = -Math.PI/2 + i * Math.PI/5;
-        const rr = (i%2) ? eyeR*0.30 : eyeR*0.66;
+        const rr = (i%2) ? eyeR*0.26 : eyeR*0.58;
         const px = Math.cos(a)*rr, py = Math.sin(a)*rr;
         i ? c.lineTo(px,py) : c.moveTo(px,py);
       }
@@ -1696,7 +1701,7 @@ function drawNawyPortrait(canvas, mood){
     c.lineWidth = Math.max(2.8, R*0.09);
     c.lineCap = 'round';
     c.beginPath();
-    c.arc(cx, cy+R*0.10, R*0.36, Math.PI*0.20, Math.PI*0.80);
+    c.arc(cx, cy+FACE.mouthCY*R, FACE.mouthR*R, FACE.mouthA0, FACE.mouthA1);
     c.stroke();
   } else if (mood === 'paused'){
     // بياخد نفس — عيون مغمضة ناعمة وابتسامة صغيرة هادية
@@ -1712,7 +1717,7 @@ function drawNawyPortrait(canvas, mood){
 
     c.lineWidth = Math.max(2.6, R*0.07);
     c.beginPath();
-    c.arc(cx, cy+R*0.24, R*0.16, Math.PI*0.18, Math.PI*0.82);
+    c.arc(cx, cy+R*0.28, R*0.14, Math.PI*0.18, Math.PI*0.82);
     c.stroke();
   } else {
     // جاهز — عيون مفتوحة وابتسامة هادئة
@@ -1721,16 +1726,23 @@ function drawNawyPortrait(canvas, mood){
     c.arc(cx-eyeX, eyeY, eyeR, 0, TAU);
     c.arc(cx+eyeX, eyeY, eyeR, 0, TAU);
     c.fill();
-    c.fillStyle = '#0f172a';
-    c.beginPath();
-    c.arc(cx-eyeX+eyeR*0.16, eyeY, eyeR*0.5, 0, TAU);
-    c.arc(cx+eyeX+eyeR*0.16, eyeY, eyeR*0.5, 0, TAU);
-    c.fill();
+    const pupilR = eyeR * FACE.pupilRatio;
+    for (const dir of [-1, 1]){
+      const px = cx + dir*eyeX, py = eyeY;
+      c.fillStyle = '#0f172a';
+      c.beginPath();
+      c.arc(px, py, pupilR, 0, TAU);
+      c.fill();
+      c.fillStyle = '#fff';
+      c.beginPath();
+      c.arc(px - pupilR*0.32, py - pupilR*0.32, pupilR*0.26, 0, TAU);
+      c.fill();
+    }
     c.strokeStyle = '#0f172a';
     c.lineWidth = Math.max(2.6, R*0.07);
     c.lineCap = 'round';
     c.beginPath();
-    c.arc(cx, cy+R*0.18, R*0.28, Math.PI*0.22, Math.PI*0.78);
+    c.arc(cx, cy+FACE.mouthCY*R, FACE.mouthR*R, FACE.mouthA0, FACE.mouthA1);
     c.stroke();
   }
 
@@ -1738,8 +1750,8 @@ function drawNawyPortrait(canvas, mood){
   c.globalAlpha = 0.28;
   c.fillStyle = '#fb7185';
   c.beginPath();
-  c.arc(cx-R*0.62, cy+R*0.18, R*0.13, 0, TAU);
-  c.arc(cx+R*0.62, cy+R*0.18, R*0.13, 0, TAU);
+  c.arc(cx-FACE.cheekX*R, cy+FACE.cheekY*R, FACE.cheekR*R, 0, TAU);
+  c.arc(cx+FACE.cheekX*R, cy+FACE.cheekY*R, FACE.cheekR*R, 0, TAU);
   c.fill();
   c.globalAlpha = 1;
 }
@@ -1775,13 +1787,13 @@ function drawNawyForShare(c, cx, cy, R){
   c.globalAlpha = 0.38;
   c.fillStyle = '#ffffff';
   c.beginPath();
-  c.ellipse(cx - R*0.32, cy - R*0.44, R*0.32, R*0.16, -0.5, 0, TAU);
+  c.ellipse(cx + FACE.shineX*R, cy + FACE.shineY*R, FACE.shineW*R, FACE.shineH*R, FACE.shineRot, 0, TAU);
   c.fill();
   c.globalAlpha = 1;
 
-  const eyeR = R * 0.30;
-  const eyeX = R * 0.38;
-  const baseEyeY = cy - R * 0.08;
+  const eyeR = FACE.eyeR * R;
+  const eyeX = FACE.eyeX * R;
+  const baseEyeY = cy + FACE.eyeY * R;
 
   c.fillStyle = '#ffffff';
   c.beginPath();
@@ -1789,25 +1801,31 @@ function drawNawyForShare(c, cx, cy, R){
   c.arc(cx + eyeX, baseEyeY, eyeR, 0, TAU);
   c.fill();
 
-  const pupilR = eyeR * 0.55;
-  c.fillStyle = '#0f172a';
-  c.beginPath();
-  c.arc(cx - eyeX + eyeR*0.15, baseEyeY, pupilR, 0, TAU);
-  c.arc(cx + eyeX + eyeR*0.15, baseEyeY, pupilR, 0, TAU);
-  c.fill();
+  const pupilR = eyeR * FACE.pupilRatio;
+  for (const dir of [-1, 1]){
+    const px = cx + dir*eyeX, py = baseEyeY;
+    c.fillStyle = '#0f172a';
+    c.beginPath();
+    c.arc(px, py, pupilR, 0, TAU);
+    c.fill();
+    c.fillStyle = '#ffffff';
+    c.beginPath();
+    c.arc(px - pupilR*0.32, py - pupilR*0.32, pupilR*0.26, 0, TAU);
+    c.fill();
+  }
 
   c.strokeStyle = '#0f172a';
-  c.lineWidth = Math.max(4, R * 0.10);
+  c.lineWidth = Math.max(4, R * 0.09);
   c.lineCap = 'round';
   c.beginPath();
-  c.arc(cx, cy + R*0.10, R*0.32, Math.PI*0.22, Math.PI*0.78);
+  c.arc(cx, cy + FACE.mouthCY*R, FACE.mouthR*R, FACE.mouthA0, FACE.mouthA1);
   c.stroke();
 
   c.globalAlpha = 0.32;
   c.fillStyle = '#fb7185';
   c.beginPath();
-  c.arc(cx - R*0.62, cy + R*0.18, R*0.13, 0, TAU);
-  c.arc(cx + R*0.62, cy + R*0.18, R*0.13, 0, TAU);
+  c.arc(cx - FACE.cheekX*R, cy + FACE.cheekY*R, FACE.cheekR*R, 0, TAU);
+  c.arc(cx + FACE.cheekX*R, cy + FACE.cheekY*R, FACE.cheekR*R, 0, TAU);
   c.fill();
   c.globalAlpha = 1;
 }
