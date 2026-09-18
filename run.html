@@ -6,6 +6,9 @@
 <meta name="theme-color" content="#c5e0f7">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>العب مع ناوي 🎮</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
     --ink:#1e293b;
@@ -16,7 +19,7 @@
   *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{
     margin:0;width:100%;height:100%;overflow:hidden;
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-family:'Cairo',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     background:#c5e0f7;user-select:none;-webkit-user-select:none;
     touch-action:manipulation;overscroll-behavior:none;
     position:fixed;inset:0;
@@ -1768,7 +1771,7 @@ function generateShareCard(){
   c.fillRect(0, 0, CW, CH);
 
   c.fillStyle = '#1e293b';
-  c.font = '900 46px system-ui, -apple-system, sans-serif';
+  c.font = "900 46px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
@@ -1878,7 +1881,7 @@ function generateShareCard(){
     roundRectPath(c, badgeX, yCursor, badgeW, badgeH, badgeH/2);
     c.fill();
     c.fillStyle = '#7c2d12';
-    c.font = '900 36px system-ui, -apple-system, sans-serif';
+    c.font = "900 36px Cairo, system-ui, sans-serif";
     c.textAlign = 'center';
     c.textBaseline = 'middle';
     c.direction = 'rtl';
@@ -1887,21 +1890,21 @@ function generateShareCard(){
   }
 
   c.fillStyle = '#64748b';
-  c.font = '800 32px system-ui, -apple-system, sans-serif';
+  c.font = "800 32px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
   c.fillText('نتيجتك', CW/2, yCursor + 10);
 
   c.fillStyle = '#0f172a';
-  c.font = '900 200px system-ui, -apple-system, sans-serif';
+  c.font = "900 200px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'ltr';
   c.fillText(String(finalScore), CW/2, yCursor + 150);
 
   c.fillStyle = '#2563eb';
-  c.font = '900 42px system-ui, -apple-system, sans-serif';
+  c.font = "900 42px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
@@ -1920,7 +1923,7 @@ function generateShareCard(){
   roundRectPath(c, startX, statsY, pillW, pillH, pillH/2);
   c.stroke();
   c.fillStyle = '#92400e';
-  c.font = '900 38px system-ui, -apple-system, sans-serif';
+  c.font = "900 38px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
@@ -1935,7 +1938,7 @@ function generateShareCard(){
   roundRectPath(c, pill2X, statsY, pillW, pillH, pillH/2);
   c.stroke();
   c.fillStyle = '#1e40af';
-  c.font = '900 38px system-ui, -apple-system, sans-serif';
+  c.font = "900 38px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
@@ -1955,21 +1958,21 @@ function generateShareCard(){
   c.stroke();
 
   c.fillStyle = '#0f172a';
-  c.font = '900 40px system-ui, -apple-system, sans-serif';
+  c.font = "900 40px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
   c.fillText('هل تقدر تكسر رقمي؟ 💪', CW/2, ctaBoxY + 58);
 
   c.fillStyle = '#2563eb';
-  c.font = '800 30px system-ui, -apple-system, sans-serif';
+  c.font = "800 30px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
   c.fillText('العب مع ناوي دلوقتي', CW/2, ctaBoxY + 108);
 
   c.fillStyle = 'rgba(100,116,139,.75)';
-  c.font = '700 26px system-ui, -apple-system, sans-serif';
+  c.font = "700 26px Cairo, system-ui, sans-serif";
   c.textAlign = 'center';
   c.textBaseline = 'middle';
   c.direction = 'rtl';
@@ -2001,14 +2004,21 @@ function canvasToBlob(){
 }
 
 function openShareModal(){
-  generateShareCard();
-  shareModal.classList.add('open');
+  const draw = () => {
+    generateShareCard();
+    shareModal.classList.add('open');
 
-  const token = ++shareBlobToken;
-  cachedShareBlob = null;
-  canvasToBlob().then(b => {
-    if (token === shareBlobToken) cachedShareBlob = b;
-  });
+    const token = ++shareBlobToken;
+    cachedShareBlob = null;
+    canvasToBlob().then(b => {
+      if (token === shareBlobToken) cachedShareBlob = b;
+    });
+  };
+  if (document.fonts && document.fonts.ready){
+    document.fonts.ready.then(draw).catch(draw);
+  } else {
+    draw();
+  }
 }
 function closeShareModal(){
   shareModal.classList.remove('open');
@@ -2036,7 +2046,7 @@ shareStoryBtn.addEventListener('click', e => {
 
   if (cachedShareBlob){
     const file = new File([cachedShareBlob], 'nawy-score.png', { type: 'image/png' });
-    const shareUrl = window.location.origin + window.location.pathname;
+    const shareUrl = 'https://nawy.app/run';
     const shareText = 'وصلت لـ ' + Math.floor(score) + ' نقطة! هل تقدر تكسر رقمي؟ 🔥\n' + shareUrl;
 
     if (navigator.canShare && navigator.canShare({ files: [file] })){
@@ -2066,7 +2076,7 @@ shareStoryBtn.addEventListener('click', e => {
 
 shareTextBtn.addEventListener('click', e => {
   e.stopPropagation();
-  const shareUrl = window.location.origin + window.location.pathname;
+  const shareUrl = 'https://nawy.app/run';
   const text =
     '🎮 العب مع ناوي\n' +
     'أنا وصلت لـ ' + Math.floor(score) + ' نقطة!\n' +
