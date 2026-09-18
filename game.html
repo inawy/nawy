@@ -124,32 +124,45 @@
   }
   .overlay.hidden{display:none;}
   .overlay-inner{
-    padding:26px 26px 22px;border-radius:24px;
+    position:relative;
+    padding:58px 24px 22px;border-radius:28px;
     background:#ffffff;
-    border:1px solid rgba(224,231,239,.9);
-    box-shadow:0 20px 50px rgba(20,50,90,.12);
-    max-width:min(400px,92vw);pointer-events:auto;
+    border:3px solid #0f172a;
+    box-shadow:0 7px 0 #0f172a, 0 16px 34px rgba(15,23,42,.20);
+    max-width:min(380px,92vw);pointer-events:auto;
   }
-  .overlay h1{margin:0 0 6px;font-size:25px;font-weight:950;letter-spacing:-.5px;color:#0f172a;}
-  .overlay p{margin:0;color:#64748b;font-size:13px;font-weight:650;line-height:1.7;}
+  .overlay h1{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.4px;color:#0f172a;}
+  .overlay p{margin:0;color:#5b6b82;font-size:13px;font-weight:750;line-height:1.7;}
   .overlay p b{color:#0f172a;}
-  .overlay .ov-nawy{width:84px;height:84px;display:block;margin:0 auto 10px;}
+  .overlay .ov-nawy{
+    position:absolute;top:-50px;left:50%;transform:translateX(-50%);
+    width:96px;height:96px;border-radius:50%;
+    background:#ffffff;border:4px solid #0f172a;
+    box-shadow:0 5px 0 #0f172a;
+  }
+  .overlay .ov-star{
+    position:absolute;top:-24px;color:#fbbf24;font-size:16px;
+    filter:drop-shadow(0 1px 0 #92400e);
+  }
   .badge{
-    display:inline-block;margin-top:10px;padding:5px 14px;border-radius:999px;
-    background:#fef3c7;color:#92400e;font-weight:900;font-size:12px;
+    display:inline-flex;align-items:center;gap:5px;
+    margin-top:10px;padding:5px 14px;border-radius:999px;
+    background:#fff7e6;color:#7a4a08;font-weight:900;font-size:12px;
+    border:2px solid #0f172a;box-shadow:0 3px 0 #0f172a;
   }
   .button{
-    margin-top:16px;border:0;border-radius:14px;padding:13px 28px;
-    background:linear-gradient(135deg,#1489ff,#0069e5);color:#fff;
+    margin-top:16px;border:2.5px solid #0f172a;border-radius:16px;padding:13px 28px;
+    background:#2f7dff;color:#fff;
     font-size:15px;font-weight:900;letter-spacing:.2px;
     cursor:pointer;pointer-events:auto;font-family:inherit;
-    box-shadow:0 6px 18px rgba(0,105,229,.28);
-    transition:transform .12s;
+    box-shadow:0 5px 0 #0c3f8f;
+    transition:transform .08s ease, box-shadow .08s ease;
     width:100%;
     display:flex;align-items:center;justify-content:center;gap:8px;
   }
-  .button:active{transform:scale(.97) translateY(1px);}
-  .button.secondary{background:#f1f5f9;color:#334155;box-shadow:0 3px 10px rgba(15,23,42,.06);}
+  .button:active{transform:translateY(4px);box-shadow:0 1px 0 #0c3f8f;}
+  .button.secondary{background:#ffffff;color:#0f172a;box-shadow:0 5px 0 #0f172a;}
+  .button.secondary:active{box-shadow:0 1px 0 #0f172a;}
 
   .toast{
     position:absolute;
@@ -307,6 +320,8 @@
     <div class="overlay" id="overlay">
       <div class="overlay-inner">
         <canvas class="ov-nawy" id="ovNawy" width="168" height="168"></canvas>
+        <span class="ov-star" style="left:18px;">★</span>
+        <span class="ov-star" style="right:18px;">★</span>
         <h1 id="ovTitle">ناوي جاهز؟</h1>
         <p id="ovText">اضغط في أي مكان عشان تبدأ</p>
         <button type="button" class="button" id="ovBtn">يلا نبدأ</button>
