@@ -446,7 +446,7 @@
       background: rgba(0,0,0,0);
       visibility: hidden;
       pointer-events: none;
-      transition: background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .overlay::before {
       content: "";
@@ -482,7 +482,7 @@
       -webkit-backdrop-filter: blur(28px) saturate(150%);
       backdrop-filter: blur(28px) saturate(150%);
       transform: translateY(32px);
-      transition: transform .32s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
       position: relative;
       will-change: transform;
       backface-visibility: hidden;
@@ -3632,7 +3632,15 @@
       document.body.classList.toggle("no-scroll", anyOverlayOpen || composerOpen);
     }
 
-    function openOverlay(overlay) { overlay.classList.add("show"); updateBodyScrollLock(); }
+    function openOverlay(overlay) {
+      const sheet = overlay.querySelector(".sheet");
+      if (sheet) {
+        sheet.style.transform = "";
+        sheet.style.transition = "";
+      }
+      overlay.classList.add("show");
+      updateBodyScrollLock();
+    }
     function closeOverlay(overlay) {
       overlay.classList.remove("show");
       if (overlay.id === "menuOverlay") {
@@ -4923,7 +4931,8 @@
 
           setTimeout(() => {
             closeOverlay(overlay);
-            resetSheet();
+            sheet.classList.remove("handle-active");
+            overlay.style.setProperty("--sheet-drag-progress", "0");
           }, 300);
         };
 
