@@ -446,6 +446,9 @@ const COYOTE     = 0.12;
 const JUMP_BUF   = 0.14;
 const SUN_CYCLE  = 240;
 const DEATH_DUR  = 0.85;
+const MIN_JUMP_HEIGHT = 55;      // أقل ارتفاع مضمون حتى لو اتسحب الضغط فورًا
+const DROP_VY = JUMP_V * 0.45;   // سرعة الهبوط لما تسحب الضغط بدري (قفزة قصيرة)
+const JUMP_SPEED_BOOST = 6;      // القفزة تتقوى شوية مع زيادة السرعة الحالية (زي Dino)
 
 const RENDER_MAX_W = 800;
 const MAX_PARTICLES = 60;
@@ -639,8 +642,10 @@ const player = {
   shield: 0, magnet: 0,
   pupilX: 0, pupilY: 0,
   pupilTargetX: 0.3, pupilTargetY: 0,
-  deathT: -1, deathVy: 0
+  deathT: -1, deathVy: 0,
+  jumpStartY: 0, reachedMinHeight: false
 };
+let jumpHeld = false;
 function setMood(m, d){ player.mood = m; player.moodTimer = d || 0; }
 
 /* ============================================================
@@ -1222,6 +1227,18 @@ function makeObstacle(x, w, h, wide){
   return o;
 }
 
+// يمنع نفس نمط العقبة المميز (مزدوجة/عريضة) من التكرار أكتر من مرتين ورا بعض
+const MAX_OBSTACLE_DUPLICATION = 2;
+let obstacleHistory = [];
+function wouldDuplicate(category){
+  if (obstacleHistory.length < MAX_OBSTACLE_DUPLICATION) return false;
+  return obstacleHistory.slice(-MAX_OBSTACLE_DUPLICATION).every(c => c === category);
+}
+function recordObstacle(category){
+  obstacleHistory.push(category);
+  if (obstacleHistory.length > MAX_OBSTACLE_DUPLICATION) obstacleHistory.shift();
+}
+
 function spawnObstacle(){
   const d = getDifficulty();
   const r = Math.random();
@@ -1230,20 +1247,22 @@ function spawnObstacle(){
 
   // فرصة لعقبة مزدوجة (اثنين قريبين) — الفجوة محسوبة بالزمن مش بالبكسل
   // الثابت، عشان صعوبتها المُدركة تفضل واحدة في أي سرعة حالية
-  if (d > 0.25 && r < 0.18){
+  if (d > 0.25 && r < 0.18 && !wouldDuplicate('double')){
     const h1 = rand(30, 48);
     const h2 = rand(28, 52);
     const gapPx = dxNow * rand(0.15, 0.21);
     obstacles.push(makeObstacle(spawnX, 22, h1, false));
     obstacles.push(makeObstacle(spawnX + gapPx, 22, h2, false));
+    recordObstacle('double');
     return;
   }
 
   // عقبة عريضة
-  if (d > 0.35 && r < 0.28){
+  if (d > 0.35 && r < 0.28 && !wouldDuplicate('wide')){
     const w = rand(48, 68);
     const h = rand(26, 36);
     obstacles.push(makeObstacle(spawnX, w, h, true));
+    recordObstacle('wide');
     return;
   }
 
@@ -1265,6 +1284,7 @@ function spawnObstacle(){
     else { w = 18; h = rand(58, 72); }
   }
   obstacles.push(makeObstacle(spawnX, w, h, false));
+  recordObstacle('normal');
 }
 
 function spawnStarArc(){
@@ -1338,6 +1358,18 @@ function updateDeath(dt){
    ============================================================ */
 function update(dt){
   player.vy = Math.min(player.vy + GRAVITY * dt, MAX_FALL);
+
+  // قفزة متغيرة الارتفاع: بعد ما نضمن أقل ارتفاع، لو الضغط اتسحب
+  // ناوي يتحول للهبوط فورًا (قفزة قصيرة) بدل ما يكمل لأعلى ارتفاعه
+  if (!player.grounded && player.vy < 0){
+    if (!player.reachedMinHeight && (player.jumpStartY - player.y) >= MIN_JUMP_HEIGHT){
+      player.reachedMinHeight = true;
+    }
+    if (!jumpHeld && player.reachedMinHeight && player.vy < DROP_VY){
+      player.vy = DROP_VY;
+    }
+  }
+
   player.y += player.vy * dt;
 
   const floor = groundY - player.size;
@@ -1520,10 +1552,12 @@ function update(dt){
    INPUT
    ============================================================ */
 function doJump(){
-  player.vy = JUMP_V;
+  player.vy = JUMP_V - speed * JUMP_SPEED_BOOST;
   player.grounded = false;
   player.squash = 1.18;
   player.coyote = 0; player.jumpBuf = 0;
+  player.jumpStartY = player.y;
+  player.reachedMinHeight = false;
   burstDust(player.x + player.size/2, groundY, 4);
   sfx('jump'); setMood('jump', 0.28);
   hintEl.classList.add('fade-out');
@@ -1531,11 +1565,16 @@ function doJump(){
 
 function jump(){
   if (state !== 'playing') return;
+  jumpHeld = true;
   if (player.grounded || player.coyote > 0){
     doJump();
   } else {
     player.jumpBuf = JUMP_BUF;
   }
+}
+
+function releaseJump(){
+  jumpHeld = false;
 }
 
 function onTap(e){
@@ -1549,6 +1588,9 @@ function onTap(e){
   startGame();
 }
 canvas.addEventListener('pointerdown', onTap, { passive:false });
+canvas.addEventListener('pointerup', releaseJump);
+canvas.addEventListener('pointercancel', releaseJump);
+canvas.addEventListener('pointerleave', releaseJump);
 
 ovBtn.addEventListener('pointerdown', e => {
   e.stopPropagation();
@@ -1573,6 +1615,9 @@ window.addEventListener('keydown', e => {
     if (state === 'playing') pauseGame();
     else if (state === 'paused') resumeGame();
   }
+});
+window.addEventListener('keyup', e => {
+  if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'Enter') releaseJump();
 });
 const ICONS = {
   back:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
@@ -2255,6 +2300,7 @@ function startGame(){
   lastRunRecord = false;
 
   for (const o of obstacles) obstaclePool.release(o);
+  obstacleHistory = [];
   for (const p of particles) particlePool.release(p);
   obstacles.length = 0;
   stars.length = 0;
@@ -2393,6 +2439,10 @@ function frame(t){
 document.addEventListener('visibilitychange', () => {
   if (document.hidden && state === 'playing') pauseGame();
   if (document.hidden) lastFrameTime = 0;
+});
+window.addEventListener('blur', () => {
+  if (state === 'playing') pauseGame();
+  lastFrameTime = 0;
 });
 
 /* ============================================================
