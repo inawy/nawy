@@ -442,6 +442,7 @@
       align-items: flex-end;
       justify-content: center;
       padding: 16px;
+      overflow: hidden;
       --sheet-drag-progress: 0;
       background: rgba(0,0,0,0);
       visibility: hidden;
@@ -3642,6 +3643,10 @@
       updateBodyScrollLock();
     }
     function closeOverlay(overlay) {
+      const sheet = overlay.querySelector(".sheet");
+      if (sheet) {
+        sheet.style.transition = "transform .28s cubic-bezier(0.4, 0, 1, 1)";
+      }
       overlay.classList.remove("show");
       if (overlay.id === "menuOverlay") {
         $("#backupMenuPanel").hidden = true;
@@ -4916,7 +4921,7 @@
           const horizontalDismiss = mode === "horizontal" && dx * direction > 90;
           const verticalDismiss = mode === "vertical" && dy > 105;
 
-          sheet.style.transition = "transform .3s cubic-bezier(0.22, 1, 0.36, 1)";
+          sheet.style.transition = "transform .28s cubic-bezier(0.4, 0, 1, 1)";
 
           if (horizontalDismiss) {
             sheet.style.transform = `translateX(${direction * 105}%)`;
@@ -4933,7 +4938,7 @@
             closeOverlay(overlay);
             sheet.classList.remove("handle-active");
             overlay.style.setProperty("--sheet-drag-progress", "0");
-          }, 300);
+          }, 280);
         };
 
         sheet.addEventListener("pointerup", finish);
