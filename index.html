@@ -443,10 +443,10 @@
       justify-content: center;
       padding: 16px;
       --sheet-drag-progress: 0;
-      background: rgba(0,0,0, calc(.34 + var(--sheet-drag-progress) * .08));
-      opacity: 0;
+      background: rgba(0,0,0,0);
       visibility: hidden;
-      transition: opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+      pointer-events: none;
+      transition: background-color 0.28s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.28s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .overlay::before {
       content: "";
@@ -457,9 +457,12 @@
       opacity: calc(.42 + var(--sheet-drag-progress) * .42);
       -webkit-backdrop-filter: blur(1px) saturate(105%);
       backdrop-filter: blur(1px) saturate(105%);
-      transition: opacity .28s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .overlay.show { opacity: 1; visibility: visible; }
+    .overlay.show {
+      visibility: visible;
+      pointer-events: auto;
+      background: rgba(0,0,0, calc(.34 + var(--sheet-drag-progress) * .08));
+    }
     .overlay .sheet { z-index: 1; }
     .sheet {
       width: min(100%, 520px);
@@ -478,16 +481,15 @@
       box-shadow: 0 22px 70px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.12);
       -webkit-backdrop-filter: blur(28px) saturate(150%);
       backdrop-filter: blur(28px) saturate(150%);
-      transform: translateY(22px);
-      opacity: 0;
-      transition: transform .32s cubic-bezier(0.22, 1, 0.36, 1), opacity .28s cubic-bezier(0.22, 1, 0.36, 1);
+      transform: translateY(32px);
+      transition: transform .32s cubic-bezier(0.22, 1, 0.36, 1);
       position: relative;
-      will-change: transform, opacity;
+      will-change: transform;
       backface-visibility: hidden;
       -webkit-backface-visibility: hidden;
       touch-action: pan-y;
     }
-    .overlay.show .sheet { transform: translateY(0); opacity: 1; }
+    .overlay.show .sheet { transform: translateY(0); }
     #menuOverlay .sheet { max-height: min(78dvh, 620px); }
     #taskOverlay .sheet { max-height: min(76dvh, 620px); }
     #settingsOverlay .sheet { max-height: min(84dvh, 720px); }
@@ -512,7 +514,7 @@
     .sheet-close:hover { color: var(--accent); }
     .sheet-close:active { transform: scale(.88); background: transparent; }
     @media (prefers-reduced-motion: reduce) {
-      .sheet { transition: opacity .15s ease; }
+      .overlay, .sheet { transition: none; }
     }
     .action-task-preview {
       position: relative;
@@ -544,27 +546,24 @@
       cursor: grab;
       touch-action: none;
       user-select: none;
-      opacity: .18;
+      opacity: .3;
       transition: opacity .18s ease;
     }
     .sheet:focus-within .sheet-handle,
     .sheet.handle-active .sheet-handle { opacity: 1; }
-    .sheet-handle::before,
-    .sheet-handle::after {
+    .sheet-handle::before {
       content: "";
       position: absolute;
       top: 12px;
-      width: 27px;
-      height: 3px;
+      left: 50%;
+      width: 36px;
+      height: 4px;
       border-radius: 99px;
-      background: linear-gradient(90deg, rgba(255,255,255,.28), rgba(255,255,255,.72));
-      box-shadow: 0 1px 3px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.3);
+      transform: translateX(-50%);
+      background: rgba(255,255,255,.42);
     }
-    .sheet-handle::before { left: 10px; transform: rotate(30deg); transform-origin: right center; }
-    .sheet-handle::after { right: 10px; transform: rotate(-30deg); transform-origin: left center; }
     .sheet-handle:active { cursor: grabbing; }
-    html[data-theme="light"] .sheet-handle::before,
-    html[data-theme="light"] .sheet-handle::after { background: linear-gradient(90deg, rgba(17,24,39,.18), rgba(17,24,39,.46)); }
+    html[data-theme="light"] .sheet-handle::before { background: rgba(17,24,39,.28); }
     .sheet-close {
       position: absolute;
       top: 10px;
@@ -591,19 +590,17 @@
       height: 28px;
       display: grid;
       place-items: center;
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 50%;
-      background: rgba(255,255,255,.06);
+      border: 0;
+      border-radius: 0;
+      background: transparent;
       color: var(--muted);
-      font-size: 20px;
-      font-weight: 300;
-      line-height: 1;
-      opacity: .62;
-      transition: opacity .18s ease, transform .16s ease, background .18s ease;
+      opacity: .68;
+      transition: opacity .18s ease, transform .16s ease, color .18s ease;
     }
+    .sheet-close-small .icon { width: 15px; height: 15px; }
     .sheet-close-small:hover,
-    .sheet-close-small:focus-visible { opacity: 1; background: rgba(255,255,255,.12); color: var(--text); }
-    .sheet-close-small:active { transform: scale(.90); }
+    .sheet-close-small:focus-visible { opacity: 1; color: var(--text); }
+    .sheet-close-small:active { transform: scale(.88); }
     .sheet-title { padding: 4px 4px 16px; font-size: var(--fs-lg); font-weight: 750; letter-spacing: -.3px; }
     #taskActions {
       display: grid;
@@ -1330,7 +1327,7 @@
 
   <div class="overlay" id="menuOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="menuOverlay" aria-label="إغلاق">×</button>
+      <button class="sheet-close-small" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="account-menu-panel" id="mainMenuPanel">
       <span id="statsMenuSub" hidden></span>
@@ -1459,7 +1456,7 @@
 
   <div class="overlay" id="taskOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="taskOverlay" aria-label="إغلاق">×</button>
+      <button class="sheet-close-small" type="button" data-close="taskOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div id="taskPreviewText" class="action-task-preview" role="button" tabindex="0" aria-label="تحرير النية"></div>
       <div class="sheet-hint">اضغط على النص للتعديل</div>
@@ -1469,7 +1466,7 @@
 
   <div class="overlay" id="settingsOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="settingsOverlay" aria-label="إغلاق">×</button>
+      <button class="sheet-close-small" type="button" data-close="settingsOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="sheet-title" data-i18n="settings">الإعدادات</div>
 
@@ -1580,7 +1577,7 @@
 
   <div class="overlay" id="statsOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="statsOverlay" aria-label="إغلاق">×</button>
+      <button class="sheet-close-small" type="button" data-close="statsOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="account-menu-subhead">
         <button class="account-menu-back" id="statsBackBtn" type="button" aria-label="رجوع">
@@ -1635,7 +1632,7 @@
 
   <div class="overlay" id="archiveOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="archiveOverlay" aria-label="إغلاق">×</button>
+      <button class="sheet-close-small" type="button" data-close="archiveOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="archive-header-row">
         <div class="sheet-title" style="padding:0;" data-i18n="archive">أرشيف ناوي</div>
@@ -1687,7 +1684,7 @@
 
   <div class="overlay" id="todayPickOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="todayPickOverlay" aria-label="إغلاق">×</button>
+      <button class="sheet-close-small" type="button" data-close="todayPickOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="sheet-title" data-i18n="pickTodayTitle">اختار نية اليوم</div>
       <div class="today-search">
@@ -4834,7 +4831,6 @@
 
         const resetSheet = () => {
           sheet.style.transform = "";
-          sheet.style.opacity = "";
           sheet.style.transition = "";
           sheet.classList.remove("handle-active");
           overlay.style.setProperty("--sheet-drag-progress", "0");
@@ -4912,15 +4908,13 @@
           const horizontalDismiss = mode === "horizontal" && dx * direction > 90;
           const verticalDismiss = mode === "vertical" && dy > 105;
 
-          sheet.style.transition = "transform .3s cubic-bezier(0.22, 1, 0.36, 1), opacity .26s cubic-bezier(0.22, 1, 0.36, 1)";
+          sheet.style.transition = "transform .3s cubic-bezier(0.22, 1, 0.36, 1)";
 
           if (horizontalDismiss) {
-            sheet.style.transform = `translateX(${direction * 105}%) scale(.98)`;
-            sheet.style.opacity = "0";
+            sheet.style.transform = `translateX(${direction * 105}%)`;
 
           } else if (verticalDismiss) {
-            sheet.style.transform = "translateY(105%) scale(.98)";
-            sheet.style.opacity = "0";
+            sheet.style.transform = "translateY(105%)";
 
           } else {
             resetSheet();
