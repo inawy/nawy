@@ -705,15 +705,46 @@ function vibrate(ms){
 }
 
 /* ============================================================
+   POOL — إعادة استخدام كائنات العقبات والجزيئات بدل إنشاء
+   وتدمير مستمر، عشان نقلل ضغط الـ garbage collector في الجلسات الطويلة
+   ============================================================ */
+function makePool(){
+  const free = [];
+  return {
+    acquire(){ return free.pop() || {}; },
+    release(o){ free.push(o); }
+  };
+}
+const particlePool  = makePool();
+const obstaclePool  = makePool();
+
+// وقت رد فعل أدنى ثابت (بالثانية) بغض النظر عن عرض الشاشة — عشان العدالة
+// متتفرقش بين موبايل ضيق وتابلت واسع عند نفس السرعة
+const MIN_REACTION_TIME = 0.6;
+function getObstacleSpawnX(){
+  const dxNow = speed * 60;
+  return Math.max(W + 40, player.x + 40 + MIN_REACTION_TIME * dxNow);
+}
+
+/* ============================================================
    PARTICLES
    ============================================================ */
-function addP(p){
+function addP(props){
   if (particles.length > MAX_PARTICLES) return;
-  p.rot = p.rot || 0; p.rotSpd = p.rotSpd || 0;
-  p.g = p.g || 0; p.drag = p.drag || 0;
-  p.maxLife = p.life;
+  const p = particlePool.acquire();
+  p.type  = props.type;
+  p.x     = props.x;    p.y     = props.y;
+  p.vx    = props.vx;   p.vy    = props.vy;
+  p.g     = props.g  || 0;
+  p.drag  = props.drag || 0;
+  p.size  = props.size;
+  p.life  = props.life; p.maxLife = props.life;
+  p.color = props.color;
+  p.rot   = props.rot    || 0;
+  p.rotSpd= props.rotSpd || 0;
   particles.push(p);
 }
+
 function burstDust(x, y, n){
   for (let i=0;i<n;i++){
     addP({
@@ -754,7 +785,7 @@ function updateParticles(dt){
   for (let i=particles.length-1;i>=0;i--){
     const p = particles[i];
     p.life -= dt;
-    if (p.life <= 0){ particles.splice(i,1); continue; }
+    if (p.life <= 0){ particlePool.release(p); particles.splice(i,1); continue; }
     p.vy += p.g * dt;
     if (p.drag){ const d = Math.max(0, 1 - p.drag*dt); p.vx *= d; p.vy *= d; }
     p.x += p.vx * dt;
@@ -1184,22 +1215,27 @@ function getDifficulty(){
   return 1 - Math.exp(-score / 1600);
 }
 
+function makeObstacle(x, w, h, wide){
+  const o = obstaclePool.acquire();
+  o.x = x; o.w = w; o.h = h; o.y = groundY - h;
+  o.wide = wide; o.passed = false; o.minGap = Infinity;
+  return o;
+}
+
 function spawnObstacle(){
   const d = getDifficulty();
   const r = Math.random();
+  const spawnX = getObstacleSpawnX();
+  const dxNow = speed * 60;
 
-  // فرصة لعقبة مزدوجة (اثنين قريبين)
+  // فرصة لعقبة مزدوجة (اثنين قريبين) — الفجوة محسوبة بالزمن مش بالبكسل
+  // الثابت، عشان صعوبتها المُدركة تفضل واحدة في أي سرعة حالية
   if (d > 0.25 && r < 0.18){
     const h1 = rand(30, 48);
     const h2 = rand(28, 52);
-    obstacles.push({
-      x: W + 40, w: 22, h: h1,
-      y: groundY - h1, wide: false, passed: false, minGap: Infinity
-    });
-    obstacles.push({
-      x: W + 40 + rand(55, 78), w: 22, h: h2,
-      y: groundY - h2, wide: false, passed: false, minGap: Infinity
-    });
+    const gapPx = dxNow * rand(0.15, 0.21);
+    obstacles.push(makeObstacle(spawnX, 22, h1, false));
+    obstacles.push(makeObstacle(spawnX + gapPx, 22, h2, false));
     return;
   }
 
@@ -1207,10 +1243,7 @@ function spawnObstacle(){
   if (d > 0.35 && r < 0.28){
     const w = rand(48, 68);
     const h = rand(26, 36);
-    obstacles.push({
-      x: W + 40, w, h,
-      y: groundY - h, wide: true, passed: false, minGap: Infinity
-    });
+    obstacles.push(makeObstacle(spawnX, w, h, true));
     return;
   }
 
@@ -1231,7 +1264,7 @@ function spawnObstacle(){
     else if (r < 0.85){ w = 20; h = rand(54, 68); }
     else { w = 18; h = rand(58, 72); }
   }
-  obstacles.push({ x: W + 40, w, h, y: groundY - h, wide: false, passed:false, minGap: Infinity });
+  obstacles.push(makeObstacle(spawnX, w, h, false));
 }
 
 function spawnStarArc(){
@@ -1340,8 +1373,8 @@ function update(dt){
   const shown = Math.floor(score);
   if (shown !== lastShown){ lastShown = shown; scoreEl.textContent = shown; }
 
-  // منحنى سرعة أكثر سلاسة
-  speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.0115);
+  // منحنى سرعة بنفس نسبة Dino (سرعة قصوى ≈ 2.3x البداية) لكن بنفس توقيته تقريبًا (~115 ثانية بدل ~52)
+  speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.0048);
 
   const ms = Math.floor(score / 100);
   if (ms > milestone){
@@ -1372,7 +1405,7 @@ function update(dt){
   for (let i = obstacles.length-1; i >= 0; i--){
     const o = obstacles[i];
     o.x -= dx;
-    if (o.x + o.w < -30){ obstacles.splice(i,1); continue; }
+    if (o.x + o.w < -30){ obstaclePool.release(o); obstacles.splice(i,1); continue; }
 
     // تتبع أقرب مسافة عمودية وقت التداخل الأفقي — لإحساس "نجا بالزق"
     if (o.x < player.x + player.size && o.x + o.w > player.x){
@@ -1386,6 +1419,7 @@ function update(dt){
         player.shield = 0;
         burstSparkle(player.x + player.size/2, player.y + player.size/2, 12);
         sfx('shield');
+        obstaclePool.release(o);
         obstacles.splice(i,1);
         setMood('happy', 0.55);
         continue;
@@ -2220,6 +2254,8 @@ function startGame(){
   shake = 0;
   lastRunRecord = false;
 
+  for (const o of obstacles) obstaclePool.release(o);
+  for (const p of particles) particlePool.release(p);
   obstacles.length = 0;
   stars.length = 0;
   powerups.length = 0;
