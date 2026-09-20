@@ -1,4 +1,4 @@
-const CACHE_NAME = "nawy-runtime-v1.1.1";
+const CACHE_NAME = "nawy-runtime-v1.1.2";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -9,7 +9,13 @@ const APP_SHELL = [
   "./dexie.min.js",
   "./icon-192.png",
   "./icon-512.png",
+  "./maskable-icon.png",
+  "./apple-touch-icon.png",
+  "./notification-badge.png",
   "./favicon.ico",
+  "./favicon.svg",
+  "./favicon-16x16.png",
+  "./favicon-32x32.png",
   "./sounds/ding.mp3"
 ];
 const APP_SCOPE = self.registration.scope;
