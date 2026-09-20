@@ -1,4 +1,4 @@
-const CACHE_NAME = "nawy-runtime-v1.0.4";
+const CACHE_NAME = "nawy-runtime-v1.1.0";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const APP_SHELL = [
   "./service-worker.js",
   "./Sortable.min.js",
   "./confetti.browser.min.js",
+  "./dexie.min.js",
   "./icon-192.png",
   "./icon-512.png",
   "./favicon.ico",
