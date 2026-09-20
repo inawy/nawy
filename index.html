@@ -1747,6 +1747,17 @@
       deletedIds: "id, deletedAt",
       meta: "key"
     });
+    // v2: شيل index بتاع starred — الـ boolean مش نوع مفتاح صالح في
+    // IndexedDB spec أصلًا (فمكانش بيفهرس حاجة فعليًا)، ومستخدمش في أي
+    // query أصلًا (الفلترة كلها بتحصل يدويًا على المصفوفة). مفيش داتا
+    // محتاجة تتحول، فمفيش .upgrade() لازم.
+    db.version(2).stores({
+      tasks: "id, status, updatedAt",
+      archive: "id, archivedAt, updatedAt",
+      settings: "id",
+      deletedIds: "id, deletedAt",
+      meta: "key"
+    });
 
     const DEFAULT_SETTINGS = {
       theme: "system",
@@ -2580,8 +2591,9 @@
       const [restored] = archive.splice(index, 1);
       restored.updatedAt = Date.now();
       delete restored.archivedAt;
-      restored.status = 'active';
-      restored.achievedAt = null;
+      // كانت بتتصفّر status/achievedAt دايمًا حتى لو النية كانت محققة وقت
+      // الأرشفة — ده كان بيمسح سجل الإنجاز من الإحصائيات بدون داعي. دلوقتي
+      // النية بترجع بنفس الحالة اللي كانت عليها قبل الأرشفة.
       restored.sortOrder = nextTopSortOrder();
       tasks.unshift(restored);
       persistAcrossStores();
@@ -4299,6 +4311,14 @@
       deletedIds = normalized.deletedIds;
       settings = normalizeSettings(normalized.settings);
       settingsUpdatedAt = normalized.settingsUpdatedAt;
+
+      // لو نية اليوم المثبّتة مبقتش موجودة في النتيجة المدموجة (اتمسحت أو
+      // اتغيّرت على جهاز تاني)، بنصفّرها بدل ما نسيبها تشاور على id مش
+      // موجود — عشان المستخدم مايتفاجئش إن "نية اليوم" اختفت بلا تفسير.
+      if (settings.todayIntentionId && !tasks.some(x => x.id === settings.todayIntentionId)) {
+        settings.todayIntentionId = null;
+        settings.todayIntentionDate = null;
+      }
 
       // نسخة موحّدة كاملة (نتيجة merge)، فبنستبدل محتوى الجداول بالكامل مش
       // ديف جزئي — لكن لسه جوه Transaction واحدة ذرية عبر الأربع Stores.
