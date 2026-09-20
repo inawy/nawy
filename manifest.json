@@ -30,6 +30,12 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    },
+    {
+      "src": "monochrome-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "monochrome"
     }
   ],
   "shortcuts": [
@@ -47,5 +53,8 @@
       ]
     }
   ],
-  "categories": ["productivity", "lifestyle"]
+  "categories": [
+    "productivity",
+    "lifestyle"
+  ]
 }
