@@ -2045,6 +2045,15 @@
       return str;
     }
     function createId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+
+    // IndexedDB بيرجّع السجلات مرتبة حسب الـ id (مش حسب ترتيب الإضافة أو
+    // السحب اليدوي)، فمحتاجين حقل ترتيب صريح نحفظه ونرتب بيه بأنفسنا.
+    // القيمة دي بتتحسب دايمًا أقل من أصغر sortOrder حالي، عشان أي نية
+    // بتتحط في أول القائمة (unshift) تفضل فعليًا أول واحدة بعد الترتيب.
+    function nextTopSortOrder() {
+      const orders = tasks.map(x => Number(x.sortOrder) || 0);
+      return (orders.length ? Math.min(...orders) : 0) - 1;
+    }
     function safeParse(v, f) { try { return JSON.parse(v) ?? f; } catch { return f; } }
     function formatAchievedDate(timestamp) {
       const date = new Date(timestamp);
@@ -2166,7 +2175,9 @@
       const storedLastBackupTs = Number(localStorage.getItem("nawy_last_backup_ts")) || 0;
 
       const cleanTasks = Array.isArray(storedTasks)
-        ? storedTasks.filter(x => x && typeof x.text === "string" && x.text.trim())
+        ? storedTasks
+            .filter(x => x && typeof x.text === "string" && x.text.trim())
+            .map((task, index) => ({ ...task, sortOrder: index }))
         : [];
       const cleanArchive = Array.isArray(storedArchive)
         ? storedArchive.filter(x => x && typeof x.text === "string" && x.text.trim())
@@ -2216,8 +2227,22 @@
         }
       });
 
-      if (idsChanged) {
+      // IndexedDB بترجّع السجلات مرتبة بالـ id تصاعديًا (الأقدم الأول)، مش
+      // بترتيب الإضافة أو السحب اليدوي. لو فيه نوايا لسه من غير sortOrder
+      // (نوايا اتعملت لها Migration قبل ما الحقل ده يتضاف)، بنرجّعها لقاعدة
+      // "الأحدث فوق" الافتراضية بعكس ترتيب الـ id. أي ترتيب يدوي مخصص كان
+      // قبل كده بيتصلّح بسحبة واحدة تاني بعد الإصلاح ده.
+      let sortOrderRepaired = false;
+      if (tasks.some(x => typeof x.sortOrder !== "number")) {
+        tasks.slice().reverse().forEach((task, index) => { task.sortOrder = index; });
+        sortOrderRepaired = true;
+      }
+      tasks.sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+
+      if (idsChanged || sortOrderRepaired) {
         saveTasks();
+      }
+      if (idsChanged) {
         saveArchive();
       }
 
@@ -2479,7 +2504,8 @@
         starred: false,
         createdAt: Date.now(),
         updatedAt: Date.now(),
-        achievedAt: null
+        achievedAt: null,
+        sortOrder: nextTopSortOrder()
       };
       tasks.unshift(newTask);
       if (currentView === "today" && !settings.todayIntentionId) {
@@ -2539,6 +2565,7 @@
       showToast(t("deletedToast"), true, () => {
         const ai = archive.findIndex(x => x.id === deleted.id);
         if (ai !== -1) archive.splice(ai, 1);
+        deleted.sortOrder = nextTopSortOrder();
         tasks.unshift(deleted);
         persistAcrossStores();
         render();
@@ -2555,6 +2582,7 @@
       delete restored.archivedAt;
       restored.status = 'active';
       restored.achievedAt = null;
+      restored.sortOrder = nextTopSortOrder();
       tasks.unshift(restored);
       persistAcrossStores();
       render();
@@ -3176,6 +3204,7 @@
               }
             });
             taskMap.forEach(x => reordered.push(x));
+            reordered.forEach((task, index) => { task.sortOrder = index; task.updatedAt = Date.now(); });
             tasks = reordered;
             saveTasks();
           }
@@ -5248,6 +5277,7 @@
           if (!crossTabSyncReady) { crossTabSyncReady = true; return; }
 
           tasks = Array.isArray(liveTasks) ? liveTasks : [];
+          tasks.sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
           archive = Array.isArray(liveArchive) ? liveArchive : [];
           deletedIds = Array.isArray(liveDeletedIds) ? liveDeletedIds : [];
           tasksSnapshot = snapshotFrom(tasks);
