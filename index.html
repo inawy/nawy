@@ -2163,6 +2163,14 @@
       return map;
     }
 
+    function snapshotsEqual(a, b) {
+      if (a.size !== b.size) return false;
+      for (const [id, version] of a) {
+        if (b.get(id) !== version) return false;
+      }
+      return true;
+    }
+
     function diffAgainstSnapshot(currentArray, snapshotMap, versionKey = "updatedAt") {
       const currentIds = new Set();
       const toPut = [];
@@ -3865,6 +3873,7 @@
       const onSystemThemeChange = () => {
         if (settings.theme === "system") {
           document.documentElement.setAttribute("data-theme", resolveTheme());
+          updateThemeColorMeta();
         }
       };
       if (systemThemeQuery.addEventListener) {
@@ -3931,8 +3940,18 @@
       return settings.theme;
     }
 
+    // شريط الحالة (status bar) كان لونه ثابت أزرق دايمًا، فبيتعارض بصريًا
+    // لو الوضع نهاري أو لو المستخدم اختار لون أكسنت تاني. هنا بنخليه يتبع
+    // لون خلفية الصفحة الفعلي (فاتح/داكن) بدل لون ثابت.
+    function updateThemeColorMeta() {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (!meta) return;
+      meta.setAttribute("content", resolveTheme() === "dark" ? "#0F1115" : "#FAF9F7");
+    }
+
     function applySettings() {
       document.documentElement.setAttribute("data-theme", resolveTheme());
+      updateThemeColorMeta();
       document.documentElement.setAttribute("data-accent", settings.accent);
       document.documentElement.setAttribute("data-font", settings.fontSize);
       document.documentElement.lang = settings.language;
@@ -5320,17 +5339,35 @@
           // بالفعل في loadData() — نتجاهله عشان منعملش render() زيادة من غير داعي.
           if (!crossTabSyncReady) { crossTabSyncReady = true; return; }
 
+          // liveQuery بتتفعّل حتى على كتابة نفس التاب (مش بس تابات تانية)،
+          // فكل حركة (إضافة، تحقيق، تعديل...) كانت بتعمل render() مرتين: مرة
+          // فورية بعد التعديل في الذاكرة، ومرة تانية لما الـ liveQuery يتفعّل
+          // بعد ما الكتابة تتأكد. ده كان بيحس التطبيق بالتقل. هنا بنقارن
+          // الداتا الجاية بالداتا اللي عندنا فعلاً — لو متطابقة (يعني الإشعار
+          // ده مجرد صدى لكتابتنا إحنا)، منعملش أي حاجة تاني.
+          const incomingTasksSnapshot = snapshotFrom(Array.isArray(liveTasks) ? liveTasks : []);
+          const incomingArchiveSnapshot = snapshotFrom(Array.isArray(liveArchive) ? liveArchive : []);
+          const incomingDeletedIdsSnapshot = snapshotFrom(Array.isArray(liveDeletedIds) ? liveDeletedIds : [], "deletedAt");
+          const { id: _rowId, updatedAt: liveSettingsUpdatedAt, ...restLiveSettings } = liveSettingsRow || {};
+          const incomingSettingsUpdatedAt = Number(liveSettingsUpdatedAt) || 0;
+
+          const nothingChanged =
+            snapshotsEqual(incomingTasksSnapshot, tasksSnapshot) &&
+            snapshotsEqual(incomingArchiveSnapshot, archiveSnapshot) &&
+            snapshotsEqual(incomingDeletedIdsSnapshot, deletedIdsSnapshot) &&
+            incomingSettingsUpdatedAt <= settingsUpdatedAt;
+
+          if (nothingChanged) return;
+
           tasks = Array.isArray(liveTasks) ? liveTasks : [];
           tasks.sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
           archive = Array.isArray(liveArchive) ? liveArchive : [];
           deletedIds = Array.isArray(liveDeletedIds) ? liveDeletedIds : [];
-          tasksSnapshot = snapshotFrom(tasks);
-          archiveSnapshot = snapshotFrom(archive);
-          deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt");
+          tasksSnapshot = incomingTasksSnapshot;
+          archiveSnapshot = incomingArchiveSnapshot;
+          deletedIdsSnapshot = incomingDeletedIdsSnapshot;
 
-          const { id: _rowId, updatedAt: liveSettingsUpdatedAt, ...restLiveSettings } = liveSettingsRow || {};
-          const incomingSettingsUpdatedAt = Number(liveSettingsUpdatedAt) || 0;
-          if (incomingSettingsUpdatedAt >= settingsUpdatedAt) {
+          if (incomingSettingsUpdatedAt > settingsUpdatedAt) {
             settings = normalizeSettings(restLiveSettings);
             settingsUpdatedAt = incomingSettingsUpdatedAt;
             applySettings();
