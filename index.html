@@ -507,8 +507,23 @@
     .overlay.show .sheet { transform: translateY(0); }
     #menuOverlay .sheet { max-height: min(78dvh, 620px); }
     #taskOverlay .sheet { max-height: min(76dvh, 620px); }
-    #settingsOverlay .sheet { max-height: min(84dvh, 720px); }
-    #archiveOverlay .sheet { max-height: min(84dvh, 720px); }
+
+    /* البطاقات الكبيرة (الإعدادات والأرشيف) بتفتح بكامل الشاشة بدل
+       ما تكون شيت جزئي فيه سكرول جواه — عشان ما تحسّ بـ"سكرول جوه
+       سكرول". */
+    #settingsOverlay, #archiveOverlay {
+      padding: 0;
+      align-items: stretch;
+      justify-content: stretch;
+    }
+    #settingsOverlay .sheet, #archiveOverlay .sheet {
+      width: 100%;
+      max-width: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      border-radius: 0;
+    }
+    #settingsOverlay .sheet-handle, #archiveOverlay .sheet-handle { display: none; }
     .sheet > * { flex-shrink: 0; }
     .sheet-close { transition: background 0.18s ease, transform 0.15s ease; }
     .sheet-close:hover { color: var(--accent); }
@@ -1260,7 +1275,6 @@
 
     @media (max-width: 480px) {
       #taskOverlay .sheet { max-height: 78dvh; }
-      #settingsOverlay .sheet, #archiveOverlay .sheet { max-height: 86dvh; }
       .app { padding-left: 12px; padding-right: 12px; }
       .task { min-height: 48px; gap: 10px; padding: 8px 12px; }
       .task-checkbox { width: 20px; height: 20px; }
@@ -5012,7 +5026,9 @@
 
         let startX = 0;
         let startY = 0;
+        let startScrollTop = 0;
         let dragging = false;
+        let captured = false;
         let mode = "none";
 
         const resetSheet = () => {
@@ -5024,27 +5040,24 @@
         sheet.addEventListener("pointerdown", event => {
           if (event.pointerType === "mouse" && event.button !== 0) return;
 
-          if (event.target.closest("button, input, textarea, select, option, a, .action-task-preview")) return;
+          // منمنع بدء السحب فقط من عناصر نصية ممكن يكون فيها تحديد نص
+          // (تحرير المهمة، خانة البحث) — كل حاجة تانية على البطاقة،
+          // حتى الأزرار والمفاتيح، تقدر تبدأ منها سحب البطاقة كلها.
+          if (event.target.closest("textarea, input[type='text'], input[type='search']")) return;
 
           startX = event.clientX;
           startY = event.clientY;
+          startScrollTop = sheet.scrollTop;
           dragging = true;
-
-          sheet.classList.add("handle-active");
-
-          clearTimeout(sheet._handleTimer);
-          sheet._handleTimer = setTimeout(() => {
-            sheet.classList.remove("handle-active");
-          }, 1600);
-
+          captured = false;
           mode = "none";
           sheet.style.transition = "none";
-          sheet.setPointerCapture?.(event.pointerId);
         });
 
-        // تتبّع الإصبع 1:1 من غير أي مقاومة مطاطية — البطاقة تتحرك
-        // بنفس مسافة السحب تمامًا، في أي اتجاه سحبتها فيه، ومن أي
-        // نقطة عليها (مش لازم المقبض).
+        // تتبّع الإصبع 1:1 من غير أي مقاومة مطاطية، من أي نقطة على
+        // البطاقة كلها. سحب لأسفل يقفل بس لو المحتوى وصل لأعلى نقطة
+        // فيه أصلاً (زي أي شيت حديث)، عشان السكرول الطبيعي للمحتوى
+        // يفضل شغال زي ما هو. سحب يمين/شمال يقفل من أي مكان على طول.
         sheet.addEventListener("pointermove", event => {
           if (!dragging) return;
 
@@ -5052,7 +5065,23 @@
           const dy = event.clientY - startY;
 
           if (mode === "none" && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
-            mode = Math.abs(dy) >= Math.abs(dx) ? "vertical" : "horizontal";
+            if (Math.abs(dy) >= Math.abs(dx)) {
+              mode = (dy > 0 && startScrollTop <= 0) ? "vertical" : "scroll";
+            } else {
+              mode = "horizontal";
+            }
+
+            if (mode !== "scroll") {
+              sheet.classList.add("handle-active");
+              clearTimeout(sheet._handleTimer);
+              sheet._handleTimer = setTimeout(() => {
+                sheet.classList.remove("handle-active");
+              }, 1600);
+              if (!captured) {
+                sheet.setPointerCapture?.(event.pointerId);
+                captured = true;
+              }
+            }
           }
 
           if (mode === "vertical") {
@@ -5064,6 +5093,7 @@
             sheet.style.transform = `translateX(${dx}px)`;
             if (event.cancelable) event.preventDefault();
           }
+          // mode === "scroll": ما نعملش حاجة، نسيب السكرول الطبيعي للمحتوى.
         });
 
         const finish = event => {
@@ -5076,6 +5106,8 @@
 
           const horizontalDismiss = mode === "horizontal" && Math.abs(dx) > 90;
           const verticalDismiss = mode === "vertical" && dy > 90;
+
+          if (mode !== "vertical" && mode !== "horizontal") return;
 
           sheet.style.transition = "transform .22s ease-out";
 
