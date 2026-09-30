@@ -12,7 +12,11 @@
         var theme = b.theme === "system"
           ? (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
           : b.theme;
-        if (theme) h.setAttribute("data-theme", theme);
+        if (theme) {
+          h.setAttribute("data-theme", theme);
+          var metaThemeColor = document.querySelector('meta[name="theme-color"]');
+          if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "dark" ? "#0F1115" : "#FAF9F7");
+        }
         if (b.accent) h.setAttribute("data-accent", b.accent);
         if (b.fontSize) h.setAttribute("data-font", b.fontSize);
         if (b.language) {
@@ -1572,13 +1576,6 @@
               <span class="toggle-slider"></span>
             </label>
           </div>
-          <div class="setting-row hidden" id="notifTimeRow">
-            <div class="setting-info">
-              <div class="setting-name" data-i18n="notificationTime">⏰ معاد الإشعار</div>
-              <div class="setting-desc" data-i18n="notificationTimeHint">اختار الوقت اللي يناسبك</div>
-            </div>
-            <input type="time" class="time-input" id="notifTime" value="08:00">
-          </div>
         </div>
       </div>
 
@@ -1787,7 +1784,7 @@
       language: "ar",
       fontSize: "medium",
       notificationEnabled: false,
-      notificationTime: "08:00",
+      lastReminderShownDate: null,
       feedbackEnabled: true,
       achievementTone: "soft",
       todayIntentionId: null,
@@ -1901,10 +1898,8 @@
         installSub: "نواياك هتكون أسهل معاك 📌", installDismiss: "متابعة للموقع", installAction: "تثبيت ⚡",
         notifEnabledToast: "تم تفعيل الإشعارات 🔔", notifDisabledToast: "تم تعطيل الإشعارات",
         notifDeniedToast: "تم رفض إذن الإشعارات",
-        notificationEnabledDesc: "هيجيلك إشعار كل يوم الساعة {time}",
-        notificationDisabledDesc: "فعّل عشان يجيلك تذكير يومي",
-        notificationTime: "⏰ معاد الإشعار",
-        notificationTimeHint: "اختار الوقت اللي يناسبك",
+        notificationEnabledDesc: "هيجيلك تذكير تلقائي في وقت مناسب (بأفضل إمكانية من متصفحك)",
+        notificationDisabledDesc: "فعّل عشان يجيلك تذكير تلقائي بنيتك اليومية",
         installHelpIOS: "اضغط مشاركة ثم إضافة إلى الشاشة الرئيسية لتثبيت ناوي",
         installHelpBrowser: "من قائمة المتصفح اختر تثبيت التطبيق أو إضافة إلى الشاشة الرئيسية",
         cancel: "إلغاء",
@@ -2026,10 +2021,8 @@
         installSub: "Your intentions will be easier 📌", installDismiss: "Continue", installAction: "Install ⚡",
         notifEnabledToast: "Notifications enabled 🔔", notifDisabledToast: "Notifications disabled",
         notifDeniedToast: "Notification permission denied",
-        notificationEnabledDesc: "You'll get a notification daily at {time}",
-        notificationDisabledDesc: "Enable to get daily reminders",
-        notificationTime: "⏰ Reminder time",
-        notificationTimeHint: "Choose a suitable time",
+        notificationEnabledDesc: "You'll get an automatic best-effort reminder at a suitable time",
+        notificationDisabledDesc: "Enable to get automatic reminders about your daily intention",
         installHelpIOS: "Tap Share, then Add to Home Screen to install NAWY",
         installHelpBrowser: "From the browser menu choose Install app or Add to Home screen",
         cancel: "Cancel",
@@ -3987,19 +3980,11 @@
     function updateNotifUI() {
       const checkbox = $("#notifToggleCheckbox");
       checkbox.checked = settings.notificationEnabled;
-      
-      const timeRow = $("#notifTimeRow");
+
       const notifDesc = $("#notifDesc");
-      
-      if (settings.notificationEnabled) {
-        timeRow.classList.remove("hidden");
-        notifDesc.textContent = t("notificationEnabledDesc").replace("{time}", settings.notificationTime);
-      } else {
-        timeRow.classList.add("hidden");
-        notifDesc.textContent = t("notificationDisabledDesc");
-      }
-      
-      $("#notifTime").value = settings.notificationTime;
+      notifDesc.textContent = settings.notificationEnabled
+        ? t("notificationEnabledDesc")
+        : t("notificationDisabledDesc");
     }
 
     async function requestNotificationPermission() {
@@ -4023,22 +4008,52 @@
       }
     }
 
-    function scheduleNotification() {
-      if (!settings.notificationEnabled) return;
-      if (!("Notification" in window) || Notification.permission !== "granted") return;
-      if (window.nawyNotifTimeout) clearTimeout(window.nawyNotifTimeout);
-      
-      const now = new Date();
-      const [hours, minutes] = (settings.notificationTime || "08:00").split(":").map(Number);
-      let scheduledTime = new Date(now);
-      scheduledTime.setHours(hours, minutes, 0, 0);
-      if (scheduledTime <= now) scheduledTime.setDate(scheduledTime.getDate() + 1);
-      
-      const delay = scheduledTime.getTime() - now.getTime();
-      window.nawyNotifTimeout = setTimeout(() => {
+    // النظام القديم كان يحاول يضبط معاد دقيق بالـ setTimeout، وهو وعد
+    // كاذب لأنه مش هيشتغل لو المتصفح أو التطبيق مقفول. بدل ده، عندنا
+    // مستويين: (1) تذكير داخل التطبيق نفسه، من غير أي إذن مطلوب، بيظهر
+    // أول ما يُفتح التطبيق أو يرجع للواجهة، لو النية اليومية لسه مش
+    // متحققة، مرة واحدة بس في اليوم. (2) لو المستخدم فعّل إشعارات
+    // النظام، نحاول كمان نبعت إشعار حقيقي "بأفضل إمكانية" وقت ما
+    // المتصفح يسمح بيه (مش وقت محدد بدقة).
+    function runDailyReminderCheck() {
+      const todayKey = getDateKey();
+      if (settings.lastReminderShownDate === todayKey) return;
+
+      const pinned = getTodayPinnedTask();
+      if (!pinned || pinned.status === 'achieved') return;
+
+      settings.lastReminderShownDate = todayKey;
+      saveSettings();
+
+      showToast(`🌱 ${t("morningNotif")}`);
+
+      if (
+        settings.notificationEnabled &&
+        "Notification" in window &&
+        Notification.permission === "granted" &&
+        document.visibilityState !== "visible"
+      ) {
         showMorningNotification();
-        scheduleNotification();
-      }, delay);
+      }
+    }
+
+    // تسجيل Periodic Background Sync لو المتصفح والمنصة بتدعمه (كروم
+    // على أندرويد للتطبيقات المُثبّتة بس)، عشان نحاول نبعت تذكير حتى
+    // لو التطبيق مقفول خالص. ده "بأفضل إمكانية" ومش مضمون التوقيت.
+    function registerPeriodicReminderSync() {
+      if (!("serviceWorker" in navigator) || !("PeriodicSyncManager" in window)) return;
+      navigator.serviceWorker.ready.then(async registration => {
+        if (!registration.periodicSync) return;
+        try {
+          const status = await navigator.permissions.query({ name: "periodic-background-sync" });
+          if (status.state !== "granted") return;
+          await registration.periodicSync.register("nawy-daily-reminder", {
+            minInterval: 12 * 60 * 60 * 1000
+          });
+        } catch (error) {
+          console.warn("Periodic background sync unavailable", error);
+        }
+      }).catch(() => {});
     }
 
     function showMorningNotification() {
@@ -4940,19 +4955,14 @@
 
           settings.notificationEnabled = true;
           saveSettings();
-          scheduleNotification();
+          registerPeriodicReminderSync();
 
-          showToast(`✅ ${t("notifEnabledToast")} - ${settings.notificationTime}`);
+          showToast(`✅ ${t("notifEnabledToast")}`);
           updateNotifUI();
 
         } else {
           settings.notificationEnabled = false;
           saveSettings();
-
-          if (window.nawyNotifTimeout) {
-            clearTimeout(window.nawyNotifTimeout);
-            window.nawyNotifTimeout = null;
-          }
 
           showToast(t("notifDisabledToast"));
           updateNotifUI();
@@ -4961,22 +4971,6 @@
       } finally {
         checkbox.disabled = false;
         notificationChanging = false;
-      }
-    });
-
-    $("#notifTime").addEventListener("change", () => {
-      settings.notificationTime = $("#notifTime").value;
-      saveSettings();
-      updateNotifUI();
-
-      if (settings.notificationEnabled) {
-        scheduleNotification();
-
-        const timeMessage = settings.language === "ar"
-          ? `⏰ تم ضبط الإشعار على ${settings.notificationTime}`
-          : `⏰ Reminder set for ${settings.notificationTime}`;
-
-        showToast(timeMessage);
       }
     });
 
@@ -5394,13 +5388,19 @@
         setTimeout(() => openComposer(), 150);
       }
 
+      runDailyReminderCheck();
+
       if (
         settings.notificationEnabled &&
         "Notification" in window &&
         Notification.permission === "granted"
       ) {
-        scheduleNotification();
+        registerPeriodicReminderSync();
       }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") runDailyReminderCheck();
+      });
     }
 
     init().catch(error => console.error("Nawy init failed", error));
