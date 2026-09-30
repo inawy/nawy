@@ -471,26 +471,14 @@
       justify-content: center;
       padding: 16px;
       overflow: hidden;
-      --sheet-drag-progress: 0;
-      background: rgba(0,0,0,0);
+      background: transparent;
       visibility: hidden;
       pointer-events: none;
-      transition: background-color 0.3s cubic-bezier(0.22, 1, 0.36, 1), visibility 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-    .overlay::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      pointer-events: none;
-      opacity: calc(.42 + var(--sheet-drag-progress) * .42);
-      -webkit-backdrop-filter: blur(1px) saturate(105%);
-      backdrop-filter: blur(1px) saturate(105%);
+      transition: visibility 0.22s ease-out;
     }
     .overlay.show {
       visibility: visible;
       pointer-events: auto;
-      background: rgba(0,0,0, calc(.34 + var(--sheet-drag-progress) * .08));
     }
     .overlay .sheet { z-index: 1; }
     .sheet {
@@ -504,14 +492,12 @@
       align-self: flex-end;
       flex: 0 1 auto;
       padding: 16px;
-      background: rgba(24, 27, 32, 0.84);
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 28px 28px 20px 20px;
-      box-shadow: 0 22px 70px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.12);
-      -webkit-backdrop-filter: blur(28px) saturate(150%);
-      backdrop-filter: blur(28px) saturate(150%);
+      box-shadow: var(--shadow-sheet);
       transform: translateY(100%);
-      transition: transform .3s cubic-bezier(0.22, 1, 0.36, 1);
+      transition: transform .22s ease-out;
       position: relative;
       will-change: transform;
       backface-visibility: hidden;
@@ -524,21 +510,6 @@
     #settingsOverlay .sheet { max-height: min(84dvh, 720px); }
     #archiveOverlay .sheet { max-height: min(84dvh, 720px); }
     .sheet > * { flex-shrink: 0; }
-    .sheet::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 18%;
-      right: 18%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.42), transparent);
-      pointer-events: none;
-    }
-    html[data-theme="light"] .sheet {
-      background: rgba(255, 255, 255, 0.78);
-      border-color: rgba(255, 255, 255, 0.74);
-      box-shadow: 0 24px 70px rgba(31, 41, 55, 0.18), inset 0 1px 0 rgba(255,255,255,.9);
-    }
     .sheet-close { transition: background 0.18s ease, transform 0.15s ease; }
     .sheet-close:hover { color: var(--accent); }
     .sheet-close:active { transform: scale(.88); background: transparent; }
@@ -3820,7 +3791,7 @@
     function closeOverlay(overlay) {
       const sheet = overlay.querySelector(".sheet");
       if (sheet) {
-        sheet.style.transition = "transform .28s cubic-bezier(0.4, 0, 1, 1)";
+        sheet.style.transition = "transform .22s ease-out";
       }
       overlay.classList.remove("show");
       if (overlay.id === "menuOverlay") {
@@ -5048,7 +5019,6 @@
           sheet.style.transform = "";
           sheet.style.transition = "";
           sheet.classList.remove("handle-active");
-          overlay.style.setProperty("--sheet-drag-progress", "0");
         };
 
         sheet.addEventListener("pointerdown", event => {
@@ -5072,6 +5042,9 @@
           sheet.setPointerCapture?.(event.pointerId);
         });
 
+        // تتبّع الإصبع 1:1 من غير أي مقاومة مطاطية — البطاقة تتحرك
+        // بنفس مسافة السحب تمامًا، في أي اتجاه سحبتها فيه، ومن أي
+        // نقطة عليها (مش لازم المقبض).
         sheet.addEventListener("pointermove", event => {
           if (!dragging) return;
 
@@ -5082,31 +5055,13 @@
             mode = Math.abs(dy) >= Math.abs(dx) ? "vertical" : "horizontal";
           }
 
-          // متابعة 1:1 للإصبع لحد نقطة معيّنة، وبعدها مقاومة متزايدة —
-          // إحساس "مطاطي" مألوف في الشيتات الحديثة، بدل ما تفضل تتبع
-          // الإصبع بحرية كاملة لأي مسافة.
-          const applyRubberBand = (rawDistance, followLimit) => {
-            if (rawDistance <= followLimit) return rawDistance;
-            return followLimit + (rawDistance - followLimit) * 0.32;
-          };
-
           if (mode === "vertical") {
-            const rawDistance = Math.max(0, dy);
-            const distance = applyRubberBand(rawDistance, 140);
-            const progress = Math.min(distance / 160, 1);
-
-            overlay.style.setProperty("--sheet-drag-progress", progress.toFixed(3));
-            sheet.style.transform = `translateY(${distance}px) scale(${Math.max(.98, 1 - progress * .02)})`;
-
+            const distance = Math.max(0, dy);
+            sheet.style.transform = `translateY(${distance}px)`;
             if (event.cancelable) event.preventDefault();
 
           } else if (mode === "horizontal") {
-            const direction = document.documentElement.dir === "rtl" ? 1 : -1;
-            const rawDistance = Math.max(0, dx * direction);
-            const distance = applyRubberBand(rawDistance, 120);
-
-            sheet.style.transform = `translateX(${distance}px) scale(${Math.max(.985, 1 - distance / 2400)})`;
-
+            sheet.style.transform = `translateX(${dx}px)`;
             if (event.cancelable) event.preventDefault();
           }
         });
@@ -5118,18 +5073,17 @@
 
           const dx = event.clientX - startX;
           const dy = event.clientY - startY;
-          const direction = document.documentElement.dir === "rtl" ? 1 : -1;
 
-          const horizontalDismiss = mode === "horizontal" && dx * direction > 90;
-          const verticalDismiss = mode === "vertical" && dy > 105;
+          const horizontalDismiss = mode === "horizontal" && Math.abs(dx) > 90;
+          const verticalDismiss = mode === "vertical" && dy > 90;
 
-          sheet.style.transition = "transform .28s cubic-bezier(0.4, 0, 1, 1)";
+          sheet.style.transition = "transform .22s ease-out";
 
           if (horizontalDismiss) {
-            sheet.style.transform = `translateX(${direction * 105}%)`;
+            sheet.style.transform = `translateX(${dx > 0 ? 120 : -120}%)`;
 
           } else if (verticalDismiss) {
-            sheet.style.transform = "translateY(105%)";
+            sheet.style.transform = "translateY(120%)";
 
           } else {
             resetSheet();
@@ -5139,8 +5093,7 @@
           setTimeout(() => {
             closeOverlay(overlay);
             sheet.classList.remove("handle-active");
-            overlay.style.setProperty("--sheet-drag-progress", "0");
-          }, 280);
+          }, 220);
         };
 
         sheet.addEventListener("pointerup", finish);
