@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#3D7BFF">
+  <!-- المتصفح بيختار من الاتنين دول حسب وضع النظام فورًا، من غير ما
+       يستنى أي جافاسكريبت يشتغل — ده اللي بيمنع وميض شريط الحالة
+       بالكامل لمستخدمي الوضع "تلقائي" (الأغلبية). السكريبت تحت بعد
+       كده بيصحح الحالة بس لو المستخدم مُحدِّد وضع مختلف عن النظام
+       يدويًا من جوه التطبيق. -->
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAF9F7">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0F1115">
   <script>
     (function () {
       try {
@@ -14,8 +20,15 @@
           : b.theme;
         if (theme) {
           h.setAttribute("data-theme", theme);
-          var metaThemeColor = document.querySelector('meta[name="theme-color"]');
-          if (metaThemeColor) metaThemeColor.setAttribute("content", theme === "dark" ? "#0F1115" : "#FAF9F7");
+          // فيه تاجين meta[theme-color] (واحد لكل وضع نظام) عشان المتصفح
+          // يختار الصحيح فورًا من غير جافاسكريبت. لو المستخدم حدد وضع
+          // مختلف عن وضع نظامه يدويًا، نحدّث الاتنين بنفس القيمة الصحيحة
+          // عشان تتبع اختياره هو مش وضع النظام.
+          var metaThemeColors = document.querySelectorAll('meta[name="theme-color"]');
+          var resolvedColor = theme === "dark" ? "#0F1115" : "#FAF9F7";
+          for (var i = 0; i < metaThemeColors.length; i++) {
+            metaThemeColors[i].setAttribute("content", resolvedColor);
+          }
         }
         if (b.accent) h.setAttribute("data-accent", b.accent);
         if (b.fontSize) h.setAttribute("data-font", b.fontSize);
@@ -743,6 +756,7 @@
     html[dir="rtl"] #backupMenuBtn > .icon:last-child,
     html[dir="rtl"] #archiveBtn > .icon:last-child,
     html[dir="rtl"] #runBtn > .icon:last-child,
+    html[dir="rtl"] #archiveBackBtn .icon,
     html[dir="rtl"] .account-menu-back .icon { transform: scaleX(-1); }
     .backup-group { padding: 8px 8px 4px; }
     .backup-group-head { display: flex; align-items: center; gap: 10px; min-height: 38px; color: var(--text); font-weight: 700; }
@@ -1139,7 +1153,7 @@
     .archive-search .icon { width: 17px; height: 17px; color: var(--muted); flex-shrink: 0; }
     .archive-search input { flex: 1; min-width: 0; font-size: var(--fs-sm); }
     .archive-search input::placeholder { color: var(--muted); }
-    .archive-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .archive-header-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-left: 36px; }
     .archive-count { font-size: var(--fs-xs); color: var(--muted); }
     .archive-delete-all-btn {
       width: 100%;
@@ -1635,7 +1649,6 @@
 
   <div class="overlay" id="statsOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="statsOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="account-menu-subhead">
         <button class="account-menu-back" id="statsBackBtn" type="button" aria-label="رجوع">
@@ -1690,7 +1703,7 @@
 
   <div class="overlay overlay-fullscreen" id="archiveOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="archiveOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <button class="sheet-close-small" id="archiveBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="archive-header-row">
         <div class="sheet-title" style="padding:0;" data-i18n="archive">أرشيف ناوي</div>
@@ -3982,9 +3995,10 @@
     // لو الوضع نهاري أو لو المستخدم اختار لون أكسنت تاني. هنا بنخليه يتبع
     // لون خلفية الصفحة الفعلي (فاتح/داكن) بدل لون ثابت.
     function updateThemeColorMeta() {
-      const meta = document.querySelector('meta[name="theme-color"]');
-      if (!meta) return;
-      meta.setAttribute("content", resolveTheme() === "dark" ? "#0F1115" : "#FAF9F7");
+      const metas = document.querySelectorAll('meta[name="theme-color"]');
+      if (!metas.length) return;
+      const color = resolveTheme() === "dark" ? "#0F1115" : "#FAF9F7";
+      metas.forEach(meta => meta.setAttribute("content", color));
     }
 
     function applySettings() {
@@ -4841,6 +4855,11 @@
       $("#archiveSearchInput").value = "";
       renderArchive();
       openOverlay($("#archiveOverlay"));
+    });
+    $("#archiveBackBtn").addEventListener("click", () => {
+      closeOverlay($("#archiveOverlay"));
+      openOverlay($("#menuOverlay"));
+      $("#menuBtn").setAttribute("aria-expanded", "true");
     });
 
     $("#archiveSearchInput").addEventListener("input", e => {
