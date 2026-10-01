@@ -1,4 +1,4 @@
-const CACHE_NAME = "nawy-runtime-v1.4.0";
+const CACHE_NAME = "nawy-runtime-v1.5.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً.
