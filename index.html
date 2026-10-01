@@ -510,20 +510,29 @@
 
     /* البطاقات الكبيرة (الإعدادات والأرشيف) بتفتح بكامل الشاشة بدل
        ما تكون شيت جزئي فيه سكرول جواه — عشان ما تحسّ بـ"سكرول جوه
-       سكرول". */
-    #settingsOverlay, #archiveOverlay {
+       سكرول". الكلاس ده بيتحط ثابت على الأرشيف، وبيتحط/بيتشال على
+       قائمة الحساب ديناميكيًا حسب لو شاشة الإعدادات فاتحة جواها. */
+    .overlay-fullscreen {
       padding: 0;
       align-items: stretch;
       justify-content: stretch;
     }
-    #settingsOverlay .sheet, #archiveOverlay .sheet {
+    .overlay-fullscreen .sheet {
       width: 100%;
       max-width: 100%;
       height: 100dvh;
       max-height: 100dvh;
       border-radius: 0;
     }
-    #settingsOverlay .sheet-handle, #archiveOverlay .sheet-handle { display: none; }
+    .overlay-fullscreen .sheet-handle { display: none; }
+    /* لازم specificity أعلى من #menuOverlay .sheet القديمة */
+    #menuOverlay.overlay-fullscreen .sheet {
+      width: 100%;
+      max-width: 100%;
+      height: 100dvh;
+      max-height: 100dvh;
+      border-radius: 0;
+    }
     .sheet > * { flex-shrink: 0; }
     .sheet-close { transition: background 0.18s ease, transform 0.15s ease; }
     .sheet-close:hover { color: var(--accent); }
@@ -686,6 +695,31 @@
     .account-menu-subhead .menu-text { font-weight: 700; }
     .account-menu-back { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; color: var(--muted); }
     .account-menu-back:active { background: var(--surface-2); }
+    /* هيدر الإعدادات بقى شكله زي عنوان أي بطاقة تانية (.sheet-title +
+       زرار إغلاق صغير شفاف) بدل الشريط المحدود القديم. */
+    #settingsMenuPanel .account-menu-subhead {
+      border-bottom: 0;
+      min-height: 0;
+      padding: 4px 4px 16px;
+      margin-bottom: 0;
+    }
+    #settingsMenuPanel .account-menu-subhead .menu-text {
+      font-size: var(--fs-lg);
+      font-weight: 750;
+      letter-spacing: -.3px;
+    }
+    #settingsMenuPanel .account-menu-back {
+      width: 28px;
+      height: 28px;
+      border-radius: 0;
+      background: transparent;
+      color: var(--muted);
+      opacity: .68;
+      order: 2;
+    }
+    #settingsMenuPanel .account-menu-back .icon { width: 15px; height: 15px; }
+    #settingsMenuPanel .account-menu-back:active { background: transparent; transform: scale(.88); }
+    #settingsMenuPanel .account-menu-subhead { justify-content: space-between; }
     .account-menu-back .icon { width: 19px; height: 19px; }
     html[dir="rtl"] #statsBtn > .icon:last-child,
     html[dir="rtl"] #settingsBtn > .icon:last-child,
@@ -1637,7 +1671,7 @@
     </div>
   </div>
 
-  <div class="overlay" id="archiveOverlay">
+  <div class="overlay overlay-fullscreen" id="archiveOverlay">
     <div class="sheet">
       <button class="sheet-close-small" type="button" data-close="archiveOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
@@ -3796,8 +3830,16 @@
     function openOverlay(overlay) {
       const sheet = overlay.querySelector(".sheet");
       if (sheet) {
-        sheet.style.transform = "";
+        // لازم الدخول يبدأ من تحت دايمًا، حتى لو آخر مرة البطاقة
+        // قفلت بسحب يمين/شمال وسابت transform أفقي على العنصر. فبنرجّع
+        // الوضع الأصلي (تحت) بالقوة، ونعمل reflow، قبل ما نشغّل
+        // الأنيميشن للحالة المفتوحة — عشان المتصفح ما يكملش الحركة من
+        // آخر اتجاه خروج بالغلط.
+        sheet.style.transition = "none";
+        sheet.style.transform = "translateY(100%)";
+        void sheet.offsetHeight;
         sheet.style.transition = "";
+        sheet.style.transform = "";
       }
       overlay.classList.add("show");
       updateBodyScrollLock();
@@ -3812,6 +3854,7 @@
         $("#backupMenuPanel").hidden = true;
         $("#settingsMenuPanel").hidden = true;
         $("#mainMenuPanel").hidden = false;
+        overlay.classList.remove("overlay-fullscreen");
       }
       if (overlay.id === "taskOverlay" && activeTaskEditRestore) {
         activeTaskEditRestore();
@@ -4756,19 +4799,18 @@
     $("#settingsBtn").addEventListener("click", () => {
       $("#mainMenuPanel").hidden = true;
       $("#settingsMenuPanel").hidden = false;
+      $("#menuOverlay").classList.add("overlay-fullscreen");
     });
     $("#settingsMenuBackBtn").addEventListener("click", () => {
       $("#settingsMenuPanel").hidden = true;
       $("#mainMenuPanel").hidden = false;
+      $("#menuOverlay").classList.remove("overlay-fullscreen");
     });
     $("#menuBtn").addEventListener("click", () => {
       const menu = $("#menuOverlay");
       const isOpen = menu.classList.contains("show");
       if (isOpen) {
         closeOverlay(menu);
-        $("#backupMenuPanel").hidden = true;
-        $("#settingsMenuPanel").hidden = true;
-        $("#mainMenuPanel").hidden = false;
       } else {
         openOverlay(menu);
       }
