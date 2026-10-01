@@ -1,8 +1,10 @@
-const CACHE_NAME = "nawy-runtime-v1.7.0";
+const CACHE_NAME = "nawy-runtime-v1.8.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
-// Worker من غير أي صفحة مفتوحة أصلاً.
+// Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
+// المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
+importScripts("./nawy-data.js");
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -11,6 +13,7 @@ const APP_SHELL = [
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
+  "./nawy-data.js",
   "./icon-192.png",
   "./icon-512.png",
   "./favicon.ico",
@@ -116,13 +119,7 @@ function getDateKey(date) {
 async function checkAndShowDailyReminder() {
   try {
     const db = new Dexie("NawyDB");
-    db.version(1).stores({
-      tasks: "id, status, updatedAt",
-      archive: "id, archivedAt, updatedAt",
-      settings: "id",
-      deletedIds: "id, deletedAt",
-      meta: "key"
-    });
+    NawyData.defineSchema(db);
 
     const settingsRow = await db.settings.get("main");
     if (!settingsRow || !settingsRow.notificationEnabled) return;
@@ -152,4 +149,4 @@ async function checkAndShowDailyReminder() {
   } catch (error) {
     console.warn("Periodic reminder sync failed", error);
   }
-}
+}

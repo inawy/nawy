@@ -63,6 +63,8 @@
   <script src="./confetti.browser.min.js"></script>
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
+  <!-- Nawy data core (schema, merge, export format) -->
+  <script src="./nawy-data.js"></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1808,41 +1810,12 @@
     // كنسخة احتياطية سلبية ومفيش أي كود بيمسحها.
     // =========================================================
     const db = new Dexie("NawyDB");
-    db.version(1).stores({
-      tasks: "id, status, starred, updatedAt",
-      archive: "id, archivedAt, updatedAt",
-      settings: "id",
-      deletedIds: "id, deletedAt",
-      meta: "key"
-    });
-    // v2: شيل index بتاع starred — الـ boolean مش نوع مفتاح صالح في
-    // IndexedDB spec أصلًا (فمكانش بيفهرس حاجة فعليًا)، ومستخدمش في أي
-    // query أصلًا (الفلترة كلها بتحصل يدويًا على المصفوفة). مفيش داتا
-    // محتاجة تتحول، فمفيش .upgrade() لازم.
-    db.version(2).stores({
-      tasks: "id, status, updatedAt",
-      archive: "id, archivedAt, updatedAt",
-      settings: "id",
-      deletedIds: "id, deletedAt",
-      meta: "key"
-    });
+    // تعريف الـ schema (v1, v2) في nawy-data.js ومشترك مع الـ Service Worker.
+    // ممنوع تعديل أي version قديم — أي تغيير = version جديد هناك.
+    NawyData.defineSchema(db);
 
-    const DEFAULT_SETTINGS = {
-      theme: "system",
-      accent: "blue",
-      language: "ar",
-      fontSize: "medium",
-      notificationEnabled: false,
-      lastReminderShownDate: null,
-      feedbackEnabled: true,
-      achievementTone: "soft",
-      todayIntentionId: null,
-      todayIntentionDate: null,
-      sectionsCollapsed: {
-        active: false,
-        achieved: true
-      }
-    };
+    // القيم الافتراضية في nawy-data.js (مصدر واحد مشترك).
+    const DEFAULT_SETTINGS = NawyData.DEFAULT_SETTINGS;
 
     const TRANSLATIONS = {
       ar: {
@@ -2119,7 +2092,7 @@
       Object.keys(params || {}).forEach(k => { str = str.replace(`{${k}}`, params[k]); });
       return str;
     }
-    function createId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 9); }
+    function createId() { return NawyData.createId(); }
 
     // IndexedDB بيرجّع السجلات مرتبة حسب الـ id (مش حسب ترتيب الإضافة أو
     // السحب اليدوي)، فمحتاجين حقل ترتيب صريح نحفظه ونرتب بيه بأنفسنا.
@@ -4150,15 +4123,13 @@
     }
 
     function exportData() {
-      const data = JSON.stringify({
-        version: 2,
-        exportedAt: new Date().toISOString(),
+      const data = JSON.stringify(NawyData.buildExport({
         tasks,
         archive,
         settings,
         settingsUpdatedAt,
         deletedIds
-      }, null, 2);
+      }), null, 2);
 
       const blob = new Blob([data], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -4220,26 +4191,11 @@
     }
 
     function getTimestamp(item) {
-      const values = ["updatedAt", "modifiedAt", "achievedAt", "archivedAt", "createdAt"]
-        .map(key => Number(item?.[key]))
-        .filter(value => Number.isFinite(value) && value > 0);
-
-      return values.length ? Math.max(...values) : 0;
+      return NawyData.getTimestamp(item);
     }
 
     function normalizeSettings(rawSettings) {
-      const source = rawSettings && typeof rawSettings === "object" && !Array.isArray(rawSettings)
-        ? rawSettings
-        : {};
-
-      return {
-        ...DEFAULT_SETTINGS,
-        ...source,
-        sectionsCollapsed: {
-          ...DEFAULT_SETTINGS.sectionsCollapsed,
-          ...(source.sectionsCollapsed || {})
-        }
-      };
+      return NawyData.normalizeSettings(rawSettings);
     }
 
     function getLocalNawyData() {
@@ -4254,170 +4210,18 @@
       };
     }
 
+    // منطق الـ validate/sanitize/merge اتنقل لـ nawy-data.js (صافي، ومتختبر).
+    // نفس الأسماء هنا كـ wrappers عشان باقي الكود يفضل زي ما هو.
     function isValidNawyData(data) {
-      return !!(
-        data &&
-        Array.isArray(data.tasks) &&
-        Array.isArray(data.archive) &&
-        data.settings &&
-        typeof data.settings === "object" &&
-        !Array.isArray(data.settings)
-      );
+      return NawyData.isValidNawyData(data) && NawyData.isSupportedVersion(data);
     }
 
     function sanitizeNawyData(data) {
-      return {
-        version: 2,
-        updatedAt: typeof data.updatedAt === "string"
-          ? data.updatedAt
-          : new Date().toISOString(),
-        tasks: Array.isArray(data.tasks)
-          ? data.tasks.filter(item => item && typeof item === "object")
-          : [],
-        archive: Array.isArray(data.archive)
-          ? data.archive.filter(item => item && typeof item === "object")
-          : [],
-        settings: normalizeSettings(data.settings),
-        settingsUpdatedAt: Number(data.settingsUpdatedAt) > 0
-          ? Number(data.settingsUpdatedAt)
-          : 0,
-        deletedIds: Array.isArray(data.deletedIds)
-          ? data.deletedIds.filter(item =>
-              item &&
-              typeof item.id === "string" &&
-              item.id &&
-              Number.isFinite(Number(item.deletedAt))
-            )
-          : []
-      };
+      return NawyData.sanitizeNawyData(data);
     }
 
     function mergeNawyData(localData, remoteData) {
-      const local = sanitizeNawyData(localData);
-      const remote = sanitizeNawyData(remoteData);
-
-      const tombstones = new Map();
-
-      [...local.deletedIds, ...remote.deletedIds].forEach(item => {
-        if (!item?.id) return;
-
-        const deletedAt = Number(item.deletedAt);
-        if (!Number.isFinite(deletedAt) || deletedAt <= 0) return;
-
-        const current = tombstones.get(item.id) || 0;
-        if (deletedAt > current) {
-          tombstones.set(item.id, deletedAt);
-        }
-      });
-
-      const records = new Map();
-
-      const addRecord = (item, archived) => {
-        if (!item || typeof item !== "object") return;
-
-        const rawId = typeof item.id === "string" ? item.id.trim() : "";
-        const id = rawId || createId();
-
-        const candidate = {
-          item: {
-            ...item,
-            id
-          },
-          archived
-        };
-
-        const current = records.get(id);
-
-        if (!current) {
-          records.set(id, candidate);
-          return;
-        }
-
-        const candidateTimestamp = getTimestamp(candidate.item);
-        const currentTimestamp = getTimestamp(current.item);
-
-        if (candidateTimestamp > currentTimestamp) {
-          records.set(id, candidate);
-          return;
-        }
-
-        if (candidateTimestamp === currentTimestamp) {
-          /*
-           * عند التعادل نُبقي النسخة الموجودة أولًا.
-           * ده يحافظ على ثبات البيانات القديمة بدل تبديلها عشوائيًا.
-           */
-        }
-      };
-
-      local.tasks.forEach(item => addRecord(item, false));
-      local.archive.forEach(item => addRecord(item, true));
-      remote.tasks.forEach(item => addRecord(item, false));
-      remote.archive.forEach(item => addRecord(item, true));
-
-      const mergedTasks = [];
-      const mergedArchive = [];
-
-      records.forEach((record, id) => {
-        const deletedAt = tombstones.get(id) || 0;
-        const recordTimestamp = getTimestamp(record.item);
-
-        if (deletedAt >= recordTimestamp) {
-          return;
-        }
-
-        if (record.archived) {
-          mergedArchive.push(record.item);
-        } else {
-          mergedTasks.push(record.item);
-        }
-      });
-
-      /*
-       * Settings ليست merge على مستوى كل مفتاح anymore.
-       * لأن بعض الإعدادات قد تكون اتغيرت مع بعض، نحتاج version/timestamp
-       * واضح حتى لا يفوز جهاز قديم لمجرد أنه تم تحميل مفاتيحه محليًا.
-       */
-      const localSettingsTimestamp = Number(local.settingsUpdatedAt) || 0;
-      const remoteSettingsTimestamp = Number(remote.settingsUpdatedAt) || 0;
-
-      let mergedSettings;
-      let mergedSettingsUpdatedAt;
-
-      if (remoteSettingsTimestamp > localSettingsTimestamp) {
-        mergedSettings = normalizeSettings(remote.settings);
-        mergedSettingsUpdatedAt = remoteSettingsTimestamp;
-      } else if (localSettingsTimestamp > remoteSettingsTimestamp) {
-        mergedSettings = normalizeSettings(local.settings);
-        mergedSettingsUpdatedAt = localSettingsTimestamp;
-      } else {
-        /*
-         * Legacy backups قديمة قبل إضافة settingsUpdatedAt.
-         * في حالة عدم وجود timestamp واضح، نُبقي المحلي أولًا
-         * لتجنب أن Backup قديم يمسح إعدادات الجهاز الحالية.
-         */
-        mergedSettings = normalizeSettings({
-          ...remote.settings,
-          ...local.settings,
-          sectionsCollapsed: {
-            ...remote.settings.sectionsCollapsed,
-            ...local.settings.sectionsCollapsed
-          }
-        });
-        mergedSettingsUpdatedAt = localSettingsTimestamp || remoteSettingsTimestamp || 0;
-      }
-
-      return {
-        version: 2,
-        updatedAt: new Date().toISOString(),
-        tasks: mergedTasks,
-        archive: mergedArchive,
-        settings: mergedSettings,
-        settingsUpdatedAt: mergedSettingsUpdatedAt,
-        deletedIds: [...tombstones.entries()].map(([id, deletedAt]) => ({
-          id,
-          deletedAt
-        }))
-      };
+      return NawyData.mergeNawyData(localData, remoteData);
     }
 
     function persistMergedDataLocally(data) {
@@ -5510,4 +5314,4 @@
     init().catch(error => console.error("Nawy init failed", error));
   </script>
 </body>
-</html>
+</html>

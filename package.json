@@ -1,0 +1,8 @@
+{
+  "name": "nawy",
+  "private": true,
+  "description": "Nawy PWA. The app has no build step; this file only runs the data-layer tests (node:test, no dependencies).",
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  }
+}
