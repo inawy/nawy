@@ -525,6 +525,10 @@
       border-radius: 0;
     }
     .overlay-fullscreen .sheet-handle { display: none; }
+    /* جوه قائمة الحساب، لما شاشة الإعدادات فاتحة، زرار الرجوع بتاعها
+       بياخد مكان زرار الإغلاق العائم (X) عشان ما يتداخلوش مع بعض —
+       بيبقى فيه زرار واحد واضح بس في أعلى يسار الشاشة. */
+    #menuOverlay.overlay-fullscreen > .sheet > .sheet-close-small { display: none; }
     /* لازم specificity أعلى من #menuOverlay .sheet القديمة */
     #menuOverlay.overlay-fullscreen .sheet {
       width: 100%;
@@ -5076,6 +5080,7 @@
         const resetSheet = () => {
           sheet.style.transform = "";
           sheet.style.transition = "";
+          sheet.style.touchAction = "";
           sheet.classList.remove("handle-active");
         };
 
@@ -5094,6 +5099,13 @@
           captured = false;
           mode = "none";
           sheet.style.transition = "none";
+
+          // لو المحتوى في أعلى نقطة فيه أصلاً، نمنع المتصفح من مطالبة
+          // اللمسة دي كسكرول طبيعي من الأساس (ده بيمنع الارتداد
+          // المطاطي اللي المتصفح نفسه بيعمله على حدود السكرول، وهو
+          // سبب "المقاومة" اللي كانت حاصلة برا المقبض). لو لسه فيه
+          // سكرول، نسيب المتصفح يتصرف عادي.
+          sheet.style.touchAction = startScrollTop <= 0 ? "none" : "pan-y";
         });
 
         // تتبّع الإصبع 1:1 من غير أي مقاومة مطاطية، من أي نقطة على
@@ -5152,6 +5164,7 @@
           if (mode !== "vertical" && mode !== "horizontal") return;
 
           sheet.style.transition = "transform .22s ease-out";
+          sheet.style.touchAction = "";
 
           if (horizontalDismiss) {
             sheet.style.transform = `translateX(${dx > 0 ? 120 : -120}%)`;
