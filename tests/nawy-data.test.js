@@ -206,8 +206,6 @@ test("merge does not mutate its inputs", () => {
   assert.equal(JSON.stringify(remote), snapR);
 });
 
-<<<<<<< Updated upstream
-=======
 // ---------- regression: records without timestamps (import bug) ----------
 
 test("merge: a record with no timestamps and no tombstone is kept (old backups)", () => {
@@ -231,7 +229,6 @@ test("merge: a real tombstone still removes a timestamp-less record", () => {
   assert.equal(NawyData.mergeNawyData(local, data()).tasks.length, 0);
 });
 
->>>>>>> Stashed changes
 // ---------- misc ----------
 
 test("getTimestamp takes the max of known time fields, 0 when none", () => {

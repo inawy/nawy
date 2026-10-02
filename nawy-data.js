@@ -206,16 +206,11 @@
     var mergedArchive = [];
 
     records.forEach(function (record, id) {
-<<<<<<< Updated upstream
-      var deletedAt = tombstones.get(id) || 0;
-      if (deletedAt >= getTimestamp(record.item)) return;
-=======
       // الحذف بيكسب بس لو فيه tombstone فعلًا. سجل من غير أي حقل زمني
       // (نوايا أقدم أو نسخة احتياطية قديمة) لازم يفضل موجود — قبل كده
       // الشرط كان 0 >= 0 فبيتحذف بصمت حتى من غير أي حذف مسجّل.
       var deletedAt = tombstones.get(id) || 0;
       if (deletedAt > 0 && deletedAt >= getTimestamp(record.item)) return;
->>>>>>> Stashed changes
 
       if (record.archived) {
         mergedArchive.push(record.item);

@@ -16,11 +16,7 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 ## 002 — Dexie/IndexedDB behind a storage interface
 
-<<<<<<< Updated upstream
-- Status: accepted
-=======
 - Status: accepted; in progress. The data core is extracted (006), but the storage interface itself is the next step: `index.html` still calls Dexie directly.
->>>>>>> Stashed changes
 - Date: 2026-10-01
 - Decision: Storage already moved from localStorage to IndexedDB via Dexie. Keep it, and put it behind a storage interface with versioned migrations.
 - Reason: reliable local storage; the interface keeps Dexie replaceable.
@@ -56,8 +52,6 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Reason: the service worker previously declared its own copy of the schema (v1 only), which could diverge from the app's v2; pure functions are testable in Node.
 - Rejected: moving the Dexie read/write functions in the same step (they depend on page globals and snapshots; next step).
 - Side effect: service worker cache name bumped to `nawy-runtime-v1.8.0` so the new precache entry takes effect.
-<<<<<<< Updated upstream
-=======
 
 ## 007 — Merge keeps records that have no timestamps
 
@@ -66,4 +60,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Decision: In `mergeNawyData` a record is removed only when a real tombstone exists (`deletedAt > 0` and not older than the record). Before, a record with no `updatedAt`/`createdAt`/... compared as `0 >= 0` and was dropped silently on every import and Drive restore.
 - Reason: reported "import does nothing"; reproduced with older files whose records lack timestamps. The bug existed in the original code. Import also now shows specific messages (invalid file, newer version) and clears the file input only after the read ends.
 - Tests: three regression tests in `tests/nawy-data.test.js`.
->>>>>>> Stashed changes
+
+## 008 — Repo sanity test and versioned nawy-data URL
+
+- Status: accepted
+- Date: 2026-10-02
+- Decision: `tests/repo-sanity.test.js` fails on git conflict markers, syntax errors, files referenced by `index.html` or the service worker that do not exist, wrong script order, and version mismatch. Run `npm test` before every push. `nawy-data.js` is loaded as `nawy-data.js?v=<version>` by the page and by the service worker, and `CACHE_NAME` carries the same version; bump the four places together.
+- Reason: commit `abb6967` was pushed with `<<<<<<< Updated upstream` markers inside `index.html` and `nawy-data.js` (a conflicted `git stash pop`). A single marker stops the whole script, so no button worked. A stale broken copy can also stay in the HTTP cache for 10 minutes on GitHub Pages; a new URL avoids that.
+- Verified: replayed good, broken, then clean deployments in a real browser with the service worker and IndexedDB; the clean version recovered on the first reload with no data loss.

@@ -64,7 +64,7 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js"></script>
+  <script src="./nawy-data.js?v=1.9.0"></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1907,11 +1907,8 @@
         reactivatedToast: "تم إعادة فتح النية 🔄", editedToast: "تم التعديل ✏️",
         deletedToast: "تم التراجع - اضغط للاسترجاع", restoredToast: "تم الاسترجاع ✅",
         exported: "تم تصدير البيانات 💾", imported: "تم استيراد البيانات ✅",
-<<<<<<< Updated upstream
-=======
         importFailed: "الملف ده مش نسخة ناوي صالحة",
         importNewerVersion: "الملف ده من نسخة أحدث من ناوي — حدّث التطبيق الأول",
->>>>>>> Stashed changes
         backupSuccess: "✓ نواياك محفوظة", backupProgress: "☁️ جاري حفظ نواياك...",
         backupConfig: "فعّل الحفظ الاحتياطي أولًا", backupError: "⚠️ تعذر حفظ نواياك الآن، سنحاول مرة أخرى",
         storageWriteError: "⚠️ تعذر حفظ التعديل على جهازك — تأكد إن فيه مساحة كافية",
@@ -2035,11 +2032,8 @@
         reactivatedToast: "Intention reopened 🔄", editedToast: "Edited ✏️",
         deletedToast: "Deleted - tap to undo", restoredToast: "Restored ✅",
         exported: "Data exported 💾", imported: "Data imported ✅",
-<<<<<<< Updated upstream
-=======
         importFailed: "This file is not a valid Nawy backup",
         importNewerVersion: "This backup is from a newer version of Nawy — update the app first",
->>>>>>> Stashed changes
         backupSuccess: "✓ Intentions saved", backupProgress: "☁️ Saving your intentions...",
         backupConfig: "Enable backup first", backupError: "⚠️ Could not save your intentions; we will try again",
         storageWriteError: "⚠️ Could not save this change on your device — check you have enough storage space",
@@ -4563,26 +4557,19 @@
       }
     }
 
-<<<<<<< Updated upstream
-    function importData(file) {
-=======
     function importData(file, onDone) {
->>>>>>> Stashed changes
       const reader = new FileReader();
 
       reader.onload = e => {
         try {
           const data = JSON.parse(e.target.result);
 
-<<<<<<< Updated upstream
-=======
           // ملف من نسخة أحدث من ناوي: نرفضه برسالة واضحة بدل ما نخمّن شكله.
           if (!NawyData.isSupportedVersion(data)) {
             showToast(t("importNewerVersion"));
             return;
           }
 
->>>>>>> Stashed changes
           if (!isValidNawyData(data)) {
             throw new Error("Invalid import payload");
           }
@@ -4601,12 +4588,6 @@
 
         } catch (error) {
           console.error("Data import failed", error);
-<<<<<<< Updated upstream
-          showToast("Error importing data");
-        }
-      };
-
-=======
           showToast(t("importFailed"));
         }
       };
@@ -4620,7 +4601,6 @@
       // الموبايل بتفقد الملف لو الحقل اتفضّى قبل ما القراءة تكمل.
       reader.onloadend = () => { if (typeof onDone === "function") onDone(); };
 
->>>>>>> Stashed changes
       reader.readAsText(file);
     }
 
@@ -4753,12 +4733,6 @@
     });
 
     $("#importFileInput").addEventListener("change", e => {
-<<<<<<< Updated upstream
-      if (e.target.files[0]) {
-        importData(e.target.files[0]);
-      }
-      e.target.value = "";
-=======
       const input = e.target;
       const file = input.files[0];
       if (file) {
@@ -4766,7 +4740,6 @@
       } else {
         input.value = "";
       }
->>>>>>> Stashed changes
     });
 
     $$("[data-close]").forEach(btn => {
