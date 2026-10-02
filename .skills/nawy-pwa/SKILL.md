@@ -15,7 +15,7 @@ description: Nawy PWA rules: service worker caching and safe updates, offline be
 
 - Cache name carries a version (`nawy-shell-vN`). On `activate`, delete old caches.
 - Precache the shell; use stale-while-revalidate for non-critical assets; never cache API or provider responses as app data.
-- Update flow: a new worker installs in the background and waits. Show a small "update ready" prompt, then `skipWaiting` + reload on user confirmation, or apply on next launch. Never reload mid-edit.
+- Update flow: never call `skipWaiting()` in `install`. A new worker installs and waits; the page shows an "update ready" banner (also on load when a worker is already waiting). Only the user's tap sends `SKIP_WAITING`, and the page reloads only for that tap, never with an unsent draft (drafts live only in the input) and never in other tabs or on first install.
 - With a build tool, precache the hashed asset list generated at build time, not a hand-written list.
 - Always keep a working offline fallback for navigation requests.
 - After any service worker change, test: first install, update from the previous version, and offline reload.
@@ -42,3 +42,4 @@ build -> dist/ -> any static host
 - No host-specific code in the app (no Vercel/Netlify/Cloudflare APIs in Core).
 - HTTPS is required for service workers; document the headers needed (`Cache-Control` for `service-worker.js` should allow quick updates).
 - Keep a release archive of each deployed build so any version can be re-hosted.
+- Deploy only through `.github/workflows/pages.yml`: tests gate the deploy, and `npm run build` publishes `_site/` without dev files.

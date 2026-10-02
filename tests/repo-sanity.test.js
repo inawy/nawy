@@ -82,3 +82,30 @@ test("page and service worker use the same nawy-data.js version", () => {
   sw.forEach(s => assert.equal(s.split("=")[1], html[1]));
   assert.ok(read("service-worker.js").includes(`nawy-runtime-v${html[1]}`), "cache name must carry the same version");
 });
+
+// ---------- safe service-worker update (never reload the user mid-typing) ----------
+
+test("service worker does not skipWaiting on install; only on the user's message", () => {
+  const sw = read("service-worker.js");
+  const raw = sw.slice(sw.indexOf('addEventListener("install"'), sw.indexOf('addEventListener("activate"'));
+  assert.ok(raw.length > 20, "install handler not found");
+  const install = raw.replace(/\/\/.*$/gm, ""); // التعليقات ممكن تذكر الكلمة، المهم الكود
+  assert.ok(!/skipWaiting/.test(install), "install must not call skipWaiting");
+  assert.match(sw, /SKIP_WAITING[\s\S]*self\.skipWaiting\(\)/, "SKIP_WAITING message handler missing");
+});
+
+test("page reloads on controllerchange only after the user asked for the update", () => {
+  const html = read("index.html");
+  const handler = html.match(/addEventListener\("controllerchange",[\s\S]*?\}\);/);
+  assert.ok(handler, "controllerchange handler not found");
+  assert.match(handler[0], /!updateRequested/, "reload must be gated by updateRequested");
+  assert.match(html, /registration\.waiting && navigator\.serviceWorker\.controller/, "banner must also show for an already-waiting worker");
+  assert.match(html, /updateAfterDraft/, "update must not discard an unsent draft");
+});
+
+test("update banner strings exist in Arabic and English", () => {
+  const html = read("index.html");
+  for (const key of ["updateAvailable", "updateNow", "updateAfterDraft"]) {
+    assert.equal((html.match(new RegExp(key + ": \"", "g")) || []).length, 2, key + " must be defined for ar and en");
+  }
+});

@@ -64,7 +64,7 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.9.0"></script>
+  <script src="./nawy-data.js?v=1.10.0"></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1909,6 +1909,9 @@
         exported: "تم تصدير البيانات 💾", imported: "تم استيراد البيانات ✅",
         importFailed: "الملف ده مش نسخة ناوي صالحة",
         importNewerVersion: "الملف ده من نسخة أحدث من ناوي — حدّث التطبيق الأول",
+        updateAvailable: "نسخة جديدة متاحة 🔄",
+        updateNow: "تحديث الآن",
+        updateAfterDraft: "ابعت نيتك الأول أو امسح النص، وبعدها اضغط تحديث",
         backupSuccess: "✓ نواياك محفوظة", backupProgress: "☁️ جاري حفظ نواياك...",
         backupConfig: "فعّل الحفظ الاحتياطي أولًا", backupError: "⚠️ تعذر حفظ نواياك الآن، سنحاول مرة أخرى",
         storageWriteError: "⚠️ تعذر حفظ التعديل على جهازك — تأكد إن فيه مساحة كافية",
@@ -2034,6 +2037,9 @@
         exported: "Data exported 💾", imported: "Data imported ✅",
         importFailed: "This file is not a valid Nawy backup",
         importNewerVersion: "This backup is from a newer version of Nawy — update the app first",
+        updateAvailable: "A new version is available 🔄",
+        updateNow: "Update now",
+        updateAfterDraft: "Send or clear your draft first, then tap Update",
         backupSuccess: "✓ Intentions saved", backupProgress: "☁️ Saving your intentions...",
         backupConfig: "Enable backup first", backupError: "⚠️ Could not save your intentions; we will try again",
         storageWriteError: "⚠️ Could not save this change on your device — check you have enough storage space",
@@ -5080,6 +5086,10 @@
 
     initSheetGestures();
 
+    // التحديث بيتطبق بس لما المستخدم يضغط "تحديث الآن" (أو لما يفتح التطبيق من
+    // جديد) — الصفحة عمرها ما بتتعاد لوحدها وهو بيكتب.
+    let updateRequested = false;
+
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", async () => {
         const oldRegistrations = await navigator.serviceWorker.getRegistrations();
@@ -5093,6 +5103,12 @@
         navigator.serviceWorker.register("./service-worker.js", {
           updateViaCache: "none"
         }).then(registration => {
+
+          // نسخة جديدة اتثبتت قبل كده وبتستنى (المستخدم ما ضغطش تحديث): مفيش
+          // updatefound هيتطلق ليها دلوقتي، فنظهر الشريط من تاني.
+          if (registration.waiting && navigator.serviceWorker.controller) {
+            showUpdateBanner();
+          }
 
           setInterval(() => {
             registration.update().catch(() => {});
@@ -5122,7 +5138,9 @@
       let refreshing = false;
 
       navigator.serviceWorker.addEventListener("controllerchange", () => {
-        if (refreshing) return;
+        // بنعيد التحميل بس لو المستخدم هو اللي طلب التحديث. أي تبديل تاني (أول
+        // تثبيت، أو تاب تانية هي اللي طلبت) ما يقاطعش اللي بيكتبه.
+        if (!updateRequested || refreshing) return;
         refreshing = true;
         window.location.reload();
       });
@@ -5155,18 +5173,30 @@
       `;
       
       updateBanner.innerHTML = `
-        <span style="flex:1;">نسخة جديدة متاحة 🔄</span>
-        <button id="updateNowBtn" style="min-height:36px;padding:0 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;">تحديث الآن</button>
+        <span style="flex:1;">${t("updateAvailable")}</span>
+        <button id="updateNowBtn" style="min-height:36px;padding:0 12px;border-radius:8px;background:var(--accent);color:#fff;font-size:13px;font-weight:700;">${t("updateNow")}</button>
       `;
       
       document.body.appendChild(updateBanner);
       
       updateBanner.querySelector("#updateNowBtn").addEventListener("click", () => {
+        // نص مكتوب في شاشة الإضافة ولسه ما اتبعتش بيتمسح مع إعادة التحميل،
+        // فنأجّل التحديث ونسيب الشريط ظاهر لحد ما المستخدم يخلّص.
+        const draftInput = $("#taskInput");
+        if (draftInput && draftInput.value.trim()) {
+          showToast(t("updateAfterDraft"));
+          return;
+        }
+
         updateBanner.remove();
+        updateRequested = true;
 
         navigator.serviceWorker.ready.then(registration => {
           if (registration.waiting) {
             registration.waiting.postMessage('SKIP_WAITING');
+          } else {
+            // النسخة الجديدة اتفعّلت بالفعل (مفيش حاجة مستنية): نعيد التحميل.
+            window.location.reload();
           }
         });
       });

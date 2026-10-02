@@ -1,10 +1,10 @@
-const CACHE_NAME = "nawy-runtime-v1.9.0";
+const CACHE_NAME = "nawy-runtime-v1.10.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.9.0");
+importScripts("./nawy-data.js?v=1.10.0");
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,7 +13,7 @@ const APP_SHELL = [
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./nawy-data.js?v=1.9.0",
+  "./nawy-data.js?v=1.10.0",
   "./icon-192.png",
   "./icon-512.png",
   "./favicon.ico",
@@ -35,10 +35,12 @@ function isAppShellRequest(request) {
 }
 
 self.addEventListener("install", event => {
+  // مفيش skipWaiting هنا: النسخة الجديدة بتستنى لحد ما المستخدم يضغط "تحديث
+  // الآن" (رسالة SKIP_WAITING تحت) أو يفتح التطبيق من جديد، عشان الصفحة ما
+  // تتعاد وهو بيكتب.
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => cache.addAll(APP_SHELL))
-      .then(() => self.skipWaiting())
   );
 });
 

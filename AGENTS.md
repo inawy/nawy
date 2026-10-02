@@ -10,6 +10,7 @@ Nawy (ناوي) is a simple, personal, local-first, Arabic-first PWA for intenti
 - **Data**: never edit old Dexie version blocks; every schema change is a new version with a migration and a test.
 - **Keep behavior**: preserve function names, UI, RTL, animations and PWA behavior unless the task says otherwise. Smallest change that works.
 - **No** backend, login, AI or cloud dependency unless the product truly needs it. No secrets in frontend code. No runtime code from CDNs.
+- **Deploy**: push to `main` runs `.github/workflows/pages.yml` (tests, then GitHub Pages). Never publish by hand. Run `npm test` before pushing; bump the version in the four places listed in `README.md` when app files change.
 - **Known gaps (close them, do not copy them):** the storage interface is not extracted yet (`index.html` calls Dexie directly); Google Fonts (Cairo) and the Google Identity script are still loaded from the network at startup.
 
 ## Skills
