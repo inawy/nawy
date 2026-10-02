@@ -206,6 +206,32 @@ test("merge does not mutate its inputs", () => {
   assert.equal(JSON.stringify(remote), snapR);
 });
 
+<<<<<<< Updated upstream
+=======
+// ---------- regression: records without timestamps (import bug) ----------
+
+test("merge: a record with no timestamps and no tombstone is kept (old backups)", () => {
+  const remote = data({
+    tasks: [{ id: "old1", text: "نية قديمة", status: "active" }],
+    archive: [{ id: "old2", text: "أرشيف قديم" }]
+  });
+  const m = NawyData.mergeNawyData(data(), remote);
+  assert.deepEqual(m.tasks.map(t => t.id), ["old1"]);
+  assert.deepEqual(m.archive.map(t => t.id), ["old2"]);
+});
+
+test("merge: local timestamp-less records also survive an import", () => {
+  const local = data({ tasks: [{ id: "keep", text: "x" }] });
+  const m = NawyData.mergeNawyData(local, data({ tasks: [{ id: "new", updatedAt: 5 }] }));
+  assert.deepEqual(m.tasks.map(t => t.id).sort(), ["keep", "new"]);
+});
+
+test("merge: a real tombstone still removes a timestamp-less record", () => {
+  const local = data({ tasks: [{ id: "gone", text: "x" }], deletedIds: [{ id: "gone", deletedAt: 10 }] });
+  assert.equal(NawyData.mergeNawyData(local, data()).tasks.length, 0);
+});
+
+>>>>>>> Stashed changes
 // ---------- misc ----------
 
 test("getTimestamp takes the max of known time fields, 0 when none", () => {

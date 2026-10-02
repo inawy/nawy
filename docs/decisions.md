@@ -16,7 +16,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 ## 002 — Dexie/IndexedDB behind a storage interface
 
+<<<<<<< Updated upstream
 - Status: accepted
+=======
+- Status: accepted; in progress. The data core is extracted (006), but the storage interface itself is the next step: `index.html` still calls Dexie directly.
+>>>>>>> Stashed changes
 - Date: 2026-10-01
 - Decision: Storage already moved from localStorage to IndexedDB via Dexie. Keep it, and put it behind a storage interface with versioned migrations.
 - Reason: reliable local storage; the interface keeps Dexie replaceable.
@@ -52,3 +56,14 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Reason: the service worker previously declared its own copy of the schema (v1 only), which could diverge from the app's v2; pure functions are testable in Node.
 - Rejected: moving the Dexie read/write functions in the same step (they depend on page globals and snapshots; next step).
 - Side effect: service worker cache name bumped to `nawy-runtime-v1.8.0` so the new precache entry takes effect.
+<<<<<<< Updated upstream
+=======
+
+## 007 — Merge keeps records that have no timestamps
+
+- Status: accepted
+- Date: 2026-10-02
+- Decision: In `mergeNawyData` a record is removed only when a real tombstone exists (`deletedAt > 0` and not older than the record). Before, a record with no `updatedAt`/`createdAt`/... compared as `0 >= 0` and was dropped silently on every import and Drive restore.
+- Reason: reported "import does nothing"; reproduced with older files whose records lack timestamps. The bug existed in the original code. Import also now shows specific messages (invalid file, newer version) and clears the file input only after the read ends.
+- Tests: three regression tests in `tests/nawy-data.test.js`.
+>>>>>>> Stashed changes
