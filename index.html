@@ -64,7 +64,9 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.10.0"></script>
+  <script src="./nawy-data.js?v=1.11.0"></script>
+  <!-- Nawy storage interface (the only place that talks to Dexie) -->
+  <script src="./nawy-storage.js?v=1.11.0"></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1813,6 +1815,8 @@
     // تعريف الـ schema (v1, v2) في nawy-data.js ومشترك مع الـ Service Worker.
     // ممنوع تعديل أي version قديم — أي تغيير = version جديد هناك.
     NawyData.defineSchema(db);
+    // واجهة التخزين (nawy-storage.js): باقي الملف بيكلّم `storage` بس، مش `db`.
+    const storage = NawyStorage.createDexieStorage(db, Dexie);
 
     // القيم الافتراضية في nawy-data.js (مصدر واحد مشترك).
     const DEFAULT_SETTINGS = NawyData.DEFAULT_SETTINGS;
@@ -2230,8 +2234,7 @@
     // بيستبدل مش بيكرر). بيانات localStorage القديمة متتمسّحش أبدًا، بتفضل
     // كنسخة احتياطية سلبية على الجهاز.
     async function migrateFromLocalStorageIfNeeded() {
-      const already = await db.meta.get("migrationDone");
-      if (already && already.value) return;
+      if (await storage.isLegacyImported()) return;
 
       const storedTasks = safeParse(localStorage.getItem(STORAGE_KEYS.tasks), []);
       const storedArchive = safeParse(localStorage.getItem(STORAGE_KEYS.archive), []);
@@ -2253,27 +2256,25 @@
         : [];
       const cleanSettings = normalizeSettings(storedSettings);
 
-      await db.transaction("rw", db.tasks, db.archive, db.settings, db.deletedIds, db.meta, async () => {
-        if (cleanTasks.length) await db.tasks.bulkPut(cleanTasks);
-        if (cleanArchive.length) await db.archive.bulkPut(cleanArchive);
-        await db.settings.put({ id: "main", ...cleanSettings, updatedAt: storedSettingsUpdatedAt });
-        if (cleanDeletedIds.length) await db.deletedIds.bulkPut(cleanDeletedIds);
-        if (storedLastBackupTs > 0) await db.meta.put({ key: "lastBackupTs", value: storedLastBackupTs });
-        await db.meta.put({ key: "migrationDone", value: true });
+      await storage.importLegacy({
+        tasks: cleanTasks,
+        archive: cleanArchive,
+        settings: cleanSettings,
+        settingsUpdatedAt: storedSettingsUpdatedAt,
+        deletedIds: cleanDeletedIds,
+        lastBackupTs: storedLastBackupTs
       });
     }
 
     async function loadData() {
       await migrateFromLocalStorageIfNeeded();
 
-      const [dbTasks, dbArchive, dbSettingsRow, dbDeletedIds, dbLastBackupRow] = await Promise.all([
-        db.tasks.toArray(),
-        db.archive.toArray(),
-        db.settings.get("main"),
-        db.deletedIds.toArray(),
-        db.meta.get("lastBackupTs")
-      ]);
-      lastBackupTimestamp = Number(dbLastBackupRow && dbLastBackupRow.value) || 0;
+      const stored = await storage.readAll();
+      const dbTasks = stored.tasks;
+      const dbArchive = stored.archive;
+      const dbSettingsRow = stored.settingsRow;
+      const dbDeletedIds = stored.deletedIds;
+      lastBackupTimestamp = Number(stored.lastBackupTs) || 0;
 
       tasks = Array.isArray(dbTasks) ? dbTasks.filter(x => x && typeof x.text === "string" && x.text.trim()) : [];
       archive = Array.isArray(dbArchive) ? dbArchive.filter(x => x && typeof x.text === "string" && x.text.trim()) : [];
@@ -2320,36 +2321,27 @@
     function saveTasks() {
       const { toPut, toDelete } = diffAgainstSnapshot(tasks, tasksSnapshot);
       if (!toPut.length && !toDelete.length) return;
-      db.transaction("rw", db.tasks, async () => {
-        if (toPut.length) await db.tasks.bulkPut(toPut);
-        if (toDelete.length) await db.tasks.bulkDelete(toDelete);
-      }).then(() => { tasksSnapshot = snapshotFrom(tasks); })
+      storage.applyChanges({ tasks: { toPut, toDelete } }).then(() => { tasksSnapshot = snapshotFrom(tasks); })
         .catch(reportStorageWriteError);
     }
 
     function saveArchive() {
       const { toPut, toDelete } = diffAgainstSnapshot(archive, archiveSnapshot);
       if (!toPut.length && !toDelete.length) { updateMenuStatusLine(); return; }
-      db.transaction("rw", db.archive, async () => {
-        if (toPut.length) await db.archive.bulkPut(toPut);
-        if (toDelete.length) await db.archive.bulkDelete(toDelete);
-      }).then(() => { archiveSnapshot = snapshotFrom(archive); updateMenuStatusLine(); })
+      storage.applyChanges({ archive: { toPut, toDelete } }).then(() => { archiveSnapshot = snapshotFrom(archive); updateMenuStatusLine(); })
         .catch(reportStorageWriteError);
     }
 
     function saveDeletedIds() {
       const { toPut, toDelete } = diffAgainstSnapshot(deletedIds, deletedIdsSnapshot, "deletedAt");
       if (!toPut.length && !toDelete.length) return;
-      db.transaction("rw", db.deletedIds, async () => {
-        if (toPut.length) await db.deletedIds.bulkPut(toPut);
-        if (toDelete.length) await db.deletedIds.bulkDelete(toDelete);
-      }).then(() => { deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt"); })
+      storage.applyChanges({ deletedIds: { toPut, toDelete } }).then(() => { deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt"); })
         .catch(reportStorageWriteError);
     }
 
     function saveSettings() {
       settingsUpdatedAt = Date.now();
-      db.settings.put({ id: "main", ...settings, updatedAt: settingsUpdatedAt })
+      storage.putSettings(settings, settingsUpdatedAt)
         .catch(reportStorageWriteError);
     }
 
@@ -2361,13 +2353,10 @@
       const archiveDiff = diffAgainstSnapshot(archive, archiveSnapshot);
       const deletedIdsDiff = diffAgainstSnapshot(deletedIds, deletedIdsSnapshot, "deletedAt");
 
-      return db.transaction("rw", db.tasks, db.archive, db.deletedIds, async () => {
-        if (tasksDiff.toPut.length) await db.tasks.bulkPut(tasksDiff.toPut);
-        if (tasksDiff.toDelete.length) await db.tasks.bulkDelete(tasksDiff.toDelete);
-        if (archiveDiff.toPut.length) await db.archive.bulkPut(archiveDiff.toPut);
-        if (archiveDiff.toDelete.length) await db.archive.bulkDelete(archiveDiff.toDelete);
-        if (deletedIdsDiff.toPut.length) await db.deletedIds.bulkPut(deletedIdsDiff.toPut);
-        if (deletedIdsDiff.toDelete.length) await db.deletedIds.bulkDelete(deletedIdsDiff.toDelete);
+      return storage.applyChanges({
+        tasks: tasksDiff,
+        archive: archiveDiff,
+        deletedIds: deletedIdsDiff
       }).then(() => {
         tasksSnapshot = snapshotFrom(tasks);
         archiveSnapshot = snapshotFrom(archive);
@@ -3823,7 +3812,7 @@
 
     function markBackupSuccessful(email) {
       lastBackupTimestamp = Date.now();
-      db.meta.put({ key: "lastBackupTs", value: lastBackupTimestamp }).catch(reportStorageWriteError);
+      storage.setLastBackupTs(lastBackupTimestamp).catch(reportStorageWriteError);
       if (email) lastGoogleAccountEmail = email;
       setMenuBadge(false);
       updateMenuStatusLine();
@@ -4253,15 +4242,7 @@
 
       // نسخة موحّدة كاملة (نتيجة merge)، فبنستبدل محتوى الجداول بالكامل مش
       // ديف جزئي — لكن لسه جوه Transaction واحدة ذرية عبر الأربع Stores.
-      db.transaction("rw", db.tasks, db.archive, db.settings, db.deletedIds, async () => {
-        await db.tasks.clear();
-        if (tasks.length) await db.tasks.bulkPut(tasks);
-        await db.archive.clear();
-        if (archive.length) await db.archive.bulkPut(archive);
-        await db.deletedIds.clear();
-        if (deletedIds.length) await db.deletedIds.bulkPut(deletedIds);
-        await db.settings.put({ id: "main", ...settings, updatedAt: settingsUpdatedAt });
-      }).then(() => {
+      storage.replaceAll({ tasks, archive, deletedIds, settings, settingsUpdatedAt }).then(() => {
         tasksSnapshot = snapshotFrom(tasks);
         archiveSnapshot = snapshotFrom(archive);
         deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt");
@@ -5281,14 +5262,8 @@
     // mergeNawyData، مش هنا).
     let crossTabSyncReady = false;
     function startCrossTabSync() {
-      if (typeof Dexie === "undefined" || typeof Dexie.liveQuery !== "function") return;
-      Dexie.liveQuery(() => Promise.all([
-        db.tasks.toArray(),
-        db.archive.toArray(),
-        db.settings.get("main"),
-        db.deletedIds.toArray()
-      ])).subscribe({
-        next: ([liveTasks, liveArchive, liveSettingsRow, liveDeletedIds]) => {
+      storage.subscribe({
+        next: ({ tasks: liveTasks, archive: liveArchive, settingsRow: liveSettingsRow, deletedIds: liveDeletedIds }) => {
           // أول إطلاق بيحصل فورًا عند الاشتراك بنفس البيانات اللي حمّلناها
           // بالفعل في loadData() — نتجاهله عشان منعملش render() زيادة من غير داعي.
           if (!crossTabSyncReady) { crossTabSyncReady = true; return; }

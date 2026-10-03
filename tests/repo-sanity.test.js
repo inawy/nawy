@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "nawy-data.js"]) {
+  for (const f of ["service-worker.js", "nawy-data.js", "nawy-storage.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -66,20 +66,30 @@ test("service worker precache list and importScripts point to existing files", (
   assert.deepEqual(missing, [], "missing files: " + missing.join(", "));
 });
 
-test("script order: Dexie, then nawy-data.js, then the app script", () => {
+test("script order: Dexie, then nawy-data.js, then nawy-storage.js, then the app script", () => {
   const html = read("index.html");
   const dexie = html.indexOf('src="./dexie.min.js"');
   const data = html.indexOf('src="./nawy-data.js');
+  const storage = html.indexOf('src="./nawy-storage.js');
   const app = html.indexOf("const db = new Dexie(");
-  assert.ok(dexie > -1 && data > dexie && app > data, "wrong script order");
+  assert.ok(dexie > -1 && data > dexie && storage > data && app > storage, "wrong script order");
 });
 
-test("page and service worker use the same nawy-data.js version", () => {
+test("index.html never touches Dexie tables directly; only through `storage`", () => {
+  const html = read("index.html");
+  const hits = html.split(/\r?\n/).map((l, i) => [i + 1, l]).filter(([, l]) => /\bdb\.\w/.test(l));
+  assert.deepEqual(hits, [], "direct db.* calls in index.html (use NawyStorage): " + hits.map(h => h[0]).join(", "));
+});
+
+test("page and service worker use the same version for nawy-data.js and nawy-storage.js", () => {
   const html = read("index.html").match(/nawy-data\.js\?v=([\w.]+)/);
-  const sw = read("service-worker.js").match(/nawy-data\.js\?v=([\w.]+)/g) || [];
   assert.ok(html, "index.html must load nawy-data.js with ?v=");
+  const htmlStorage = read("index.html").match(/nawy-storage\.js\?v=([\w.]+)/);
+  assert.ok(htmlStorage && htmlStorage[1] === html[1], "index.html must load nawy-storage.js with the same ?v=");
+  const sw = read("service-worker.js").match(/nawy-data\.js\?v=([\w.]+)/g) || [];
   assert.ok(sw.length >= 2, "service worker must use the versioned URL in both places");
   sw.forEach(s => assert.equal(s.split("=")[1], html[1]));
+  assert.ok(read("service-worker.js").includes(`./nawy-storage.js?v=${html[1]}`), "APP_SHELL must precache nawy-storage.js with the same version");
   assert.ok(read("service-worker.js").includes(`nawy-runtime-v${html[1]}`), "cache name must carry the same version");
 });
 

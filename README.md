@@ -32,7 +32,7 @@ npm test
 عند تغيير أي ملف في التطبيق يجب أن يصل التحديث للمستخدمين، فارفع الرقم في الأماكن التالية معاً (الاختبارات تتحقق أنها متطابقة):
 
 1. `CACHE_NAME` في `service-worker.js`
-2. `?v=` على `nawy-data.js` في `index.html`
+2. `?v=` على `nawy-data.js` و`nawy-storage.js` في `index.html`
 3. `importScripts(...)` و`APP_SHELL` في `service-worker.js`
 
 التحديث يظهر للمستخدم كشريط «نسخة جديدة متاحة»، ولا يُعاد تحميل الصفحة بدون موافقته.
@@ -43,6 +43,7 @@ npm test
 |---|---|
 | `index.html` | التطبيق (واجهة + منطق) |
 | `nawy-data.js` | طبقة البيانات: schema وdefault settings ودمج وصيغة التصدير. مشتركة مع الـ service worker |
+| `nawy-storage.js` | واجهة التخزين: الوحيدة التي تكلّم Dexie. `index.html` يتعامل مع `storage` فقط |
 | `service-worker.js` | الكاش وبلا إنترنت والتذكير اليومي |
 | `game.html` | لعبة «خذ استراحة» |
 | `scripts/build-site.js` | يجهّز `_site/` للنشر |

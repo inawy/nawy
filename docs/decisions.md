@@ -16,7 +16,7 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 ## 002 — Dexie/IndexedDB behind a storage interface
 
-- Status: accepted; in progress. The data core is extracted (006), but the storage interface itself is the next step: `index.html` still calls Dexie directly.
+- Status: accepted; interface extracted in 011.
 - Date: 2026-10-01
 - Decision: Storage already moved from localStorage to IndexedDB via Dexie. Keep it, and put it behind a storage interface with versioned migrations.
 - Reason: reliable local storage; the interface keeps Dexie replaceable.
@@ -86,3 +86,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Reason: a commit with conflict markers (008) was published and broke the app. Now a failing test blocks the deploy and the live version stays as it was. Dev files are no longer served from the public site.
 - Rejected: branch-based Pages deploy (no test gate); publishing the repo root with `upload-pages-artifact path: .` (would publish dev files).
 - Note: the custom domain stays configured in the repository's Pages settings; `CNAME` is still copied into `_site/`.
+
+## 011 — Storage interface extracted to nawy-storage.js (migration step 3)
+
+- Status: accepted
+- Date: 2026-10-03
+- Decision: all reads and writes of IndexedDB go through `NawyStorage.createDexieStorage(db, Dexie)` in `nawy-storage.js`: `isLegacyImported`, `importLegacy`, `readAll`, `applyChanges` (atomic, only the stores given), `putSettings`, `setLastBackupTs`, `replaceAll`, `subscribe` (cross-tab). `index.html` keeps its function names (`loadData`, `saveTasks`, `persistAcrossStores`, ...) and uses `storage` only; a test fails on any `db.` call there. Schema and stored shapes are unchanged.
+- Reason: Dexie becomes one replaceable adapter; the app logic no longer knows the engine. Unblocks TypeScript/Vite later (the interface is the contract to type).
+- Verified: unit tests with a fake db (store scoping, put-then-delete order, replaceAll) and a real-browser replay on real Dexie/IndexedDB: data written by v1.10.0 opens identically in v1.11.0, every write path persists, import works, a second tab receives live changes.
+- Version: 1.11.0 (`nawy-storage.js?v=` follows the same rule as `nawy-data.js`).
+
