@@ -19,11 +19,13 @@ python -m http.server 8000      # أو: npx serve
 npm test
 ```
 
-بدون أي dependencies (Node 18+). تشمل فحص المستودع: علامات دمج Git، أخطاء الصياغة، الملفات الناقصة، وتطابق أرقام النسخ.
+اختبارات سريعة بدون أي dependencies (Node 22+). تشمل فحص المستودع: علامات دمج Git، أخطاء الصياغة، الملفات الناقصة، وتطابق أرقام النسخ، وعدم تحميل أي شيء من الشبكة عند الفتح.
+
+الـ CI يشغّل أيضاً (بعد `npm ci`): `npm run typecheck` (TypeScript)، و`npm run check:core` (الملفات المولَّدة مطابقة لـ `src/core`)، و`npm run test:browser` (Chromium حقيقي على الموقع المبني). لا حاجة لتشغيلها محلياً. لتعديل الـ Core: عدّل `src/core/*.ts` ثم شغّل workflow «Generate core files» على الفرع (أو `npm run build:core` إن عمل npm عندك).
 
 ## النشر · Deploy
 
-كل push على `main` يشغّل `.github/workflows/pages.yml`: الاختبارات أولاً، وإذا نجحت تُبنى النسخة (`npm run build` → `_site/`، بدون ملفات التطوير) وتُنشر على GitHub Pages. إذا فشل أي اختبار لا يحدث نشر وتبقى النسخة الحالية كما هي.
+كل push على `main` (وكل pull request للاختبار فقط) يشغّل `.github/workflows/pages.yml`: الاختبارات أولاً، وإذا نجحت تُبنى النسخة (`npm run build` → `_site/`، بدون ملفات التطوير) وتُنشر على GitHub Pages. إذا فشل أي اختبار لا يحدث نشر وتبقى النسخة الحالية كما هي.
 
 إعداد لمرة واحدة: **Settings → Pages → Build and deployment → Source: GitHub Actions**. النطاق المخصص (`nawy.app`) يُضبط من نفس الصفحة.
 
@@ -42,8 +44,9 @@ npm test
 | الملف | الدور |
 |---|---|
 | `index.html` | التطبيق (واجهة + منطق) |
-| `nawy-data.js` | طبقة البيانات: schema وdefault settings ودمج وصيغة التصدير. مشتركة مع الـ service worker |
-| `nawy-storage.js` | واجهة التخزين: الوحيدة التي تكلّم Dexie. `index.html` يتعامل مع `storage` فقط |
+| `src/core/*.ts` | **مصدر** طبقة البيانات والتخزين (TypeScript). هنا يتم التعديل |
+| `nawy-data.js` | طبقة البيانات: schema وdefault settings ودمج وصيغة التصدير. مشتركة مع الـ service worker. **مولَّد** من المصدر، لا يُعدَّل يدويًا |
+| `nawy-storage.js` | واجهة التخزين: الوحيدة التي تكلّم Dexie. `index.html` يتعامل مع `storage` فقط. **مولَّد** من المصدر |
 | `fonts/` | خط Cairo محلي (woff2، عربي + لاتيني) وترخيصه OFL |
 | `service-worker.js` | الكاش وبلا إنترنت والتذكير اليومي |
 | `game.html` | لعبة «خذ استراحة» |

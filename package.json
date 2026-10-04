@@ -1,9 +1,18 @@
 {
   "name": "nawy",
   "private": true,
-  "description": "Nawy PWA. No bundler: `npm test` runs the tests (node:test, no dependencies); `npm run build` copies the app into _site/ for deployment.",
+  "description": "Nawy PWA. The app has no runtime dependencies. Dev tools only: Vite + TypeScript build the Core (src/core -> nawy-data.js, nawy-storage.js), Playwright runs browser tests. `npm test` runs the fast tests; `npm run build` copies the app into _site/.",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "build": "node scripts/build-site.js"
+    "build": "node scripts/build-site.js",
+    "typecheck": "tsc --noEmit",
+    "build:core": "node scripts/build-core.mjs",
+    "check:core": "node scripts/check-core.mjs",
+    "test:browser": "node --test tests/browser/*.test.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.63.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2"
   }
 }

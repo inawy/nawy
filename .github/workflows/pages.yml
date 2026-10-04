@@ -1,8 +1,9 @@
 name: Test and deploy
 
-# كل push على main: الاختبارات الأول، وبعدين النشر على GitHub Pages.
-# لو أي اختبار فشل (علامات دمج، ملف ناقص، خطأ صياغة ...) النشر بيتوقف
-# والنسخة المنشورة حاليًا بتفضل زي ما هي.
+# الاختبارات بتشتغل على كل push على main وكل pull request: أنواع TypeScript،
+# تطابق الملفات المولَّدة مع src/core، الاختبارات السريعة، البناء، واختبارات
+# المتصفح على الموقع المبني. النشر على GitHub Pages بيتم من main بس وبعد ما
+# كل ده ينجح؛ لو أي حاجة فشلت النسخة المنشورة حاليًا بتفضل زي ما هي.
 on:
   push:
     branches: [main]
@@ -24,18 +25,29 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 22
+          cache: npm
+      - name: Install dev tools
+        run: npm ci --no-audit --no-fund
+      - name: Type check
+        run: npm run typecheck
+      - name: Generated core files match src/core
+        run: npm run check:core
       - name: Run tests
         run: npm test
       - name: Build site
         run: npm run build
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+      - name: Browser tests on the built site
+        run: npm run test:browser
       - name: Upload site
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
     permissions:

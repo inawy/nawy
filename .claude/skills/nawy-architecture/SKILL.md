@@ -69,7 +69,7 @@ src/
 Each step must leave the app deployable and behaving the same. Do not start a step before the previous one is done and tested.
 
 1. Extract the data layer into its own module behind an interface, add `schemaVersion`, export/import and tests. No framework involved.
-2. Add Vite + TypeScript while keeping the existing UI code unchanged.
+2. Add Vite + TypeScript while keeping the existing UI code unchanged. Done for the Core: `src/core/*.ts` is built by Vite into the committed `nawy-data.js` / `nawy-storage.js` (decision 013). Edit the `.ts`, never the generated `.js`.
 3. Move screens to React one at a time, simplest first. Bottom sheets and animations last, with visual comparison against the current behavior.
 4. Rework the service worker for hashed build assets and cache versioning.
 

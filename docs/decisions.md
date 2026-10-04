@@ -24,7 +24,7 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 ## 003 — TypeScript/Vite/React as the direction for new code
 
-- Status: proposed. Steps 1–4 are done (data core, storage interface, no network at startup). Vite/TypeScript is deferred: the build environment used so far cannot install npm packages, so a Vite build could not be run in a real browser before publishing. Resume when a build can be verified (a branch with CI as the checker, or a local run by the owner).
+- Status: accepted for the Core (see 013). Steps 1–4 are done (data core, storage interface, no network at startup); the Core is now TypeScript built by Vite. The UI is still the vanilla `index.html`; React screens remain a later, separate decision.
 - Date: 2026-10-01
 - Decision: New code targets TypeScript + Vite + React. The existing vanilla PWA is migrated incrementally (data layer first, then build tooling, then screens one by one, service worker last), never rewritten in one step.
 - Reason: type safety and maintainability, without risking the working app.
@@ -105,4 +105,16 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Test: a sanity test fails on any external resource at startup; a real-browser run with every non-local request blocked showed zero external requests on open, Cairo loaded, offline reload with data, a Google request only after the backup menu opens, and a clean failure when it is unreachable.
 - Update 1.12.1: `game.html` now uses the same local Cairo (weight axis widened to 400–1000 because the game uses 900) and a local subset of Press Start 2P (`fonts/press-start-2p.woff2`, 11 KB, license `fonts/OFL-PressStart2P.txt`). The sanity test now covers every `.html` page in the repo root.
 - Version: 1.12.0, then 1.12.1. Font license: `fonts/OFL.txt` (SIL OFL 1.1) must stay next to the font.
+
+## 013 — Core in TypeScript, built with Vite; CI checks everything (migration step 5)
+
+- Status: accepted
+- Date: 2026-10-04
+- Decision: `src/core/nawy-data.ts` and `src/core/nawy-storage.ts` are the source of the Core (strict TypeScript, same logic as before). `npm run build:core` builds them with Vite into `nawy-data.js` and `nawy-storage.js` (UMD: same globals `NawyData` / `NawyStorage`, still loadable by the page, by `importScripts` in the service worker and by `require` in Node). The generated files stay committed, so the site and local development need no build step; `npm run check:core` fails when they differ from the source. The app itself has no runtime dependency; Vite, TypeScript and Playwright are dev tools pinned by `package-lock.json`.
+- CI (`pages.yml`): `npm ci`, `tsc` type check, generated-files check, fast tests, site build, then Chromium tests on the built site with every non-local request blocked (no network at startup, fonts, all write paths, import, cross-tab, offline reload, Google Identity on demand). Upload and deploy run only for pushes to `main`.
+- Reason: types on the part that must never break the data; a standard toolchain for later steps; the verification no longer depends on one machine (the earlier build environment could not install npm packages, so CI is the verifier).
+- Verified: TS output equals the previous JS on 1936 randomized merge cases; the 44 existing tests pass on the generated files; negative controls: an external runtime request fails only the browser step, a type error fails only the type check.
+- Tools: `update-deps` and `generate-core` workflows (manual or trigger file on a branch) write the lockfile and the generated files without a local npm.
+- Not done: UI migration (React); `index.html` and `service-worker.js` stay as they are.
+- Version: 1.13.0.
 
