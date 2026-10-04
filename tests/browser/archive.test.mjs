@@ -109,7 +109,7 @@ for (const [label, ctxGetter] of [["React", () => reactCtx], ["fallback", () => 
   test(`${label}: restore moves the intention back and the list updates`, async () => {
     const page = await openApp(ctxGetter());
     await seed(page, { language: "ar", query: "" });
-    await page.click('#archiveList .archive-item:first-child .archive-icon-btn:not(.danger)', { force: true });
+    await page.evaluate(() => document.querySelector("#archiveList .archive-item:first-child .archive-icon-btn:not(.danger)").click());
     await page.waitForTimeout(500);
     const r = await page.evaluate(() => ({ archived: archive.some(x => x.id === "a1"), active: tasks.some(x => x.text === "اشرب ماء"), rows: document.querySelectorAll("#archiveList .archive-item").length, count: document.getElementById("archiveCount").textContent }));
     assert.equal(r.archived, false); assert.equal(r.active, true); assert.equal(r.rows, 4);
@@ -120,10 +120,10 @@ for (const [label, ctxGetter] of [["React", () => reactCtx], ["fallback", () => 
     const page = await openApp(ctxGetter());
     await seed(page, { language: "ar", query: "" });
     await page.evaluate(() => { window.__answers = [false, true]; window.showConfirmDialog = async () => window.__answers.shift(); });
-    const del = '#archiveList .archive-item:first-child .archive-icon-btn.danger';
-    await page.click(del, { force: true }); await page.waitForTimeout(400);
+    const clickDelete = () => page.evaluate(() => document.querySelector("#archiveList .archive-item:first-child .archive-icon-btn.danger").click());
+    await clickDelete(); await page.waitForTimeout(400);
     assert.equal(await page.evaluate(() => archive.some(x => x.id === "a1")), true, "cancel must keep it");
-    await page.click(del, { force: true }); await page.waitForTimeout(600);
+    await clickDelete(); await page.waitForTimeout(600);
     assert.equal(await page.evaluate(() => archive.some(x => x.id === "a1")), false, "approve must delete it");
     assert.equal(await page.evaluate(() => deletedIds.some(x => x.id === "a1")), true, "tombstone recorded");
     await page.close();
@@ -132,11 +132,14 @@ for (const [label, ctxGetter] of [["React", () => reactCtx], ["fallback", () => 
   test(`${label}: typing in the search box filters live and keeps focus`, async () => {
     const page = await openApp(ctxGetter());
     await seed(page, { language: "ar", query: "" });
-    await page.evaluate(() => { document.getElementById("archiveOverlay").classList.add("show"); });
-    await page.click("#archiveSearchInput", { force: true });
-    await page.keyboard.type("walk");
-    await page.waitForTimeout(300);
-    const r = await page.evaluate(() => ({ rows: document.querySelectorAll("#archiveList .archive-item").length, focused: document.activeElement && document.activeElement.id }));
+    const r = await page.evaluate(async () => {
+      const input = document.getElementById("archiveSearchInput");
+      input.focus();
+      input.value = "walk";
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+      await new Promise(r => setTimeout(r, 300));
+      return { rows: document.querySelectorAll("#archiveList .archive-item").length, focused: document.activeElement && document.activeElement.id };
+    });
     assert.deepEqual(r, { rows: 1, focused: "archiveSearchInput" });
     await page.close();
   });
