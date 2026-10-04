@@ -24,7 +24,7 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 ## 003 — TypeScript/Vite/React as the direction for new code
 
-- Status: proposed
+- Status: proposed. Steps 1–4 are done (data core, storage interface, no network at startup). Vite/TypeScript is deferred: the build environment used so far cannot install npm packages, so a Vite build could not be run in a real browser before publishing. Resume when a build can be verified (a branch with CI as the checker, or a local run by the owner).
 - Date: 2026-10-01
 - Decision: New code targets TypeScript + Vite + React. The existing vanilla PWA is migrated incrementally (data layer first, then build tooling, then screens one by one, service worker last), never rewritten in one step.
 - Reason: type safety and maintainability, without risking the working app.
@@ -103,6 +103,6 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Decision: Cairo is served from `fonts/cairo-ar-latin.woff2` (the variable font from the supplied files, weight axis limited to 400–800, `slnt` pinned, subset to Arabic + Latin, 45 KB) through a local `@font-face`, preloaded and precached. The Google Fonts link is removed. The Google Identity script is no longer a startup `<script>`: `loadGoogleIdentity()` injects it once, when the backup menu opens (so it is ready before the user taps, because the sign-in popup must come from a user gesture) and again inside `requestGoogleAccessToken`. If it cannot load, the error is the same as before ("unavailable") and local backup keeps working.
 - Reason: a provider outage or being offline must not affect opening the app (decision 001). Fonts were also a privacy and performance dependency.
 - Test: a sanity test fails on any external resource at startup; a real-browser run with every non-local request blocked showed zero external requests on open, Cairo loaded, offline reload with data, a Google request only after the backup menu opens, and a clean failure when it is unreachable.
-- Not done: `game.html` still uses Google Fonts (Cairo and Press Start 2P); it is a separate page.
-- Version: 1.12.0. Font license: `fonts/OFL.txt` (SIL OFL 1.1) must stay next to the font.
+- Update 1.12.1: `game.html` now uses the same local Cairo (weight axis widened to 400–1000 because the game uses 900) and a local subset of Press Start 2P (`fonts/press-start-2p.woff2`, 11 KB, license `fonts/OFL-PressStart2P.txt`). The sanity test now covers every `.html` page in the repo root.
+- Version: 1.12.0, then 1.12.1. Font license: `fonts/OFL.txt` (SIL OFL 1.1) must stay next to the font.
 

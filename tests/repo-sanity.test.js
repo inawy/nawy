@@ -122,16 +122,22 @@ test("update banner strings exist in Arabic and English", () => {
 
 // ---------- no network needed to open the app ----------
 
-test("index.html loads nothing from the network at startup (fonts, scripts, styles are local)", () => {
-  const html = read("index.html");
-  const external = [
+test("no page loads anything from the network at startup (fonts, scripts, styles are local)", () => {
+  const pages = fs.readdirSync(ROOT).filter(f => f.endsWith(".html"));
+  assert.ok(pages.includes("index.html") && pages.includes("game.html"));
+  const external = [];
+  for (const page of pages) external.push(...externalResources(read(page)).map(x => page + ": " + x));
+  assert.deepEqual(external, [], "external resources loaded at startup: " + external.join(" | "));
+});
+
+function externalResources(html) {
+  return [
     ...html.matchAll(/<script[^>]*\bsrc="(https?:)?\/\/[^"]+"/g),
     ...html.matchAll(/<link[^>]*\bhref="(https?:)?\/\/[^"]+"/g),
     ...html.matchAll(/@import\s+(?:url\()?["']?https?:/g),
     ...html.matchAll(/url\(\s*["']?https?:/g)
   ].map(m => m[0]);
-  assert.deepEqual(external, [], "external resources loaded at startup: " + external.join(" | "));
-});
+}
 
 test("Google Identity is loaded on demand, and Cairo is served locally", () => {
   const html = read("index.html");
