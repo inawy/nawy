@@ -65,9 +65,11 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.13.0"></script>
+  <script src="./nawy-data.js?v=1.14.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.13.0"></script>
+  <script src="./nawy-storage.js?v=1.14.0"></script>
+  <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
+  <script src="./nawy-ui-archive.js?v=1.14.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -3480,30 +3482,18 @@
       openOverlay($("#taskOverlay"));
     }
 
-    function renderArchive() {
-      const container = $("#archiveList");
-      container.innerHTML = "";
-
-      const countEl = $("#archiveCount");
-      const deleteAllBtn = $("#archiveDeleteAllBtn");
+    // نموذج عرض شاشة الأرشيف: كل المنطق (ترجمة، فلترة، ترتيب، تجميع بالأيام،
+    // تنسيق التواريخ) هنا، والرسم نفسه (React أو الاحتياطي تحت) بيعرض النتيجة بس.
+    function buildArchiveView() {
       const total = archive.length;
-      countEl.textContent = total > 0 ? tf("archiveCountLabel", { count: total }) : "";
-      deleteAllBtn.classList.toggle("hidden", total === 0);
-
-      if (total === 0) {
-        container.innerHTML = `<div class="empty"><div class="empty-title">${t("noArchive")}</div></div>`;
-        return;
-      }
+      if (total === 0) return { kind: "empty", message: t("noArchive") };
 
       const query = archiveSearchQuery.trim().toLowerCase();
       const filtered = query
         ? archive.filter(task => String(task.text || "").toLowerCase().includes(query))
         : archive;
 
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="empty"><div class="empty-title">${t("noArchiveResults")}</div></div>`;
-        return;
-      }
+      if (filtered.length === 0) return { kind: "empty", message: t("noArchiveResults") };
 
       const groups = { today: [], yesterday: [], older: [] };
       filtered
@@ -3520,22 +3510,84 @@
         ["older", "archiveGroupOlder"]
       ];
 
-      groupOrder.forEach(([key, labelKey]) => {
-        const items = groups[key];
-        if (items.length === 0) return;
+      return {
+        kind: "groups",
+        restoreLabel: t("restore"),
+        deleteLabel: t("delete"),
+        groups: groupOrder
+          .filter(([key]) => groups[key].length > 0)
+          .map(([key, labelKey]) => ({
+            key,
+            label: t(labelKey),
+            items: groups[key].map(task => {
+              const ts = task.archivedAt || task.updatedAt || Date.now();
+              return {
+                id: task.id,
+                text: task.text,
+                dateText: key === "older"
+                  ? tf("archiveArchivedAt", { time: formatOlderDate(ts) })
+                  : tf("archiveArchivedAt", { time: formatArchivedTime(ts) })
+              };
+            })
+          }))
+      };
+    }
 
+    const archiveHandlers = {
+      onRestore(id) { restoreFromArchive(id); },
+      async onDelete(id) {
+        const confirmed = await showConfirmDialog({
+          title: t("archiveDeleteOneConfirmTitle"),
+          text: t("archiveDeleteOneConfirmText"),
+          approveLabel: t("deleteAllApprove"),
+          cancelLabel: t("cancel"),
+          danger: true
+        });
+        if (confirmed) deleteForever(id);
+      }
+    };
+
+    function renderArchive() {
+      const container = $("#archiveList");
+
+      const countEl = $("#archiveCount");
+      const deleteAllBtn = $("#archiveDeleteAllBtn");
+      const total = archive.length;
+      countEl.textContent = total > 0 ? tf("archiveCountLabel", { count: total }) : "";
+      deleteAllBtn.classList.toggle("hidden", total === 0);
+
+      const view = buildArchiveView();
+
+      // واجهة React (nawy-ui-archive.js). لو الملف ما اتحمّلش لأي سبب بنرسم
+      // بالكود الاحتياطي تحت — نفس الـ DOM بالظبط (اختبار CI بيقارنهم).
+      if (window.NawyArchiveUI) {
+        window.NawyArchiveUI.render(container, view, archiveHandlers);
+        return;
+      }
+      renderArchiveFallback(container, view, archiveHandlers);
+    }
+
+    function renderArchiveFallback(container, view, handlers) {
+      container.innerHTML = "";
+
+      if (view.kind === "empty") {
+        container.innerHTML = `<div class="empty"><div class="empty-title">${view.message}</div></div>`;
+        return;
+      }
+
+      view.groups.forEach(group => {
         const groupWrap = document.createElement("div");
         groupWrap.className = "archive-group";
 
         const label = document.createElement("div");
         label.className = "archive-group-label";
-        label.textContent = t(labelKey);
+        label.textContent = group.label;
         groupWrap.appendChild(label);
 
         const box = document.createElement("div");
         box.className = "archive-box";
 
-        items.forEach(task => {
+        group.items.forEach(task => {
           const item = document.createElement("div");
           item.className = "archive-item";
 
@@ -3549,10 +3601,7 @@
 
           const dateEl = document.createElement("div");
           dateEl.className = "archive-item-date";
-          const ts = task.archivedAt || task.updatedAt || Date.now();
-          dateEl.textContent = key === "older"
-            ? tf("archiveArchivedAt", { time: formatOlderDate(ts) })
-            : tf("archiveArchivedAt", { time: formatArchivedTime(ts) });
+          dateEl.textContent = task.dateText;
           copy.appendChild(dateEl);
 
           const actions = document.createElement("div");
@@ -3561,25 +3610,16 @@
           const restoreBtn = document.createElement("button");
           restoreBtn.className = "archive-icon-btn";
           restoreBtn.type = "button";
-          restoreBtn.setAttribute("aria-label", t("restore"));
+          restoreBtn.setAttribute("aria-label", view.restoreLabel);
           restoreBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 2.6-6.3"/><path d="M3 4v5h5"/></svg>';
-          restoreBtn.addEventListener("click", () => restoreFromArchive(task.id));
+          restoreBtn.addEventListener("click", () => handlers.onRestore(task.id));
 
           const deleteBtn = document.createElement("button");
           deleteBtn.className = "archive-icon-btn danger";
           deleteBtn.type = "button";
-          deleteBtn.setAttribute("aria-label", t("delete"));
+          deleteBtn.setAttribute("aria-label", view.deleteLabel);
           deleteBtn.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M3 6H21"/><path d="M19 6V22H5V6"/><path d="M8 6V4H16V6"/></svg>';
-          deleteBtn.addEventListener("click", async () => {
-            const confirmed = await showConfirmDialog({
-              title: t("archiveDeleteOneConfirmTitle"),
-              text: t("archiveDeleteOneConfirmText"),
-              approveLabel: t("deleteAllApprove"),
-              cancelLabel: t("cancel"),
-              danger: true
-            });
-            if (confirmed) deleteForever(task.id);
-          });
+          deleteBtn.addEventListener("click", () => handlers.onDelete(task.id));
 
           actions.append(restoreBtn, deleteBtn);
           item.append(copy, actions);

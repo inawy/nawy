@@ -46,6 +46,8 @@ npm test
 | `index.html` | التطبيق (واجهة + منطق) |
 | `src/core/*.ts` | **مصدر** طبقة البيانات والتخزين (TypeScript). هنا يتم التعديل |
 | `nawy-data.js` | طبقة البيانات: schema وdefault settings ودمج وصيغة التصدير. مشتركة مع الـ service worker. **مولَّد** من المصدر، لا يُعدَّل يدويًا |
+| `src/ui/archive/` | شاشة الأرشيف بـ React (أول شاشة). لها رسم احتياطي في `index.html` والـ CI يقارن الاثنين |
+| `nawy-ui-archive.js` | حزمة React لشاشة الأرشيف. **مولَّدة**، اختيارية وقت التشغيل |
 | `nawy-storage.js` | واجهة التخزين: الوحيدة التي تكلّم Dexie. `index.html` يتعامل مع `storage` فقط. **مولَّد** من المصدر |
 | `fonts/` | خط Cairo محلي (woff2، عربي + لاتيني) وترخيصه OFL |
 | `service-worker.js` | الكاش وبلا إنترنت والتذكير اليومي |
