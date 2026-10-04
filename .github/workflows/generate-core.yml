@@ -1,0 +1,28 @@
+name: Generate core files
+
+# يدوي فقط: بيولّد nawy-data.js و nawy-storage.js من src/core (TypeScript) بـ Vite،
+# وبيسجّلهم على نفس الفرع. مفيش حاجة لازم تتبني على جهازك.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      - run: npm run build:core
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add nawy-data.js nawy-storage.js
+          git diff --cached --quiet || git commit -m "chore: regenerate core files from src/core"
+          git push

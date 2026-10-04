@@ -17,7 +17,7 @@ const path = require("node:path");
 // اللي مش للنشر لازم يتضاف هنا صراحةً.
 const EXCLUDE = new Set([
   ".git", ".github", ".claude", ".skills", ".gitignore", ".gitattributes",
-  "node_modules", "_site", "tests", "docs", "scripts",
+  "node_modules", "_site", ".core-out", "tests", "docs", "scripts", "src", "tsconfig.json",
   "AGENTS.md", "README.md", "package.json", "package-lock.json",
   ".DS_Store", "Thumbs.db"
 ]);

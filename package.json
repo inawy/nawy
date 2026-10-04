@@ -4,6 +4,9 @@
   "description": "Nawy PWA. No bundler: `npm test` runs the tests (node:test, no dependencies); `npm run build` copies the app into _site/ for deployment.",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "build": "node scripts/build-site.js"
+    "build": "node scripts/build-site.js",
+    "typecheck": "tsc --noEmit",
+    "build:core": "node scripts/build-core.mjs",
+    "check:core": "node scripts/check-core.mjs"
   }
 }

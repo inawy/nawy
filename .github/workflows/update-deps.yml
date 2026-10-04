@@ -1,0 +1,28 @@
+name: Update dependencies (lockfile)
+
+# يدوي فقط: بيثبّت أحدث إصدارات أدوات التطوير (Vite, TypeScript, Playwright)،
+# وبيسجّل package.json و package-lock.json على نفس الفرع. التطبيق نفسه ما عندوش
+# أي dependency وقت التشغيل — دي أدوات بناء واختبار بس.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Install dev tools and write the lockfile
+        run: npm install --save-dev --package-lock-only --no-audit --no-fund vite typescript playwright
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git diff --cached --quiet || git commit -m "chore: dev tools and lockfile (vite, typescript, playwright)"
+          git push
