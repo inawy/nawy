@@ -6,6 +6,7 @@ on:
   workflow_dispatch:
   # تشغيل من فرع: تعديل الملف .github/triggers/generate-core (يغيّر رقم داخله) بيشغّله
   push:
+    branches-ignore: [main]
     paths:
       - ".github/triggers/generate-core"
 

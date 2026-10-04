@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
   # تشغيل من فرع: تعديل الملف .github/triggers/update-deps (يغيّر رقم داخله) بيشغّله
   push:
+    branches-ignore: [main]
     paths:
       - ".github/triggers/update-deps"
 
