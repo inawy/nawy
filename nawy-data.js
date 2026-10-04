@@ -155,16 +155,63 @@
 			}))
 		};
 	}
+	var REMINDER_START_HOUR = 7;
+	var REMINDER_END_HOUR = 21;
+	var REMINDER_TITLE = "ناوي 🌱";
+	function reminderDateKey(date) {
+		return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+	}
+	function isReminderHour(date) {
+		const hour = date.getHours();
+		return hour >= 7 && hour < 21;
+	}
+	function decideReminder(input) {
+		const { settings, pinnedTask, now, channel } = input;
+		if (channel === "notification" && !settings.notificationEnabled) return {
+			show: false,
+			reason: "disabled"
+		};
+		if (settings.lastReminderShownDate === reminderDateKey(now)) return {
+			show: false,
+			reason: "already-shown"
+		};
+		if (!settings.todayIntentionId || !pinnedTask) return {
+			show: false,
+			reason: "no-intention"
+		};
+		if (pinnedTask.status === "achieved") return {
+			show: false,
+			reason: "achieved"
+		};
+		if (channel === "notification" && !isReminderHour(now)) return {
+			show: false,
+			reason: "quiet-hours"
+		};
+		return {
+			show: true,
+			reason: "ok"
+		};
+	}
+	function reminderBody(language) {
+		return language === "en" ? "What are you up to today?" : "ناوي على إيه النهارده؟";
+	}
 	//#endregion
 	exports.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+	exports.REMINDER_END_HOUR = REMINDER_END_HOUR;
+	exports.REMINDER_START_HOUR = REMINDER_START_HOUR;
+	exports.REMINDER_TITLE = REMINDER_TITLE;
 	exports.SCHEMA_VERSION = SCHEMA_VERSION;
 	exports.buildExport = buildExport;
 	exports.createId = createId;
+	exports.decideReminder = decideReminder;
 	exports.defineSchema = defineSchema;
 	exports.getTimestamp = getTimestamp;
+	exports.isReminderHour = isReminderHour;
 	exports.isSupportedVersion = isSupportedVersion;
 	exports.isValidNawyData = isValidNawyData;
 	exports.mergeNawyData = mergeNawyData;
 	exports.normalizeSettings = normalizeSettings;
+	exports.reminderBody = reminderBody;
+	exports.reminderDateKey = reminderDateKey;
 	exports.sanitizeNawyData = sanitizeNawyData;
 });
