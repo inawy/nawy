@@ -39,7 +39,11 @@ jobs:
       - name: Install browser
         run: npx playwright install --with-deps chromium
       - name: Browser tests on the built site
-        run: npm run test:browser
+        run: |
+          npm run test:browser 2>&1 | tee browser.log
+          code=${PIPESTATUS[0]}
+          if [ "$code" -ne 0 ]; then node scripts/annotate-log.mjs browser.log; fi
+          exit "$code"
       - name: Upload site
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
