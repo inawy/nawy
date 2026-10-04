@@ -118,3 +118,14 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Not done: UI migration (React); `index.html` and `service-worker.js` stay as they are.
 - Version: 1.13.0.
 
+## 014 — First React screen: the archive list, with a vanilla fallback (migration step 6, screen 1)
+
+- Status: accepted
+- Date: 2026-10-04
+- Decision: the archive screen is split into a view model and a renderer. `buildArchiveView()` (still in `index.html`) keeps all the logic: search, sorting, day groups, translations, date formatting. The list is drawn by `src/ui/archive/ArchiveList.tsx` (React 19), built by Vite into `nawy-ui-archive.js` (an IIFE with React bundled, about 220 KB, 68 KB gzipped, precached by the service worker). If that file fails to load, `renderArchiveFallback()` draws the same DOM with the previous code. The header (count, delete-all button), the search box, overlay open/close and the confirmation dialog stay vanilla.
+- Reason: the screen is a pure function of its data, so it is the safest first React screen, and the page keeps working with no React at all (decision 001: nothing hard-depends on a build artifact).
+- Verified in CI with Chromium: React and the fallback produce the same canonicalized DOM in six scenarios (Arabic, English, search with and without matches, case-insensitive search, empty archive, special characters in text); restore, delete with confirm and cancel, and live search with focus kept behave the same in both modes. A deliberate class difference in the fallback failed only the parity test.
+- Cost to keep in mind: +220 KB for one screen. If more screens follow, share one bundle instead of one per screen.
+- Next screens, simplest first: today picker list, stats, settings. Bottom sheets and animations last.
+- Version: 1.14.0.
+
