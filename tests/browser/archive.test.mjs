@@ -133,6 +133,8 @@ for (const [label, ctxGetter] of [["React", () => reactCtx], ["fallback", () => 
     const page = await openApp(ctxGetter());
     await seed(page, { language: "ar", query: "" });
     const r = await page.evaluate(async () => {
+      document.getElementById("archiveOverlay").classList.add("show"); // الحقل لازم يكون ظاهر عشان ياخد focus
+      await new Promise(r => setTimeout(r, 500));
       const input = document.getElementById("archiveSearchInput");
       input.focus();
       input.value = "walk";
