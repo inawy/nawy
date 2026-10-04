@@ -119,3 +119,27 @@ test("update banner strings exist in Arabic and English", () => {
     assert.equal((html.match(new RegExp(key + ": \"", "g")) || []).length, 2, key + " must be defined for ar and en");
   }
 });
+
+// ---------- no network needed to open the app ----------
+
+test("index.html loads nothing from the network at startup (fonts, scripts, styles are local)", () => {
+  const html = read("index.html");
+  const external = [
+    ...html.matchAll(/<script[^>]*\bsrc="(https?:)?\/\/[^"]+"/g),
+    ...html.matchAll(/<link[^>]*\bhref="(https?:)?\/\/[^"]+"/g),
+    ...html.matchAll(/@import\s+(?:url\()?["']?https?:/g),
+    ...html.matchAll(/url\(\s*["']?https?:/g)
+  ].map(m => m[0]);
+  assert.deepEqual(external, [], "external resources loaded at startup: " + external.join(" | "));
+});
+
+test("Google Identity is loaded on demand, and Cairo is served locally", () => {
+  const html = read("index.html");
+  assert.match(html, /function loadGoogleIdentity\(\)/, "lazy loader missing");
+  assert.match(html, /@font-face\s*\{[^}]*Cairo[^}]*cairo-ar-latin\.woff2/, "local @font-face for Cairo missing");
+  assert.ok(fs.existsSync(path.join(ROOT, "fonts/cairo-ar-latin.woff2")), "font file missing");
+  assert.ok(fs.existsSync(path.join(ROOT, "fonts/OFL.txt")), "font license file missing");
+  const sw = read("service-worker.js");
+  assert.ok(sw.includes('"./fonts/cairo-ar-latin.woff2"'), "font must be in APP_SHELL");
+});
+

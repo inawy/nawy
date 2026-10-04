@@ -54,7 +54,8 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
   
   <!-- الخط -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Cairo محلي (مجموعة عربي + لاتيني، ترخيص OFL في fonts/OFL.txt): مفيش اعتماد على Google Fonts -->
+  <link rel="preload" href="./fonts/cairo-ar-latin.woff2" as="font" type="font/woff2" crossorigin>
   
   <!-- SortableJS -->
   <script src="./Sortable.min.js"></script>
@@ -64,14 +65,22 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.11.0"></script>
+  <script src="./nawy-data.js?v=1.12.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.11.0"></script>
+  <script src="./nawy-storage.js?v=1.12.0"></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
   <style>
+    @font-face {
+      font-family: "Cairo";
+      font-style: normal;
+      font-weight: 400 800;
+      font-display: swap;
+      src: url("./fonts/cairo-ar-latin.woff2") format("woff2");
+    }
+
     :root {
       --radius-sm: 8px;
       --radius-md: 12px;
@@ -4157,7 +4166,27 @@
         : "";
     }
 
-    function requestGoogleAccessToken({ interactive = true } = {}) {
+    // تحميل سكربت Google Identity مرة واحدة وعند الحاجة بس. بيتبدأ بدري
+    // (أول ما المستخدم يفتح قائمة النسخ الاحتياطي) عشان يكون جاهز قبل الضغط
+    // على الزر، لأن نافذة تسجيل الدخول لازم تتفتح من ضغطة المستخدم نفسها.
+    let googleIdentityPromise = null;
+    function loadGoogleIdentity() {
+      if (window.google?.accounts?.oauth2) return Promise.resolve();
+      if (!googleIdentityPromise) {
+        googleIdentityPromise = new Promise((resolve, reject) => {
+          const el = document.createElement("script");
+          el.src = "https://accounts.google.com/gsi/client";
+          el.async = true;
+          el.onload = () => resolve();
+          el.onerror = () => { googleIdentityPromise = null; el.remove(); reject(new Error("Google Identity Services is unavailable")); };
+          document.head.appendChild(el);
+        });
+      }
+      return googleIdentityPromise;
+    }
+
+    async function requestGoogleAccessToken({ interactive = true } = {}) {
+      try { await loadGoogleIdentity(); } catch (error) { /* بيتعامل معاه الشرط اللي تحت */ }
       return new Promise((resolve, reject) => {
         if (!window.google?.accounts?.oauth2) {
           reject(new Error("Google Identity Services is unavailable"));
@@ -4632,6 +4661,7 @@
     $("#backupMenuBtn").addEventListener("click", () => {
       $("#mainMenuPanel").hidden = true;
       $("#backupMenuPanel").hidden = false;
+      loadGoogleIdentity().catch(() => {}); // تجهيز مسبق؛ لو فشل (بلا إنترنت) النسخ المحلي شغال عادي
     });
     $("#backupMenuBackBtn").addEventListener("click", () => {
       $("#backupMenuPanel").hidden = true;

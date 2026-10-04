@@ -96,3 +96,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Verified: unit tests with a fake db (store scoping, put-then-delete order, replaceAll) and a real-browser replay on real Dexie/IndexedDB: data written by v1.10.0 opens identically in v1.11.0, every write path persists, import works, a second tab receives live changes.
 - Version: 1.11.0 (`nawy-storage.js?v=` follows the same rule as `nawy-data.js`).
 
+## 012 — No network at startup: local Cairo, on-demand Google Identity (migration step 4)
+
+- Status: accepted
+- Date: 2026-10-04
+- Decision: Cairo is served from `fonts/cairo-ar-latin.woff2` (the variable font from the supplied files, weight axis limited to 400–800, `slnt` pinned, subset to Arabic + Latin, 45 KB) through a local `@font-face`, preloaded and precached. The Google Fonts link is removed. The Google Identity script is no longer a startup `<script>`: `loadGoogleIdentity()` injects it once, when the backup menu opens (so it is ready before the user taps, because the sign-in popup must come from a user gesture) and again inside `requestGoogleAccessToken`. If it cannot load, the error is the same as before ("unavailable") and local backup keeps working.
+- Reason: a provider outage or being offline must not affect opening the app (decision 001). Fonts were also a privacy and performance dependency.
+- Test: a sanity test fails on any external resource at startup; a real-browser run with every non-local request blocked showed zero external requests on open, Cairo loaded, offline reload with data, a Google request only after the backup menu opens, and a clean failure when it is unreachable.
+- Not done: `game.html` still uses Google Fonts (Cairo and Press Start 2P); it is a separate page.
+- Version: 1.12.0. Font license: `fonts/OFL.txt` (SIL OFL 1.1) must stay next to the font.
+
