@@ -314,4 +314,3 @@ export function mergeNawyData(localData: any, remoteData: any): NawyData {
     deletedIds: Array.from(tombstones.entries()).map(entry => ({ id: entry[0], deletedAt: entry[1] }))
   };
 }
-export const __control: number = "not a number";
