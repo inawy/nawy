@@ -5,6 +5,10 @@ name: Update dependencies (lockfile)
 # أي dependency وقت التشغيل — دي أدوات بناء واختبار بس.
 on:
   workflow_dispatch:
+  # تشغيل من فرع: تعديل الملف .github/triggers/update-deps (يغيّر رقم داخله) بيشغّله
+  push:
+    paths:
+      - ".github/triggers/update-deps"
 
 permissions:
   contents: write

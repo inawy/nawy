@@ -4,6 +4,10 @@ name: Generate core files
 # وبيسجّلهم على نفس الفرع. مفيش حاجة لازم تتبني على جهازك.
 on:
   workflow_dispatch:
+  # تشغيل من فرع: تعديل الملف .github/triggers/generate-core (يغيّر رقم داخله) بيشغّله
+  push:
+    paths:
+      - ".github/triggers/generate-core"
 
 permissions:
   contents: write
