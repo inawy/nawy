@@ -29,7 +29,7 @@ A change is done only when:
 - Lockfile committed, build reproducible from a clean clone.
 - Service worker cache version bumped; update flow verified. When `nawy-data.js` or `nawy-storage.js` changes, bump `?v=` in `index.html`, `importScripts`, `APP_SHELL` and `CACHE_NAME` together.
 - `npm test` passes (it includes the repo sanity check). After any conflicted merge or `git stash pop`, search for `<<<<<<<` before committing.
-- Deploy only through the GitHub Actions workflow, after `npm test` passes. Never publish by hand.
+- Deploy only through the GitHub Actions workflow (type check, generated-files check, tests, browser tests on the built site, then deploy from `main`). Never publish by hand. Work on a branch + pull request; merge when CI is green.
 - Archive of the built `dist/` saved with the version number.
 - Repository has an independent backup (local clone plus a second remote or archive).
 
