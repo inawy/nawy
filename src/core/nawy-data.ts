@@ -393,3 +393,84 @@ export function reminderActions(language: string | null | undefined): { action: 
 export function achieveRecord(task: Item, now: number): Item {
   return Object.assign({}, task, { status: "achieved", achievedAt: now, updatedAt: now });
 }
+
+// ---------- الإحصائيات ----------
+// حساب بحت (من غير DOM ولا وقت خارجي): الصفحة بتمرّر البيانات و`now`. الأرقام دي
+// كانت جوه index.html؛ نقلناها هنا عشان تتختبر بدون متصفح.
+
+export interface Stats {
+  thisMonthCount: number;
+  lastMonthCount: number;
+  activeCount: number;
+  completionRate: number;
+  streak: number;
+  weekCounts: number[];
+  weekDays: Date[];
+  topTask: { count: number; sample: string } | null;
+}
+
+export function normalizeTaskText(text: unknown): string {
+  return String(text || "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+const dayKey = (d: Date): string => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+
+export function computeStats(input: { tasks: Item[]; archive: Item[]; now: Date }): Stats {
+  const { tasks, archive, now } = input;
+  const achieved = [
+    ...tasks.filter(x => x.status === "achieved" && Number(x.achievedAt) > 0),
+    ...archive.filter(x => Number(x.achievedAt) > 0)
+  ];
+
+  const isSameMonth = (ts: number, ref: Date): boolean => {
+    const d = new Date(ts);
+    return d.getFullYear() === ref.getFullYear() && d.getMonth() === ref.getMonth();
+  };
+  const lastMonthRef = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const thisMonthCount = achieved.filter(x => isSameMonth(x.achievedAt, now)).length;
+  const lastMonthCount = achieved.filter(x => isSameMonth(x.achievedAt, lastMonthRef)).length;
+
+  const activeCount = tasks.filter(x => x.status === "active").length;
+  const achievedTotal = achieved.length;
+  const completionRate = activeCount + achievedTotal > 0 ? Math.round((achievedTotal / (activeCount + achievedTotal)) * 100) : 0;
+
+  // السلسلة: أيام متتالية للخلف من النهارده فيها تحقيق واحد على الأقل (لو النهارده فاضي نبدأ من إمبارح).
+  const countByDay = new Map<string, number>();
+  achieved.forEach(x => {
+    const key = dayKey(new Date(x.achievedAt));
+    countByDay.set(key, (countByDay.get(key) || 0) + 1);
+  });
+  let streak = 0;
+  const cursor = new Date(now);
+  if (!countByDay.has(dayKey(cursor))) cursor.setDate(cursor.getDate() - 1);
+  while (countByDay.has(dayKey(cursor))) {
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  // آخر 7 أيام تقويم، الأقدم أولًا والنهارده آخر واحد.
+  const weekDays: Date[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const day = new Date(now);
+    day.setDate(now.getDate() - i);
+    day.setHours(0, 0, 0, 0);
+    weekDays.push(day);
+  }
+  const weekCounts = weekDays.map(day => countByDay.get(dayKey(day)) || 0);
+
+  // أكتر نية اتحققت أكتر من مرة (مطابقة بعد التطبيع).
+  const textCounts = new Map<string, { count: number; sample: string }>();
+  achieved.forEach(x => {
+    const key = normalizeTaskText(x.text);
+    if (!key) return;
+    const current = textCounts.get(key) || { count: 0, sample: x.text };
+    current.count += 1;
+    textCounts.set(key, current);
+  });
+  let topTask: { count: number; sample: string } | null = null;
+  textCounts.forEach(value => {
+    if (value.count > 1 && (!topTask || value.count > topTask.count)) topTask = value;
+  });
+
+  return { thisMonthCount, lastMonthCount, activeCount, completionRate, streak, weekCounts, weekDays, topTask };
+}

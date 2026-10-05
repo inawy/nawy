@@ -161,3 +161,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Verified in CI with Chromium: React and the fallback give the same canonical DOM in seven scenarios (nothing selected, selected, special characters, search with and without matches, case-insensitive, no active intentions); tapping pins the intention, persists it to IndexedDB and closes the sheet; the sheet lists only active intentions and live search keeps focus, in both modes.
 - Next screens, simplest first: stats, settings. Bottom sheets and animations last.
 - Version: 1.17.0.
+
+## 018 — Stats calculation moves to the Core (the screen stays vanilla)
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: `computeStats({ tasks, archive, now })` and `normalizeTaskText()` live in `src/core/nawy-data.ts`. They are pure (no DOM, no hidden clock; the page passes `now`). `computeStats()` in `index.html` is now a one-line wrapper, and `renderStats()` is unchanged. The stats overlay is **not** rewritten in React in this step.
+- Reason: the value in this screen is the arithmetic (streak, week window, month comparison, top intention), which had no tests and needed a browser to run. The drawing part is a fixed HTML skeleton with `textContent` updates, so React would add complexity without removing any; it can follow if the screen gains real structure. This changes the plan written in decision 017 ("next: stats, settings"): stats gets the Core part only.
+- Verified: the old inline implementation is kept verbatim inside `tests/stats.test.js` as a reference and compared with the Core on 1,200 random data sets across 8 different "now" values (mid-day, just after and before midnight, month and year boundaries); fixed cases for empty data, streak rules, week window, top intention and completion rate.
+- Version: 1.18.0.
