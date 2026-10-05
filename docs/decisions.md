@@ -129,3 +129,14 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Next screens, simplest first: today picker list, stats, settings. Bottom sheets and animations last.
 - Version: 1.14.0.
 
+## 015 — One reminder decision in the Core; no system notifications at night
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: whether a reminder is shown is decided by `decideReminder()` in `src/core/nawy-data.ts`, used by both the page and the service worker (before, the same rules were copied in both). Two channels: `in-app` (message inside the app when it opens; any hour, no notification permission needed) and `notification` (system notification from Periodic Background Sync). The system notification is shown only from 07:00 to 20:59 device time (`REMINDER_START_HOUR`, `REMINDER_END_HOUR`). Outside that window nothing is shown and the day is **not** marked as shown, so the next sync inside the window delivers it. Title and body text live in the Core and a test checks they equal the app translations.
+- Reason: the periodic sync fires at a time the browser chooses, and the worker used to notify at any hour, including the middle of the night. Duplicated rules could also drift apart.
+- Unchanged: the rules themselves (needs a pinned intention that is not achieved, once per day, `lastReminderShownDate` key format), no user-set time (decision 005), no push server.
+- Limits to keep honest: delivery is still best effort. Periodic Background Sync exists only in Chromium on installed apps, and the browser decides when it runs; with a 12 hour minimum interval one run normally falls inside the 14 hour window.
+- Verified: policy table tests; the real `service-worker.js` loaded in Node with a fake Dexie and fake time (shows at 10:00, silent at 00:00, 03:00, 06:00, 21:00 and 23:00 without marking the day, delivers on a later run inside the window, respects disabled/already shown/achieved/no intention). Removing the hour check fails three of those tests.
+- Version: 1.15.0.
+
