@@ -90,7 +90,7 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(sw.length >= 2, "service worker must use the versioned URL in both places");
   sw.forEach(s => assert.equal(s.split("=")[1], html[1]));
   assert.ok(read("service-worker.js").includes(`./nawy-storage.js?v=${html[1]}`), "APP_SHELL must precache nawy-storage.js with the same version");
-  const htmlUi = read("index.html").match(/nawy-ui-archive\.js\?v=([\w.]+)/);
+  const htmlUi = read("index.html").match(/nawy-ui\.js\?v=([\w.]+)/);
   assert.ok(htmlUi && htmlUi[1] === html[1], "index.html must load nawy-ui.js with the same ?v");
   assert.ok(read("service-worker.js").includes(`./nawy-ui.js?v=${html[1]}`), "APP_SHELL must precache nawy-ui.js with the same version");
   assert.ok(read("service-worker.js").includes(`nawy-runtime-v${html[1]}`), "cache name must carry the same version");
