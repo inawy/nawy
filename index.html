@@ -65,11 +65,11 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.18.0"></script>
+  <script src="./nawy-data.js?v=1.19.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.18.0"></script>
+  <script src="./nawy-storage.js?v=1.19.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui-archive.js?v=1.18.0" defer></script>
+  <script src="./nawy-ui-archive.js?v=1.19.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -2197,10 +2197,9 @@
     let archiveSnapshot = new Map();
     let deletedIdsSnapshot = new Map();
 
+    // منطق كشف التغييرات في الـ Core (NawyData).
     function snapshotFrom(array, versionKey = "updatedAt") {
-      const map = new Map();
-      array.forEach(item => { if (item && item.id) map.set(item.id, item[versionKey]); });
-      return map;
+      return NawyData.snapshotFrom(array, versionKey);
     }
 
     function snapshotsEqual(a, b) {
@@ -2212,16 +2211,7 @@
     }
 
     function diffAgainstSnapshot(currentArray, snapshotMap, versionKey = "updatedAt") {
-      const currentIds = new Set();
-      const toPut = [];
-      currentArray.forEach(item => {
-        if (!item || !item.id) return;
-        currentIds.add(item.id);
-        if (snapshotMap.get(item.id) !== item[versionKey]) toPut.push(item);
-      });
-      const toDelete = [];
-      snapshotMap.forEach((_, id) => { if (id && !currentIds.has(id)) toDelete.push(id); });
-      return { toPut, toDelete };
+      return NawyData.diffAgainstSnapshot(currentArray, snapshotMap, versionKey);
     }
 
     // بيحاول يحفظ في IndexedDB، ولو فشل (المساحة خلصت، أو المتصفح في وضع
@@ -3019,17 +3009,10 @@
     // - لو النية اتحققت خلاص، نرجع الشاشة فاضية عشان يختار نية جديدة للنهارده.
     // - لو لسه نشطة، تفضل هي نفسها (نية مش مكتملة ملهاش تُلغى بس لأن يوم عدى).
     function checkTodayIntentionRollover() {
-      if (!settings.todayIntentionId) return;
-      const todayKey = getDateKey();
-      if (settings.todayIntentionDate === todayKey) return;
-
-      const pinnedTask = tasks.find(x => x.id === settings.todayIntentionId);
-      if (!pinnedTask || pinnedTask.status === 'achieved') {
-        settings.todayIntentionId = null;
-        settings.todayIntentionDate = null;
-      } else {
-        settings.todayIntentionDate = todayKey;
-      }
+      const next = NawyData.rolloverToday(settings, tasks, new Date());
+      if (!next) return;
+      settings.todayIntentionId = next.todayIntentionId;
+      settings.todayIntentionDate = next.todayIntentionDate;
       saveSettings();
     }
 

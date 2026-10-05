@@ -474,3 +474,49 @@ export function computeStats(input: { tasks: Item[]; archive: Item[]; now: Date 
 
   return { thisMonthCount, lastMonthCount, activeCount, completionRate, streak, weekCounts, weekDays, topTask };
 }
+
+// ---------- كشف التغييرات قبل الحفظ ----------
+// الصفحة بتحتفظ بـ snapshot (id -> نسخة السجل) لآخر حالة اتحفظت، وبتقارن بيها
+// لتعرف إيه اللي يتكتب وإيه اللي يتمسح في IndexedDB. ده القرار اللي بيحدد إيه يتحفظ،
+// فبقى في الـ Core ومتختبر. versionKey: "updatedAt" للنوايا، "deletedAt" للمحذوفات.
+
+export type Snapshot = Map<string, unknown>;
+
+export function snapshotFrom(array: Item[], versionKey = "updatedAt"): Snapshot {
+  const map: Snapshot = new Map();
+  array.forEach(item => {
+    if (item && item.id) map.set(item.id, item[versionKey]);
+  });
+  return map;
+}
+
+export function diffAgainstSnapshot(currentArray: Item[], snapshotMap: Snapshot, versionKey = "updatedAt"): { toPut: Item[]; toDelete: string[] } {
+  const currentIds = new Set<string>();
+  const toPut: Item[] = [];
+  currentArray.forEach(item => {
+    if (!item || !item.id) return;
+    currentIds.add(item.id);
+    if (snapshotMap.get(item.id) !== item[versionKey]) toPut.push(item);
+  });
+  const toDelete: string[] = [];
+  snapshotMap.forEach((_, id) => {
+    if (id && !currentIds.has(id)) toDelete.push(id);
+  });
+  return { toPut, toDelete };
+}
+
+// ---------- نية اليوم عند بداية يوم جديد ----------
+// null = مفيش تغيير. وإلا القيم الجديدة اللي تتكتب في الإعدادات:
+// النية المثبتة اتحققت أو اتمسحت => نفضّي الاختيار، وإلا نجدّد تاريخها لليوم.
+export function rolloverToday(
+  settings: { todayIntentionId?: string | null; todayIntentionDate?: string | null },
+  tasks: Item[],
+  now: Date
+): { todayIntentionId: string | null; todayIntentionDate: string | null } | null {
+  if (!settings.todayIntentionId) return null;
+  const todayKey = reminderDateKey(now);
+  if (settings.todayIntentionDate === todayKey) return null;
+  const pinned = tasks.find(x => x.id === settings.todayIntentionId);
+  if (!pinned || pinned.status === "achieved") return { todayIntentionId: null, todayIntentionDate: null };
+  return { todayIntentionId: settings.todayIntentionId, todayIntentionDate: todayKey };
+}
