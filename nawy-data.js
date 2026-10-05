@@ -272,6 +272,44 @@
 			topTask
 		};
 	}
+	function snapshotFrom(array, versionKey = "updatedAt") {
+		const map = /* @__PURE__ */ new Map();
+		array.forEach((item) => {
+			if (item && item.id) map.set(item.id, item[versionKey]);
+		});
+		return map;
+	}
+	function diffAgainstSnapshot(currentArray, snapshotMap, versionKey = "updatedAt") {
+		const currentIds = /* @__PURE__ */ new Set();
+		const toPut = [];
+		currentArray.forEach((item) => {
+			if (!item || !item.id) return;
+			currentIds.add(item.id);
+			if (snapshotMap.get(item.id) !== item[versionKey]) toPut.push(item);
+		});
+		const toDelete = [];
+		snapshotMap.forEach((_, id) => {
+			if (id && !currentIds.has(id)) toDelete.push(id);
+		});
+		return {
+			toPut,
+			toDelete
+		};
+	}
+	function rolloverToday(settings, tasks, now) {
+		if (!settings.todayIntentionId) return null;
+		const todayKey = reminderDateKey(now);
+		if (settings.todayIntentionDate === todayKey) return null;
+		const pinned = tasks.find((x) => x.id === settings.todayIntentionId);
+		if (!pinned || pinned.status === "achieved") return {
+			todayIntentionId: null,
+			todayIntentionDate: null
+		};
+		return {
+			todayIntentionId: settings.todayIntentionId,
+			todayIntentionDate: todayKey
+		};
+	}
 	//#endregion
 	exports.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
 	exports.REMINDER_DONE_ACTION = REMINDER_DONE_ACTION;
@@ -285,6 +323,7 @@
 	exports.createId = createId;
 	exports.decideReminder = decideReminder;
 	exports.defineSchema = defineSchema;
+	exports.diffAgainstSnapshot = diffAgainstSnapshot;
 	exports.getTimestamp = getTimestamp;
 	exports.isReminderHour = isReminderHour;
 	exports.isSupportedVersion = isSupportedVersion;
@@ -295,5 +334,7 @@
 	exports.reminderActions = reminderActions;
 	exports.reminderBody = reminderBody;
 	exports.reminderDateKey = reminderDateKey;
+	exports.rolloverToday = rolloverToday;
 	exports.sanitizeNawyData = sanitizeNawyData;
+	exports.snapshotFrom = snapshotFrom;
 });
