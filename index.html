@@ -65,11 +65,11 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.19.0"></script>
+  <script src="./nawy-data.js?v=1.20.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.19.0"></script>
+  <script src="./nawy-storage.js?v=1.20.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui-archive.js?v=1.19.0" defer></script>
+  <script src="./nawy-ui.js?v=1.20.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -3202,8 +3202,8 @@
       const list = $("#todayPickList");
       const view = buildTodayPickView(taskList, query);
       // نفس نمط الأرشيف: React لو الملف اتحمّل، وإلا الرسم الاحتياطي بنفس الـ DOM.
-      if (window.NawyArchiveUI && window.NawyArchiveUI.renderTodayPick) {
-        window.NawyArchiveUI.renderTodayPick(list, view, todayPickHandlers);
+      if (window.NawyUI && window.NawyUI.renderTodayPick) {
+        window.NawyUI.renderTodayPick(list, view, todayPickHandlers);
         return;
       }
       renderTodayPickListFallback(list, view, todayPickHandlers);
@@ -3561,10 +3561,10 @@
 
       const view = buildArchiveView();
 
-      // واجهة React (nawy-ui-archive.js). لو الملف ما اتحمّلش لأي سبب بنرسم
+      // واجهة React (nawy-ui.js). لو الملف ما اتحمّلش لأي سبب بنرسم
       // بالكود الاحتياطي تحت — نفس الـ DOM بالظبط (اختبار CI بيقارنهم).
-      if (window.NawyArchiveUI) {
-        window.NawyArchiveUI.render(container, view, archiveHandlers);
+      if (window.NawyUI) {
+        window.NawyUI.render(container, view, archiveHandlers);
         return;
       }
       renderArchiveFallback(container, view, archiveHandlers);

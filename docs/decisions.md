@@ -179,3 +179,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Behavior is unchanged. Verified by keeping the old implementations verbatim inside `tests/change-detection.test.js` and comparing them with the Core: 2,000 random snapshot/diff cases (including missing ids, null items, version mismatches) and every combination of pinned id, stored date, task state and time for the rollover (432 cases, comparing both the resulting settings and whether a save happens), plus fixed cases.
 - The React path is still available for a screen that has real structure. Candidates left: the task list on the main screen (largest and most used, so the riskiest; needs the same parity-test approach and drag-and-drop with Sortable kept working).
 - Version: 1.19.0.
+
+## 020 — The shared UI bundle gets a neutral name
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: `nawy-ui-archive.js` / global `NawyArchiveUI` are renamed `nawy-ui.js` / `NawyUI`, because the bundle has served two screens since decision 017 and will serve more. The source folder `src/ui/archive/` keeps its name for now (it also holds the pick-today list); moving it is a pure file move to do when a third screen arrives. Decisions 014 and 017 keep the old names as history.
+- Behavior unchanged. The version bump (1.20.0) changes the cache name and the `?v=` query, so installed copies fetch the new file; the old generated file is deleted. All checks that named the old file (repo sanity, site build, generated-files check, the Chromium tests that block the bundle to force the fallback) were updated, so the fallback tests still really run without the bundle.
+- Version: 1.20.0.
