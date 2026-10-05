@@ -70,7 +70,7 @@ Each step must leave the app deployable and behaving the same. Do not start a st
 
 1. Extract the data layer into its own module behind an interface, add `schemaVersion`, export/import and tests. No framework involved.
 2. Add Vite + TypeScript while keeping the existing UI code unchanged. Done for the Core: `src/core/*.ts` is built by Vite into the committed `nawy-data.js` / `nawy-storage.js` (decision 013). Edit the `.ts`, never the generated `.js`.
-3. Move screens to React one at a time, simplest first. Bottom sheets and animations last, with visual comparison against the current behavior.
+3. Move screens to React one at a time, simplest first. Bottom sheets and animations last, with visual comparison against the current behavior. Done: archive list and pick-today list (decisions 014, 017), each with a vanilla fallback and a CI test that both render the same DOM. Only move a screen when it has real structure (lists, conditional rows); a fixed HTML skeleton gains nothing, so move its logic to the Core with a parity test instead (decisions 018, 019). The main task list is the last and riskiest candidate and is deliberately not started.
 4. Rework the service worker for hashed build assets and cache versioning.
 
 Do not rewrite the whole app in one change (see nawy-quality, change rule).
