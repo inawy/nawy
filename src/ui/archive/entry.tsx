@@ -1,9 +1,10 @@
 import { createRoot, type Root } from "react-dom/client";
 import { flushSync } from "react-dom";
 import { ArchiveList } from "./ArchiveList.tsx";
-import type { ArchiveHandlers, ArchiveView } from "./types.ts";
+import { TodayPickList } from "./TodayPickList.tsx";
+import type { ArchiveHandlers, ArchiveView, TodayPickHandlers, TodayPickView } from "./types.ts";
 
-export type { ArchiveHandlers, ArchiveView } from "./types.ts";
+export type { ArchiveHandlers, ArchiveView, TodayPickHandlers, TodayPickView } from "./types.ts";
 
 const roots = new WeakMap<Element, Root>();
 
@@ -19,4 +20,16 @@ export function render(container: Element, view: ArchiveView, handlers: ArchiveH
   }
   const r = root;
   flushSync(() => r.render(<ArchiveList view={view} handlers={handlers} />));
+}
+
+// نفس الفكرة لقائمة «اختار نية اليوم» (bundle واحد مشترك للشاشتين، بدل ملف لكل شاشة).
+export function renderTodayPick(container: Element, view: TodayPickView, handlers: TodayPickHandlers): void {
+  let root = roots.get(container);
+  if (!root) {
+    container.innerHTML = "";
+    root = createRoot(container);
+    roots.set(container, root);
+  }
+  const r = root;
+  flushSync(() => r.render(<TodayPickList view={view} handlers={handlers} />));
 }
