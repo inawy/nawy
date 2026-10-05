@@ -185,8 +185,9 @@ test("core: the notification action is labelled per language", () => {
 test("worker: the notification carries the done action and the task id", async () => {
   const w = loadWorker({ settingsRow: row(), tasks: { t1: { id: "t1", status: "active" } }, now: at(10) });
   await w.fire();
-  assert.deepEqual(w.shown[0].options.actions, [{ action: "done", title: "تم ✓" }]);
-  assert.deepEqual(w.shown[0].options.data, { taskId: "t1" });
+  // الكائنات جاية من سياق vm تاني، فنقارن بالـ JSON
+  assert.equal(JSON.stringify(w.shown[0].options.actions), JSON.stringify([{ action: "done", title: "تم ✓" }]));
+  assert.equal(JSON.stringify(w.shown[0].options.data), JSON.stringify({ taskId: "t1" }));
 });
 
 test("worker: pressing done achieves the task, closes the notification, opens no window", async () => {
