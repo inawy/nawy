@@ -162,6 +162,26 @@ test("Google Identity is requested only after the backup menu opens, and failure
   await page.close();
 });
 
+test("a reload keeps the current tab; a fresh session starts on Today", async () => {
+  const page = await open(`${base}/index.html`);
+  assert.equal(await page.evaluate(() => currentView), "today");
+  await page.evaluate(() => setView("all"));
+  await page.reload(); await page.waitForTimeout(1500);
+  assert.equal(await page.evaluate(() => currentView), "all");
+  assert.equal(await page.evaluate(() => document.querySelector(".tab.active").dataset.view), "all");
+  await page.evaluate(() => setView("favorites"));
+  await page.reload(); await page.waitForTimeout(1500);
+  assert.equal(await page.evaluate(() => currentView), "favorites");
+  await page.evaluate(() => sessionStorage.setItem("nawyView", "bogus"));
+  await page.reload(); await page.waitForTimeout(1500);
+  assert.equal(await page.evaluate(() => currentView), "today", "an unknown saved value falls back to Today");
+  await page.evaluate(() => setView("all"));
+  await page.close();
+  const fresh = await open(`${base}/index.html`); // تاب جديد = جلسة جديدة
+  assert.equal(await fresh.evaluate(() => currentView), "today");
+  await fresh.close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });
