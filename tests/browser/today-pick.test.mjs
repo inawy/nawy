@@ -1,5 +1,5 @@
 // شاشة «اختار نية اليوم»: React مقابل الرسم الاحتياطي (vanilla). نفس الـ DOM ونفس السلوك.
-// الحالة الاحتياطية بتتجبر بقطع طلب nawy-ui-archive.js.
+// الحالة الاحتياطية بتتجبر بقطع طلب nawy-ui.js.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -18,7 +18,7 @@ async function makeContext(blockUi) {
   await ctx.route("**/*", route => {
     const url = route.request().url();
     if (!url.startsWith(base)) return route.abort();
-    if (blockUi && url.includes("nawy-ui-archive.js")) return route.abort();
+    if (blockUi && url.includes("nawy-ui.js")) return route.abort();
     return route.continue();
   });
   return ctx;
@@ -70,7 +70,7 @@ const seed = (page, { language, query, selected, none }) => page.evaluate(({ lan
   ];
   settings.todayIntentionId = selected || null;
   renderTodayPickList(tasks.filter(x => x.status === "active"), query);
-  return typeof NawyArchiveUI;
+  return typeof NawyUI;
 }, { language, query, selected, none });
 
 async function canon(page) {

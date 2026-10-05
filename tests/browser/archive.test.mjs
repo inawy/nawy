@@ -1,5 +1,5 @@
 // شاشة الأرشيف: React مقابل الرسم الاحتياطي (vanilla). الاتنين لازم يطلّعوا نفس
-// الـ DOM بالظبط ونفس السلوك. الحالة الاحتياطية بتتجبر بقطع طلب nawy-ui-archive.js.
+// الـ DOM بالظبط ونفس السلوك. الحالة الاحتياطية بتتجبر بقطع طلب nawy-ui.js.
 import test, { before, after } from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
@@ -18,7 +18,7 @@ async function makeContext(blockUi) {
   await ctx.route("**/*", route => {
     const url = route.request().url();
     if (!url.startsWith(base)) return route.abort();
-    if (blockUi && url.includes("nawy-ui-archive.js")) return route.abort();
+    if (blockUi && url.includes("nawy-ui.js")) return route.abort();
     return route.continue();
   });
   return ctx;
@@ -73,7 +73,7 @@ const seed = (page, { language, query, empty }) => page.evaluate(({ language, qu
     { id: "a5", text: "بدون تاريخ أرشفة", updatedAt: at(40, 7) }
   ];
   renderArchive();
-  return typeof NawyArchiveUI;
+  return typeof NawyUI;
 }, { language, query, empty });
 
 async function canon(page) {
