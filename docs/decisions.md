@@ -170,3 +170,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Reason: the value in this screen is the arithmetic (streak, week window, month comparison, top intention), which had no tests and needed a browser to run. The drawing part is a fixed HTML skeleton with `textContent` updates, so React would add complexity without removing any; it can follow if the screen gains real structure. This changes the plan written in decision 017 ("next: stats, settings"): stats gets the Core part only.
 - Verified: the old inline implementation is kept verbatim inside `tests/stats.test.js` as a reference and compared with the Core on 1,200 random data sets across 8 different "now" values (mid-day, just after and before midnight, month and year boundaries); fixed cases for empty data, streak rules, week window, top intention and completion rate.
 - Version: 1.18.0.
+
+## 019 — Settings screen assessed; change detection and the daily rollover move to the Core
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: the settings overlay is **not** moved to React. It is a fixed HTML skeleton whose controls only get an `active` class or a value from `applySettings()`; there is no list or structure for React to render, so it would add code without removing any (same reasoning as decision 018). Instead the next piece of untested, load-bearing logic moves to the Core: `snapshotFrom()` and `diffAgainstSnapshot()` (the code that decides what is written to and deleted from IndexedDB on every save) and `rolloverToday()` (what happens to the pinned intention when a new day starts). The page keeps the same function names as thin wrappers.
+- Behavior is unchanged. Verified by keeping the old implementations verbatim inside `tests/change-detection.test.js` and comparing them with the Core: 2,000 random snapshot/diff cases (including missing ids, null items, version mismatches) and every combination of pinned id, stored date, task state and time for the rollover (432 cases, comparing both the resulting settings and whether a save happens), plus fixed cases.
+- The React path is still available for a screen that has real structure. Candidates left: the task list on the main screen (largest and most used, so the riskiest; needs the same parity-test approach and drag-and-drop with Sortable kept working).
+- Version: 1.19.0.
