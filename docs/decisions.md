@@ -187,3 +187,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Decision: `nawy-ui-archive.js` / global `NawyArchiveUI` are renamed `nawy-ui.js` / `NawyUI`, because the bundle has served two screens since decision 017 and will serve more. The source folder `src/ui/archive/` keeps its name for now (it also holds the pick-today list); moving it is a pure file move to do when a third screen arrives. Decisions 014 and 017 keep the old names as history.
 - Behavior unchanged. The version bump (1.20.0) changes the cache name and the `?v=` query, so installed copies fetch the new file; the old generated file is deleted. All checks that named the old file (repo sanity, site build, generated-files check, the Chromium tests that block the bundle to force the fallback) were updated, so the fallback tests still really run without the bundle.
 - Version: 1.20.0.
+
+## 021 — A reload keeps the current tab; a fresh launch starts on Today
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: the selected tab (Today / All / Favorites) is stored in `sessionStorage` (`nawyView`) and restored on load, so refreshing the page stays where the user is. A new launch (app closed and opened again, or a new browser tab) has no stored value and opens on Today. An unknown stored value falls back to Today. Overlays and the composer are not restored; they are transient.
+- Reason: this is what installed apps and modern web apps do: state that belongs to "where I am right now" survives a reload but not a new session, and the default screen stays the entry point of a new day. `localStorage` was rejected because it would keep the user on an old tab days later, which defeats "Today first" (decision for the daily intention).
+- Verified: Chromium test: switching tabs then reloading keeps the tab (and the tab bar highlight), a bogus value falls back to Today, and a new browser tab starts on Today.
+- Version: 1.21.0.
