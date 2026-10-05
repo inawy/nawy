@@ -20,3 +20,18 @@ export interface ArchiveHandlers {
   onRestore(id: string): void;
   onDelete(id: string): void;
 }
+
+// شاشة «اختار نية اليوم»: نفس الفكرة (الصفحة بتبني النموذج والمكوّن بيرسم بس).
+export interface TodayPickItem {
+  id: string;
+  text: string;
+  selected: boolean;
+}
+
+export type TodayPickView =
+  | { kind: "empty"; message: string }
+  | { kind: "list"; items: TodayPickItem[] };
+
+export interface TodayPickHandlers {
+  onPick(id: string): void;
+}

@@ -65,11 +65,11 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.16.0"></script>
+  <script src="./nawy-data.js?v=1.17.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.16.0"></script>
+  <script src="./nawy-storage.js?v=1.17.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui-archive.js?v=1.16.0" defer></script>
+  <script src="./nawy-ui-archive.js?v=1.17.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -3194,38 +3194,60 @@
       openOverlay($("#todayPickOverlay"));
     }
 
-    function renderTodayPickList(taskList, query) {
-      const list = $("#todayPickList");
+    // نموذج العرض: الصفحة بتبنيه (بحث + ترجمة + المختار)، والرسم في React أو الاحتياطي.
+    function buildTodayPickView(taskList, query) {
       const q = query.trim().toLowerCase();
       const filtered = q ? taskList.filter(x => x.text.toLowerCase().includes(q)) : taskList;
+      if (filtered.length === 0) return { kind: "empty", message: t("noArchiveResults") };
+      return {
+        kind: "list",
+        items: filtered.map(task => ({ id: task.id, text: task.text, selected: task.id === settings.todayIntentionId }))
+      };
+    }
 
-      if (filtered.length === 0) {
-        list.innerHTML = `<div class="empty"><div class="empty-title">${t("noArchiveResults")}</div></div>`;
+    const todayPickHandlers = {
+      onPick(id) {
+        settings.todayIntentionId = id;
+        settings.todayIntentionDate = getDateKey();
+        saveSettings();
+        closeOverlay($("#todayPickOverlay"));
+        render();
+      }
+    };
+
+    function renderTodayPickList(taskList, query) {
+      const list = $("#todayPickList");
+      const view = buildTodayPickView(taskList, query);
+      // نفس نمط الأرشيف: React لو الملف اتحمّل، وإلا الرسم الاحتياطي بنفس الـ DOM.
+      if (window.NawyArchiveUI && window.NawyArchiveUI.renderTodayPick) {
+        window.NawyArchiveUI.renderTodayPick(list, view, todayPickHandlers);
+        return;
+      }
+      renderTodayPickListFallback(list, view, todayPickHandlers);
+    }
+
+    function renderTodayPickListFallback(list, view, handlers) {
+      if (view.kind === "empty") {
+        list.innerHTML = `<div class="empty"><div class="empty-title">${view.message}</div></div>`;
         return;
       }
 
       const box = document.createElement("div");
       box.className = "today-pick-box";
-      filtered.forEach(task => {
+      view.items.forEach(item => {
         const row = document.createElement("button");
         row.type = "button";
-        row.className = "today-pick-row" + (task.id === settings.todayIntentionId ? " selected" : "");
+        row.className = "today-pick-row" + (item.selected ? " selected" : "");
         const radio = document.createElement("div");
         radio.className = "today-pick-radio";
-        if (task.id === settings.todayIntentionId) {
+        if (item.selected) {
           radio.innerHTML = '<svg class="icon" viewBox="0 0 24 24"><path d="M4 12.5 9 17.5 20 6"/></svg>';
         }
         const textEl = document.createElement("span");
         textEl.className = "today-pick-text";
-        textEl.textContent = task.text;
+        textEl.textContent = item.text;
         row.append(radio, textEl);
-        row.addEventListener("click", () => {
-          settings.todayIntentionId = task.id;
-          settings.todayIntentionDate = getDateKey();
-          saveSettings();
-          closeOverlay($("#todayPickOverlay"));
-          render();
-        });
+        row.addEventListener("click", () => handlers.onPick(item.id));
         box.appendChild(row);
       });
       list.innerHTML = "";

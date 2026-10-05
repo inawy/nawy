@@ -151,3 +151,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Limits to keep honest: action buttons are shown by Chromium/Android and most desktop browsers; some platforms hide them, and then the body tap still works. Not seen on a real device, only through the real worker in Node.
 - Verified: Core unit tests; the real `service-worker.js` in Node with a fake Dexie handles done, missing/achieved/no-id, and a body tap.
 - Version: 1.16.0.
+
+## 017 — Second React screen: the "pick today's intention" list (migration step 6, screen 2)
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: same pattern as the archive (decision 014). `buildTodayPickView()` in `index.html` builds the view model (search filter, translated empty message, which row is selected); `src/ui/archive/TodayPickList.tsx` draws it; `renderTodayPickListFallback()` draws the identical DOM when the bundle is missing. The click handler (`todayPickHandlers.onPick`) is shared and stays in the page: it pins the intention, saves settings, closes the sheet and re-renders. The sheet itself, the search box and the overlay stay vanilla.
+- One bundle for both screens, as decision 014 asked: `nawy-ui-archive.js` now exports `render` (archive) and `renderTodayPick`. The size grew only by the small component, not by a second React copy. The file and global keep the name `NawyArchiveUI` to avoid churn across the service worker, tests and workflows; renaming to a neutral `nawy-ui` is a later cleanup, best done together with the next screen.
+- Verified in CI with Chromium: React and the fallback give the same canonical DOM in seven scenarios (nothing selected, selected, special characters, search with and without matches, case-insensitive, no active intentions); tapping pins the intention, persists it to IndexedDB and closes the sheet; the sheet lists only active intentions and live search keeps focus, in both modes.
+- Next screens, simplest first: stats, settings. Bottom sheets and animations last.
+- Version: 1.17.0.
