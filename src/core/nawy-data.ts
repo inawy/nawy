@@ -378,3 +378,18 @@ export function decideReminder(input: ReminderInput): { show: boolean; reason: R
 export function reminderBody(language: string | null | undefined): string {
   return language === "en" ? "What are you up to today?" : "ناوي على إيه النهارده؟";
 }
+
+// ---------- زر «تم ✓» داخل الإشعار ----------
+
+export const REMINDER_DONE_ACTION = "done";
+
+// أزرار الإشعار (الـ Service Worker والصفحة بيستخدموا نفس التعريف).
+export function reminderActions(language: string | null | undefined): { action: string; title: string }[] {
+  return [{ action: REMINDER_DONE_ACTION, title: language === "en" ? "Done ✓" : "تم ✓" }];
+}
+
+// تحويل «تحقّقت النية»: نفس اللي بيعمله التطبيق لما المستخدم يضغط تم.
+// بترجع نسخة جديدة ومبتغيّرش الأصل. `now` بالملّي ثانية.
+export function achieveRecord(task: Item, now: number): Item {
+  return Object.assign({}, task, { status: "achieved", achievedAt: now, updatedAt: now });
+}

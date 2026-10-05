@@ -195,12 +195,28 @@
 	function reminderBody(language) {
 		return language === "en" ? "What are you up to today?" : "ناوي على إيه النهارده؟";
 	}
+	var REMINDER_DONE_ACTION = "done";
+	function reminderActions(language) {
+		return [{
+			action: REMINDER_DONE_ACTION,
+			title: language === "en" ? "Done ✓" : "تم ✓"
+		}];
+	}
+	function achieveRecord(task, now) {
+		return Object.assign({}, task, {
+			status: "achieved",
+			achievedAt: now,
+			updatedAt: now
+		});
+	}
 	//#endregion
 	exports.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
+	exports.REMINDER_DONE_ACTION = REMINDER_DONE_ACTION;
 	exports.REMINDER_END_HOUR = REMINDER_END_HOUR;
 	exports.REMINDER_START_HOUR = REMINDER_START_HOUR;
 	exports.REMINDER_TITLE = REMINDER_TITLE;
 	exports.SCHEMA_VERSION = SCHEMA_VERSION;
+	exports.achieveRecord = achieveRecord;
 	exports.buildExport = buildExport;
 	exports.createId = createId;
 	exports.decideReminder = decideReminder;
@@ -211,6 +227,7 @@
 	exports.isValidNawyData = isValidNawyData;
 	exports.mergeNawyData = mergeNawyData;
 	exports.normalizeSettings = normalizeSettings;
+	exports.reminderActions = reminderActions;
 	exports.reminderBody = reminderBody;
 	exports.reminderDateKey = reminderDateKey;
 	exports.sanitizeNawyData = sanitizeNawyData;

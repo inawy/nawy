@@ -67,10 +67,13 @@ function loadWorker({ settingsRow, tasks = {}, now }) {
   const handlers = {};
   const shown = [];
   const saved = [];
+  const putTasks = [];
+  const closed = [];
+  const opened = [];
   class FakeDexie {
     constructor() {
       this.settings = { get: async () => (settingsRow ? JSON.parse(JSON.stringify(settingsRow)) : undefined), put: async row => { saved.push(row); } };
-      this.tasks = { get: async id => tasks[id] };
+      this.tasks = { get: async id => tasks[id], put: async t => { putTasks.push(t); tasks[t.id] = t; } };
     }
     version() { return { stores() {} }; }
   }
@@ -80,7 +83,7 @@ function loadWorker({ settingsRow, tasks = {}, now }) {
   }
   const ctx = {
     importScripts() {}, Dexie: FakeDexie, NawyData, Date: FakeDate, URL, console,
-    caches: {}, clients: {},
+    caches: {}, clients: { matchAll: async () => [], openWindow: async u => { opened.push(String(u)); } },
     registration: { scope: "https://nawy.app/", showNotification: async (title, options) => { shown.push({ title, options }); } },
     addEventListener(type, fn) { handlers[type] = fn; },
     skipWaiting() {}
@@ -93,7 +96,12 @@ function loadWorker({ settingsRow, tasks = {}, now }) {
     await handlers.periodicsync({ tag, waitUntil: p => { work = p; } });
     await work;
   };
-  return { fire, shown, saved };
+  const click = async (action, data) => {
+    let work;
+    await handlers.notificationclick({ action, notification: { data, close() { closed.push(1); } }, waitUntil: p => { work = p; } });
+    await work;
+  };
+  return { fire, click, shown, saved, putTasks, closed, opened };
 }
 
 const row = over => ({ id: "main", notificationEnabled: true, todayIntentionId: "t1", language: "ar", lastReminderShownDate: null, ...over });
@@ -157,4 +165,57 @@ test("worker: ignores other periodic sync tags", async () => {
   await w.fire("some-other-tag");
   assert.equal(w.shown.length, 0);
   assert.equal(w.saved.length, 0);
+});
+
+// ---------- «تم ✓» داخل الإشعار ----------
+
+test("core: achieveRecord marks achieved without touching the original", () => {
+  const original = { id: "t1", text: "x", status: "active", updatedAt: 1 };
+  const done = NawyData.achieveRecord(original, 5000);
+  assert.deepEqual(done, { id: "t1", text: "x", status: "achieved", achievedAt: 5000, updatedAt: 5000 });
+  assert.equal(original.status, "active");
+});
+
+test("core: the notification action is labelled per language", () => {
+  assert.deepEqual(NawyData.reminderActions("ar"), [{ action: "done", title: "تم ✓" }]);
+  assert.deepEqual(NawyData.reminderActions("en"), [{ action: "done", title: "Done ✓" }]);
+  assert.equal(NawyData.REMINDER_DONE_ACTION, "done");
+});
+
+test("worker: the notification carries the done action and the task id", async () => {
+  const w = loadWorker({ settingsRow: row(), tasks: { t1: { id: "t1", status: "active" } }, now: at(10) });
+  await w.fire();
+  // الكائنات جاية من سياق vm تاني، فنقارن بالـ JSON
+  assert.equal(JSON.stringify(w.shown[0].options.actions), JSON.stringify([{ action: "done", title: "تم ✓" }]));
+  assert.equal(JSON.stringify(w.shown[0].options.data), JSON.stringify({ taskId: "t1" }));
+});
+
+test("worker: pressing done achieves the task, closes the notification, opens no window", async () => {
+  const t = { t1: { id: "t1", text: "x", status: "active", updatedAt: 1 } };
+  const w = loadWorker({ settingsRow: row(), tasks: t, now: at(10) });
+  await w.click("done", { taskId: "t1" });
+  assert.equal(w.closed.length, 1);
+  assert.equal(w.putTasks.length, 1);
+  assert.equal(w.putTasks[0].status, "achieved");
+  assert.equal(w.putTasks[0].achievedAt, at(10).getTime());
+  assert.equal(w.putTasks[0].updatedAt, at(10).getTime());
+  assert.equal(w.putTasks[0].text, "x");
+  assert.deepEqual(w.opened, []);
+});
+
+test("worker: done is harmless for a missing task, an already achieved task or no id", async () => {
+  const cases = [[{ taskId: "gone" }, {}], [{ taskId: "t1" }, { t1: { id: "t1", status: "achieved" } }], [undefined, {}], [{}, {}]];
+  for (const [data, t] of cases) {
+    const w = loadWorker({ settingsRow: row(), tasks: t, now: at(10) });
+    await w.click("done", data);
+    assert.equal(w.putTasks.length, 0);
+    assert.equal(w.closed.length, 1);
+  }
+});
+
+test("worker: tapping the notification body still opens the app and changes nothing", async () => {
+  const w = loadWorker({ settingsRow: row(), tasks: { t1: { id: "t1", status: "active" } }, now: at(10) });
+  await w.click("", { taskId: "t1" });
+  assert.equal(w.putTasks.length, 0);
+  assert.equal(w.opened.length, 1);
 });
