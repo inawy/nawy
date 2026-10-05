@@ -1,10 +1,10 @@
-const CACHE_NAME = "nawy-runtime-v1.14.0";
+const CACHE_NAME = "nawy-runtime-v1.15.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.14.0");
+importScripts("./nawy-data.js?v=1.15.0");
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,9 +13,9 @@ const APP_SHELL = [
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./nawy-data.js?v=1.14.0",
-  "./nawy-storage.js?v=1.14.0",
-  "./nawy-ui-archive.js?v=1.14.0",
+  "./nawy-data.js?v=1.15.0",
+  "./nawy-storage.js?v=1.15.0",
+  "./nawy-ui-archive.js?v=1.15.0",
   "./fonts/cairo-ar-latin.woff2",
   "./icon-192.png",
   "./icon-512.png",
@@ -117,28 +117,24 @@ self.addEventListener("periodicsync", event => {
   }
 });
 
-function getDateKey(date) {
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-}
-
 async function checkAndShowDailyReminder() {
   try {
     const db = new Dexie("NawyDB");
     NawyData.defineSchema(db);
 
     const settingsRow = await db.settings.get("main");
-    if (!settingsRow || !settingsRow.notificationEnabled) return;
+    if (!settingsRow) return;
 
-    const todayKey = getDateKey(new Date());
-    if (settingsRow.lastReminderShownDate === todayKey) return;
-    if (!settingsRow.todayIntentionId) return;
-
-    const pinnedTask = await db.tasks.get(settingsRow.todayIntentionId);
-    if (!pinnedTask || pinnedTask.status === "achieved") return;
+    // قرار التذكير في الـ Core (nawy-data): مفعّل؟ اتعرض النهارده؟ فيه نية
+    // مثبتة لسه مش متحققة؟ وإحنا جوه ساعات الإشعارات (مفيش إشعار بالليل)؟
+    const now = new Date();
+    const pinnedTask = settingsRow.todayIntentionId ? await db.tasks.get(settingsRow.todayIntentionId) : null;
+    const decision = NawyData.decideReminder({ settings: settingsRow, pinnedTask, now, channel: "notification" });
+    if (!decision.show) return;
 
     const isArabic = settingsRow.language !== "en";
-    await self.registration.showNotification("ناوي 🌱", {
-      body: isArabic ? "ناوي على إيه النهارده؟" : "What are you up to today?",
+    await self.registration.showNotification(NawyData.REMINDER_TITLE, {
+      body: NawyData.reminderBody(settingsRow.language),
       icon: "./icon-512.png",
       badge: "./notification-badge.png",
       dir: isArabic ? "rtl" : "ltr",
@@ -148,7 +144,7 @@ async function checkAndShowDailyReminder() {
       vibrate: [100, 50, 100]
     });
 
-    settingsRow.lastReminderShownDate = todayKey;
+    settingsRow.lastReminderShownDate = NawyData.reminderDateKey(now);
     settingsRow.updatedAt = Date.now();
     await db.settings.put(settingsRow);
   } catch (error) {

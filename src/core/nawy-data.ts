@@ -314,3 +314,67 @@ export function mergeNawyData(localData: any, remoteData: any): NawyData {
     deletedIds: Array.from(tombstones.entries()).map(entry => ({ id: entry[0], deletedAt: entry[1] }))
   };
 }
+
+// ---------------------------------------------------------
+// سياسة التذكير اليومي — قرار واحد مشترك بين الصفحة والـ Service Worker
+// (قبل كده كان منسوخ في الاتنين). دوال صافية: الوقت بيتبعت لها، مفيش Date.now().
+//
+// قناتين:
+//   "in-app"       : رسالة جوه التطبيق وقت ما المستخدم بيفتحه. بتظهر في أي ساعة
+//                    (هو قدامها)، ومش محتاجة إذن إشعارات.
+//   "notification" : إشعار النظام (Periodic Background Sync). بيظهر بس بين
+//                    REMINDER_START_HOUR و REMINDER_END_HOUR بتوقيت الجهاز —
+//                    مفيش إشعار بالليل. لو المزامنة جت بره الفترة ده "ماظهرش" ومش
+//                    بيتسجّل إنه اتعرض، فأول مزامنة جاية جوه الفترة بتعرضه.
+// ---------------------------------------------------------
+export const REMINDER_START_HOUR = 7;
+export const REMINDER_END_HOUR = 21;
+export const REMINDER_TITLE = "ناوي 🌱";
+
+export type ReminderChannel = "in-app" | "notification";
+export type ReminderReason =
+  | "ok"
+  | "disabled"
+  | "already-shown"
+  | "no-intention"
+  | "achieved"
+  | "quiet-hours";
+
+export interface ReminderInput {
+  settings: {
+    notificationEnabled?: boolean;
+    lastReminderShownDate?: string | null;
+    todayIntentionId?: string | null;
+  };
+  pinnedTask: Item | null | undefined;
+  now: Date;
+  channel: ReminderChannel;
+}
+
+// نفس صيغة المفتاح اللي بيتخزن في settings.lastReminderShownDate (الشهر من 0).
+// ممنوع تتغير: قيم قديمة محفوظة بيها على أجهزة المستخدمين.
+export function reminderDateKey(date: Date): string {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
+
+export function isReminderHour(date: Date): boolean {
+  const hour = date.getHours();
+  return hour >= REMINDER_START_HOUR && hour < REMINDER_END_HOUR;
+}
+
+export function decideReminder(input: ReminderInput): { show: boolean; reason: ReminderReason } {
+  const { settings, pinnedTask, now, channel } = input;
+
+  if (channel === "notification" && !settings.notificationEnabled) return { show: false, reason: "disabled" };
+  if (settings.lastReminderShownDate === reminderDateKey(now)) return { show: false, reason: "already-shown" };
+  if (!settings.todayIntentionId || !pinnedTask) return { show: false, reason: "no-intention" };
+  if (pinnedTask.status === "achieved") return { show: false, reason: "achieved" };
+  if (channel === "notification" && !isReminderHour(now)) return { show: false, reason: "quiet-hours" };
+
+  return { show: true, reason: "ok" };
+}
+
+// نص الإشعار (لازم يفضل مطابق لـ morningNotif في ترجمات index.html — اختبار بيتأكد).
+export function reminderBody(language: string | null | undefined): string {
+  return language === "en" ? "What are you up to today?" : "ناوي على إيه النهارده؟";
+}

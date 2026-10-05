@@ -1,0 +1,160 @@
+"use strict";
+// سياسة التذكير في الـ Core + الـ Service Worker الحقيقي (service-worker.js بيتحمّل في
+// Node بـ Dexie مزيف ووقت مزيف) عشان نتأكد إن إشعار النظام مبيظهرش بالليل.
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+const NawyData = require("../nawy-data.js");
+
+const ROOT = path.join(__dirname, "..");
+const at = (h, m = 0, d = 5) => new Date(2026, 9, d, h, m, 0, 0); // وقت محلي ثابت
+const base = {
+  settings: { notificationEnabled: true, lastReminderShownDate: null, todayIntentionId: "t1" },
+  pinnedTask: { id: "t1", status: "active" }
+};
+const decide = (over = {}, channel = "notification", now = at(10)) =>
+  NawyData.decideReminder({ ...base, ...over, now, channel });
+
+test("notification shows for an active pinned intention during the day", () => {
+  assert.deepEqual(decide(), { show: true, reason: "ok" });
+});
+
+test("notification hours are 07:00 to 20:59 local time", () => {
+  const hours = h => decide({}, "notification", at(h, 30));
+  for (const h of [0, 3, 6]) assert.deepEqual(hours(h), { show: false, reason: "quiet-hours" }, "hour " + h);
+  for (const h of [7, 12, 20]) assert.equal(hours(h).show, true, "hour " + h);
+  for (const h of [21, 23]) assert.deepEqual(hours(h), { show: false, reason: "quiet-hours" }, "hour " + h);
+  assert.equal(NawyData.isReminderHour(at(6, 59)), false);
+  assert.equal(NawyData.isReminderHour(at(7, 0)), true);
+  assert.equal(NawyData.isReminderHour(at(20, 59)), true);
+  assert.equal(NawyData.isReminderHour(at(21, 0)), false);
+});
+
+test("the in-app message is not limited by the hour and does not need notifications enabled", () => {
+  assert.equal(decide({}, "in-app", at(3)).show, true);
+  assert.equal(decide({ settings: { ...base.settings, notificationEnabled: false } }, "in-app").show, true);
+});
+
+test("each reason is reported", () => {
+  assert.equal(decide({ settings: { ...base.settings, notificationEnabled: false } }).reason, "disabled");
+  assert.equal(decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-5" } }).reason, "already-shown");
+  assert.equal(decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-4" } }).show, true, "yesterday does not block today");
+  assert.equal(decide({ settings: { ...base.settings, todayIntentionId: null } }).reason, "no-intention");
+  assert.equal(decide({ pinnedTask: null }).reason, "no-intention");
+  assert.equal(decide({ pinnedTask: { id: "t1", status: "achieved" } }).reason, "achieved");
+});
+
+test("the date key format is the stored one (month is zero-based)", () => {
+  assert.equal(NawyData.reminderDateKey(new Date(2026, 0, 9)), "2026-0-9");
+  assert.equal(NawyData.reminderDateKey(at(10)), "2026-9-5");
+});
+
+test("notification text matches the app translations (ar and en)", () => {
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const found = [...html.matchAll(/morningNotif:\s*"([^"]*)"/g)].map(m => m[1]);
+  assert.equal(found.length, 2, "morningNotif must exist once per language");
+  assert.equal(NawyData.reminderBody("ar"), found[0]);
+  assert.equal(NawyData.reminderBody("en"), found[1]);
+  assert.equal(NawyData.reminderBody(undefined), found[0], "Arabic is the default");
+  assert.equal(NawyData.REMINDER_TITLE, "ناوي 🌱");
+});
+
+// ---------- the real service worker ----------
+
+function loadWorker({ settingsRow, tasks = {}, now }) {
+  const handlers = {};
+  const shown = [];
+  const saved = [];
+  class FakeDexie {
+    constructor() {
+      this.settings = { get: async () => (settingsRow ? JSON.parse(JSON.stringify(settingsRow)) : undefined), put: async row => { saved.push(row); } };
+      this.tasks = { get: async id => tasks[id] };
+    }
+    version() { return { stores() {} }; }
+  }
+  class FakeDate extends Date {
+    constructor(...args) { if (args.length) super(...args); else super(now.getTime()); }
+    static now() { return now.getTime(); }
+  }
+  const ctx = {
+    importScripts() {}, Dexie: FakeDexie, NawyData, Date: FakeDate, URL, console,
+    caches: {}, clients: {},
+    registration: { scope: "https://nawy.app/", showNotification: async (title, options) => { shown.push({ title, options }); } },
+    addEventListener(type, fn) { handlers[type] = fn; },
+    skipWaiting() {}
+  };
+  ctx.self = ctx;
+  vm.createContext(ctx);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, "service-worker.js"), "utf8"), ctx, { filename: "service-worker.js" });
+  const fire = async (tag = "nawy-daily-reminder") => {
+    let work;
+    await handlers.periodicsync({ tag, waitUntil: p => { work = p; } });
+    await work;
+  };
+  return { fire, shown, saved };
+}
+
+const row = over => ({ id: "main", notificationEnabled: true, todayIntentionId: "t1", language: "ar", lastReminderShownDate: null, ...over });
+const tasks = { t1: { id: "t1", status: "active" } };
+
+test("worker: shows the notification at 10:00 and records the day", async () => {
+  const w = loadWorker({ settingsRow: row(), tasks, now: at(10) });
+  await w.fire();
+  assert.equal(w.shown.length, 1);
+  assert.equal(w.shown[0].title, "ناوي 🌱");
+  assert.equal(w.shown[0].options.body, "ناوي على إيه النهارده؟");
+  assert.equal(w.shown[0].options.dir, "rtl");
+  assert.equal(w.saved.length, 1);
+  assert.equal(w.saved[0].lastReminderShownDate, "2026-9-5");
+});
+
+test("worker: English body and ltr", async () => {
+  const w = loadWorker({ settingsRow: row({ language: "en" }), tasks, now: at(9) });
+  await w.fire();
+  assert.equal(w.shown[0].options.body, "What are you up to today?");
+  assert.equal(w.shown[0].options.dir, "ltr");
+});
+
+test("worker: stays silent at night and does not mark the day as shown", async () => {
+  for (const h of [0, 3, 6, 21, 23]) {
+    const w = loadWorker({ settingsRow: row(), tasks, now: at(h, 10) });
+    await w.fire();
+    assert.equal(w.shown.length, 0, "notified at hour " + h);
+    assert.equal(w.saved.length, 0, "marked shown at hour " + h);
+  }
+});
+
+test("worker: a later run inside the window still delivers after a night run was skipped", async () => {
+  const night = loadWorker({ settingsRow: row(), tasks, now: at(3) });
+  await night.fire();
+  assert.equal(night.shown.length, 0);
+  const morning = loadWorker({ settingsRow: row(), tasks, now: at(11) });
+  await morning.fire();
+  assert.equal(morning.shown.length, 1);
+});
+
+test("worker: no notification when disabled, already shown, achieved, no intention or no settings", async () => {
+  const cases = [
+    [row({ notificationEnabled: false }), tasks],
+    [row({ lastReminderShownDate: "2026-9-5" }), tasks],
+    [row(), { t1: { id: "t1", status: "achieved" } }],
+    [row({ todayIntentionId: null }), tasks],
+    [row({ todayIntentionId: "missing" }), tasks],
+    [undefined, tasks]
+  ];
+  for (const [settingsRow, t] of cases) {
+    const w = loadWorker({ settingsRow, tasks: t, now: at(10) });
+    await w.fire();
+    assert.equal(w.shown.length, 0);
+    assert.equal(w.saved.length, 0);
+  }
+});
+
+test("worker: ignores other periodic sync tags", async () => {
+  const w = loadWorker({ settingsRow: row(), tasks, now: at(10) });
+  await w.fire("some-other-tag");
+  assert.equal(w.shown.length, 0);
+  assert.equal(w.saved.length, 0);
+});

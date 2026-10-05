@@ -65,11 +65,11 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.14.0"></script>
+  <script src="./nawy-data.js?v=1.15.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.14.0"></script>
+  <script src="./nawy-storage.js?v=1.15.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui-archive.js?v=1.14.0" defer></script>
+  <script src="./nawy-ui-archive.js?v=1.15.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -4096,11 +4096,16 @@
     // النظام، نحاول كمان نبعت إشعار حقيقي "بأفضل إمكانية" وقت ما
     // المتصفح يسمح بيه (مش وقت محدد بدقة).
     function runDailyReminderCheck() {
-      const todayKey = getDateKey();
-      if (settings.lastReminderShownDate === todayKey) return;
-
-      const pinned = getTodayPinnedTask();
-      if (!pinned || pinned.status === 'achieved') return;
+      const now = new Date();
+      const todayKey = getDateKey(now);
+      // القرار نفسه في الـ Core (مشترك مع الـ Service Worker): رسالة داخل التطبيق.
+      const decision = NawyData.decideReminder({
+        settings,
+        pinnedTask: getTodayPinnedTask(),
+        now,
+        channel: "in-app"
+      });
+      if (!decision.show) return;
 
       settings.lastReminderShownDate = todayKey;
       saveSettings();
@@ -4111,7 +4116,8 @@
         settings.notificationEnabled &&
         "Notification" in window &&
         Notification.permission === "granted" &&
-        document.visibilityState !== "visible"
+        document.visibilityState !== "visible" &&
+        NawyData.isReminderHour(now)
       ) {
         showMorningNotification();
       }
