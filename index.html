@@ -65,11 +65,11 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.15.0"></script>
+  <script src="./nawy-data.js?v=1.16.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.15.0"></script>
+  <script src="./nawy-storage.js?v=1.16.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui-archive.js?v=1.15.0" defer></script>
+  <script src="./nawy-ui-archive.js?v=1.16.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -2590,9 +2590,7 @@
     function achieveTask(id) {
       const task = tasks.find(x => x.id === id);
       if (!task) return;
-      task.status = 'achieved';
-      task.achievedAt = Date.now();
-      task.updatedAt = task.achievedAt;
+      Object.assign(task, NawyData.achieveRecord(task, Date.now()));
       saveTasks();
       render();
       celebrate();
@@ -4157,7 +4155,11 @@
       
       if (navigator.serviceWorker && navigator.serviceWorker.ready) {
         navigator.serviceWorker.ready.then(reg => {
-          reg.showNotification("ناوي 🌱", options);
+          const pinned = getTodayPinnedTask();
+          reg.showNotification("ناوي 🌱", Object.assign({}, options, {
+            actions: NawyData.reminderActions(settings.language),
+            data: { taskId: pinned ? pinned.id : null }
+          }));
         }).catch(() => {
           if ("Notification" in window && Notification.permission === "granted") {
             const notification = new Notification("ناوي 🌱", options);

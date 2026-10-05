@@ -140,3 +140,14 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Verified: policy table tests; the real `service-worker.js` loaded in Node with a fake Dexie and fake time (shows at 10:00, silent at 00:00, 03:00, 06:00, 21:00 and 23:00 without marking the day, delivers on a later run inside the window, respects disabled/already shown/achieved/no intention). Removing the hour check fails three of those tests.
 - Version: 1.15.0.
 
+
+## 016 — «تم ✓» button inside the reminder notification
+
+- Status: accepted
+- Date: 2026-10-05
+- Decision: the reminder notification has one action, `done` («تم ✓» / «Done ✓»), and carries `data: { taskId }`. Pressing it makes the service worker mark that intention achieved directly in IndexedDB and close the notification, without opening the app. Tapping the notification body keeps the old behavior (focus or open the app). The transformation is `achieveRecord(task, now)` in the Core, used by both the page's `achieveTask()` and the worker, so the two cannot drift. `reminderActions(language)` and `REMINDER_DONE_ACTION` also live in the Core.
+- Open tabs update through the existing Dexie live query (decision 011). The worker does not celebrate; the celebration stays an in-app moment.
+- Safe cases: a missing task, an already achieved task, or no id does nothing. The fallback `new Notification(...)` path in the page gets no actions (the constructor rejects them); only `registration.showNotification` does.
+- Limits to keep honest: action buttons are shown by Chromium/Android and most desktop browsers; some platforms hide them, and then the body tap still works. Not seen on a real device, only through the real worker in Node.
+- Verified: Core unit tests; the real `service-worker.js` in Node with a fake Dexie handles done, missing/achieved/no-id, and a body tap.
+- Version: 1.16.0.

@@ -1,10 +1,10 @@
-const CACHE_NAME = "nawy-runtime-v1.15.0";
+const CACHE_NAME = "nawy-runtime-v1.16.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.15.0");
+importScripts("./nawy-data.js?v=1.16.0");
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,9 +13,9 @@ const APP_SHELL = [
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./nawy-data.js?v=1.15.0",
-  "./nawy-storage.js?v=1.15.0",
-  "./nawy-ui-archive.js?v=1.15.0",
+  "./nawy-data.js?v=1.16.0",
+  "./nawy-storage.js?v=1.16.0",
+  "./nawy-ui-archive.js?v=1.16.0",
   "./fonts/cairo-ar-latin.woff2",
   "./icon-192.png",
   "./icon-512.png",
@@ -93,6 +93,12 @@ self.addEventListener("message", event => {
 
 self.addEventListener("notificationclick", event => {
   event.notification.close();
+  // زر «تم ✓»: نحقق النية من الإشعار نفسه بدون فتح التطبيق.
+  if (event.action === NawyData.REMINDER_DONE_ACTION) {
+    const taskId = event.notification && event.notification.data && event.notification.data.taskId;
+    event.waitUntil(markTaskAchieved(taskId));
+    return;
+  }
   event.waitUntil(
     clients.matchAll({ type: "window", includeUncontrolled: true })
       .then(windowClients => {
@@ -116,6 +122,19 @@ self.addEventListener("periodicsync", event => {
     event.waitUntil(checkAndShowDailyReminder());
   }
 });
+
+async function markTaskAchieved(taskId) {
+  if (!taskId) return;
+  try {
+    const db = new Dexie("NawyDB");
+    NawyData.defineSchema(db);
+    const task = await db.tasks.get(taskId);
+    if (!task || task.status === "achieved") return;
+    await db.tasks.put(NawyData.achieveRecord(task, Date.now()));
+  } catch (error) {
+    console.warn("Marking the intention as done failed", error);
+  }
+}
 
 async function checkAndShowDailyReminder() {
   try {
@@ -141,7 +160,9 @@ async function checkAndShowDailyReminder() {
       lang: settingsRow.language || "ar",
       tag: "nawy-morning",
       requireInteraction: true,
-      vibrate: [100, 50, 100]
+      vibrate: [100, 50, 100],
+      actions: NawyData.reminderActions(settingsRow.language),
+      data: { taskId: pinnedTask.id }
     });
 
     settingsRow.lastReminderShownDate = NawyData.reminderDateKey(now);
