@@ -65,13 +65,13 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.22.0"></script>
+  <script src="./nawy-data.js?v=1.23.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.22.0"></script>
+  <script src="./nawy-storage.js?v=1.23.0"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.22.0"></script>
+  <script src="./nawy-backup.js?v=1.23.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui.js?v=1.22.0" defer></script>
+  <script src="./nawy-ui.js?v=1.23.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
@@ -185,7 +185,7 @@
     }
     .brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .brand-icon { width: 36px; height: 36px; display: grid; place-items: center; flex-shrink: 0; color: var(--accent); }
-    .brand-icon svg { width: 34px; height: 16.5px; display: block; }
+    .brand-icon svg { width: 34px; height: 17px; display: block; }
     .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
     .brand-name { font-size: var(--fs-lg); font-weight: 800; letter-spacing: -0.3px; }
     .menu-btn {
@@ -1373,7 +1373,7 @@
       <header class="header">
       <div class="brand">
         <div class="brand-icon">
-          <svg viewBox="-32 -21 74 36" role="img" aria-label="ناوي" xmlns="http://www.w3.org/2000/svg"><circle cx="-22" cy="-3" r="10" fill="currentColor"/><path d="M4 -3 L16 9 L36 -15" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg viewBox="0 0 512 256" role="img" aria-label="ناوي" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="currentColor"/><path d="M256 256H353.783L512 0H414.217Z" fill="currentColor"/></svg>
         </div>
         <div class="brand-name" id="brandName">ناوي</div>
       </div>
