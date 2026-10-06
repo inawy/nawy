@@ -3330,5 +3330,3 @@
     }
 
     init().catch(error => console.error("Nawy init failed", error));
-
-const deliberatelyUnusedForGateCheck = 1;
