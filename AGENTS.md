@@ -14,6 +14,7 @@ Nawy (ناوي) is a simple, personal, local-first, Arabic-first PWA for intenti
 - **Keep behavior**: preserve function names, UI, RTL, animations and PWA behavior unless the task says otherwise. Smallest change that works.
 - **No** backend, login, AI or cloud dependency unless the product truly needs it. No secrets in frontend code. No runtime code from CDNs.
 - **Deploy**: push to `main` runs `.github/workflows/pages.yml` (tests, then GitHub Pages). Never publish by hand. Run `npm test` before pushing; bump the version in the four places listed in `README.md` when app files change.
+- **Brand**: the identity source is `brand/` (not published). Follow `brand/SPEC.md` and the Brand section of `nawy-ui`; regenerate derived icons with `brand/make-derived-icons.py`.
 - **Network at startup**: none. Cairo is served from `fonts/`; Google Identity loads only when the backup menu opens (`loadGoogleIdentity`). A test fails on any external `<script>`, `<link>`, `@import` or `url()` in `index.html`.
 
 ## Skills

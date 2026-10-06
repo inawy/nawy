@@ -220,3 +220,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Limits to keep honest: installed copies update their home-screen icon only when the browser or launcher refreshes the manifest (Android usually within days; iOS keeps the old icon until the app is re-added). The share-card image draws `icon-192.png`, which now has its own rounded corners; the existing rounded clip is nearly the same radius.
 - Verified: file sizes match the manifest, the badge and monochrome icons have transparency, the header geometry equals the spec, and the page, the game and the service worker precache use the new files.
 - Version: 1.23.0.
+
+## 024 — The brand sources live in the repository
+
+- Status: accepted
+- Date: 2026-10-06
+- Decision: `brand/` holds the identity spec (`SPEC.md`), the symbol SVGs (primary, white, black, blue on white), the three app-icon SVGs (blue, deep, white) and `make-derived-icons.py`. It is excluded from the published site (`scripts/build-site.js`, with a test). The Brand section in the `nawy-ui` skill and a line in `AGENTS.md` carry the rules (no gradient, outline or shadow on the symbol; do not rotate the slash; wordmark beside the symbol, not after it; keep the spec's optical shift instead of centering the bounding box).
+- Reason: until now the only copy of the identity was a zip outside the repository, so icons could not be regenerated and the rules could be broken by accident. Measured: the app icon's bounding box is 12 px right of center on 512 px while its visual mass is 14 px left; that offset is the spec's intended compromise.
+- Verified: the script reproduces the shipped `monochrome-icon.png` and `notification-badge.png` byte for byte; the build output has no `brand/` folder.
+- No app change, so no version bump.

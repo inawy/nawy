@@ -18,6 +18,14 @@ description: Nawy UI rules: Arabic-first RTL/LTR, logical CSS, localization, des
 - Support light and dark via tokens, not per-component overrides.
 - Shared components are extracted only when two or more screens genuinely need them, and must keep Nawy's personality.
 
+## Brand identity (decision 023)
+
+- Source of truth is `brand/` (spec in `brand/SPEC.md`, symbol and app-icon SVGs). The shipped icons are generated from it; `brand/make-derived-icons.py` redraws the monochrome icon and the notification badge from the same geometry.
+- The symbol is a circle and a slanted slash (golden ratio). Colors: Nawy Blue `#3D7BFF`, Deep `#101A32`, Ink `#111318`, White. The in-app accent follows the user's choice; blue is the default.
+- Never: gradients, outlines or shadows on the symbol; changing the dot on its own; rotating the slash; putting the wordmark after the symbol on the same line (it reads "Nawyo/"; the wordmark goes beside it, symbol first in reading order).
+- Clear space around the symbol: at least half the dot diameter on every side.
+- The app icon is shifted right by the spec's optical shift on purpose (the dot is heavier than the slash); do not "fix" it by centering the bounding box.
+
 ## Motion
 
 - Animate `transform` and `opacity` only. Avoid animating layout properties (height, top, margin).
