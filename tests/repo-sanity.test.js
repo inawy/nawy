@@ -158,3 +158,30 @@ test("Google Identity is loaded on demand, and Cairo is served locally", () => {
   assert.ok(sw.includes('"./fonts/cairo-ar-latin.woff2"'), "font must be in APP_SHELL");
 });
 
+// ---------- الهوية: ملفات الأيقونات ----------
+
+test("every icon in the manifest and head exists with the declared size (brand files are in place)", () => {
+  const png = f => { const b = fs.readFileSync(path.join(ROOT, f)); assert.equal(b.toString("latin1", 1, 4), "PNG", f + " is not a PNG"); return { w: b.readUInt32BE(16), h: b.readUInt32BE(20), alpha: b[25] === 6 }; };
+  const manifest = JSON.parse(read("manifest.json"));
+  for (const icon of manifest.icons) {
+    const [w, h] = icon.sizes.split("x").map(Number);
+    const dim = png(icon.src);
+    assert.deepEqual([dim.w, dim.h], [w, h], icon.src + " size differs from the manifest");
+  }
+  const touch = png("apple-touch-icon.png");
+  assert.deepEqual([touch.w, touch.h], [180, 180], "apple-touch-icon must be 180x180");
+  assert.equal(png("favicon-32x32.png").w, 32);
+  assert.equal(png("favicon-16x16.png").w, 16);
+  assert.equal(png("notification-badge.png").alpha, true, "the notification badge must have transparency (it is a silhouette)");
+  assert.equal(png("monochrome-icon.png").alpha, true, "the monochrome icon must have transparency");
+  assert.match(read("favicon.svg"), /<svg[^>]*viewBox="0 0 1024 1024"/);
+});
+
+test("the header mark is the Nawy symbol (dot and slash) and both pages use the shared icon files, not inline copies", () => {
+  const html = read("index.html");
+  assert.match(html, /<svg viewBox="0 0 512 256"[^>]*aria-label="ناوي"/, "header symbol missing");
+  assert.ok(html.includes('d="M256 256H353.783L512 0H414.217Z"'), "slash geometry differs from the spec");
+  const game = read("game.html");
+  assert.ok(!/href="data:image/.test(game), "game.html must not embed icon data URIs");
+  assert.ok(game.includes('href="apple-touch-icon.png"') && game.includes('href="favicon.svg"'));
+});

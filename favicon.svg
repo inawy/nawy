@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22.37" fill="#3D7BFF"/><g transform="translate(50 50) scale(0.9459) translate(-5 3)"><circle cx="-22" cy="-3" r="10" fill="#FFFFFF"/><path d="M4 -3 L16 9 L36 -15" fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<title>Nawy app icon blue</title>
+<rect x="0.00" y="0.00" width="1024.00" height="1024.00" rx="224.00" fill="#3D7BFF"/>
+<circle cx="387.00" cy="511.00" r="150.00" fill="#FFFFFF"/>
+<path d="M537.00 661.00L651.59 661.00L837.00 361.00L722.41 361.00L537.00 661.00Z" fill="#FFFFFF"/>
+</svg>
