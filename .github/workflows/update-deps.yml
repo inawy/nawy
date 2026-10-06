@@ -1,6 +1,6 @@
 name: Update dependencies (lockfile)
 
-# يدوي فقط: بيثبّت أحدث إصدارات أدوات التطوير (Vite, TypeScript, Playwright)،
+# يدوي فقط: بيثبّت أحدث إصدارات أدوات التطوير (Vite, TypeScript, Playwright, ESLint)،
 # وبيسجّل package.json و package-lock.json على نفس الفرع. التطبيق نفسه ما عندوش
 # أي dependency وقت التشغيل — دي أدوات بناء واختبار بس.
 on:
@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dev tools and write the lockfile
-        run: npm install --save-dev --package-lock-only --no-audit --no-fund vite typescript playwright react react-dom @types/react @types/react-dom @vitejs/plugin-react
+        run: npm install --save-dev --package-lock-only --no-audit --no-fund vite typescript playwright react react-dom @types/react @types/react-dom @vitejs/plugin-react eslint @eslint/js globals
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"
