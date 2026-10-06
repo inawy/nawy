@@ -20,6 +20,13 @@ export default [
   },
   js.configs.recommended,
   {
+    // كتل catch الفاضية مقصودة (الوصول للتخزين المحلي ممكن يفشل)، والأخطاء المتجاهلة في catch ما بتتحسبش.
+    rules: {
+      "no-empty": ["error", { allowEmptyCatch: true }],
+      "no-unused-vars": ["error", { caughtErrors: "none", ignoreRestSiblings: true, varsIgnorePattern: "^_" }]
+    }
+  },
+  {
     // الصفحة: classic script في المتصفح
     files: ["app.js", "google-drive-config.js", "nawy-mascot.js"],
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }

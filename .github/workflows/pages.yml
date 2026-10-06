@@ -31,6 +31,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Type check
         run: npm run typecheck
+      - name: Lint (ESLint)
+        run: npm run lint
       - name: Generated core files match src/core
         run: npm run check:core
       - name: Run tests

@@ -1,6 +1,5 @@
     "use strict";
 
-    const APP_VERSION = "1.0.0";
     const STORAGE_KEYS = {
       tasks: "nawy_tasks_v2",
       archive: "nawy_archive_v2",
@@ -301,7 +300,6 @@
       return "today";
     }
     let currentView = readSavedView();
-    let selectedTaskId = null;
     let activeTaskEditRestore = null;
     let swipeStartX = 0;
     let swipeStartY = 0;
@@ -534,13 +532,6 @@
       const { toPut, toDelete } = diffAgainstSnapshot(archive, archiveSnapshot);
       if (!toPut.length && !toDelete.length) { updateMenuStatusLine(); return; }
       storage.applyChanges({ archive: { toPut, toDelete } }).then(() => { archiveSnapshot = snapshotFrom(archive); updateMenuStatusLine(); })
-        .catch(reportStorageWriteError);
-    }
-
-    function saveDeletedIds() {
-      const { toPut, toDelete } = diffAgainstSnapshot(deletedIds, deletedIdsSnapshot, "deletedAt");
-      if (!toPut.length && !toDelete.length) return;
-      storage.applyChanges({ deletedIds: { toPut, toDelete } }).then(() => { deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt"); })
         .catch(reportStorageWriteError);
     }
 
@@ -1490,8 +1481,6 @@
     function openTaskSheet(id) {
       const task = tasks.find(x => x.id === id);
       if (!task) return;
-      selectedTaskId = id;
-      
       const preview = $("#taskPreviewText");
       preview.textContent = task.text;
       
@@ -1592,7 +1581,6 @@
           render();
           endEdit();
           closeOverlay($("#taskOverlay"));
-          selectedTaskId = null;
           showToast(t("editedToast"));
         }
 
@@ -1656,7 +1644,6 @@
         if (settings.feedbackEnabled !== false && navigator.vibrate) navigator.vibrate(18);
         deleteTask(task.id);
         closeOverlay($("#taskOverlay"));
-        selectedTaskId = null;
       });
       actions.appendChild(archiveBtn);
 
@@ -1682,7 +1669,6 @@
           if (settings.feedbackEnabled !== false && navigator.vibrate) navigator.vibrate([18, 24, 18]);
           deleteTaskPermanently(task.id);
           closeOverlay($("#taskOverlay"));
-          selectedTaskId = null;
         });
       });
       actions.appendChild(deleteBtn);
@@ -2019,7 +2005,7 @@
       }
       updateBodyScrollLock();
     }
-    function closeAllOverlays() { $$(".overlay.show").forEach(closeOverlay); selectedTaskId = null; }
+    function closeAllOverlays() { $$(".overlay.show").forEach(closeOverlay); }
 
     function getComposerPlaceholder() {
       const hour = new Date().getHours();
@@ -2336,12 +2322,10 @@
       return backupProvider.preload();
     }
 
+    // مش بتتنادى من الكود نفسه: نقطة دخول بتتجرّب من اختبار المتصفح (فشل الاتصال بشكل نظيف).
+    // eslint-disable-next-line no-unused-vars
     function requestGoogleAccessToken(options) {
       return backupProvider.connect(options);
-    }
-
-    function getTimestamp(item) {
-      return NawyData.getTimestamp(item);
     }
 
     function normalizeSettings(rawSettings) {
