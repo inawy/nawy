@@ -229,3 +229,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Reason: until now the only copy of the identity was a zip outside the repository, so icons could not be regenerated and the rules could be broken by accident. Measured: the app icon's bounding box is 12 px right of center on 512 px while its visual mass is 14 px left; that offset is the spec's intended compromise.
 - Verified: the script reproduces the shipped `monochrome-icon.png` and `notification-badge.png` byte for byte; the build output has no `brand/` folder.
 - No app change, so no version bump.
+
+## 025 — The page is split into index.html, styles.css and app.js (a pure move)
+
+- Status: accepted
+- Date: 2026-10-06
+- Decision: the 1,288 lines of CSS and the 3,348 lines of JavaScript that lived inside `index.html` moved, unchanged, to `styles.css` and `app.js`. `index.html` (520 lines) is markup plus one small inline script that sets the theme before first paint (it must run before the stylesheet paints, so it stays inline). Both new files are loaded with the same `?v=` as the other app files, precached in `APP_SHELL`, and covered by the version-coupling test. No behavior, name or style changed; `app.js` still starts with `"use strict"` and is a classic script at the same position as before, so top-level state is exactly as visible as it was.
+- Reason: a 5,158-line file mixing markup, 1,290 lines of CSS and 3,379 lines of JavaScript is the largest maintainability cost in the project (measured in the assessment before this step). Separate files can be diffed, reviewed, linted and later split further (state, views, overlays) one piece at a time, with the same tests.
+- Verified: rebuilding the old inline blocks from the two new files reproduces the old `index.html` exactly (the only difference was my own re-assembly indentation); the fast tests that read page code now read `app.js` / `styles.css` (Dexie rule, update flow, translations, provider-URL rule, Cairo font-face, no external resources in the CSS); a new test fails if a style block or a second inline script returns to `index.html`; a Chromium run of the built site shows no page errors, applied styles and working state.
+- Next steps in the same direction, each separate: ESLint + Prettier as a CI gate; then split `app.js` by responsibility (not started); the main task list remains the last candidate for React.
+- Version: 1.24.0.

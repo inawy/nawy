@@ -52,7 +52,7 @@ test("the date key format is the stored one (month is zero-based)", () => {
 });
 
 test("notification text matches the app translations (ar and en)", () => {
-  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const html = fs.readFileSync(path.join(ROOT, "app.js"), "utf8");
   const found = [...html.matchAll(/morningNotif:\s*"([^"]*)"/g)].map(m => m[1]);
   assert.equal(found.length, 2, "morningNotif must exist once per language");
   assert.equal(NawyData.reminderBody("ar"), found[0]);
