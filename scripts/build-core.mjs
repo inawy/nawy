@@ -1,5 +1,5 @@
 /*
- * يولّد nawy-data.js و nawy-storage.js و nawy-ui.js (ملفات classic تشتغل في الصفحة وفي
+ * يولّد nawy-data.js و nawy-storage.js و nawy-backup.js و nawy-ui.js (ملفات classic تشتغل في الصفحة وفي
  * الـ Service Worker وفي Node) من مصدر TypeScript في src/core/ باستخدام Vite.
  *
  *   npm run build:core
@@ -19,6 +19,7 @@ const outDir = path.join(root, ".core-out");
 const entries = [
   { source: "src/core/nawy-data.ts", name: "NawyData", file: "nawy-data.js" },
   { source: "src/core/nawy-storage.ts", name: "NawyStorage", file: "nawy-storage.js" },
+  { source: "src/core/nawy-backup.ts", name: "NawyBackup", file: "nawy-backup.js" },
   // واجهة React لشاشة الأرشيف (React نفسه جوه الملف؛ التطبيق مفيهوش dependency وقت التشغيل)
   { source: "src/ui/archive/entry.tsx", name: "NawyUI", file: "nawy-ui.js", ui: true }
 ];

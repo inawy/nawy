@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "nawy-data.js", "nawy-storage.js"]) {
+  for (const f of ["service-worker.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -71,8 +71,9 @@ test("script order: Dexie, then nawy-data.js, then nawy-storage.js, then the app
   const dexie = html.indexOf('src="./dexie.min.js"');
   const data = html.indexOf('src="./nawy-data.js');
   const storage = html.indexOf('src="./nawy-storage.js');
+  const backup = html.indexOf('src="./nawy-backup.js');
   const app = html.indexOf("const db = new Dexie(");
-  assert.ok(dexie > -1 && data > dexie && storage > data && app > storage, "wrong script order");
+  assert.ok(dexie > -1 && data > dexie && storage > data && backup > storage && app > backup, "wrong script order");
 });
 
 test("index.html never touches Dexie tables directly; only through `storage`", () => {
@@ -90,6 +91,9 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(sw.length >= 2, "service worker must use the versioned URL in both places");
   sw.forEach(s => assert.equal(s.split("=")[1], html[1]));
   assert.ok(read("service-worker.js").includes(`./nawy-storage.js?v=${html[1]}`), "APP_SHELL must precache nawy-storage.js with the same version");
+  const htmlBackup = read("index.html").match(/nawy-backup\.js\?v=([\w.]+)/);
+  assert.ok(htmlBackup && htmlBackup[1] === html[1], "index.html must load nawy-backup.js with the same ?v=");
+  assert.ok(read("service-worker.js").includes(`./nawy-backup.js?v=${html[1]}`), "APP_SHELL must precache nawy-backup.js with the same version");
   const htmlUi = read("index.html").match(/nawy-ui\.js\?v=([\w.]+)/);
   assert.ok(htmlUi && htmlUi[1] === html[1], "index.html must load nawy-ui.js with the same ?v");
   assert.ok(read("service-worker.js").includes(`./nawy-ui.js?v=${html[1]}`), "APP_SHELL must precache nawy-ui.js with the same version");
@@ -145,6 +149,8 @@ function externalResources(html) {
 test("Google Identity is loaded on demand, and Cairo is served locally", () => {
   const html = read("index.html");
   assert.match(html, /function loadGoogleIdentity\(\)/, "lazy loader missing");
+  assert.ok(!/accounts\.google\.com/.test(html), "provider URLs belong in the adapter (nawy-backup.js), not in the page");
+  assert.ok(!/googleapis\.com/.test(html), "provider URLs belong in the adapter (nawy-backup.js), not in the page");
   assert.match(html, /@font-face\s*\{[^}]*Cairo[^}]*cairo-ar-latin\.woff2/, "local @font-face for Cairo missing");
   assert.ok(fs.existsSync(path.join(ROOT, "fonts/cairo-ar-latin.woff2")), "font file missing");
   assert.ok(fs.existsSync(path.join(ROOT, "fonts/OFL.txt")), "font license file missing");
