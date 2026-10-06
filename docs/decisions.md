@@ -196,3 +196,15 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Reason: this is what installed apps and modern web apps do: state that belongs to "where I am right now" survives a reload but not a new session, and the default screen stays the entry point of a new day. `localStorage` was rejected because it would keep the user on an old tab days later, which defeats "Today first" (decision for the daily intention).
 - Verified: Chromium test: switching tabs then reloading keeps the tab (and the tab bar highlight), a bogus value falls back to Today, and a new browser tab starts on Today.
 - Version: 1.21.0.
+
+## 022 — Cloud backup behind a `BackupProvider` interface; Google Drive is one adapter
+
+- Status: accepted
+- Date: 2026-10-06
+- Decision: `src/core/nawy-backup.ts` (generated `nawy-backup.js`, global `NawyBackup`) defines `BackupProvider` (`isConfigured`, `preload`, `connect`, `download`, `upload`, `accountLabel`) and two adapters: `createDriveBackupProvider` (Google Drive appDataFolder: sign-in, search, download, multipart upload, account email) and `createMemoryBackupProvider` (proves the interface can be implemented twice; used by tests). The page keeps its functions (`backupDataToGoogleDrive`, `restoreDataFromGoogleDrive`, `loadGoogleIdentity`, `requestGoogleAccessToken`) but they now call the provider. All Google URLs, scopes, the token flow and the Identity script loader moved into the adapter; a test fails if `googleapis.com` or `accounts.google.com` appears in `index.html`.
+- What did not change: the merge-then-persist-then-upload order (an old device cannot overwrite a newer backup), the messages, the on-demand loading of Google Identity (no network at startup, decision 012), local export/import (no provider needed), and the stored format.
+- The Core is not duplicated: the adapter receives `isValid` and `sanitize` from the page (`NawyData`) instead of importing the Core, so the generated file stays small and has no second copy of the schema rules.
+- Replacing Drive later means writing another adapter (for example WebDAV, a file in a user-chosen folder, or an own server) and changing the single construction call in `index.html`.
+- Verified: contract tests run on both adapters (empty download is null, round trip, a second upload replaces the first); Drive tests against an in-memory fake Drive: first upload creates the file in `appDataFolder`, the second PATCHes it (no duplicate), upload without a prior download still finds the existing file, invalid or newer-version payloads are rejected, HTTP errors carry status and body for search, download and upload, consent prompt only the first interactive time, unavailable Identity and token errors surface, account label is null (not an error) on failure. The existing Chromium test still checks that Google is requested only after the backup menu opens and that failure is clean.
+- Limits to keep honest: the real Google sign-in popup and a real Drive account were not exercised (as before); only the adapter's requests against a fake server are.
+- Version: 1.22.0.

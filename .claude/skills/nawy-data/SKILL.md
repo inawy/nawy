@@ -49,7 +49,7 @@ Single JSON envelope:
 
 ## Backup providers (Drive and others)
 
-- A provider implements the `BackupProvider` interface and uploads the same export envelope.
+- A provider implements the `BackupProvider` interface (`src/core/nawy-backup.ts`, decision 022) and uploads the same export envelope. Drive is the first adapter; every new provider must pass the shared contract tests in `tests/backup.test.js`.
 - Local export is the baseline and must never depend on a provider.
 - Provider failure (offline, token expired, service gone) shows a calm message and never blocks the app or loses data.
 - No provider name appears in domain or UI code.

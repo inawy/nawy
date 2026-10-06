@@ -3,7 +3,7 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 
-const files = ["nawy-data.js", "nawy-storage.js", "nawy-ui.js"];
+const files = ["nawy-data.js", "nawy-storage.js", "nawy-backup.js", "nawy-ui.js"];
 const before = files.map(f => fs.readFileSync(f, "utf8"));
 execFileSync(process.execPath, ["scripts/build-core.mjs"], { stdio: "inherit" });
 const stale = files.filter((f, i) => fs.readFileSync(f, "utf8") !== before[i]);
