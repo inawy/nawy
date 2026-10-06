@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
+  for (const f of ["service-worker.js", "app.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -66,20 +66,21 @@ test("service worker precache list and importScripts point to existing files", (
   assert.deepEqual(missing, [], "missing files: " + missing.join(", "));
 });
 
-test("script order: Dexie, then nawy-data.js, then nawy-storage.js, then the app script", () => {
+test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, then the app script (app.js)", () => {
   const html = read("index.html");
   const dexie = html.indexOf('src="./dexie.min.js"');
   const data = html.indexOf('src="./nawy-data.js');
   const storage = html.indexOf('src="./nawy-storage.js');
   const backup = html.indexOf('src="./nawy-backup.js');
-  const app = html.indexOf("const db = new Dexie(");
+  const app = html.indexOf('src="./app.js');
+  assert.ok(read("app.js").includes("const db = new Dexie("), "app.js must create the database");
   assert.ok(dexie > -1 && data > dexie && storage > data && backup > storage && app > backup, "wrong script order");
 });
 
-test("index.html never touches Dexie tables directly; only through `storage`", () => {
-  const html = read("index.html");
-  const hits = html.split(/\r?\n/).map((l, i) => [i + 1, l]).filter(([, l]) => /\bdb\.\w/.test(l));
-  assert.deepEqual(hits, [], "direct db.* calls in index.html (use NawyStorage): " + hits.map(h => h[0]).join(", "));
+test("the app code (app.js) never touches Dexie tables directly; only through `storage`", () => {
+  const code = read("app.js");
+  const hits = code.split(/\r?\n/).map((l, i) => [i + 1, l]).filter(([, l]) => /\bdb\.\w/.test(l));
+  assert.deepEqual(hits, [], "direct db.* calls in app.js (use NawyStorage): " + hits.map(h => h[0]).join(", "));
 });
 
 test("page and service worker use the same version for nawy-data.js and nawy-storage.js", () => {
@@ -94,6 +95,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   const htmlBackup = read("index.html").match(/nawy-backup\.js\?v=([\w.]+)/);
   assert.ok(htmlBackup && htmlBackup[1] === html[1], "index.html must load nawy-backup.js with the same ?v=");
   assert.ok(read("service-worker.js").includes(`./nawy-backup.js?v=${html[1]}`), "APP_SHELL must precache nawy-backup.js with the same version");
+  const htmlApp = read("index.html").match(/app\.js\?v=([\w.]+)/);
+  assert.ok(htmlApp && htmlApp[1] === html[1], "index.html must load app.js with the same ?v");
+  const htmlCss = read("index.html").match(/styles\.css\?v=([\w.]+)/);
+  assert.ok(htmlCss && htmlCss[1] === html[1], "index.html must load styles.css with the same ?v");
+  assert.ok(read("service-worker.js").includes(`./app.js?v=${html[1]}`), "APP_SHELL must precache app.js with the same version");
+  assert.ok(read("service-worker.js").includes(`./styles.css?v=${html[1]}`), "APP_SHELL must precache styles.css with the same version");
   const htmlUi = read("index.html").match(/nawy-ui\.js\?v=([\w.]+)/);
   assert.ok(htmlUi && htmlUi[1] === html[1], "index.html must load nawy-ui.js with the same ?v");
   assert.ok(read("service-worker.js").includes(`./nawy-ui.js?v=${html[1]}`), "APP_SHELL must precache nawy-ui.js with the same version");
@@ -112,7 +119,7 @@ test("service worker does not skipWaiting on install; only on the user's message
 });
 
 test("page reloads on controllerchange only after the user asked for the update", () => {
-  const html = read("index.html");
+  const html = read("app.js");
   const handler = html.match(/addEventListener\("controllerchange",[\s\S]*?\}\);/);
   assert.ok(handler, "controllerchange handler not found");
   assert.match(handler[0], /!updateRequested/, "reload must be gated by updateRequested");
@@ -121,7 +128,7 @@ test("page reloads on controllerchange only after the user asked for the update"
 });
 
 test("update banner strings exist in Arabic and English", () => {
-  const html = read("index.html");
+  const html = read("app.js");
   for (const key of ["updateAvailable", "updateNow", "updateAfterDraft"]) {
     assert.equal((html.match(new RegExp(key + ": \"", "g")) || []).length, 2, key + " must be defined for ar and en");
   }
@@ -133,7 +140,7 @@ test("no page loads anything from the network at startup (fonts, scripts, styles
   const pages = fs.readdirSync(ROOT).filter(f => f.endsWith(".html"));
   assert.ok(pages.includes("index.html") && pages.includes("game.html"));
   const external = [];
-  for (const page of pages) external.push(...externalResources(read(page)).map(x => page + ": " + x));
+  for (const page of [...pages, "styles.css"]) external.push(...externalResources(read(page)).map(x => page + ": " + x));
   assert.deepEqual(external, [], "external resources loaded at startup: " + external.join(" | "));
 });
 
@@ -147,11 +154,13 @@ function externalResources(html) {
 }
 
 test("Google Identity is loaded on demand, and Cairo is served locally", () => {
-  const html = read("index.html");
-  assert.match(html, /function loadGoogleIdentity\(\)/, "lazy loader missing");
-  assert.ok(!/accounts\.google\.com/.test(html), "provider URLs belong in the adapter (nawy-backup.js), not in the page");
-  assert.ok(!/googleapis\.com/.test(html), "provider URLs belong in the adapter (nawy-backup.js), not in the page");
-  assert.match(html, /@font-face\s*\{[^}]*Cairo[^}]*cairo-ar-latin\.woff2/, "local @font-face for Cairo missing");
+  const html = read("index.html"), app = read("app.js"), css = read("styles.css");
+  assert.match(app, /function loadGoogleIdentity\(\)/, "lazy loader missing");
+  for (const [name, code] of [["index.html", html], ["app.js", app], ["styles.css", css]]) {
+    assert.ok(!/accounts\.google\.com/.test(code), "provider URLs belong in the adapter (nawy-backup.js), not in " + name);
+    assert.ok(!/googleapis\.com/.test(code), "provider URLs belong in the adapter (nawy-backup.js), not in " + name);
+  }
+  assert.match(css, /@font-face\s*\{[^}]*Cairo[^}]*cairo-ar-latin\.woff2/, "local @font-face for Cairo missing");
   assert.ok(fs.existsSync(path.join(ROOT, "fonts/cairo-ar-latin.woff2")), "font file missing");
   assert.ok(fs.existsSync(path.join(ROOT, "fonts/OFL.txt")), "font license file missing");
   const sw = read("service-worker.js");
@@ -184,4 +193,16 @@ test("the header mark is the Nawy symbol (dot and slash) and both pages use the 
   const game = read("game.html");
   assert.ok(!/href="data:image/.test(game), "game.html must not embed icon data URIs");
   assert.ok(game.includes('href="apple-touch-icon.png"') && game.includes('href="favicon.svg"'));
+});
+
+// ---------- هيكل الصفحة: HTML وCSS وJS في ملفات منفصلة ----------
+
+test("index.html is markup only: no big inline script or stylesheet (only the tiny boot script)", () => {
+  const html = read("index.html");
+  assert.ok(!/<style[\s>]/.test(html), "styles belong in styles.css");
+  const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
+  assert.equal(inline.length, 1, "only the theme boot script may stay inline (it must run before first paint)");
+  assert.ok(inline[0].split("\n").length < 60, "the inline boot script must stay small");
+  assert.match(html, /<link rel="stylesheet" href="\.\/styles\.css\?v=/);
+  assert.match(html, /<script src="\.\/app\.js\?v=[^"]+"><\/script>/);
 });
