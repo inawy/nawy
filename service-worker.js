@@ -1,10 +1,10 @@
-const CACHE_NAME = "nawy-runtime-v1.24.0";
+const CACHE_NAME = "nawy-runtime-v1.25.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.24.0");
+importScripts("./nawy-data.js?v=1.25.0");
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,12 +13,12 @@ const APP_SHELL = [
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./styles.css?v=1.24.0",
-  "./app.js?v=1.24.0",
-  "./nawy-data.js?v=1.24.0",
-  "./nawy-storage.js?v=1.24.0",
-  "./nawy-backup.js?v=1.24.0",
-  "./nawy-ui.js?v=1.24.0",
+  "./styles.css?v=1.25.0",
+  "./app.js?v=1.25.0",
+  "./nawy-data.js?v=1.25.0",
+  "./nawy-storage.js?v=1.25.0",
+  "./nawy-backup.js?v=1.25.0",
+  "./nawy-ui.js?v=1.25.0",
   "./fonts/cairo-ar-latin.woff2",
   "./icon-192.png",
   "./icon-512.png",
@@ -27,8 +27,6 @@ const APP_SHELL = [
 ];
 const APP_SCOPE = self.registration.scope;
 const APP_INDEX = new URL("./index.html", APP_SCOPE);
-const APP_MANIFEST = new URL("./manifest.json", APP_SCOPE);
-const APP_WORKER = new URL("./service-worker.js", APP_SCOPE);
 
 function isSameOrigin(url) {
   return url.origin === self.location.origin;
