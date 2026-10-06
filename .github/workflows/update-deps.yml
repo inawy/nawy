@@ -1,6 +1,6 @@
 name: Update dependencies (lockfile)
 
-# يدوي فقط: بيثبّت أحدث إصدارات أدوات التطوير (Vite, TypeScript, Playwright, ESLint)،
+# يدوي فقط: بيثبّت أحدث إصدارات أدوات التطوير،
 # وبيسجّل package.json و package-lock.json على نفس الفرع. التطبيق نفسه ما عندوش
 # أي dependency وقت التشغيل — دي أدوات بناء واختبار بس.
 on:
