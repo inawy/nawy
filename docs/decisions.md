@@ -264,3 +264,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - The three sound functions (`playAchievedSound`, `playUndoSound`, `playAddedSound`), the shared `playTonePattern` and their `audioContext` (74 lines + one declaration, used nowhere else) moved verbatim to `sounds.js`, a classic script loaded after the Core and before `app.js`. They read `settings` from `app.js` only when called, so load order is safe.
 - Proof: putting the moved lines back at their old places reproduces the old `app.js` byte for byte. Wiring and load-order tests follow the same pattern as decision 027; ESLint gives `sounds.js` the `settings` global and `app.js` the three play functions.
 - Version: 1.27.0.
+
+## 029 — Splitting app.js, step 3: share.js
+
+- `shareAsImage` and `drawShareContent` (the canvas drawing and the share/download of the intention image, 157 lines) moved verbatim to `share.js`, loaded after the Core and before `app.js`. They use `resolveTheme` and `settings` from `app.js` only when called.
+- Proof: putting the moved lines back reproduces the old `app.js` byte for byte. Wiring and load-order tests as in decisions 027 and 028; ESLint gives `share.js` those two globals and `app.js` the `shareAsImage` global.
+- Version: 1.28.0.
