@@ -258,3 +258,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Wiring: `translations.js?v=` is coupled to the other `?v=` places and precached in `APP_SHELL`; a test checks the load order (after the Core, before `app.js`). The tests that read translation strings (update banner, notification text) now read `translations.js`. ESLint knows `TRANSLATIONS` as a global in `app.js` only (declaring it again in `translations.js` would be a redeclaration).
 - Next candidates, in order of independence: sound code, share-image drawing, then views and overlays.
 - Version: 1.26.0.
+
+## 028 — Splitting app.js, step 2: sounds.js
+
+- The three sound functions (`playAchievedSound`, `playUndoSound`, `playAddedSound`), the shared `playTonePattern` and their `audioContext` (74 lines + one declaration, used nowhere else) moved verbatim to `sounds.js`, a classic script loaded after the Core and before `app.js`. They read `settings` from `app.js` only when called, so load order is safe.
+- Proof: putting the moved lines back at their old places reproduces the old `app.js` byte for byte. Wiring and load-order tests follow the same pattern as decision 027; ESLint gives `sounds.js` the `settings` global and `app.js` the three play functions.
+- Version: 1.27.0.
