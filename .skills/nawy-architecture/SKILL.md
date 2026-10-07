@@ -9,7 +9,7 @@ description: Nawy technology stack, module boundaries, adapters for external ser
 
 | Context | Stack |
 |---|---|
-| Current Nawy (shipping) | Vanilla JS PWA: `index.html` (markup), `styles.css`, `translations.js`, `sounds.js`, `share.js`, `sheet-gestures.js`, `banners.js`, `app.js`, `service-worker.js`, Dexie. Keep working. |
+| Current Nawy (shipping) | Vanilla JS PWA: `index.html` (markup), `styles.css`, `translations.js`, `sounds.js`, `share.js`, `sheet-gestures.js`, `banners.js`, `date-format.js`, `app.js`, `service-worker.js`, Dexie. Keep working. |
 | New code / new products | TypeScript + Vite + React, Dexie/IndexedDB, PWA |
 | UI styling | Tailwind and shadcn/ui are allowed per product, never required by Core |
 | Backend | None by default. Only if simple, serverless, repo-hosted, with no manual server work or paid plan |

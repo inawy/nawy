@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
+  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -83,6 +83,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
   assert.ok(banners > backup && banners < app, "banners.js must load after the Core and before app.js");
+  const dateFormat = html.indexOf('src="./date-format.js');
+  assert.ok(dateFormat > backup && dateFormat < app, "date-format.js must load after the Core and before app.js");
   assert.ok(read("app.js").includes("const db = new Dexie("), "app.js must create the database");
   assert.ok(dexie > -1 && data > dexie && storage > data && backup > storage && app > backup, "wrong script order");
 });
@@ -122,6 +124,9 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   const htmlBn = read("index.html").match(/banners\.js\?v=([\w.]+)/);
   assert.ok(htmlBn && htmlBn[1] === html[1], "index.html must load banners.js with the same ?v");
   assert.ok(read("service-worker.js").includes(`./banners.js?v=${html[1]}`), "APP_SHELL must precache banners.js with the same version");
+  const htmlDf = read("index.html").match(/date-format\.js\?v=([\w.]+)/);
+  assert.ok(htmlDf && htmlDf[1] === html[1], "index.html must load date-format.js with the same ?v");
+  assert.ok(read("service-worker.js").includes(`./date-format.js?v=${html[1]}`), "APP_SHELL must precache date-format.js with the same version");
   const htmlCss = read("index.html").match(/styles\.css\?v=([\w.]+)/);
   assert.ok(htmlCss && htmlCss[1] === html[1], "index.html must load styles.css with the same ?v");
   assert.ok(read("service-worker.js").includes(`./app.js?v=${html[1]}`), "APP_SHELL must precache app.js with the same version");

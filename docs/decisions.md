@@ -283,3 +283,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Rule for the rest of the split: a block moves to a separate classic script only if it consists of function definitions (and constants) whose dependencies are looked up when called. Code that runs at load time (listeners, registrations, the `init()` call) stays in `app.js` or moves to a later entry file, because the new files load before `app.js` and `$`, `t` and the state do not exist yet. This is why the update/install listeners were not moved with their functions.
 - `updateRequested` is assigned from `banners.js`; ESLint declares it writable there. Proof of a pure move and the wiring tests are the same as in decisions 027 to 030.
 - Version: 1.30.0.
+
+## 032 — Splitting app.js, step 6: date-format.js
+
+- `formatAchievedDate`, `formatArchivedTime`, `archiveDayGroup` and `formatOlderDate` (archive date and time formatting, 61 lines, definitions only) moved verbatim to `date-format.js`. They read `settings` from `app.js` only when called. Same proof (byte-identical reassembly), wiring and load-order tests as decisions 027 to 031.
+- Version: 1.31.0.
