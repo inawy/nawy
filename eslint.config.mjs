@@ -47,9 +47,14 @@ export default [
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, $$: "readonly", closeOverlay: "readonly" } }
   },
   {
+    // banners.js بيستخدم $ و t و showToast و updateRequested (بيكتب فيها) من app.js وقت التشغيل
+    files: ["banners.js"],
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, $: "readonly", t: "readonly", showToast: "readonly", updateRequested: "writable" } }
+  },
+  {
     // app.js بيستخدم اللي بتعرّفه ملفات الصفحة التانية (classic scripts بتتشارك النطاق العام)
     files: ["app.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly", shareAsImage: "readonly", initSheetGestures: "readonly" } }
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly", shareAsImage: "readonly", initSheetGestures: "readonly", showUpdateBanner: "readonly", showInstallBanner: "readonly", hideInstallBanner: "readonly", isAppInstalled: "readonly" } }
   },
   {
     files: ["service-worker.js"],
