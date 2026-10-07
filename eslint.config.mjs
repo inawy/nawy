@@ -37,9 +37,14 @@ export default [
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly" } }
   },
   {
+    // share.js بيستخدم resolveTheme و settings من app.js وقت التشغيل
+    files: ["share.js"],
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly", resolveTheme: "readonly" } }
+  },
+  {
     // app.js بيستخدم اللي بتعرّفه ملفات الصفحة التانية (classic scripts بتتشارك النطاق العام)
     files: ["app.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly" } }
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly", shareAsImage: "readonly" } }
   },
   {
     files: ["service-worker.js"],
