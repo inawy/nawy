@@ -276,3 +276,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `wrapSheetScrollArea` and `initSheetGestures` (the swipe-to-dismiss and scroll handoff for every bottom sheet, 156 lines with their comment) moved verbatim to `sheet-gestures.js`. Only the definitions moved: the call `initSheetGestures();` stays in `app.js`, so it still runs after `$$` and `closeOverlay` exist and in the same order as before.
 - Proof: putting the moved lines back reproduces the old `app.js` byte for byte. Same wiring and load-order tests; ESLint gives the new file `$$` and `closeOverlay`.
 - Version: 1.29.0.
+
+## 031 — Splitting app.js, step 5: banners.js (and the rule for what can move)
+
+- `showUpdateBanner`, `isAppInstalled`, `showInstallBanner` and `hideInstallBanner` (definitions only, 70 lines) moved verbatim to `banners.js`. The service-worker registration, the `beforeinstallprompt`/`appinstalled`/click listeners and every call stay in `app.js`.
+- Rule for the rest of the split: a block moves to a separate classic script only if it consists of function definitions (and constants) whose dependencies are looked up when called. Code that runs at load time (listeners, registrations, the `init()` call) stays in `app.js` or moves to a later entry file, because the new files load before `app.js` and `$`, `t` and the state do not exist yet. This is why the update/install listeners were not moved with their functions.
+- `updateRequested` is assigned from `banners.js`; ESLint declares it writable there. Proof of a pure move and the wiring tests are the same as in decisions 027 to 030.
+- Version: 1.30.0.

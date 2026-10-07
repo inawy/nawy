@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
+  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -81,6 +81,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(share > backup && share < app, "share.js must load after the Core and before app.js");
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
+  const banners = html.indexOf('src="./banners.js');
+  assert.ok(banners > backup && banners < app, "banners.js must load after the Core and before app.js");
   assert.ok(read("app.js").includes("const db = new Dexie("), "app.js must create the database");
   assert.ok(dexie > -1 && data > dexie && storage > data && backup > storage && app > backup, "wrong script order");
 });
@@ -117,6 +119,9 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
   assert.ok(read("service-worker.js").includes(`./sheet-gestures.js?v=${html[1]}`), "APP_SHELL must precache sheet-gestures.js with the same version");
+  const htmlBn = read("index.html").match(/banners\.js\?v=([\w.]+)/);
+  assert.ok(htmlBn && htmlBn[1] === html[1], "index.html must load banners.js with the same ?v");
+  assert.ok(read("service-worker.js").includes(`./banners.js?v=${html[1]}`), "APP_SHELL must precache banners.js with the same version");
   const htmlCss = read("index.html").match(/styles\.css\?v=([\w.]+)/);
   assert.ok(htmlCss && htmlCss[1] === html[1], "index.html must load styles.css with the same ?v");
   assert.ok(read("service-worker.js").includes(`./app.js?v=${html[1]}`), "APP_SHELL must precache app.js with the same version");
@@ -144,7 +149,7 @@ test("page reloads on controllerchange only after the user asked for the update"
   assert.ok(handler, "controllerchange handler not found");
   assert.match(handler[0], /!updateRequested/, "reload must be gated by updateRequested");
   assert.match(html, /registration\.waiting && navigator\.serviceWorker\.controller/, "banner must also show for an already-waiting worker");
-  assert.match(html, /updateAfterDraft/, "update must not discard an unsent draft");
+  assert.match(read("banners.js"), /updateAfterDraft/, "update must not discard an unsent draft");
 });
 
 test("update banner strings exist in Arabic and English", () => {
