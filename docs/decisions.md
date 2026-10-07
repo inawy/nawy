@@ -311,3 +311,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Fail-safe: the boot script removes `booting` after 3 s, and `init()` removes it on failure, so a broken load can never leave a blank page. Tests: Chromium (held-back `app.js` keeps the page hidden with a painted background; reveal happens with content already rendered; if `app.js` never runs the page appears anyway; negative control removing the CSS rule fails) and a repo-sanity test for the four pieces.
 - Not solvable here: a light-theme user can still see the OS splash in the manifest's dark `background_color` (`#0F1115`) before the light page, because a manifest has one background color only.
 - Version: 1.34.0.
+
+## 036 — Prettier, applied once as a format-only commit and enforced in CI
+
+- Decision 026 postponed Prettier until it could be one isolated "format only" commit. That commit exists now (`style: format with Prettier`, 28 files, produced by the `format` branch workflow with Prettier 3.9.9 from the lockfile). It changes layout only: Prettier checks that the code means the same, and the whole suite, the Chromium tests and the Core regeneration passed on top of it.
+- Scope: `*.js`, `*.mjs`, `*.ts`, `*.tsx`, `*.css`. Not formatted: HTML (whitespace in inline markup can matter), Markdown, JSON, SVG, `docs/`, `brand/`, skills, generated files and vendored libraries (`.prettierignore`). The formatting inside `src/` can change the generated Core files, so the workflow runs `build:core` after formatting.
+- Settings keep the existing style to limit churn: `printWidth` 120, no trailing commas, arrow parentheses only when needed, line endings left as each file has them (`endOfLine: auto`).
+- Enforcement: CI runs `npm run format:check` after lint. The only test affected by layout was a regex on the CSS rule hiding the page while booting; it no longer depends on line breaks.
+- The page scripts were indented four spaces because they came from an inline `<script>`; formatting removed that, so `git blame` for `app.js` now points at the formatting commit (the PR is squash-merged, so the formatting is part of the same commit as the Prettier tooling).
+- Version: 1.35.0 (app files changed).
