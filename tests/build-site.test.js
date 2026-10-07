@@ -18,7 +18,7 @@ test("build output contains the app and none of the dev files", () => {
   for (const f of ["index.html", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "styles.css", "service-worker.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js", "nawy-ui.js", "manifest.json", "dexie.min.js"]) {
     assert.ok(fs.existsSync(path.join(out, f)), "missing in output: " + f);
   }
-  for (const f of ["AGENTS.md", "README.md", "package.json", "tests", "docs", "scripts", "brand", ".skills", ".github", ".git", "node_modules"]) {
+  for (const f of ["AGENTS.md", "README.md", "package.json", "tests", "docs", "scripts", "brand", "types", "tsconfig.pages.json", ".skills", ".github", ".git", "node_modules"]) {
     assert.ok(!fs.existsSync(path.join(out, f)), "dev file published: " + f);
   }
 });
