@@ -249,3 +249,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Prettier is not added now: formatting the 3,300-line `app.js` would rewrite almost every line and bury real changes in one commit; the code is already consistently indented. It can be added later as one isolated "format only" commit that the tests must pass unchanged.
 - Process note: the registry is not reachable from the working environment, so the dependency (lockfile) and the first report went through the existing branch workflows; the temporary report workflow was removed afterwards.
 - Version: 1.25.0.
+
+## 027 — Splitting app.js by responsibility, step 1: translations.js
+
+- Why: `app.js` is still one 3,300-line file with 100+ top-level functions. It is split in small, verbatim-move stages, each one deployable and covered by the same tests, never a rewrite.
+- Step 1 moves the `TRANSLATIONS` table (258 lines of pure data, no logic, no dependencies) to `translations.js`. It is a classic script loaded after the Core and before `app.js`; classic scripts share the global scope, so no code in `app.js` changed.
+- Proof of a pure move: the old `app.js` equals the new `app.js` with the 258 lines put back at the same place, byte for byte (checked when the move was made).
+- Wiring: `translations.js?v=` is coupled to the other `?v=` places and precached in `APP_SHELL`; a test checks the load order (after the Core, before `app.js`). The tests that read translation strings (update banner, notification text) now read `translations.js`. ESLint knows `TRANSLATIONS` as a global in `app.js` only (declaring it again in `translations.js` would be a redeclaration).
+- Next candidates, in order of independence: sound code, share-image drawing, then views and overlays.
+- Version: 1.26.0.
