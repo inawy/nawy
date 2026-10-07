@@ -91,6 +91,12 @@
       return true;
     }
 
+    /**
+     * @template {import("./src/core/nawy-data").Item} T
+     * @param {T[]} currentArray
+     * @param {Map<string, unknown>} snapshotMap
+     * @param {string} [versionKey]
+     */
     function diffAgainstSnapshot(currentArray, snapshotMap, versionKey = "updatedAt") {
       return NawyData.diffAgainstSnapshot(currentArray, snapshotMap, versionKey);
     }
@@ -289,6 +295,7 @@
       }, canUndo ? 6000 : 3200);
     }
 
+    /** @param {{ title?: string, text?: string, approveLabel?: string, cancelLabel?: string, danger?: boolean }} [options] */
     function showConfirmDialog({ title, text, approveLabel, cancelLabel, danger = false } = {}) {
       return new Promise(resolve => {
         const overlay = $("#genericConfirmOverlay");
@@ -1670,7 +1677,7 @@
       navigator.serviceWorker.ready.then(async registration => {
         if (!registration.periodicSync) return;
         try {
-          const status = await navigator.permissions.query({ name: "periodic-background-sync" });
+          const status = await navigator.permissions.query({ name: /** @type {PermissionName} */ ("periodic-background-sync") });
           if (status.state !== "granted") return;
           await registration.periodicSync.register("nawy-daily-reminder", {
             minInterval: 12 * 60 * 60 * 1000
@@ -1683,6 +1690,7 @@
 
     function showMorningNotification() {
       const body = t("morningNotif");
+      /** @type {NotificationOptions & { vibrate?: number[] }} */
       const options = {
         body,
         icon: "./icon-512.png",
@@ -1985,7 +1993,7 @@
 
       reader.onload = e => {
         try {
-          const data = JSON.parse(e.target.result);
+          const data = JSON.parse(/** @type {string} */ (e.target.result));
 
           // ملف من نسخة أحدث من ناوي: نرفضه برسالة واضحة بدل ما نخمّن شكله.
           if (!NawyData.isSupportedVersion(data)) {
@@ -2249,7 +2257,7 @@
     $("#notifToggleCheckbox").addEventListener("change", async function () {
       if (notificationChanging) return;
 
-      const checkbox = this;
+      const checkbox = /** @type {HTMLInputElement} */ (this);
       const requestedState = checkbox.checked;
 
       notificationChanging = true;
@@ -2288,7 +2296,7 @@
     });
 
     document.addEventListener("touchstart", e => {
-      if (e.target.closest("button, input, textarea, select, option, .overlay, .sheet, .composer-panel, .fab")) return;
+      if (/** @type {Element} */ (e.target).closest("button, input, textarea, select, option, .overlay, .sheet, .composer-panel, .fab")) return;
 
       const touch = e.touches[0];
       swipeStartX = touch.clientX;
@@ -2309,7 +2317,7 @@
         return;
       }
 
-      if (e.target.closest(".task:not(.completed)") &&
+      if (/** @type {Element} */ (e.target).closest(".task:not(.completed)") &&
           currentView === "all" &&
           Date.now() - swipeStartTime >= 200) {
         swipeTracking = false;

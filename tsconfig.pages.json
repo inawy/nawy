@@ -8,11 +8,11 @@
     "noEmit": true,
     "strict": false,
     "noImplicitAny": false,
-    "noImplicitThis": true,
+    "noImplicitThis": false,
     "noImplicitReturns": false,
     "alwaysStrict": true,
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js"]
+  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "app.js"]
 }

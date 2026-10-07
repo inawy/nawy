@@ -490,9 +490,9 @@ export function snapshotFrom(array: Item[], versionKey = "updatedAt"): Snapshot 
   return map;
 }
 
-export function diffAgainstSnapshot(currentArray: Item[], snapshotMap: Snapshot, versionKey = "updatedAt"): { toPut: Item[]; toDelete: string[] } {
+export function diffAgainstSnapshot<T extends Item>(currentArray: T[], snapshotMap: Snapshot, versionKey = "updatedAt"): { toPut: T[]; toDelete: string[] } {
   const currentIds = new Set<string>();
-  const toPut: Item[] = [];
+  const toPut: T[] = [];
   currentArray.forEach(item => {
     if (!item || !item.id) return;
     currentIds.add(item.id);
