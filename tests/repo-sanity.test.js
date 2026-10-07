@@ -316,7 +316,11 @@ test("the page is hidden while booting and revealed by the app (no empty-skeleto
     css = read("styles.css"),
     app = read("app.js");
   assert.match(html, /<html[^>]*class="booting"/, "html must start in the booting state");
-  assert.match(css, /html\.booting body > \*\s*\{\s*visibility:\s*hidden;?\s*\}/, "styles must hide the page while booting");
+  assert.match(
+    css,
+    /html\.booting body > \*\s*\{\s*visibility:\s*hidden;?\s*\}/,
+    "styles must hide the page while booting"
+  );
   assert.match(app, /classList\.remove\("booting"\)/, "app.js must reveal the page after the first render");
   assert.match(
     html,
