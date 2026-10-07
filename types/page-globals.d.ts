@@ -14,6 +14,12 @@ interface Window {
   google?: any;
   webkitAudioContext?: typeof AudioContext;
 }
-interface Navigator { standalone?: boolean }
-interface HTMLElement { _handleTimer?: ReturnType<typeof setTimeout> }
-interface ServiceWorkerRegistration { periodicSync?: any }
+interface Navigator {
+  standalone?: boolean;
+}
+interface HTMLElement {
+  _handleTimer?: ReturnType<typeof setTimeout>;
+}
+interface ServiceWorkerRegistration {
+  periodicSync?: any;
+}

@@ -7,6 +7,8 @@
     "build": "node scripts/build-site.js",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.pages.json",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "build:core": "node scripts/build-core.mjs",
     "check:core": "node scripts/check-core.mjs",
     "test:browser": "node --test tests/browser/*.test.mjs"
@@ -19,6 +21,7 @@
     "eslint": "^10.12.0",
     "globals": "^17.13.0",
     "playwright": "^1.63.0",
+    "prettier": "^3.9.9",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "typescript": "^7.0.2",

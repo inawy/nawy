@@ -14,8 +14,9 @@ const LIBS = new Set(["dexie.min.js", "Sortable.min.js", "confetti.browser.min.j
 
 function walk(dir, out = []) {
   for (const name of fs.readdirSync(dir, { withFileTypes: true })) {
-    if (name.isDirectory()) { if (!SKIP_DIRS.has(name.name)) walk(path.join(dir, name.name), out); }
-    else if (!BINARY.test(name.name) && !LIBS.has(name.name)) out.push(path.join(dir, name.name));
+    if (name.isDirectory()) {
+      if (!SKIP_DIRS.has(name.name)) walk(path.join(dir, name.name), out);
+    } else if (!BINARY.test(name.name) && !LIBS.has(name.name)) out.push(path.join(dir, name.name));
   }
   return out;
 }
@@ -34,7 +35,19 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
+  for (const f of [
+    "service-worker.js",
+    "app.js",
+    "translations.js",
+    "sounds.js",
+    "share.js",
+    "sheet-gestures.js",
+    "banners.js",
+    "date-format.js",
+    "nawy-data.js",
+    "nawy-storage.js",
+    "nawy-backup.js"
+  ]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -44,7 +57,10 @@ test("inline scripts in index.html parse", () => {
   const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   assert.ok(scripts.length >= 1);
   scripts.forEach((code, i) => {
-    assert.doesNotThrow(() => new vm.Script(code, { filename: `index.html <script #${i + 1}>` }), `inline script #${i + 1} has a syntax error`);
+    assert.doesNotThrow(
+      () => new vm.Script(code, { filename: `index.html <script #${i + 1}>` }),
+      `inline script #${i + 1} has a syntax error`
+    );
   });
 });
 
@@ -91,7 +107,10 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
 
 test("the app code (app.js) never touches Dexie tables directly; only through `storage`", () => {
   const code = read("app.js");
-  const hits = code.split(/\r?\n/).map((l, i) => [i + 1, l]).filter(([, l]) => /\bdb\.\w/.test(l));
+  const hits = code
+    .split(/\r?\n/)
+    .map((l, i) => [i + 1, l])
+    .filter(([, l]) => /\bdb\.\w/.test(l));
   assert.deepEqual(hits, [], "direct db.* calls in app.js (use NawyStorage): " + hits.map(h => h[0]).join(", "));
 });
 
@@ -103,37 +122,70 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   const sw = read("service-worker.js").match(/nawy-data\.js\?v=([\w.]+)/g) || [];
   assert.ok(sw.length >= 2, "service worker must use the versioned URL in both places");
   sw.forEach(s => assert.equal(s.split("=")[1], html[1]));
-  assert.ok(read("service-worker.js").includes(`./nawy-storage.js?v=${html[1]}`), "APP_SHELL must precache nawy-storage.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./nawy-storage.js?v=${html[1]}`),
+    "APP_SHELL must precache nawy-storage.js with the same version"
+  );
   const htmlBackup = read("index.html").match(/nawy-backup\.js\?v=([\w.]+)/);
   assert.ok(htmlBackup && htmlBackup[1] === html[1], "index.html must load nawy-backup.js with the same ?v=");
-  assert.ok(read("service-worker.js").includes(`./nawy-backup.js?v=${html[1]}`), "APP_SHELL must precache nawy-backup.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./nawy-backup.js?v=${html[1]}`),
+    "APP_SHELL must precache nawy-backup.js with the same version"
+  );
   const htmlApp = read("index.html").match(/app\.js\?v=([\w.]+)/);
   assert.ok(htmlApp && htmlApp[1] === html[1], "index.html must load app.js with the same ?v");
   const htmlTr = read("index.html").match(/translations\.js\?v=([\w.]+)/);
   assert.ok(htmlTr && htmlTr[1] === html[1], "index.html must load translations.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./translations.js?v=${html[1]}`), "APP_SHELL must precache translations.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./translations.js?v=${html[1]}`),
+    "APP_SHELL must precache translations.js with the same version"
+  );
   const htmlSn = read("index.html").match(/sounds\.js\?v=([\w.]+)/);
   assert.ok(htmlSn && htmlSn[1] === html[1], "index.html must load sounds.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./sounds.js?v=${html[1]}`), "APP_SHELL must precache sounds.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./sounds.js?v=${html[1]}`),
+    "APP_SHELL must precache sounds.js with the same version"
+  );
   const htmlSh = read("index.html").match(/share\.js\?v=([\w.]+)/);
   assert.ok(htmlSh && htmlSh[1] === html[1], "index.html must load share.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./share.js?v=${html[1]}`), "APP_SHELL must precache share.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./share.js?v=${html[1]}`),
+    "APP_SHELL must precache share.js with the same version"
+  );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./sheet-gestures.js?v=${html[1]}`), "APP_SHELL must precache sheet-gestures.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./sheet-gestures.js?v=${html[1]}`),
+    "APP_SHELL must precache sheet-gestures.js with the same version"
+  );
   const htmlBn = read("index.html").match(/banners\.js\?v=([\w.]+)/);
   assert.ok(htmlBn && htmlBn[1] === html[1], "index.html must load banners.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./banners.js?v=${html[1]}`), "APP_SHELL must precache banners.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./banners.js?v=${html[1]}`),
+    "APP_SHELL must precache banners.js with the same version"
+  );
   const htmlDf = read("index.html").match(/date-format\.js\?v=([\w.]+)/);
   assert.ok(htmlDf && htmlDf[1] === html[1], "index.html must load date-format.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./date-format.js?v=${html[1]}`), "APP_SHELL must precache date-format.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./date-format.js?v=${html[1]}`),
+    "APP_SHELL must precache date-format.js with the same version"
+  );
   const htmlCss = read("index.html").match(/styles\.css\?v=([\w.]+)/);
   assert.ok(htmlCss && htmlCss[1] === html[1], "index.html must load styles.css with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./app.js?v=${html[1]}`), "APP_SHELL must precache app.js with the same version");
-  assert.ok(read("service-worker.js").includes(`./styles.css?v=${html[1]}`), "APP_SHELL must precache styles.css with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./app.js?v=${html[1]}`),
+    "APP_SHELL must precache app.js with the same version"
+  );
+  assert.ok(
+    read("service-worker.js").includes(`./styles.css?v=${html[1]}`),
+    "APP_SHELL must precache styles.css with the same version"
+  );
   const htmlUi = read("index.html").match(/nawy-ui\.js\?v=([\w.]+)/);
   assert.ok(htmlUi && htmlUi[1] === html[1], "index.html must load nawy-ui.js with the same ?v");
-  assert.ok(read("service-worker.js").includes(`./nawy-ui.js?v=${html[1]}`), "APP_SHELL must precache nawy-ui.js with the same version");
+  assert.ok(
+    read("service-worker.js").includes(`./nawy-ui.js?v=${html[1]}`),
+    "APP_SHELL must precache nawy-ui.js with the same version"
+  );
   assert.ok(read("service-worker.js").includes(`nawy-runtime-v${html[1]}`), "cache name must carry the same version");
 });
 
@@ -153,14 +205,18 @@ test("page reloads on controllerchange only after the user asked for the update"
   const handler = html.match(/addEventListener\("controllerchange",[\s\S]*?\}\);/);
   assert.ok(handler, "controllerchange handler not found");
   assert.match(handler[0], /!updateRequested/, "reload must be gated by updateRequested");
-  assert.match(html, /registration\.waiting && navigator\.serviceWorker\.controller/, "banner must also show for an already-waiting worker");
+  assert.match(
+    html,
+    /registration\.waiting && navigator\.serviceWorker\.controller/,
+    "banner must also show for an already-waiting worker"
+  );
   assert.match(read("banners.js"), /updateAfterDraft/, "update must not discard an unsent draft");
 });
 
 test("update banner strings exist in Arabic and English", () => {
   const html = read("translations.js");
   for (const key of ["updateAvailable", "updateNow", "updateAfterDraft"]) {
-    assert.equal((html.match(new RegExp(key + ": \"", "g")) || []).length, 2, key + " must be defined for ar and en");
+    assert.equal((html.match(new RegExp(key + ': "', "g")) || []).length, 2, key + " must be defined for ar and en");
   }
 });
 
@@ -170,7 +226,8 @@ test("no page loads anything from the network at startup (fonts, scripts, styles
   const pages = fs.readdirSync(ROOT).filter(f => f.endsWith(".html"));
   assert.ok(pages.includes("index.html") && pages.includes("game.html"));
   const external = [];
-  for (const page of [...pages, "styles.css"]) external.push(...externalResources(read(page)).map(x => page + ": " + x));
+  for (const page of [...pages, "styles.css"])
+    external.push(...externalResources(read(page)).map(x => page + ": " + x));
   assert.deepEqual(external, [], "external resources loaded at startup: " + external.join(" | "));
 });
 
@@ -184,10 +241,19 @@ function externalResources(html) {
 }
 
 test("Google Identity is loaded on demand, and Cairo is served locally", () => {
-  const html = read("index.html"), app = read("app.js"), css = read("styles.css");
+  const html = read("index.html"),
+    app = read("app.js"),
+    css = read("styles.css");
   assert.match(app, /function loadGoogleIdentity\(\)/, "lazy loader missing");
-  for (const [name, code] of [["index.html", html], ["app.js", app], ["styles.css", css]]) {
-    assert.ok(!/accounts\.google\.com/.test(code), "provider URLs belong in the adapter (nawy-backup.js), not in " + name);
+  for (const [name, code] of [
+    ["index.html", html],
+    ["app.js", app],
+    ["styles.css", css]
+  ]) {
+    assert.ok(
+      !/accounts\.google\.com/.test(code),
+      "provider URLs belong in the adapter (nawy-backup.js), not in " + name
+    );
     assert.ok(!/googleapis\.com/.test(code), "provider URLs belong in the adapter (nawy-backup.js), not in " + name);
   }
   assert.match(css, /@font-face\s*\{[^}]*Cairo[^}]*cairo-ar-latin\.woff2/, "local @font-face for Cairo missing");
@@ -200,7 +266,11 @@ test("Google Identity is loaded on demand, and Cairo is served locally", () => {
 // ---------- الهوية: ملفات الأيقونات ----------
 
 test("every icon in the manifest and head exists with the declared size (brand files are in place)", () => {
-  const png = f => { const b = fs.readFileSync(path.join(ROOT, f)); assert.equal(b.toString("latin1", 1, 4), "PNG", f + " is not a PNG"); return { w: b.readUInt32BE(16), h: b.readUInt32BE(20), alpha: b[25] === 6 }; };
+  const png = f => {
+    const b = fs.readFileSync(path.join(ROOT, f));
+    assert.equal(b.toString("latin1", 1, 4), "PNG", f + " is not a PNG");
+    return { w: b.readUInt32BE(16), h: b.readUInt32BE(20), alpha: b[25] === 6 };
+  };
   const manifest = JSON.parse(read("manifest.json"));
   for (const icon of manifest.icons) {
     const [w, h] = icon.sizes.split("x").map(Number);
@@ -211,7 +281,11 @@ test("every icon in the manifest and head exists with the declared size (brand f
   assert.deepEqual([touch.w, touch.h], [180, 180], "apple-touch-icon must be 180x180");
   assert.equal(png("favicon-32x32.png").w, 32);
   assert.equal(png("favicon-16x16.png").w, 16);
-  assert.equal(png("notification-badge.png").alpha, true, "the notification badge must have transparency (it is a silhouette)");
+  assert.equal(
+    png("notification-badge.png").alpha,
+    true,
+    "the notification badge must have transparency (it is a silhouette)"
+  );
   assert.equal(png("monochrome-icon.png").alpha, true, "the monochrome icon must have transparency");
   assert.match(read("favicon.svg"), /<svg[^>]*viewBox="0 0 1024 1024"/);
 });
@@ -238,9 +312,19 @@ test("index.html is markup only: no big inline script or stylesheet (only the ti
 });
 
 test("the page is hidden while booting and revealed by the app (no empty-skeleton flash), with a fail-safe", () => {
-  const html = read("index.html"), css = read("styles.css"), app = read("app.js");
+  const html = read("index.html"),
+    css = read("styles.css"),
+    app = read("app.js");
   assert.match(html, /<html[^>]*class="booting"/, "html must start in the booting state");
-  assert.match(css, /html\.booting body > \* \{ visibility: hidden; \}/, "styles must hide the page while booting");
+  assert.match(
+    css,
+    /html\.booting body > \*\s*\{\s*visibility:\s*hidden;?\s*\}/,
+    "styles must hide the page while booting"
+  );
   assert.match(app, /classList\.remove\("booting"\)/, "app.js must reveal the page after the first render");
-  assert.match(html, /setTimeout\(function \(\) \{ h\.classList\.remove\("booting"\); \}, 3000\)/, "boot script must reveal the page after a few seconds even if the app fails");
+  assert.match(
+    html,
+    /setTimeout\(function \(\) \{ h\.classList\.remove\("booting"\); \}, 3000\)/,
+    "boot script must reveal the page after a few seconds even if the app fails"
+  );
 });

@@ -7,7 +7,11 @@ const NOW = 1_700_000_000_000;
 
 function data(over = {}) {
   return {
-    tasks: [], archive: [], settings: {}, settingsUpdatedAt: 0, deletedIds: [],
+    tasks: [],
+    archive: [],
+    settings: {},
+    settingsUpdatedAt: 0,
+    deletedIds: [],
     ...over
   };
 }
@@ -18,7 +22,12 @@ function recordSchema() {
   const versions = {};
   const db = {
     version(n) {
-      return { stores(map) { versions[n] = map; return db; } };
+      return {
+        stores(map) {
+          versions[n] = map;
+          return db;
+        }
+      };
     }
   };
   NawyData.defineSchema(db);
@@ -105,11 +114,17 @@ test("export then import round-trips without loss", () => {
 // ---------- sanitize ----------
 
 test("sanitize drops non-objects and invalid tombstones", () => {
-  const c = NawyData.sanitizeNawyData(data({
-    tasks: [null, 3, { id: "a" }],
-    archive: ["x", { id: "b" }],
-    deletedIds: [{ id: "", deletedAt: 1 }, { id: "z", deletedAt: "nope" }, { id: "ok", deletedAt: 5 }]
-  }));
+  const c = NawyData.sanitizeNawyData(
+    data({
+      tasks: [null, 3, { id: "a" }],
+      archive: ["x", { id: "b" }],
+      deletedIds: [
+        { id: "", deletedAt: 1 },
+        { id: "z", deletedAt: "nope" },
+        { id: "ok", deletedAt: 5 }
+      ]
+    })
+  );
   assert.equal(c.tasks.length, 1);
   assert.equal(c.archive.length, 1);
   assert.deepEqual(c.deletedIds, [{ id: "ok", deletedAt: 5 }]);
@@ -118,8 +133,18 @@ test("sanitize drops non-objects and invalid tombstones", () => {
 // ---------- merge ----------
 
 test("merge: newer record wins, union of both sides", () => {
-  const local = data({ tasks: [{ id: "a", text: "old", updatedAt: 10 }, { id: "l", text: "only local", updatedAt: 1 }] });
-  const remote = data({ tasks: [{ id: "a", text: "new", updatedAt: 20 }, { id: "r", text: "only remote", updatedAt: 1 }] });
+  const local = data({
+    tasks: [
+      { id: "a", text: "old", updatedAt: 10 },
+      { id: "l", text: "only local", updatedAt: 1 }
+    ]
+  });
+  const remote = data({
+    tasks: [
+      { id: "a", text: "new", updatedAt: 20 },
+      { id: "r", text: "only remote", updatedAt: 1 }
+    ]
+  });
   const m = NawyData.mergeNawyData(local, remote);
   const byId = Object.fromEntries(m.tasks.map(t => [t.id, t]));
   assert.equal(byId.a.text, "new");
@@ -135,11 +160,20 @@ test("merge: tie keeps the local record", () => {
 
 test("merge: tombstone newer than record removes it; older tombstone does not", () => {
   const local = data({
-    tasks: [{ id: "gone", updatedAt: 10 }, { id: "stays", updatedAt: 50 }],
-    deletedIds: [{ id: "gone", deletedAt: 20 }, { id: "stays", deletedAt: 40 }]
+    tasks: [
+      { id: "gone", updatedAt: 10 },
+      { id: "stays", updatedAt: 50 }
+    ],
+    deletedIds: [
+      { id: "gone", deletedAt: 20 },
+      { id: "stays", deletedAt: 40 }
+    ]
   });
   const m = NawyData.mergeNawyData(local, data());
-  assert.deepEqual(m.tasks.map(t => t.id), ["stays"]);
+  assert.deepEqual(
+    m.tasks.map(t => t.id),
+    ["stays"]
+  );
   assert.equal(m.deletedIds.find(d => d.id === "gone").deletedAt, 20);
 });
 
@@ -186,7 +220,8 @@ test("merge is idempotent: merging a result with itself changes nothing", () => 
     tasks: [{ id: "a", updatedAt: 5 }],
     archive: [{ id: "b", archivedAt: 6 }],
     deletedIds: [{ id: "c", deletedAt: 7 }],
-    settings: { language: "en" }, settingsUpdatedAt: 3
+    settings: { language: "en" },
+    settingsUpdatedAt: 3
   });
   const once = NawyData.mergeNawyData(a, data());
   const twice = NawyData.mergeNawyData(once, once);
@@ -214,8 +249,14 @@ test("merge: a record with no timestamps and no tombstone is kept (old backups)"
     archive: [{ id: "old2", text: "أرشيف قديم" }]
   });
   const m = NawyData.mergeNawyData(data(), remote);
-  assert.deepEqual(m.tasks.map(t => t.id), ["old1"]);
-  assert.deepEqual(m.archive.map(t => t.id), ["old2"]);
+  assert.deepEqual(
+    m.tasks.map(t => t.id),
+    ["old1"]
+  );
+  assert.deepEqual(
+    m.archive.map(t => t.id),
+    ["old2"]
+  );
 });
 
 test("merge: local timestamp-less records also survive an import", () => {

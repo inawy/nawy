@@ -8,7 +8,11 @@ const before = files.map(f => fs.readFileSync(f, "utf8"));
 execFileSync(process.execPath, ["scripts/build-core.mjs"], { stdio: "inherit" });
 const stale = files.filter((f, i) => fs.readFileSync(f, "utf8") !== before[i]);
 if (stale.length) {
-  console.error("Generated files are out of date with src/core: " + stale.join(", ") + "\nRun `npm run build:core` and commit the result.");
+  console.error(
+    "Generated files are out of date with src/core: " +
+      stale.join(", ") +
+      "\nRun `npm run build:core` and commit the result."
+  );
   process.exit(1);
 }
 console.log("generated core files are up to date");

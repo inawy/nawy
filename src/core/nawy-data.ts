@@ -127,16 +127,10 @@ export function getTimestamp(item: any): number {
 
 export function normalizeSettings(rawSettings: any): Settings {
   const source: Record<string, any> =
-    rawSettings && typeof rawSettings === "object" && !Array.isArray(rawSettings)
-      ? rawSettings
-      : {};
+    rawSettings && typeof rawSettings === "object" && !Array.isArray(rawSettings) ? rawSettings : {};
 
   return Object.assign({}, DEFAULT_SETTINGS, source, {
-    sectionsCollapsed: Object.assign(
-      {},
-      DEFAULT_SETTINGS.sectionsCollapsed,
-      source.sectionsCollapsed || {}
-    )
+    sectionsCollapsed: Object.assign({}, DEFAULT_SETTINGS.sectionsCollapsed, source.sectionsCollapsed || {})
   });
 }
 
@@ -184,25 +178,14 @@ export function sanitizeNawyData(data: any): NawyData {
   return {
     version: SCHEMA_VERSION,
     schemaVersion: SCHEMA_VERSION,
-    updatedAt: typeof data.updatedAt === "string"
-      ? data.updatedAt
-      : new Date().toISOString(),
-    tasks: Array.isArray(data.tasks)
-      ? data.tasks.filter((item: any) => item && typeof item === "object")
-      : [],
-    archive: Array.isArray(data.archive)
-      ? data.archive.filter((item: any) => item && typeof item === "object")
-      : [],
+    updatedAt: typeof data.updatedAt === "string" ? data.updatedAt : new Date().toISOString(),
+    tasks: Array.isArray(data.tasks) ? data.tasks.filter((item: any) => item && typeof item === "object") : [],
+    archive: Array.isArray(data.archive) ? data.archive.filter((item: any) => item && typeof item === "object") : [],
     settings: normalizeSettings(data.settings),
-    settingsUpdatedAt: Number(data.settingsUpdatedAt) > 0
-      ? Number(data.settingsUpdatedAt)
-      : 0,
+    settingsUpdatedAt: Number(data.settingsUpdatedAt) > 0 ? Number(data.settingsUpdatedAt) : 0,
     deletedIds: Array.isArray(data.deletedIds)
-      ? data.deletedIds.filter((item: any) =>
-          item &&
-          typeof item.id === "string" &&
-          item.id &&
-          Number.isFinite(Number(item.deletedAt))
+      ? data.deletedIds.filter(
+          (item: any) => item && typeof item.id === "string" && item.id && Number.isFinite(Number(item.deletedAt))
         )
       : []
   };
@@ -293,13 +276,11 @@ export function mergeNawyData(localData: any, remoteData: any): NawyData {
   } else {
     // نسخ قديمة من غير settingsUpdatedAt: نُبقي المحلي أولًا عشان نسخة
     // قديمة ما تمسحش إعدادات الجهاز الحالية.
-    mergedSettings = normalizeSettings(Object.assign({}, remote.settings, local.settings, {
-      sectionsCollapsed: Object.assign(
-        {},
-        remote.settings.sectionsCollapsed,
-        local.settings.sectionsCollapsed
-      )
-    }));
+    mergedSettings = normalizeSettings(
+      Object.assign({}, remote.settings, local.settings, {
+        sectionsCollapsed: Object.assign({}, remote.settings.sectionsCollapsed, local.settings.sectionsCollapsed)
+      })
+    );
     mergedSettingsUpdatedAt = localSettingsTimestamp || remoteSettingsTimestamp || 0;
   }
 
@@ -332,13 +313,7 @@ export const REMINDER_END_HOUR = 21;
 export const REMINDER_TITLE = "ناوي 🌱";
 
 export type ReminderChannel = "in-app" | "notification";
-export type ReminderReason =
-  | "ok"
-  | "disabled"
-  | "already-shown"
-  | "no-intention"
-  | "achieved"
-  | "quiet-hours";
+export type ReminderReason = "ok" | "disabled" | "already-shown" | "no-intention" | "achieved" | "quiet-hours";
 
 export interface ReminderInput {
   settings: {
@@ -410,7 +385,10 @@ export interface Stats {
 }
 
 export function normalizeTaskText(text: unknown): string {
-  return String(text || "").trim().replace(/\s+/g, " ").toLowerCase();
+  return String(text || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 }
 
 const dayKey = (d: Date): string => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
@@ -432,7 +410,8 @@ export function computeStats(input: { tasks: Item[]; archive: Item[]; now: Date 
 
   const activeCount = tasks.filter(x => x.status === "active").length;
   const achievedTotal = achieved.length;
-  const completionRate = activeCount + achievedTotal > 0 ? Math.round((achievedTotal / (activeCount + achievedTotal)) * 100) : 0;
+  const completionRate =
+    activeCount + achievedTotal > 0 ? Math.round((achievedTotal / (activeCount + achievedTotal)) * 100) : 0;
 
   // السلسلة: أيام متتالية للخلف من النهارده فيها تحقيق واحد على الأقل (لو النهارده فاضي نبدأ من إمبارح).
   const countByDay = new Map<string, number>();
@@ -490,7 +469,11 @@ export function snapshotFrom(array: Item[], versionKey = "updatedAt"): Snapshot 
   return map;
 }
 
-export function diffAgainstSnapshot<T extends Item>(currentArray: T[], snapshotMap: Snapshot, versionKey = "updatedAt"): { toPut: T[]; toDelete: string[] } {
+export function diffAgainstSnapshot<T extends Item>(
+  currentArray: T[],
+  snapshotMap: Snapshot,
+  versionKey = "updatedAt"
+): { toPut: T[]; toDelete: string[] } {
   const currentIds = new Set<string>();
   const toPut: T[] = [];
   currentArray.forEach(item => {

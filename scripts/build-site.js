@@ -16,13 +16,49 @@ const path = require("node:path");
 // أسماء على مستوى الجذر بس. أي ملف أو مجلد جديد للتطبيق بيتنشر تلقائيًا؛
 // اللي مش للنشر لازم يتضاف هنا صراحةً.
 const EXCLUDE = new Set([
-  ".git", ".github", ".claude", ".skills", ".gitignore", ".gitattributes",
-  "node_modules", "_site", ".core-out", "tests", "docs", "scripts", "src", "brand", "types", "tsconfig.json", "tsconfig.pages.json",
-  "AGENTS.md", "README.md", "package.json", "package-lock.json",
-  ".DS_Store", "Thumbs.db"
+  ".git",
+  ".github",
+  ".claude",
+  ".skills",
+  ".gitignore",
+  ".gitattributes",
+  "node_modules",
+  "_site",
+  ".core-out",
+  "tests",
+  "docs",
+  "scripts",
+  "src",
+  "brand",
+  "types",
+  "tsconfig.json",
+  "tsconfig.pages.json",
+  "AGENTS.md",
+  "README.md",
+  "package.json",
+  "package-lock.json",
+  ".DS_Store",
+  "Thumbs.db"
 ]);
 
-const REQUIRED = ["index.html", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "styles.css", "service-worker.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js", "nawy-ui.js", "manifest.json", "dexie.min.js"];
+const REQUIRED = [
+  "index.html",
+  "app.js",
+  "translations.js",
+  "sounds.js",
+  "share.js",
+  "sheet-gestures.js",
+  "banners.js",
+  "date-format.js",
+  "styles.css",
+  "service-worker.js",
+  "nawy-data.js",
+  "nawy-storage.js",
+  "nawy-backup.js",
+  "nawy-ui.js",
+  "manifest.json",
+  "dexie.min.js"
+];
 
 function findMissingReferences(dir) {
   const read = f => fs.readFileSync(path.join(dir, f), "utf8");
@@ -32,9 +68,7 @@ function findMissingReferences(dir) {
   const shell = sw.match(/const APP_SHELL = \[([\s\S]*?)\];/);
   const shellRefs = shell ? [...shell[1].matchAll(/"\.\/([^"?]*)(?:\?[^"]*)?"/g)].map(m => m[1]).filter(Boolean) : [];
   const imports = [...sw.matchAll(/importScripts\("\.\/([^"?]+)(?:\?[^"]*)?"\)/g)].map(m => m[1]);
-  return [...new Set([...refs, ...shellRefs, ...imports])]
-    .filter(r => !fs.existsSync(path.join(dir, r)))
-    .sort();
+  return [...new Set([...refs, ...shellRefs, ...imports])].filter(r => !fs.existsSync(path.join(dir, r))).sort();
 }
 
 function build(src, out) {
@@ -53,7 +87,8 @@ function build(src, out) {
 }
 
 function countFiles(dir) {
-  return fs.readdirSync(dir, { withFileTypes: true })
+  return fs
+    .readdirSync(dir, { withFileTypes: true })
     .reduce((n, e) => n + (e.isDirectory() ? countFiles(path.join(dir, e.name)) : 1), 0);
 }
 

@@ -1,10 +1,10 @@
-const CACHE_NAME = "nawy-runtime-v1.34.0";
+const CACHE_NAME = "nawy-runtime-v1.35.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.34.0");
+importScripts("./nawy-data.js?v=1.35.0");
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -13,18 +13,18 @@ const APP_SHELL = [
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./styles.css?v=1.34.0",
-  "./translations.js?v=1.34.0",
-  "./sounds.js?v=1.34.0",
-  "./share.js?v=1.34.0",
-  "./sheet-gestures.js?v=1.34.0",
-  "./banners.js?v=1.34.0",
-  "./date-format.js?v=1.34.0",
-  "./app.js?v=1.34.0",
-  "./nawy-data.js?v=1.34.0",
-  "./nawy-storage.js?v=1.34.0",
-  "./nawy-backup.js?v=1.34.0",
-  "./nawy-ui.js?v=1.34.0",
+  "./styles.css?v=1.35.0",
+  "./translations.js?v=1.35.0",
+  "./sounds.js?v=1.35.0",
+  "./share.js?v=1.35.0",
+  "./sheet-gestures.js?v=1.35.0",
+  "./banners.js?v=1.35.0",
+  "./date-format.js?v=1.35.0",
+  "./app.js?v=1.35.0",
+  "./nawy-data.js?v=1.35.0",
+  "./nawy-storage.js?v=1.35.0",
+  "./nawy-backup.js?v=1.35.0",
+  "./nawy-ui.js?v=1.35.0",
   "./fonts/cairo-ar-latin.woff2",
   "./icon-192.png",
   "./icon-512.png",
@@ -40,28 +40,25 @@ function isSameOrigin(url) {
 
 function isAppShellRequest(request) {
   const url = new URL(request.url);
-  return url.pathname === APP_INDEX.pathname ||
-    url.pathname.endsWith("/");
+  return url.pathname === APP_INDEX.pathname || url.pathname.endsWith("/");
 }
 
 self.addEventListener("install", event => {
   // مفيش skipWaiting هنا: النسخة الجديدة بتستنى لحد ما المستخدم يضغط "تحديث
   // الآن" (رسالة SKIP_WAITING تحت) أو يفتح التطبيق من جديد، عشان الصفحة ما
   // تتعاد وهو بيكتب.
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(APP_SHELL))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)));
 });
 
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys()
-      .then(names => Promise.all(
-        names
-          .filter(name => name.startsWith("nawy-") && name !== CACHE_NAME)
-          .map(name => caches.delete(name))
-      ))
+    caches
+      .keys()
+      .then(names =>
+        Promise.all(
+          names.filter(name => name.startsWith("nawy-") && name !== CACHE_NAME).map(name => caches.delete(name))
+        )
+      )
       .then(() => self.clients.claim())
   );
 });
@@ -78,17 +75,20 @@ self.addEventListener("fetch", event => {
       .then(response => {
         if (response.ok) {
           const copy = response.clone();
-          caches.open(CACHE_NAME)
+          caches
+            .open(CACHE_NAME)
             .then(cache => cache.put(request, copy))
             .catch(() => {});
         }
         return response;
       })
-      .catch(() => caches.match(request).then(cached => {
-        if (cached) return cached;
-        if (request.mode === "navigate") return caches.match(APP_INDEX.pathname);
-        return new Response("Offline", { status: 503 });
-      }))
+      .catch(() =>
+        caches.match(request).then(cached => {
+          if (cached) return cached;
+          if (request.mode === "navigate") return caches.match(APP_INDEX.pathname);
+          return new Response("Offline", { status: 503 });
+        })
+      )
   );
 });
 
@@ -107,14 +107,13 @@ self.addEventListener("notificationclick", event => {
     return;
   }
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true })
-      .then(windowClients => {
-        for (const client of windowClients) {
-          if ("focus" in client) return client.focus();
-        }
-        if (clients.openWindow) return clients.openWindow(APP_INDEX.href);
-        return undefined;
-      })
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then(windowClients => {
+      for (const client of windowClients) {
+        if ("focus" in client) return client.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(APP_INDEX.href);
+      return undefined;
+    })
   );
 });
 
@@ -178,4 +177,4 @@ async function checkAndShowDailyReminder() {
   } catch (error) {
     console.warn("Periodic reminder sync failed", error);
   }
-}
+}
