@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
+  for (const f of ["service-worker.js", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -79,6 +79,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(sounds > backup && sounds < app, "sounds.js must load after the Core and before app.js");
   const share = html.indexOf('src="./share.js');
   assert.ok(share > backup && share < app, "share.js must load after the Core and before app.js");
+  const gestures = html.indexOf('src="./sheet-gestures.js');
+  assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   assert.ok(read("app.js").includes("const db = new Dexie("), "app.js must create the database");
   assert.ok(dexie > -1 && data > dexie && storage > data && backup > storage && app > backup, "wrong script order");
 });
@@ -112,6 +114,9 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   const htmlSh = read("index.html").match(/share\.js\?v=([\w.]+)/);
   assert.ok(htmlSh && htmlSh[1] === html[1], "index.html must load share.js with the same ?v");
   assert.ok(read("service-worker.js").includes(`./share.js?v=${html[1]}`), "APP_SHELL must precache share.js with the same version");
+  const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
+  assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
+  assert.ok(read("service-worker.js").includes(`./sheet-gestures.js?v=${html[1]}`), "APP_SHELL must precache sheet-gestures.js with the same version");
   const htmlCss = read("index.html").match(/styles\.css\?v=([\w.]+)/);
   assert.ok(htmlCss && htmlCss[1] === html[1], "index.html must load styles.css with the same ?v");
   assert.ok(read("service-worker.js").includes(`./app.js?v=${html[1]}`), "APP_SHELL must precache app.js with the same version");

@@ -28,7 +28,7 @@ A change is done only when:
 
 - Lockfile committed, build reproducible from a clean clone.
 - `npm run lint` and `npm run typecheck` pass (CI enforces both). Do not silence a lint rule to make it pass; remove the dead code or fix the bug, and explain any `eslint-disable` in a comment.
-- Service worker cache version bumped; update flow verified. When any app file changes (`app.js`, `translations.js`, `sounds.js`, `share.js`, `styles.css`, `nawy-*.js`), bump `?v=` in `index.html`, `importScripts`, `APP_SHELL` and `CACHE_NAME` together.
+- Service worker cache version bumped; update flow verified. When any app file changes (`app.js`, `translations.js`, `sounds.js`, `share.js`, `sheet-gestures.js`, `styles.css`, `nawy-*.js`), bump `?v=` in `index.html`, `importScripts`, `APP_SHELL` and `CACHE_NAME` together.
 - `npm test` passes (it includes the repo sanity check). After any conflicted merge or `git stash pop`, search for `<<<<<<<` before committing.
 - Deploy only through the GitHub Actions workflow (type check, generated-files check, tests, browser tests on the built site, then deploy from `main`). Never publish by hand. Work on a branch + pull request; merge when CI is green.
 - Archive of the built `dist/` saved with the version number.

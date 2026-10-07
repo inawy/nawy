@@ -270,3 +270,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `shareAsImage` and `drawShareContent` (the canvas drawing and the share/download of the intention image, 157 lines) moved verbatim to `share.js`, loaded after the Core and before `app.js`. They use `resolveTheme` and `settings` from `app.js` only when called.
 - Proof: putting the moved lines back reproduces the old `app.js` byte for byte. Wiring and load-order tests as in decisions 027 and 028; ESLint gives `share.js` those two globals and `app.js` the `shareAsImage` global.
 - Version: 1.28.0.
+
+## 030 — Splitting app.js, step 4: sheet-gestures.js
+
+- `wrapSheetScrollArea` and `initSheetGestures` (the swipe-to-dismiss and scroll handoff for every bottom sheet, 156 lines with their comment) moved verbatim to `sheet-gestures.js`. Only the definitions moved: the call `initSheetGestures();` stays in `app.js`, so it still runs after `$$` and `closeOverlay` exist and in the same order as before.
+- Proof: putting the moved lines back reproduces the old `app.js` byte for byte. Same wiring and load-order tests; ESLint gives the new file `$$` and `closeOverlay`.
+- Version: 1.29.0.

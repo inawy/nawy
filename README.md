@@ -34,7 +34,7 @@ npm test
 عند تغيير أي ملف في التطبيق يجب أن يصل التحديث للمستخدمين، فارفع الرقم في الأماكن التالية معاً (الاختبارات تتحقق أنها متطابقة):
 
 1. `CACHE_NAME` في `service-worker.js`
-2. `?v=` على `styles.css` و`translations.js` و`sounds.js` و`share.js` و`app.js` و`nawy-data.js` و`nawy-storage.js` و`nawy-backup.js` و`nawy-ui.js` في `index.html`
+2. `?v=` على `styles.css` و`translations.js` و`sounds.js` و`share.js` و`sheet-gestures.js` و`app.js` و`nawy-data.js` و`nawy-storage.js` و`nawy-backup.js` و`nawy-ui.js` في `index.html`
 3. `importScripts(...)` و`APP_SHELL` في `service-worker.js`
 
 التحديث يظهر للمستخدم كشريط «نسخة جديدة متاحة»، ولا يُعاد تحميل الصفحة بدون موافقته.
@@ -48,6 +48,7 @@ npm test
 | `translations.js` | جدول الترجمات (عربي/إنجليزي): بيانات صرفة، بيتحمّل قبل `app.js` |
 | `sounds.js` | أصوات الإنجاز/التراجع/الإضافة (Web Audio)، بيتحمّل قبل `app.js` |
 | `share.js` | رسم صورة المشاركة ومشاركتها/تنزيلها (Canvas)، بيتحمّل قبل `app.js` |
+| `sheet-gestures.js` | إيماءات النوافذ السفلية (سحب للإغلاق وسكرول)، بيتحمّل قبل `app.js`؛ الاستدعاء بيفضل في `app.js` |
 | `app.js` | منطق التطبيق (يكلّم الـ Core والتخزين والنسخ الاحتياطي عبر واجهاتهم) |
 | `src/core/*.ts` | **مصدر** طبقة البيانات والتخزين (TypeScript). هنا يتم التعديل |
 | `nawy-data.js` | الـ Core: schema ودمج وصيغة التصدير، وقرار التذكير وزر «تم ✓»، وحساب الإحصائيات، وكشف التغييرات قبل الحفظ، وتجديد نية اليوم. مشتركة مع الـ service worker. **مولَّد** من المصدر، لا يُعدَّل يدويًا |
