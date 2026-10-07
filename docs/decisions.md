@@ -288,3 +288,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - `formatAchievedDate`, `formatArchivedTime`, `archiveDayGroup` and `formatOlderDate` (archive date and time formatting, 61 lines, definitions only) moved verbatim to `date-format.js`. They read `settings` from `app.js` only when called. Same proof (byte-identical reassembly), wiring and load-order tests as decisions 027 to 031.
 - Version: 1.31.0.
+
+## 033 — Type checking for the page scripts (checkJs), starting with the small files
+
+- The split-out page scripts (`translations.js`, `sounds.js`, `share.js`, `sheet-gestures.js`, `banners.js`, `date-format.js`) are now checked by `tsc -p tsconfig.pages.json` (`allowJs` + `checkJs`), run by `npm run typecheck` and therefore by CI. No build step and no change to how the files are served.
+- Non-strict on purpose (`strict` off, `noImplicitAny` off): the first goal is catching real mistakes (undefined names, misspelled properties, wrong calls) without annotating 3,000 lines. Negative control: a misspelled `settings` in `date-format.js` fails with "Cannot find name". Strictness can be raised file by file.
+- Names that `app.js` defines and the small files use at run time (`$`, `$$`, `t`, `showToast`, `closeOverlay`, `resolveTheme`, `settings`, `updateRequested`) are declared in `types/page-globals.d.ts`. When `app.js` itself joins the check, those declarations move to the real definitions.
+- One code change, no behavior change: a type cast comment in `sheet-gestures.js` (`/** @type {Element} */ (event.target)`). `types/` and `tsconfig.pages.json` are not published.
+- Version: 1.32.0 (a page script changed).

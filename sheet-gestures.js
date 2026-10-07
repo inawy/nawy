@@ -49,7 +49,7 @@
           // منمنع بدء السحب فقط من عناصر نصية ممكن يكون فيها تحديد نص
           // (تحرير المهمة، خانة البحث) — كل حاجة تانية على البطاقة،
           // حتى الأزرار والمفاتيح، تقدر تبدأ منها سحب البطاقة كلها.
-          if (event.target.closest("textarea, input[type='text'], input[type='search']")) return;
+          if (/** @type {Element} */ (event.target).closest("textarea, input[type='text'], input[type='search']")) return;
 
           startX = event.clientX;
           startY = event.clientY;
