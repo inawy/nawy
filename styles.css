@@ -68,6 +68,9 @@
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
     html { min-height: 100%; background: var(--bg); }
+    /* أول فتح/ريفرش: نخفي المحتوى لحد ما أول render يخلص (app.js بيشيل booting) فمفيش وميض هيكل فاضي ثم محتوى. خلفية الصفحة بتفضل ظاهرة بلون الثيم. */
+    html.booting body > * { visibility: hidden; }
+
     body {
       min-height: 100vh;
       background: var(--bg);

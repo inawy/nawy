@@ -236,3 +236,11 @@ test("index.html is markup only: no big inline script or stylesheet (only the ti
   assert.match(html, /<link rel="stylesheet" href="\.\/styles\.css\?v=/);
   assert.match(html, /<script src="\.\/app\.js\?v=[^"]+"><\/script>/);
 });
+
+test("the page is hidden while booting and revealed by the app (no empty-skeleton flash), with a fail-safe", () => {
+  const html = read("index.html"), css = read("styles.css"), app = read("app.js");
+  assert.match(html, /<html[^>]*class="booting"/, "html must start in the booting state");
+  assert.match(css, /html\.booting body > \* \{ visibility: hidden; \}/, "styles must hide the page while booting");
+  assert.match(app, /classList\.remove\("booting"\)/, "app.js must reveal the page after the first render");
+  assert.match(html, /setTimeout\(function \(\) \{ h\.classList\.remove\("booting"\); \}, 3000\)/, "boot script must reveal the page after a few seconds even if the app fails");
+});

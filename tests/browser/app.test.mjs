@@ -182,6 +182,48 @@ test("a reload keeps the current tab; a fresh session starts on Today", async ()
   await fresh.close();
 });
 
+// A fresh context without service workers: an installed worker would answer app.js from its cache and bypass the held-back route.
+async function newPageWithoutWorker() {
+  const c = await browser.newContext({ viewport: { width: 390, height: 780 }, serviceWorkers: "block" });
+  return { page: await c.newPage(), close: () => c.close() };
+}
+
+test("the page stays hidden until the first render, then shows with content (no empty-skeleton flash)", async () => {
+  const { page, close } = await newPageWithoutWorker();
+  let release;
+  const gate = new Promise(r => { release = r; });
+  await page.route("**/app.js*", async route => { await gate; await route.continue(); });
+  // app.js is a blocking script, so the navigation only "commits" while it is held back.
+  await page.goto(`${base}/index.html`, { waitUntil: "commit" });
+  await page.waitForTimeout(600);
+  const during = await page.evaluate(() => ({
+    booting: document.documentElement.classList.contains("booting"),
+    visibility: getComputedStyle(document.querySelector(".app")).visibility,
+    bg: getComputedStyle(document.body).backgroundColor
+  }));
+  assert.equal(during.booting, true, "html must be marked booting before app.js runs");
+  assert.equal(during.visibility, "hidden", "the app markup must not be visible while booting");
+  assert.notEqual(during.bg, "rgba(0, 0, 0, 0)", "the page background must stay painted while booting");
+  release();
+  await page.waitForFunction(() => !document.documentElement.classList.contains("booting"), null, { timeout: 5000 });
+  const after = await page.evaluate(() => ({
+    visibility: getComputedStyle(document.querySelector(".app")).visibility,
+    hasContent: document.querySelector("#content").children.length > 0
+  }));
+  assert.equal(after.visibility, "visible");
+  assert.equal(after.hasContent, true, "content must already be rendered when the page is revealed");
+  await close();
+});
+
+test("if app.js never runs, the page is revealed anyway after a few seconds", async () => {
+  const { page, close } = await newPageWithoutWorker();
+  await page.route("**/app.js*", route => route.abort());
+  await page.goto(`${base}/index.html`, { waitUntil: "domcontentloaded" });
+  await page.waitForFunction(() => !document.documentElement.classList.contains("booting"), null, { timeout: 6000 });
+  assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector(".app")).visibility), "visible");
+  await close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });
