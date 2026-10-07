@@ -28,8 +28,13 @@ export default [
   },
   {
     // الصفحة: classic script في المتصفح
-    files: ["app.js", "google-drive-config.js", "nawy-mascot.js"],
+    files: ["google-drive-config.js", "nawy-mascot.js", "translations.js"],
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }
+  },
+  {
+    // app.js بيستخدم اللي بتعرّفه ملفات الصفحة التانية (classic scripts بتتشارك النطاق العام)
+    files: ["app.js"],
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly" } }
   },
   {
     files: ["service-worker.js"],

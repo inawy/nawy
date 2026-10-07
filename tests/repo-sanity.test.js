@@ -34,7 +34,7 @@ test("no git conflict markers in any tracked text file", () => {
 });
 
 test("JavaScript files parse", () => {
-  for (const f of ["service-worker.js", "app.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
+  for (const f of ["service-worker.js", "app.js", "translations.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js"]) {
     assert.doesNotThrow(() => new vm.Script(read(f), { filename: f }), f + " has a syntax error");
   }
 });
@@ -73,6 +73,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   const storage = html.indexOf('src="./nawy-storage.js');
   const backup = html.indexOf('src="./nawy-backup.js');
   const app = html.indexOf('src="./app.js');
+  const translations = html.indexOf('src="./translations.js');
+  assert.ok(translations > backup && translations < app, "translations.js must load after the Core and before app.js");
   assert.ok(read("app.js").includes("const db = new Dexie("), "app.js must create the database");
   assert.ok(dexie > -1 && data > dexie && storage > data && backup > storage && app > backup, "wrong script order");
 });
@@ -97,6 +99,9 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(read("service-worker.js").includes(`./nawy-backup.js?v=${html[1]}`), "APP_SHELL must precache nawy-backup.js with the same version");
   const htmlApp = read("index.html").match(/app\.js\?v=([\w.]+)/);
   assert.ok(htmlApp && htmlApp[1] === html[1], "index.html must load app.js with the same ?v");
+  const htmlTr = read("index.html").match(/translations\.js\?v=([\w.]+)/);
+  assert.ok(htmlTr && htmlTr[1] === html[1], "index.html must load translations.js with the same ?v");
+  assert.ok(read("service-worker.js").includes(`./translations.js?v=${html[1]}`), "APP_SHELL must precache translations.js with the same version");
   const htmlCss = read("index.html").match(/styles\.css\?v=([\w.]+)/);
   assert.ok(htmlCss && htmlCss[1] === html[1], "index.html must load styles.css with the same ?v");
   assert.ok(read("service-worker.js").includes(`./app.js?v=${html[1]}`), "APP_SHELL must precache app.js with the same version");
@@ -128,7 +133,7 @@ test("page reloads on controllerchange only after the user asked for the update"
 });
 
 test("update banner strings exist in Arabic and English", () => {
-  const html = read("app.js");
+  const html = read("translations.js");
   for (const key of ["updateAvailable", "updateNow", "updateAfterDraft"]) {
     assert.equal((html.match(new RegExp(key + ": \"", "g")) || []).length, 2, key + " must be defined for ar and en");
   }
