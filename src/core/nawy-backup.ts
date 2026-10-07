@@ -81,7 +81,9 @@ export function createBrowserIdentityLoader(): () => Promise<void> {
 
 async function httpError(what: string, response: any): Promise<Error> {
   const body = await response.text();
-  return new Error(`Drive backup ${what} failed: HTTP ${response.status} ${response.statusText}: ${body || "(empty response body)"}`);
+  return new Error(
+    `Drive backup ${what} failed: HTTP ${response.status} ${response.statusText}: ${body || "(empty response body)"}`
+  );
 }
 
 export function createDriveBackupProvider(deps: DriveDeps): BackupProvider {
@@ -99,7 +101,9 @@ export function createDriveBackupProvider(deps: DriveDeps): BackupProvider {
       orderBy: "modifiedTime desc",
       pageSize: "10"
     });
-    const response = await deps.fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`, { headers: auth() });
+    const response = await deps.fetch(`https://www.googleapis.com/drive/v3/files?${params.toString()}`, {
+      headers: auth()
+    });
     if (!response.ok) throw await httpError("search", response);
     const result = await response.json();
     fileId = result.files?.[0]?.id || null;
@@ -146,7 +150,10 @@ export function createDriveBackupProvider(deps: DriveDeps): BackupProvider {
     async download() {
       const id = await findFile();
       if (!id) return null;
-      const response = await deps.fetch(`https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`, { headers: auth() });
+      const response = await deps.fetch(
+        `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(id)}?alt=media`,
+        { headers: auth() }
+      );
       if (!response.ok) throw await httpError("download", response);
       const data = await response.json();
       if (!deps.isValid(data)) throw new Error("Google Drive backup payload is invalid");
@@ -159,7 +166,11 @@ export function createDriveBackupProvider(deps: DriveDeps): BackupProvider {
       const metadata: Record<string, unknown> = { name: DRIVE_BACKUP_FILE_NAME, mimeType: "application/json" };
       if (!existing) metadata.parents = ["appDataFolder"];
 
-      const payload = JSON.stringify({ ...deps.sanitize(data), version: 2, updatedAt: new Date().toISOString() }, null, 2);
+      const payload = JSON.stringify(
+        { ...deps.sanitize(data), version: 2, updatedAt: new Date().toISOString() },
+        null,
+        2
+      );
       const boundary = `nawy-sync-${Date.now()}-${Math.random().toString(16).slice(2)}`;
       const body = new Blob(
         [
@@ -201,7 +212,9 @@ export function createDriveBackupProvider(deps: DriveDeps): BackupProvider {
 
 // ---------- Adapter: في الذاكرة (للاختبارات، وإثبات إن الواجهة بتتنفّذ بأكتر من provider) ----------
 
-export function createMemoryBackupProvider(options: { configured?: boolean; label?: string | null } = {}): BackupProvider & { stored: BackupData | null } {
+export function createMemoryBackupProvider(
+  options: { configured?: boolean; label?: string | null } = {}
+): BackupProvider & { stored: BackupData | null } {
   const provider = {
     name: "memory",
     stored: null as BackupData | null,

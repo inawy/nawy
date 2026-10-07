@@ -40,7 +40,11 @@ test("the in-app message is not limited by the hour and does not need notificati
 test("each reason is reported", () => {
   assert.equal(decide({ settings: { ...base.settings, notificationEnabled: false } }).reason, "disabled");
   assert.equal(decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-5" } }).reason, "already-shown");
-  assert.equal(decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-4" } }).show, true, "yesterday does not block today");
+  assert.equal(
+    decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-4" } }).show,
+    true,
+    "yesterday does not block today"
+  );
   assert.equal(decide({ settings: { ...base.settings, todayIntentionId: null } }).reason, "no-intention");
   assert.equal(decide({ pinnedTask: null }).reason, "no-intention");
   assert.equal(decide({ pinnedTask: { id: "t1", status: "achieved" } }).reason, "achieved");
@@ -72,39 +76,100 @@ function loadWorker({ settingsRow, tasks = {}, now }) {
   const opened = [];
   class FakeDexie {
     constructor() {
-      this.settings = { get: async () => (settingsRow ? JSON.parse(JSON.stringify(settingsRow)) : undefined), put: async row => { saved.push(row); } };
-      this.tasks = { get: async id => tasks[id], put: async t => { putTasks.push(t); tasks[t.id] = t; } };
+      this.settings = {
+        get: async () => (settingsRow ? JSON.parse(JSON.stringify(settingsRow)) : undefined),
+        put: async row => {
+          saved.push(row);
+        }
+      };
+      this.tasks = {
+        get: async id => tasks[id],
+        put: async t => {
+          putTasks.push(t);
+          tasks[t.id] = t;
+        }
+      };
     }
-    version() { return { stores() {} }; }
+    version() {
+      return { stores() {} };
+    }
   }
   class FakeDate extends Date {
-    constructor(...args) { if (args.length) super(...args); else super(now.getTime()); }
-    static now() { return now.getTime(); }
+    constructor(...args) {
+      if (args.length) super(...args);
+      else super(now.getTime());
+    }
+    static now() {
+      return now.getTime();
+    }
   }
   const ctx = {
-    importScripts() {}, Dexie: FakeDexie, NawyData, Date: FakeDate, URL, console,
-    caches: {}, clients: { matchAll: async () => [], openWindow: async u => { opened.push(String(u)); } },
-    registration: { scope: "https://nawy.app/", showNotification: async (title, options) => { shown.push({ title, options }); } },
-    addEventListener(type, fn) { handlers[type] = fn; },
+    importScripts() {},
+    Dexie: FakeDexie,
+    NawyData,
+    Date: FakeDate,
+    URL,
+    console,
+    caches: {},
+    clients: {
+      matchAll: async () => [],
+      openWindow: async u => {
+        opened.push(String(u));
+      }
+    },
+    registration: {
+      scope: "https://nawy.app/",
+      showNotification: async (title, options) => {
+        shown.push({ title, options });
+      }
+    },
+    addEventListener(type, fn) {
+      handlers[type] = fn;
+    },
     skipWaiting() {}
   };
   ctx.self = ctx;
   vm.createContext(ctx);
-  vm.runInContext(fs.readFileSync(path.join(ROOT, "service-worker.js"), "utf8"), ctx, { filename: "service-worker.js" });
+  vm.runInContext(fs.readFileSync(path.join(ROOT, "service-worker.js"), "utf8"), ctx, {
+    filename: "service-worker.js"
+  });
   const fire = async (tag = "nawy-daily-reminder") => {
     let work;
-    await handlers.periodicsync({ tag, waitUntil: p => { work = p; } });
+    await handlers.periodicsync({
+      tag,
+      waitUntil: p => {
+        work = p;
+      }
+    });
     await work;
   };
   const click = async (action, data) => {
     let work;
-    await handlers.notificationclick({ action, notification: { data, close() { closed.push(1); } }, waitUntil: p => { work = p; } });
+    await handlers.notificationclick({
+      action,
+      notification: {
+        data,
+        close() {
+          closed.push(1);
+        }
+      },
+      waitUntil: p => {
+        work = p;
+      }
+    });
     await work;
   };
   return { fire, click, shown, saved, putTasks, closed, opened };
 }
 
-const row = over => ({ id: "main", notificationEnabled: true, todayIntentionId: "t1", language: "ar", lastReminderShownDate: null, ...over });
+const row = over => ({
+  id: "main",
+  notificationEnabled: true,
+  todayIntentionId: "t1",
+  language: "ar",
+  lastReminderShownDate: null,
+  ...over
+});
 const tasks = { t1: { id: "t1", status: "active" } };
 
 test("worker: shows the notification at 10:00 and records the day", async () => {
@@ -204,7 +269,12 @@ test("worker: pressing done achieves the task, closes the notification, opens no
 });
 
 test("worker: done is harmless for a missing task, an already achieved task or no id", async () => {
-  const cases = [[{ taskId: "gone" }, {}], [{ taskId: "t1" }, { t1: { id: "t1", status: "achieved" } }], [undefined, {}], [{}, {}]];
+  const cases = [
+    [{ taskId: "gone" }, {}],
+    [{ taskId: "t1" }, { t1: { id: "t1", status: "achieved" } }],
+    [undefined, {}],
+    [{}, {}]
+  ];
   for (const [data, t] of cases) {
     const w = loadWorker({ settingsRow: row(), tasks: t, now: at(10) });
     await w.click("done", data);

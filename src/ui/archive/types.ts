@@ -28,9 +28,7 @@ export interface TodayPickItem {
   selected: boolean;
 }
 
-export type TodayPickView =
-  | { kind: "empty"; message: string }
-  | { kind: "list"; items: TodayPickItem[] };
+export type TodayPickView = { kind: "empty"; message: string } | { kind: "list"; items: TodayPickItem[] };
 
 export interface TodayPickHandlers {
   onPick(id: string): void;

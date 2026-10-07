@@ -4,18 +4,30 @@ import js from "@eslint/js";
 import globals from "globals";
 
 const appGlobals = {
-  Dexie: "readonly", Sortable: "readonly", confetti: "readonly",
-  NawyData: "readonly", NawyStorage: "readonly", NawyBackup: "readonly",
+  Dexie: "readonly",
+  Sortable: "readonly",
+  confetti: "readonly",
+  NawyData: "readonly",
+  NawyStorage: "readonly",
+  NawyBackup: "readonly",
   NawyMascot: "readonly"
 };
 
 export default [
   {
     ignores: [
-      "_site/**", ".core-out/**", "node_modules/**",
-      "nawy-data.js", "nawy-storage.js", "nawy-backup.js", "nawy-ui.js", // مولَّدة
-      "dexie.min.js", "Sortable.min.js", "confetti.browser.min.js",       // مكتبات مضمّنة
-      "src/**", "brand/**"
+      "_site/**",
+      ".core-out/**",
+      "node_modules/**",
+      "nawy-data.js",
+      "nawy-storage.js",
+      "nawy-backup.js",
+      "nawy-ui.js", // مولَّدة
+      "dexie.min.js",
+      "Sortable.min.js",
+      "confetti.browser.min.js", // مكتبات مضمّنة
+      "src/**",
+      "brand/**"
     ]
   },
   js.configs.recommended,
@@ -34,32 +46,80 @@ export default [
   {
     // sounds.js بيقرأ إعدادات التطبيق (settings) وقت التشغيل
     files: ["sounds.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly" } }
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...appGlobals, settings: "readonly" }
+    }
   },
   {
     // share.js بيستخدم resolveTheme و settings من app.js وقت التشغيل
     files: ["share.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly", resolveTheme: "readonly" } }
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...appGlobals, settings: "readonly", resolveTheme: "readonly" }
+    }
   },
   {
     // sheet-gestures.js بيستخدم $$ و closeOverlay من app.js وقت التشغيل
     files: ["sheet-gestures.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, $$: "readonly", closeOverlay: "readonly" } }
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...appGlobals, $$: "readonly", closeOverlay: "readonly" }
+    }
   },
   {
     // banners.js بيستخدم $ و t و showToast و updateRequested (بيكتب فيها) من app.js وقت التشغيل
     files: ["banners.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, $: "readonly", t: "readonly", showToast: "readonly", updateRequested: "writable" } }
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        t: "readonly",
+        showToast: "readonly",
+        updateRequested: "writable"
+      }
+    }
   },
   {
     // date-format.js بيستخدم settings من app.js وقت التشغيل
     files: ["date-format.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly" } }
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...appGlobals, settings: "readonly" }
+    }
   },
   {
     // app.js بيستخدم اللي بتعرّفه ملفات الصفحة التانية (classic scripts بتتشارك النطاق العام)
     files: ["app.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly", shareAsImage: "readonly", initSheetGestures: "readonly", showUpdateBanner: "readonly", showInstallBanner: "readonly", hideInstallBanner: "readonly", isAppInstalled: "readonly", formatAchievedDate: "readonly", formatArchivedTime: "readonly", archiveDayGroup: "readonly", formatOlderDate: "readonly" } }
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        TRANSLATIONS: "readonly",
+        playAchievedSound: "readonly",
+        playUndoSound: "readonly",
+        playAddedSound: "readonly",
+        shareAsImage: "readonly",
+        initSheetGestures: "readonly",
+        showUpdateBanner: "readonly",
+        showInstallBanner: "readonly",
+        hideInstallBanner: "readonly",
+        isAppInstalled: "readonly",
+        formatAchievedDate: "readonly",
+        formatArchivedTime: "readonly",
+        archiveDayGroup: "readonly",
+        formatOlderDate: "readonly"
+      }
+    }
   },
   {
     files: ["service-worker.js"],
