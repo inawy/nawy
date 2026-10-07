@@ -32,9 +32,14 @@ export default [
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }
   },
   {
+    // sounds.js بيقرأ إعدادات التطبيق (settings) وقت التشغيل
+    files: ["sounds.js"],
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly" } }
+  },
+  {
     // app.js بيستخدم اللي بتعرّفه ملفات الصفحة التانية (classic scripts بتتشارك النطاق العام)
     files: ["app.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly" } }
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly" } }
   },
   {
     files: ["service-worker.js"],
