@@ -7,6 +7,8 @@
     "build": "node scripts/build-site.js",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.pages.json",
     "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "build:core": "node scripts/build-core.mjs",
     "check:core": "node scripts/check-core.mjs",
     "test:browser": "node --test tests/browser/*.test.mjs"

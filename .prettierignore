@@ -1,0 +1,23 @@
+# مولَّد
+nawy-data.js
+nawy-storage.js
+nawy-backup.js
+nawy-ui.js
+# مكتبات مضمّنة
+dexie.min.js
+Sortable.min.js
+confetti.browser.min.js
+# ناتج بناء وأدوات
+_site/
+.core-out/
+node_modules/
+package-lock.json
+# مش جزء من التنسيق (HTML/Markdown/JSON/SVG بتتراجع يدويًا؛ التنسيق الآلي ممكن يغيّر المسافات الحساسة في HTML)
+*.html
+*.md
+*.json
+*.svg
+brand/
+docs/
+.skills/
+.claude/

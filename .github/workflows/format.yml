@@ -1,0 +1,33 @@
+name: Format code (Prettier)
+
+# يدوي فقط: بينسّق ملفات JS/TS/CSS بـ Prettier (الإعداد في .prettierrc.json) وبيعيد توليد ملفات الـ Core
+# (التنسيق في src ممكن يغيّر الناتج)، وبيسجّل النتيجة على نفس الفرع. مفيش حاجة لازم تتشغّل على جهازك.
+on:
+  workflow_dispatch:
+  # تشغيل من فرع: تعديل الملف .github/triggers/format (يغيّر رقم داخله) بيشغّله
+  push:
+    branches-ignore: [main]
+    paths:
+      - ".github/triggers/format"
+
+permissions:
+  contents: write
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - run: npm ci --no-audit --no-fund
+      - run: npm run format
+      - run: npm run build:core
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "style: format with Prettier"
+          git push
