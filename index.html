@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="dark" data-accent="blue" data-font="medium">
+<html lang="ar" dir="rtl" class="booting" data-theme="dark" data-accent="blue" data-font="medium">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -15,6 +15,8 @@
       try {
         var b = JSON.parse(localStorage.getItem("nawy_boot_v1") || "null") || { theme: "system" };
         var h = document.documentElement;
+        // الصفحة مخفية (class="booting") لحد ما أول عرض يخلص عشان ما يبانش الهيكل فاضي ثم يتملي؛ احتياطيًا بتظهر بعد ثواني لو التطبيق ما كمّلش.
+        setTimeout(function () { h.classList.remove("booting"); }, 3000);
         var theme = b.theme === "system"
           ? (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
           : b.theme;
@@ -65,18 +67,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.33.0"></script>
+  <script src="./nawy-data.js?v=1.34.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.33.0"></script>
+  <script src="./nawy-storage.js?v=1.34.0"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.33.0"></script>
+  <script src="./nawy-backup.js?v=1.34.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي -->
-  <script src="./nawy-ui.js?v=1.33.0" defer></script>
+  <script src="./nawy-ui.js?v=1.34.0" defer></script>
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.33.0">
+  <link rel="stylesheet" href="./styles.css?v=1.34.0">
 </head>
 <body>
   <div class="app">
@@ -516,12 +518,12 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.33.0"></script>
-  <script src="./sounds.js?v=1.33.0"></script>
-  <script src="./share.js?v=1.33.0"></script>
-  <script src="./sheet-gestures.js?v=1.33.0"></script>
-  <script src="./banners.js?v=1.33.0"></script>
-  <script src="./date-format.js?v=1.33.0"></script>
-  <script src="./app.js?v=1.33.0"></script>
+  <script src="./translations.js?v=1.34.0"></script>
+  <script src="./sounds.js?v=1.34.0"></script>
+  <script src="./share.js?v=1.34.0"></script>
+  <script src="./sheet-gestures.js?v=1.34.0"></script>
+  <script src="./banners.js?v=1.34.0"></script>
+  <script src="./date-format.js?v=1.34.0"></script>
+  <script src="./app.js?v=1.34.0"></script>
 </body>
 </html>

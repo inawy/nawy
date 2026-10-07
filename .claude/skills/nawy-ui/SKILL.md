@@ -29,6 +29,7 @@ description: Nawy UI rules: Arabic-first RTL/LTR, logical CSS, localization, des
 ## Motion
 
 - Animate `transform` and `opacity` only. Avoid animating layout properties (height, top, margin).
+- Start-up: the page is hidden by `html.booting` until the first `render()` has run (app.js removes the class; the boot script does after 3 s as a fail-safe). Never show the empty skeleton and then fill it; the installed-app splash is the OS's, built from the manifest, and cannot be removed (decision 035).
 - Bottom sheets: mount the element once, keep it in the DOM, slide with `transform: translateY(...)`, set initial hidden state before first paint, and avoid toggling `display` during the transition. This prevents flicker.
 - Use one set of easing and duration tokens. Honor `prefers-reduced-motion`.
 - Existing animations are part of the product: do not change or remove them as a side effect of other work.

@@ -2532,6 +2532,9 @@
       checkTodayIntentionRollover();
       applySettings();
       render();
+      // أول عرض جاهز: نكشف الصفحة (بعد ما الخط يتحمّل، بحد أقصى 400ms) بدل ما نعرض هيكل فاضي.
+      Promise.race([document.fonts ? document.fonts.ready : null, new Promise(resolve => setTimeout(resolve, 400))])
+        .then(() => document.documentElement.classList.remove("booting"));
       startCrossTabSync();
 
       const params = new URLSearchParams(window.location.search);
@@ -2555,4 +2558,7 @@
       });
     }
 
-    init().catch(error => console.error("Nawy init failed", error));
+    init().catch(error => {
+      console.error("Nawy init failed", error);
+      document.documentElement.classList.remove("booting");
+    });
