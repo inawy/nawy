@@ -22,7 +22,7 @@ const EXCLUDE = new Set([
   ".DS_Store", "Thumbs.db"
 ]);
 
-const REQUIRED = ["index.html", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "styles.css", "service-worker.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js", "nawy-ui.js", "manifest.json", "dexie.min.js"];
+const REQUIRED = ["index.html", "app.js", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "styles.css", "service-worker.js", "nawy-data.js", "nawy-storage.js", "nawy-backup.js", "nawy-ui.js", "manifest.json", "dexie.min.js"];
 
 function findMissingReferences(dir) {
   const read = f => fs.readFileSync(path.join(dir, f), "utf8");

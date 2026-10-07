@@ -52,9 +52,14 @@ export default [
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, $: "readonly", t: "readonly", showToast: "readonly", updateRequested: "writable" } }
   },
   {
+    // date-format.js بيستخدم settings من app.js وقت التشغيل
+    files: ["date-format.js"],
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, settings: "readonly" } }
+  },
+  {
     // app.js بيستخدم اللي بتعرّفه ملفات الصفحة التانية (classic scripts بتتشارك النطاق العام)
     files: ["app.js"],
-    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly", shareAsImage: "readonly", initSheetGestures: "readonly", showUpdateBanner: "readonly", showInstallBanner: "readonly", hideInstallBanner: "readonly", isAppInstalled: "readonly" } }
+    languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals, TRANSLATIONS: "readonly", playAchievedSound: "readonly", playUndoSound: "readonly", playAddedSound: "readonly", shareAsImage: "readonly", initSheetGestures: "readonly", showUpdateBanner: "readonly", showInstallBanner: "readonly", hideInstallBanner: "readonly", isAppInstalled: "readonly", formatAchievedDate: "readonly", formatArchivedTime: "readonly", archiveDayGroup: "readonly", formatOlderDate: "readonly" } }
   },
   {
     files: ["service-worker.js"],
