@@ -296,3 +296,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Names that `app.js` defines and the small files use at run time (`$`, `$$`, `t`, `showToast`, `closeOverlay`, `resolveTheme`, `settings`, `updateRequested`) are declared in `types/page-globals.d.ts`. When `app.js` itself joins the check, those declarations move to the real definitions.
 - One code change, no behavior change: a type cast comment in `sheet-gestures.js` (`/** @type {Element} */ (event.target)`). `types/` and `tsconfig.pages.json` are not published.
 - Version: 1.32.0 (a page script changed).
+
+## 034 — app.js joins the type check, and Core calls are checked against the real types
+
+- `app.js` is now part of `tsconfig.pages.json` (still non-strict). `types/page-globals.d.ts` no longer fakes the names `app.js` defines (`$`, `t`, `settings`...): the small scripts see the real definitions because all page scripts share one global scope. It only declares what other scripts bring: `Dexie`, `Sortable`, `confetti`, `NawyMascot` as `any`, and `NawyData`, `NawyStorage`, `NawyBackup` as `typeof import("../src/core/...")`, so every call from the page into the Core is checked against the TypeScript source (misspelled Core function: fails; negative controls for a Core call and for an app function).
+- First run: 17 findings, none a runtime bug. Fixed with type comments only (casts for `event.target`, `this`, `FileReader` result, `NotificationOptions`, `PermissionName`, an options type for `showConfirmDialog`, a generic wrapper for `diffAgainstSnapshot`). One Core signature became generic (`diffAgainstSnapshot<T extends Item>`) because the page legitimately passes tombstones; it is type-only, the generated JS does not change.
+- Next: raise strictness gradually (`noImplicitAny` first on the small files) when there is a reason; no plan to annotate `app.js` wholesale.
+- Version: 1.33.0 (`app.js` changed, comments only).
