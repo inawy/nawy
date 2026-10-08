@@ -25,6 +25,9 @@ function initSheetGestures() {
     sheet.dataset.gestureReady = "1";
 
     const scrollArea = wrapSheetScrollArea(sheet);
+    // القائمة الجانبية درج: بيتسحب ناحية الحافة اللي طالع منها بس، والسحب الرأسي سكرول عادي للمحتوى.
+    const isDrawer = overlay.id === "menuOverlay";
+    const drawerDir = () => (document.documentElement.dir === "rtl" ? 1 : -1);
 
     let startX = 0;
     let startY = 0;
@@ -47,6 +50,7 @@ function initSheetGestures() {
       // منمنع بدء السحب فقط من عناصر نصية ممكن يكون فيها تحديد نص
       // (تحرير المهمة، خانة البحث) — كل حاجة تانية على البطاقة،
       // حتى الأزرار والمفاتيح، تقدر تبدأ منها سحب البطاقة كلها.
+      if (isDrawer && isSidebarDocked()) return;
       if (/** @type {Element} */ (event.target).closest("textarea, input[type='text'], input[type='search']")) return;
 
       startX = event.clientX;
@@ -95,7 +99,7 @@ function initSheetGestures() {
             scrollArea.scrollTop -= consumed;
             incrementalDy -= consumed;
           }
-          sheetOffset = Math.max(0, sheetOffset + incrementalDy);
+          if (!isDrawer) sheetOffset = Math.max(0, sheetOffset + incrementalDy);
         } else if (incrementalDy < 0) {
           // الإصبع طالع: أول نرجّع البطاقة لوضعها لو كانت متسحوبة،
           // والباقي يتحول لسكرول المحتوى لتحت.
@@ -109,10 +113,11 @@ function initSheetGestures() {
           }
         }
 
-        sheet.style.transform = `translateY(${sheetOffset}px)`;
+        if (!isDrawer) sheet.style.transform = `translateY(${sheetOffset}px)`;
         if (event.cancelable) event.preventDefault();
       } else if (mode === "horizontal") {
-        sheet.style.transform = `translateX(${dx}px)`;
+        const shift = isDrawer ? (dx * drawerDir() > 0 ? dx : 0) : dx;
+        sheet.style.transform = `translateX(${shift}px)`;
         if (event.cancelable) event.preventDefault();
       }
     });
@@ -124,7 +129,7 @@ function initSheetGestures() {
 
       const dx = event.clientX - startX;
 
-      const horizontalDismiss = mode === "horizontal" && Math.abs(dx) > 90;
+      const horizontalDismiss = mode === "horizontal" && (isDrawer ? dx * drawerDir() > 90 : Math.abs(dx) > 90);
       const verticalDismiss = mode === "vertical" && sheetOffset > 90;
 
       if (mode !== "vertical" && mode !== "horizontal") return;
@@ -132,7 +137,7 @@ function initSheetGestures() {
       sheet.style.transition = "transform .22s ease-out";
 
       if (horizontalDismiss) {
-        sheet.style.transform = `translateX(${dx > 0 ? 120 : -120}%)`;
+        sheet.style.transform = `translateX(${(isDrawer ? drawerDir() : dx > 0 ? 1 : -1) * 120}%)`;
       } else if (verticalDismiss) {
         sheet.style.transform = "translateY(120%)";
       } else {

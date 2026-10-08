@@ -43,3 +43,4 @@ description: Nawy UI rules: Arabic-first RTL/LTR, logical CSS, localization, des
 ## Behavior to preserve
 
 When changing UI, keep existing function names, structure, RTL behavior, animations and PWA behavior unless the task explicitly changes them. Make the smallest change that solves the problem.
+- Menu: a side drawer below 1024px and a docked collapsible sidebar from 1024px (`#menuOverlay`, `isSidebarDocked()`, `html[data-sidebar]`). Screens opened from the menu go through `dismissMenuForNavigation()`; never close the docked sidebar from code that is not the user collapsing it (decision 041).
