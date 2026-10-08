@@ -1,0 +1,38 @@
+name: Container image
+
+# بيبني صورة Docker الفعلية وبيشغّلها وبيعمل عليها فحص دخان. مش بيمنع النشر على Pages؛ هدفه يضمن إن خيار النقل
+# لاستضافة تانية شغّال دايمًا.
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      - name: Build the image
+        run: docker build -t nawy:ci .
+      - name: Run it
+        run: docker run -d --name nawy -p 8080:80 nawy:ci
+      - name: Wait until it answers
+        run: |
+          for i in $(seq 1 30); do
+            curl -fsS http://localhost:8080/ > /dev/null && exit 0
+            sleep 1
+          done
+          docker logs nawy
+          exit 1
+      - name: Smoke test
+        run: EXPECT_SW_NO_CACHE=1 node scripts/smoke-site.mjs http://localhost:8080
+      - name: Logs on failure
+        if: failure()
+        run: docker logs nawy
