@@ -43,3 +43,4 @@ build -> dist/ -> any static host
 - HTTPS is required for service workers; document the headers needed (`Cache-Control` for `service-worker.js` should allow quick updates).
 - Keep a release archive of each deployed build so any version can be re-hosted.
 - Deploy only through `.github/workflows/pages.yml`: tests gate the deploy, and `npm run build` publishes `_site/` without dev files.
+- A container is the portability fallback: `Dockerfile` (same `build-site.js` step, nginx) and `docker/nginx.conf` (`service-worker.js` and `index.html` with `no-cache`). `.github/workflows/container.yml` builds and runs the image and executes `scripts/smoke-site.mjs` against it; the same script checks any host (`node scripts/smoke-site.mjs <url>`). New dev-only root files must be added to `EXCLUDE` in `scripts/build-site.js`.

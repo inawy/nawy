@@ -29,6 +29,10 @@ npm test
 
 إعداد لمرة واحدة: **Settings → Pages → Build and deployment → Source: GitHub Actions**. النطاق المخصص (`nawy.app`) يُضبط من نفس الصفحة.
 
+### بديل: حاوية Docker · Container (portability)
+
+لو احتجت استضافة غير GitHub Pages: `docker build -t nawy .` ثم `docker run --rm -p 8080:80 nawy` (الصورة تبني نفس مجلد الموقع بنفس `scripts/build-site.js` وتقدّمه عبر nginx، بإعداد `docker/nginx.conf` الذي يجعل `service-worker.js` و`index.html` بدون كاش). الـ service worker والتثبيت كتطبيق يحتاجان HTTPS (أو localhost)، فضع الحاوية خلف بروكسي TLS في الإنتاج. للتأكد من أي استضافة: `node scripts/smoke-site.mjs <الرابط>`. الـ CI (`.github/workflows/container.yml`) يبني الصورة ويشغّلها ويفحصها في كل pull request.
+
 ## قبل كل إصدار · Before a release
 
 عند تغيير أي ملف في التطبيق يجب أن يصل التحديث للمستخدمين، فارفع الرقم في الأماكن التالية معاً (الاختبارات تتحقق أنها متطابقة):

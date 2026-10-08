@@ -320,3 +320,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Enforcement: CI runs `npm run format:check` after lint. The only test affected by layout was a regex on the CSS rule hiding the page while booting; it no longer depends on line breaks.
 - The page scripts were indented four spaces because they came from an inline `<script>`; formatting removed that, so `git blame` for `app.js` now points at the formatting commit (the PR is squash-merged, so the formatting is part of the same commit as the Prettier tooling).
 - Version: 1.35.0 (app files changed).
+
+## 037 — A container image as the portability fallback, verified in CI
+
+- Why: the golden rule says the host is a replaceable adapter. Pages is the only host today; if it disappears, the site must be movable in one command, and that must be proven continuously, not assumed.
+- `Dockerfile` (two stages): `node:22-alpine` runs the same `scripts/build-site.js` as the Pages deploy (so the image can never contain dev files or miss a referenced file), then `nginx:1.27-alpine` serves the result. No npm install in the image: the app has no runtime dependencies. `docker/nginx.conf` serves `service-worker.js`, `index.html` and the manifest with `Cache-Control: no-cache`, adds `nosniff`, gzip and no directory listing.
+- `scripts/smoke-site.mjs <url>` checks any running copy of the site: the page, every file listed in `APP_SHELL` and `importScripts`, the manifest, a 404 for unknown paths and for dev files (`package.json`, `Dockerfile`, tests, docs), and with `EXPECT_SW_NO_CACHE=1` the service worker cache header. Negative controls run locally: serving the repo root instead of `_site` fails the dev-file checks, and a plain static server fails the no-cache check.
+- `.github/workflows/container.yml` builds the image, runs it and runs the smoke test on every pull request and push to `main`. It does not gate the Pages deploy. The Docker daemon is not available in the working environment, so the image itself is only exercised in CI.
+- Housekeeping: `Dockerfile`, `.dockerignore`, `docker/`, `eslint.config.mjs`, `.prettierrc.json` and `.prettierignore` are now excluded from the published site (the last three had been published by mistake since they were added).
+- Not done on purpose: no image registry publishing, no compose file, no TLS in the image (it belongs to the proxy in front).
