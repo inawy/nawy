@@ -325,7 +325,7 @@ test("phone: the menu is a side drawer on the reading-start edge, closes on back
     };
   });
   assert.equal(Math.round(box.rtl ? box.right : box.left), box.rtl ? 390 : 0, "drawer sits on the reading-start edge");
-  assert.ok(box.left > 0 && box.height >= box.vh - 1, JSON.stringify(box));
+  assert.ok(box.right - box.left < 390 && box.height >= box.vh - 1, JSON.stringify(box));
   // swipe toward the hidden edge closes it
   const dir = box.rtl ? 1 : -1;
   await page.mouse.move(box.left + 100, 500);
