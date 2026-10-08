@@ -1479,8 +1479,63 @@ function setMenuBadge(show) {
   if (dot) dot.classList.toggle("show", !!show);
 }
 
+// القائمة الجانبية: على الشاشات العريضة بتتثبّت جنب المحتوى (زي سايدبار)،
+// وعلى الموبايل بتبقى درج بيطلع من الجنب فوق خلفية معتمة.
+const SIDEBAR_QUERY = "(min-width: 1024px)";
+const SIDEBAR_KEY = "nawy_sidebar_v1";
+function isSidebarDocked() {
+  return window.matchMedia(SIDEBAR_QUERY).matches;
+}
+function readSidebarPref() {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) !== "closed";
+  } catch (e) {
+    return true;
+  }
+}
+function saveSidebarPref(open) {
+  try {
+    localStorage.setItem(SIDEBAR_KEY, open ? "open" : "closed");
+  } catch (e) {}
+}
+// بيعكس حالة القائمة على الصفحة (إزاحة المحتوى + aria-expanded). بنتجاهل
+// الحفظ لما التغيير جاي من تغيير حجم الشاشة مش من اختيار المستخدم.
+function syncMenuState(open, persist) {
+  const docked = isSidebarDocked();
+  if (docked) {
+    document.documentElement.setAttribute("data-sidebar", open ? "open" : "closed");
+    if (persist) saveSidebarPref(open);
+  } else {
+    document.documentElement.removeAttribute("data-sidebar");
+  }
+  $("#menuBtn").setAttribute("aria-expanded", String(open));
+}
+// أزرار القائمة اللي بتفتح شاشة تانية بتقفل الدرج على الموبايل بس؛ السايدبار المثبّت يفضل مفتوح.
+function dismissMenuForNavigation() {
+  if (isSidebarDocked()) return;
+  closeOverlay($("#menuOverlay"));
+  $("#menuBtn").setAttribute("aria-expanded", "false");
+}
+function initSidebar() {
+  const menu = $("#menuOverlay");
+  const apply = () => {
+    if (isSidebarDocked()) {
+      const open = readSidebarPref();
+      menu.classList.toggle("show", open);
+      syncMenuState(open, false);
+    } else {
+      if (menu.classList.contains("show")) closeOverlay(menu);
+      syncMenuState(false, false);
+    }
+    updateBodyScrollLock();
+  };
+  apply();
+  window.matchMedia(SIDEBAR_QUERY).addEventListener("change", apply);
+}
+
 function updateBodyScrollLock() {
-  const anyOverlayOpen = !!document.querySelector(".overlay.show");
+  const docked = isSidebarDocked();
+  const anyOverlayOpen = !!document.querySelector(docked ? ".overlay.show:not(#menuOverlay)" : ".overlay.show");
   const composerOpen = $("#composerPanel").classList.contains("open");
   document.body.classList.toggle("no-scroll", anyOverlayOpen || composerOpen);
 }
@@ -1500,6 +1555,7 @@ function openOverlay(overlay) {
     sheet.style.transform = "";
   }
   overlay.classList.add("show");
+  if (overlay.id === "menuOverlay") syncMenuState(true, true);
   updateBodyScrollLock();
 }
 function closeOverlay(overlay) {
@@ -1513,6 +1569,7 @@ function closeOverlay(overlay) {
     $("#settingsMenuPanel").hidden = true;
     $("#mainMenuPanel").hidden = false;
     overlay.classList.remove("overlay-fullscreen");
+    syncMenuState(false, true);
   }
   if (overlay.id === "taskOverlay" && activeTaskEditRestore) {
     activeTaskEditRestore();
@@ -1520,7 +1577,10 @@ function closeOverlay(overlay) {
   updateBodyScrollLock();
 }
 function closeAllOverlays() {
-  $$(".overlay.show").forEach(closeOverlay);
+  $$(".overlay.show").forEach(overlay => {
+    if (overlay.id === "menuOverlay" && isSidebarDocked()) return;
+    closeOverlay(overlay);
+  });
 }
 
 function getComposerPlaceholder() {
@@ -2142,8 +2202,7 @@ $$(".tab").forEach(tab => {
 $("#menuBtn").setAttribute("aria-expanded", "false");
 $("#settingsMenuContent").append(...$$("#settingsOverlay .setting-group"));
 $("#statsBtn").addEventListener("click", () => {
-  closeOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "false");
+  dismissMenuForNavigation();
   renderStats();
   openOverlay($("#statsOverlay"));
 });
@@ -2164,7 +2223,7 @@ $("#backupMenuBackBtn").addEventListener("click", () => {
 $("#settingsBtn").addEventListener("click", () => {
   $("#mainMenuPanel").hidden = true;
   $("#settingsMenuPanel").hidden = false;
-  $("#menuOverlay").classList.add("overlay-fullscreen");
+  if (!isSidebarDocked()) $("#menuOverlay").classList.add("overlay-fullscreen");
 });
 $("#settingsMenuBackBtn").addEventListener("click", () => {
   $("#settingsMenuPanel").hidden = true;
@@ -2183,8 +2242,7 @@ $("#menuBtn").addEventListener("click", () => {
 });
 
 $("#archiveBtn").addEventListener("click", () => {
-  closeOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "false");
+  dismissMenuForNavigation();
   archiveSearchQuery = "";
   $("#archiveSearchInput").value = "";
   renderArchive();
@@ -2222,14 +2280,12 @@ $("#deleteAllConfirmOverlay").addEventListener("click", e => {
 });
 
 $("#exportBtn").addEventListener("click", () => {
-  closeOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "false");
+  dismissMenuForNavigation();
   exportData();
 });
 
 $("#importBtn").addEventListener("click", () => {
-  closeOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "false");
+  dismissMenuForNavigation();
   $("#importFileInput").click();
 });
 
@@ -2238,8 +2294,7 @@ $("#syncBtn").addEventListener("click", () => {
 });
 
 $("#restoreBtn").addEventListener("click", () => {
-  closeOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "false");
+  dismissMenuForNavigation();
   restoreDataFromGoogleDrive();
 });
 
@@ -2269,6 +2324,7 @@ $$("[data-close]").forEach(btn => {
 $$(".overlay").forEach(overlay => {
   overlay.addEventListener("click", e => {
     if (e.target === overlay) {
+      if (overlay.id === "menuOverlay" && isSidebarDocked()) return;
       closeOverlay(overlay);
 
       if (overlay.id === "menuOverlay") {
@@ -2635,6 +2691,7 @@ async function init() {
   checkTodayIntentionRollover();
   applySettings();
   render();
+  initSidebar();
   // أول عرض جاهز: نكشف الصفحة (بعد ما الخط يتحمّل، بحد أقصى 400ms) بدل ما نعرض هيكل فاضي.
   Promise.race([document.fonts ? document.fonts.ready : null, new Promise(resolve => setTimeout(resolve, 400))]).then(
     () => document.documentElement.classList.remove("booting")

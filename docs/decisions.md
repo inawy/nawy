@@ -351,3 +351,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Change: `<meta name="color-scheme" content="dark light">` before the stylesheet (the default canvas follows the system scheme from the very first frame), `color-scheme: light|dark` inside the two theme blocks (so an in-app theme that differs from the system also gets the right canvas, form controls and scrollbars), and an explicit `html { background-color: var(--bg); }`. A test keeps all three.
 - If the line is still visible after this, the next suspects are Chrome's own load indicator or the OS window background; for that a short screen recording or the device and Chrome version would be needed.
 - Version: 1.38.0.
+
+## 041 — The menu is a side panel: a drawer on phones, a docked sidebar on desktop
+
+- Request: the menu should appear as a premium side panel in the app, and as a claude.ai-style side panel on web/desktop. Before, it was a bottom sheet.
+- Phones (< 1024px): a full-height drawer that slides in from the reading-start edge (right in Arabic, left in English, via `--drawer-hide`), rounded on its inner edge, over a dimmed and slightly blurred backdrop. It closes by the close button, a backdrop tap, Escape, or a swipe toward its own edge; a vertical swipe only scrolls its content. Settings still open full screen on phones, as before.
+- Desktop (>= 1024px): the same element is a docked, non-modal sidebar (`--sidebar-w` 300px). The page content, the add button, the composer, the install banner and toasts are shifted by `html[data-sidebar="open"]`; other screens (stats, archive, task sheet) center in the remaining space. Opening stats, archive, export, import or restore does not close it, Escape does not close it, and it never locks page scroll. The top-bar button and the close button collapse and reopen it; the choice is saved in `localStorage` (`nawy_sidebar_v1`, default open) and applied in `init()` before the page is revealed. Settings open inside the sidebar instead of full screen.
+- Crossing the 1024px line (window resize, rotation) re-applies the right mode and resets the menu panels. One matchMedia query in JS (`SIDEBAR_QUERY`) mirrors the CSS breakpoint, and a test keeps them equal. All menu IDs, handlers and the single-inline-script rule are unchanged.
+- Limits: checked in headless Chromium (screenshots at 390px and 1280px, RTL, light and dark, swipe both ways, collapse/reload) and in the browser tests in CI; not tried on a real phone. Touch gestures use pointer events, not tested with a real finger.
+- Version: 1.39.0.
+

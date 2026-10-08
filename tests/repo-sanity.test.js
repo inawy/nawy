@@ -363,3 +363,16 @@ test("the canvas follows the theme from the first frame: color-scheme meta, per-
   assert.match(css, /html\[data-theme="dark"\] \{\s*color-scheme: dark;/);
   assert.match(css, /\nhtml \{\s*background-color: var\(--bg\);\s*\}/, "html must paint the theme background itself");
 });
+
+test("the menu is a side drawer on phones and a docked sidebar from 1024px, driven by one breakpoint", () => {
+  const css = read("styles.css").replace(/\r/g, "");
+  const app = read("app.js");
+  assert.match(css, /--drawer-hide: 100%;/);
+  assert.match(css, /html\[dir="ltr"\] \{\s*--drawer-hide: -100%;/, "LTR drawer must hide to the left");
+  assert.match(css, /translateX\(var\(--drawer-hide\)\)/);
+  assert.match(css, /@media \(min-width: 1024px\) \{\s*#menuOverlay \{/, "docked sidebar block missing");
+  assert.match(app, /const SIDEBAR_QUERY = "\(min-width: 1024px\)";/, "JS breakpoint must match the CSS one");
+  // every screen opened from the menu goes through the one helper so the docked sidebar stays open
+  assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 5);
+});
+

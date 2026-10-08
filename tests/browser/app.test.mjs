@@ -297,6 +297,88 @@ test("if app.js never runs, the page is revealed anyway after a few seconds", as
   await close();
 });
 
+const menuState = page =>
+  page.evaluate(() => ({
+    show: document.querySelector("#menuOverlay").classList.contains("show"),
+    side: document.documentElement.getAttribute("data-sidebar"),
+    aria: document.querySelector("#menuBtn").getAttribute("aria-expanded"),
+    locked: document.body.classList.contains("no-scroll"),
+    pref: localStorage.getItem("nawy_sidebar_v1"),
+    overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth
+  }));
+
+test("phone: the menu is a side drawer on the reading-start edge, closes on backdrop and swipe", async () => {
+  const page = await open(`${base}/index.html`);
+  assert.equal((await menuState(page)).show, false);
+  await page.click("#menuBtn");
+  await page.waitForTimeout(500);
+  const st = await menuState(page);
+  assert.deepEqual([st.show, st.aria, st.locked, st.side, st.overflow], [true, "true", true, null, false]);
+  const box = await page.evaluate(() => {
+    const r = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
+    return { left: r.left, right: r.right, height: r.height, vh: innerHeight };
+  });
+  assert.equal(Math.round(box.right), 390, "RTL drawer sits on the right edge");
+  assert.ok(box.left > 0 && box.height >= box.vh - 1, JSON.stringify(box));
+  // swipe toward the hidden edge closes it
+  await page.mouse.move(box.left + 100, 500);
+  await page.mouse.down();
+  for (let i = 1; i <= 12; i++) await page.mouse.move(box.left + 100 + i * 15, 500);
+  await page.mouse.up();
+  await page.waitForTimeout(600);
+  assert.deepEqual(await menuState(page).then(x => [x.show, x.aria, x.locked]), [false, "false", false]);
+  // backdrop click closes it too
+  await page.click("#menuBtn");
+  await page.waitForTimeout(400);
+  await page.mouse.click(10, 400);
+  await page.waitForTimeout(400);
+  assert.equal((await menuState(page)).show, false);
+  await page.close();
+});
+
+test("desktop: the menu is a docked sidebar that stays open, collapses, and remembers its state", async () => {
+  const page = await open(`${base}/index.html`);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.evaluate(() => localStorage.removeItem("nawy_sidebar_v1"));
+  await page.reload();
+  await page.waitForTimeout(1200);
+  let st = await menuState(page);
+  assert.deepEqual([st.show, st.side, st.aria, st.locked, st.overflow], [true, "open", "true", false, false]);
+  // opening another screen keeps the sidebar; Escape closes only that screen
+  await page.click("#statsBtn");
+  await page.waitForTimeout(400);
+  assert.equal((await menuState(page)).show, true);
+  assert.equal(await page.evaluate(() => document.querySelector("#statsOverlay").classList.contains("show")), true);
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+  st = await menuState(page);
+  assert.equal(st.show, true);
+  // the page content never sits under the sidebar
+  const clear = await page.evaluate(() => {
+    const m = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
+    const a = document.querySelector(".app").getBoundingClientRect();
+    return a.right <= m.left + 1 || a.left >= m.right - 1;
+  });
+  assert.equal(clear, true);
+  // collapse, persist, reload
+  await page.click("#menuBtn");
+  await page.waitForTimeout(400);
+  st = await menuState(page);
+  assert.deepEqual([st.show, st.side, st.aria, st.pref], [false, "closed", "false", "closed"]);
+  await page.reload();
+  await page.waitForTimeout(1200);
+  assert.equal((await menuState(page)).show, false);
+  // shrinking to phone width turns it into a closed drawer with the main panel back
+  await page.click("#menuBtn");
+  await page.click("#settingsBtn");
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.waitForTimeout(500);
+  st = await menuState(page);
+  assert.deepEqual([st.show, st.side, st.locked], [false, null, false]);
+  assert.equal(await page.evaluate(() => document.querySelector("#mainMenuPanel").hidden), false);
+  await page.close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });

@@ -2538,3 +2538,118 @@ html[data-theme="light"] .toastify {
     height: 16px;
   }
 }
+
+/* ===== القائمة الجانبية =====
+   موبايل: درج بيطلع من الحافة (يمين في العربي، شمال في الإنجليزي) فوق خلفية معتمة.
+   ديسكتوب (>=1024px): سايدبار مثبّت جنب المحتوى وقابل للطي (زي claude.ai). */
+:root {
+  --sidebar-w: 300px;
+  --drawer-hide: 100%;
+}
+html[dir="ltr"] {
+  --drawer-hide: -100%;
+}
+#menuOverlay {
+  padding: 0;
+  align-items: stretch;
+  justify-content: flex-start;
+  transition:
+    visibility 0.26s ease-out,
+    background-color 0.26s ease-out;
+}
+#menuOverlay.show {
+  background: rgba(8, 10, 16, 0.5);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+#menuOverlay .sheet {
+  width: min(86vw, 340px);
+  height: 100dvh;
+  max-height: 100dvh;
+  align-self: stretch;
+  padding: calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
+  border: 0;
+  border-inline-end: 1px solid var(--border);
+  border-radius: 0;
+  border-start-end-radius: 28px;
+  border-end-end-radius: 28px;
+  transform: translateX(var(--drawer-hide));
+  transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.26, 1);
+  box-shadow: var(--shadow-sheet);
+}
+#menuOverlay.show .sheet {
+  transform: none;
+}
+#menuOverlay .sheet-handle {
+  display: none;
+}
+#menuOverlay .sheet-close-small {
+  top: calc(12px + env(safe-area-inset-top));
+  inset-inline-start: auto;
+  inset-inline-end: 12px;
+  left: auto;
+}
+#menuOverlay .menu-item {
+  border-radius: 14px;
+}
+/* الإعدادات على الموبايل بتفضل بكامل الشاشة زي قبل */
+#menuOverlay.overlay-fullscreen .sheet {
+  width: 100%;
+  border-radius: 0;
+  border-inline-end: 0;
+}
+
+@media (min-width: 1024px) {
+  #menuOverlay {
+    inset: 0 auto 0 auto;
+    inset-inline-start: 0;
+    width: var(--sidebar-w);
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: none;
+  }
+  #menuOverlay.show {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  #menuOverlay.show .sheet {
+    pointer-events: auto;
+  }
+  #menuOverlay .sheet {
+    width: var(--sidebar-w);
+    border-radius: 0;
+    box-shadow: none;
+  }
+  #menuOverlay .sheet-close-small {
+    inset-inline-end: 12px;
+  }
+  html[data-sidebar="open"] body {
+    padding-inline-start: var(--sidebar-w);
+  }
+  html[data-sidebar="open"] {
+    --sb-shift: calc(var(--sidebar-w) / 2);
+  }
+  html[data-sidebar="open"][dir="rtl"] {
+    --sb-shift: calc(var(--sidebar-w) / -2);
+  }
+  html[data-sidebar="open"] .fab-wrap,
+  html[data-sidebar="open"] .composer-panel,
+  html[data-sidebar="open"] .install-banner,
+  html[data-sidebar="open"] .toastify {
+    left: calc(50% + var(--sb-shift));
+  }
+  html[data-sidebar="open"] .overlay:not(#menuOverlay) {
+    padding-inline-start: calc(16px + var(--sidebar-w));
+  }
+  body {
+    transition: padding-inline-start 0.26s cubic-bezier(0.22, 0.8, 0.26, 1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #menuOverlay .sheet,
+  body {
+    transition: none;
+  }
+}
