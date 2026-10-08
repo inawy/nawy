@@ -343,3 +343,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Change: the manifest is linked as `manifest.json?v=<app version>` and listed the same way in the app shell, like every other app file, so each release fetches it as a new URL and no cached copy can be reused. A test keeps the page, the app shell and the app version equal. The `id` stays `./`, so this is still the same installed app and the same data.
 - What the user needs to do once: remove the installed app, open nawy.app in the browser tab, reload it twice, then install again from that tab. Without a clean reinstall an already installed app only picks up manifest changes when the OS refreshes it.
 - Version: 1.37.0.
+
+## 040 — The canvas follows the theme from the first frame (color-scheme)
+
+- Report after decision 039: the blue is gone; at opening and reload a thin line remains at the top, white in the dark theme and black in the light theme (the opposite of the page). Only a device can show it, so this is a fix for the most likely cause plus a test, not a verified diagnosis.
+- Likely cause: until the first style is applied, the browser paints its default canvas, which is white unless the page declares a color scheme; the OS window behind the page uses the manifest `background_color` (dark). The two defaults do not follow the user's theme, so a strip of the wrong one shows for a moment.
+- Change: `<meta name="color-scheme" content="dark light">` before the stylesheet (the default canvas follows the system scheme from the very first frame), `color-scheme: light|dark` inside the two theme blocks (so an in-app theme that differs from the system also gets the right canvas, form controls and scrollbars), and an explicit `html { background-color: var(--bg); }`. A test keeps all three.
+- If the line is still visible after this, the next suspects are Chrome's own load indicator or the OS window background; for that a short screen recording or the device and Chrome version would be needed.
+- Version: 1.38.0.
