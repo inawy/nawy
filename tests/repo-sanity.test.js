@@ -328,3 +328,12 @@ test("the page is hidden while booting and revealed by the app (no empty-skeleto
     "boot script must reveal the page after a few seconds even if the app fails"
   );
 });
+
+test("the manifest theme_color is the dark theme color, so the status bar never flashes the brand blue while the page loads", () => {
+  const manifest = JSON.parse(read("manifest.json"));
+  const html = read("index.html");
+  const dark = html.match(/<meta name="theme-color" media="\(prefers-color-scheme: dark\)" content="(#[0-9A-Fa-f]{6})"/);
+  assert.ok(dark, "dark theme-color meta not found");
+  assert.equal(manifest.theme_color.toLowerCase(), dark[1].toLowerCase());
+  assert.equal(manifest.background_color.toLowerCase(), dark[1].toLowerCase());
+});
