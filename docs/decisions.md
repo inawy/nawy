@@ -336,3 +336,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Change: `theme_color` is now `#0F1115`, the same as `background_color` and the dark `theme-color` meta, so the launch splash, the status bar during loading and a dark-theme page are one color. A test keeps these three equal.
 - Limits: a manifest holds one color, so a light-theme user can still see the dark band briefly before the light page (the same limit as the splash background, decision 035); the dark choice matches the app's default theme. Installed apps pick up a changed manifest on the browser's own schedule (Android refreshes the installed app's manifest within days; iOS only after the app is removed and added again), so the effect may not be visible immediately.
 - Version: 1.36.0 (the manifest is part of the cached app shell).
+
+## 039 — The manifest URL is versioned (a stale manifest cannot be installed)
+
+- Follow-up to decision 038: after the manifest `theme_color` was changed and the app re-installed, the status bar still showed blue for a moment on opening and on reload, while another installed PWA did not. The page code sets no blue anywhere (only `#0F1115` and `#FAF9F7`), so the blue is the color the installed app was created with, taken from the manifest at install time. An install made while an older copy of the manifest was still served from a cache (GitHub Pages sends `max-age=600`, and browsers keep their own manifest copy) would bake the old blue in again.
+- Change: the manifest is linked as `manifest.json?v=<app version>` and listed the same way in the app shell, like every other app file, so each release fetches it as a new URL and no cached copy can be reused. A test keeps the page, the app shell and the app version equal. The `id` stays `./`, so this is still the same installed app and the same data.
+- What the user needs to do once: remove the installed app, open nawy.app in the browser tab, reload it twice, then install again from that tab. Without a clean reinstall an already installed app only picks up manifest changes when the OS refreshes it.
+- Version: 1.37.0.
