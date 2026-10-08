@@ -345,5 +345,8 @@ test("the manifest URL carries the app version (a stale cached manifest can neve
   const page = html.match(/<link rel="manifest" href="manifest\.json\?v=([\w.]+)">/);
   assert.ok(page, "index.html must link the manifest with ?v=");
   assert.equal(page[1], html.match(/styles\.css\?v=([\w.]+)/)[1], "manifest ?v must equal the app version");
-  assert.ok(read("service-worker.js").includes(`./manifest.json?v=${page[1]}`), "APP_SHELL must list the versioned manifest");
+  assert.ok(
+    read("service-worker.js").includes(`./manifest.json?v=${page[1]}`),
+    "APP_SHELL must list the versioned manifest"
+  );
 });
