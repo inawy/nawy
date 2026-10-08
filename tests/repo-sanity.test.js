@@ -375,4 +375,3 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
   // every screen opened from the menu goes through the one helper so the docked sidebar stays open
   assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 5);
 });
-

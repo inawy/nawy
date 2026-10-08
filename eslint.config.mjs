@@ -67,7 +67,13 @@ export default [
     languageOptions: {
       sourceType: "script",
       ecmaVersion: 2022,
-      globals: { ...globals.browser, ...appGlobals, $$: "readonly", closeOverlay: "readonly", isSidebarDocked: "readonly" }
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $$: "readonly",
+        closeOverlay: "readonly",
+        isSidebarDocked: "readonly"
+      }
     }
   },
   {

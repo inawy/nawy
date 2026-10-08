@@ -129,8 +129,7 @@ function initSheetGestures() {
 
       const dx = event.clientX - startX;
 
-      const horizontalDismiss =
-        mode === "horizontal" && (isDrawer ? dx * drawerDir() > 90 : Math.abs(dx) > 90);
+      const horizontalDismiss = mode === "horizontal" && (isDrawer ? dx * drawerDir() > 90 : Math.abs(dx) > 90);
       const verticalDismiss = mode === "vertical" && sheetOffset > 90;
 
       if (mode !== "vertical" && mode !== "horizontal") return;
