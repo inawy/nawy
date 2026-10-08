@@ -38,7 +38,7 @@ npm test
 عند تغيير أي ملف في التطبيق يجب أن يصل التحديث للمستخدمين، فارفع الرقم في الأماكن التالية معاً (الاختبارات تتحقق أنها متطابقة):
 
 1. `CACHE_NAME` في `service-worker.js`
-2. `?v=` على `styles.css` و`translations.js` و`sounds.js` و`share.js` و`sheet-gestures.js` و`banners.js` و`date-format.js` و`app.js` و`nawy-data.js` و`nawy-storage.js` و`nawy-backup.js` و`nawy-ui.js` في `index.html`
+2. `?v=` على رابط `manifest.json` و`styles.css` و`translations.js` و`sounds.js` و`share.js` و`sheet-gestures.js` و`banners.js` و`date-format.js` و`app.js` و`nawy-data.js` و`nawy-storage.js` و`nawy-backup.js` و`nawy-ui.js` في `index.html`
 3. `importScripts(...)` و`APP_SHELL` في `service-worker.js`
 
 التحديث يظهر للمستخدم كشريط «نسخة جديدة متاحة»، ولا يُعاد تحميل الصفحة بدون موافقته.

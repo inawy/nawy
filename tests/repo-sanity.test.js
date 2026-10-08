@@ -339,3 +339,11 @@ test("the manifest theme_color is the dark theme color, so the status bar never 
   assert.equal(manifest.theme_color.toLowerCase(), dark[1].toLowerCase());
   assert.equal(manifest.background_color.toLowerCase(), dark[1].toLowerCase());
 });
+
+test("the manifest URL carries the app version (a stale cached manifest can never survive a release), in the page and the app shell", () => {
+  const html = read("index.html");
+  const page = html.match(/<link rel="manifest" href="manifest\.json\?v=([\w.]+)">/);
+  assert.ok(page, "index.html must link the manifest with ?v=");
+  assert.equal(page[1], html.match(/styles\.css\?v=([\w.]+)/)[1], "manifest ?v must equal the app version");
+  assert.ok(read("service-worker.js").includes(`./manifest.json?v=${page[1]}`), "APP_SHELL must list the versioned manifest");
+});
