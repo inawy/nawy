@@ -355,7 +355,10 @@ test("the canvas follows the theme from the first frame: color-scheme meta, per-
   const html = read("index.html");
   const css = read("styles.css");
   assert.match(html, /<meta name="color-scheme" content="dark light">/, "color-scheme meta missing");
-  assert.ok(html.indexOf('name="color-scheme"') < html.indexOf("styles.css"), "color-scheme meta must come before the stylesheet");
+  assert.ok(
+    html.indexOf('name="color-scheme"') < html.indexOf("styles.css"),
+    "color-scheme meta must come before the stylesheet"
+  );
   assert.match(css, /html\[data-theme="light"\] \{\s*color-scheme: light;/);
   assert.match(css, /html\[data-theme="dark"\] \{\s*color-scheme: dark;/);
   assert.match(css, /\nhtml \{\s*background-color: var\(--bg\);\s*\}/, "html must paint the theme background itself");
