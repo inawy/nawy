@@ -329,3 +329,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `.github/workflows/container.yml` builds the image, runs it and runs the smoke test on every pull request and push to `main`. It does not gate the Pages deploy. The Docker daemon is not available in the working environment, so the image itself is only exercised in CI.
 - Housekeeping: `Dockerfile`, `.dockerignore`, `docker/`, `eslint.config.mjs`, `.prettierrc.json` and `.prettierignore` are now excluded from the published site (the last three had been published by mistake since they were added).
 - Not done on purpose: no image registry publishing, no compose file, no TLS in the image (it belongs to the proxy in front).
+
+## 038 — Status bar: manifest theme_color matches the dark theme
+
+- Report from the installed app: on reload and on opening, the top status bar shows a blue band for a moment before taking the theme color. Cause: the manifest `theme_color` was the brand blue (`#3D7BFF`). While a page loads the system uses the manifest color, and only afterwards the page's own `theme-color` meta tags (light and dark, updated by the boot script) take over.
+- Change: `theme_color` is now `#0F1115`, the same as `background_color` and the dark `theme-color` meta, so the launch splash, the status bar during loading and a dark-theme page are one color. A test keeps these three equal.
+- Limits: a manifest holds one color, so a light-theme user can still see the dark band briefly before the light page (the same limit as the splash background, decision 035); the dark choice matches the app's default theme. Installed apps pick up a changed manifest on the browser's own schedule (Android refreshes the installed app's manifest within days; iOS only after the app is removed and added again), so the effect may not be visible immediately.
+- Version: 1.36.0 (the manifest is part of the cached app shell).
