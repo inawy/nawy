@@ -316,7 +316,13 @@ test("phone: the menu is a side drawer on the reading-start edge, closes on back
   assert.deepEqual([st.show, st.aria, st.locked, st.side, st.overflow], [true, "true", true, null, false]);
   const box = await page.evaluate(() => {
     const r = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
-    return { left: r.left, right: r.right, height: r.height, vh: innerHeight, rtl: document.documentElement.dir === "rtl" };
+    return {
+      left: r.left,
+      right: r.right,
+      height: r.height,
+      vh: innerHeight,
+      rtl: document.documentElement.dir === "rtl"
+    };
   });
   assert.equal(Math.round(box.rtl ? box.right : box.left), box.rtl ? 390 : 0, "drawer sits on the reading-start edge");
   assert.ok(box.left > 0 && box.height >= box.vh - 1, JSON.stringify(box));
