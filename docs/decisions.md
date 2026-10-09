@@ -361,3 +361,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Limits: checked in headless Chromium (screenshots at 390px and 1280px, RTL, light and dark, swipe both ways, collapse/reload) and in the browser tests in CI; not tried on a real phone. Touch gestures use pointer events, not tested with a real finger.
 - Version: 1.39.0.
 
+## 042 — The brand (mark + name) moves from the header to the top of the menu
+
+- Request: Nawy has no accounts, so the user-avatar icon at the top of the menu was misleading. The Nawy mark and name now head the menu in its place (`.brand-icon` + `#brandName` inside `.account-menu-head`, with the "your personal space" subtitle under the name); the top bar keeps only the menu button, at the inline end as before.
+- Unchanged: the symbol follows decisions 023/024 (circle + slanted slash, accent color, no effects); `#brandName` is still filled by `applySettings()` so the name follows the language.
+- Version: 1.40.0.
+

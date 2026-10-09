@@ -184,7 +184,7 @@ textarea {
   padding: 12px 0 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
 }
 .brand {
@@ -987,7 +987,9 @@ html[data-theme="light"] #taskActions {
 }
 .account-menu-name {
   color: var(--text);
-  font-weight: 700;
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  letter-spacing: -0.3px;
 }
 .account-menu-subtitle {
   margin-top: 2px;
