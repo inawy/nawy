@@ -373,3 +373,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Tabs never wrap (`white-space: nowrap`); under 360px the gap between them is tighter. Checked at 320, 390 and 1280px.
 - Version: 1.41.0.
 
+## 044 — Google Tasks-style header: brand row above the tabs
+
+- Feedback on decision 043: with the tabs pushed to the very top the page felt cramped. The header is back as a single compact row: the Nawy mark and name at the inline start, the menu button at the inline end, and the tabs on their own row under it (about 52px for the row, about 4px less than the old 12px/8px padding header plus the 44px button). The menu button stays 40px and the tabs no longer reserve space for it. The menu still starts with the mark and name (decision 042).
+- Checked at 320, 390 and 1280px; tabs never wrap.
+- Version: 1.42.0.
+

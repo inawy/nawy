@@ -180,17 +180,16 @@ textarea {
   z-index: 20;
   background: var(--bg);
 }
-/* الهيدر مفيهوش غير زر القائمة، فبقى على نفس سطر التابات (مفيش سطر فاضي فوقها) */
+/* هيدر على طراز Google Tasks: علامة واسم ناوي على الجنب، وزر القائمة قصاده، والتابات تحتهم */
 .topbar {
-  padding-top: 6px;
+  padding-top: 4px;
 }
 .header {
-  position: absolute;
-  top: 8px;
-  inset-inline-end: 0;
-  z-index: 1;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0 2px;
 }
 .brand {
   display: flex;
@@ -256,7 +255,6 @@ textarea {
   display: flex;
   gap: 20px;
   padding: 4px 0 6px;
-  padding-inline-end: 52px;
   margin-top: 0;
 }
 .tab {
@@ -2669,4 +2667,7 @@ html[dir="ltr"] {
   .tab {
     gap: 4px;
   }
+}
+.header .brand-name {
+  font-size: var(--fs-xl, 1.35rem);
 }
