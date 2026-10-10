@@ -33,7 +33,7 @@ function showUpdateBanner() {
 
   document.body.appendChild(updateBanner);
 
-  updateBanner.querySelector("#updateNowBtn").addEventListener("click", () => {
+  /** @type {HTMLElement} */ (updateBanner.querySelector("#updateNowBtn")).addEventListener("click", () => {
     // نص مكتوب في شاشة الإضافة ولسه ما اتبعتش بيتمسح مع إعادة التحميل،
     // فنأجّل التحديث ونسيب الشريط ظاهر لحد ما المستخدم يخلّص.
     const draftInput = $("#taskInput");

@@ -36,18 +36,21 @@ const VIEWS = ["today", "all", "favorites"];
 function readSavedView() {
   try {
     const saved = sessionStorage.getItem("nawyView");
-    if (VIEWS.includes(saved)) return saved;
+    if (VIEWS.includes(/** @type {string} */ (saved))) return saved;
   } catch (e) {}
   return "today";
 }
 let currentView = readSavedView();
+/** @type {(() => void) | null} */
 let activeTaskEditRestore = null;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 let swipeTracking = false;
+/** @type {any} */
 let deferredInstallPrompt = null;
 let archiveSearchQuery = "";
+/** @type {string | null} */
 let lastGoogleAccountEmail = null;
 let lastBackupTimestamp = 0; // القيمة الحقيقية بتتحمّل async جوه loadData()
 
@@ -277,6 +280,7 @@ function persistAcrossStores() {
     .catch(reportStorageWriteError);
 }
 
+/** @param {string} message @param {boolean} [canUndo] @param {(() => void) | null} [undoCallback] @param {string} [subtitle] */
 function showToast(message, canUndo = false, undoCallback = null, subtitle = "") {
   const existing = document.querySelector(".toastify");
   if (existing) existing.remove();
@@ -1192,7 +1196,7 @@ function buildArchiveView() {
 
   if (filtered.length === 0) return { kind: "empty", message: t("noArchiveResults") };
 
-  const groups = { today: [], yesterday: [], older: [] };
+  const groups = /** @type {Record<string, any[]>} */ ({ today: [], yesterday: [], older: [] });
   filtered
     .slice()
     .sort((a, b) => (Number(b.archivedAt) || 0) - (Number(a.archivedAt) || 0))
@@ -2136,7 +2140,7 @@ function importData(file, onDone) {
 
   reader.onload = e => {
     try {
-      const data = JSON.parse(/** @type {string} */ (e.target.result));
+      const data = JSON.parse(/** @type {string} */ (/** @type {FileReader} */ (e.target).result));
 
       // ملف من نسخة أحدث من ناوي: نرفضه برسالة واضحة بدل ما نخمّن شكله.
       if (!NawyData.isSupportedVersion(data)) {
@@ -2313,7 +2317,7 @@ $("#importFileInput").addEventListener("change", e => {
 
 $$("[data-close]").forEach(btn => {
   btn.addEventListener("click", () => {
-    const overlay = document.getElementById(btn.dataset.close);
+    const overlay = /** @type {HTMLElement} */ (document.getElementById(btn.dataset.close));
     closeOverlay(overlay);
 
     if (overlay.id === "menuOverlay") {
@@ -2378,58 +2382,67 @@ $$("[data-language]").forEach(btn => {
 
 let notificationChanging = false;
 
-$("#feedbackToggleCheckbox").addEventListener("change", function () {
-  settings.feedbackEnabled = this.checked;
-  saveSettings();
-  showToast(this.checked ? t("feedbackEnabledToast") : t("feedbackDisabledToast"));
-});
+$("#feedbackToggleCheckbox").addEventListener(
+  "change",
+  /** @this {HTMLInputElement} */ function () {
+    settings.feedbackEnabled = this.checked;
+    saveSettings();
+    showToast(this.checked ? t("feedbackEnabledToast") : t("feedbackDisabledToast"));
+  }
+);
 
-$("#achievementToneSelect").addEventListener("change", function () {
-  settings.achievementTone = this.value;
-  saveSettings();
-  playAchievedSound();
-});
+$("#achievementToneSelect").addEventListener(
+  "change",
+  /** @this {HTMLSelectElement} */ function () {
+    settings.achievementTone = this.value;
+    saveSettings();
+    playAchievedSound();
+  }
+);
 
 $("#tonePreviewBtn").addEventListener("click", () => playAchievedSound());
 
-$("#notifToggleCheckbox").addEventListener("change", async function () {
-  if (notificationChanging) return;
+$("#notifToggleCheckbox").addEventListener(
+  "change",
+  /** @this {HTMLInputElement} */ async function () {
+    if (notificationChanging) return;
 
-  const checkbox = /** @type {HTMLInputElement} */ (this);
-  const requestedState = checkbox.checked;
+    const checkbox = /** @type {HTMLInputElement} */ (this);
+    const requestedState = checkbox.checked;
 
-  notificationChanging = true;
-  checkbox.disabled = true;
+    notificationChanging = true;
+    checkbox.disabled = true;
 
-  try {
-    if (requestedState) {
-      const granted = await requestNotificationPermission();
+    try {
+      if (requestedState) {
+        const granted = await requestNotificationPermission();
 
-      if (!granted) {
-        settings.notificationEnabled = false;
-        checkbox.checked = false;
+        if (!granted) {
+          settings.notificationEnabled = false;
+          checkbox.checked = false;
+          updateNotifUI();
+          return;
+        }
+
+        settings.notificationEnabled = true;
+        saveSettings();
+        registerPeriodicReminderSync();
+
+        showToast(`✅ ${t("notifEnabledToast")}`);
         updateNotifUI();
-        return;
+      } else {
+        settings.notificationEnabled = false;
+        saveSettings();
+
+        showToast(t("notifDisabledToast"));
+        updateNotifUI();
       }
-
-      settings.notificationEnabled = true;
-      saveSettings();
-      registerPeriodicReminderSync();
-
-      showToast(`✅ ${t("notifEnabledToast")}`);
-      updateNotifUI();
-    } else {
-      settings.notificationEnabled = false;
-      saveSettings();
-
-      showToast(t("notifDisabledToast"));
-      updateNotifUI();
+    } finally {
+      checkbox.disabled = false;
+      notificationChanging = false;
     }
-  } finally {
-    checkbox.disabled = false;
-    notificationChanging = false;
   }
-});
+);
 
 document.addEventListener(
   "touchstart",
@@ -2493,7 +2506,7 @@ document.addEventListener(
 
     if (Math.abs(dx) > 60 && gestureDuration < 450) {
       const views = ["today", "all", "favorites"];
-      const idx = views.indexOf(currentView);
+      const idx = views.indexOf(/** @type {string} */ (currentView));
       const isRTL = document.documentElement.dir === "rtl";
 
       if (isRTL) {

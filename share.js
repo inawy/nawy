@@ -4,7 +4,7 @@ function shareAsImage(task) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1350;
-  const ctx = canvas.getContext("2d");
+  const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
 
   const isDark = resolveTheme() === "dark";
   const bg = isDark ? "#0F1115" : "#FAF9F7";
@@ -20,6 +20,7 @@ function shareAsImage(task) {
   iconImg.onerror = () => drawShareContent(ctx, task, textColor, accentColor, null);
 }
 
+/** @param {HTMLImageElement | null} [iconImg] */
 function drawShareContent(ctx, task, textColor, accentColor, iconImg = null) {
   const { canvas } = ctx;
   const w = canvas.width;
