@@ -367,3 +367,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Unchanged: the symbol follows decisions 023/024 (circle + slanted slash, accent color, no effects); `#brandName` is still filled by `applySettings()` so the name follows the language.
 - Version: 1.40.0.
 
+## 043 — The header row is gone: the tabs move up and the menu button shares their row
+
+- Request: after the brand moved into the menu (decision 042) the header held only the menu button, leaving an empty row above the tabs. The tabs (Today, All, Favorites) now sit at the top and the menu button (40px) is placed on the same row at the inline end (`.header` is absolutely positioned inside the sticky `.topbar`; `.tabs` reserves 52px at that end so they never run under it). Vertical space saved: about 56px.
+- Tabs never wrap (`white-space: nowrap`); under 360px the gap between them is tighter. Checked at 320, 390 and 1280px.
+- Version: 1.41.0.
+

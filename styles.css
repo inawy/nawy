@@ -180,12 +180,17 @@ textarea {
   z-index: 20;
   background: var(--bg);
 }
+/* الهيدر مفيهوش غير زر القائمة، فبقى على نفس سطر التابات (مفيش سطر فاضي فوقها) */
+.topbar {
+  padding-top: 6px;
+}
 .header {
-  padding: 12px 0 8px;
+  position: absolute;
+  top: 8px;
+  inset-inline-end: 0;
+  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
 }
 .brand {
   display: flex;
@@ -218,8 +223,8 @@ textarea {
 }
 .menu-btn {
   position: relative;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: var(--radius-full);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -250,10 +255,12 @@ textarea {
 .tabs {
   display: flex;
   gap: 20px;
-  padding: 6px 0 8px;
+  padding: 4px 0 6px;
+  padding-inline-end: 52px;
   margin-top: 0;
 }
 .tab {
+  white-space: nowrap;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -2653,5 +2660,13 @@ html[dir="ltr"] {
   #menuOverlay .sheet,
   body {
     transition: none;
+  }
+}
+@media (max-width: 359px) {
+  .tabs {
+    gap: 12px;
+  }
+  .tab {
+    gap: 4px;
   }
 }
