@@ -41,13 +41,16 @@ function readSavedView() {
   return "today";
 }
 let currentView = readSavedView();
+/** @type {(() => void) | null} */
 let activeTaskEditRestore = null;
 let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 let swipeTracking = false;
+/** @type {any} */
 let deferredInstallPrompt = null;
 let archiveSearchQuery = "";
+/** @type {string | null} */
 let lastGoogleAccountEmail = null;
 let lastBackupTimestamp = 0; // القيمة الحقيقية بتتحمّل async جوه loadData()
 

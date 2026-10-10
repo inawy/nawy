@@ -1,5 +1,6 @@
 // الأصوات (إنجاز/تراجع/إضافة) — منقولة حرفيًا من app.js. classic script بيتحمّل قبله؛ بتستخدم `settings` من app.js وقت التشغيل بس.
 /* exported playAchievedSound, playUndoSound, playAddedSound */
+/** @type {AudioContext | null} */
 let audioContext = null;
 
 function playAchievedSound() {
@@ -16,7 +17,7 @@ function playAchievedSound() {
 function playTonePattern(tone) {
   try {
     if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const ctx = audioContext;
+    const ctx = /** @type {AudioContext} */ (audioContext);
     tone.notes.forEach((freq, i) => {
       const start = ctx.currentTime + i * tone.gap;
       const osc = ctx.createOscillator();
@@ -38,7 +39,7 @@ function playUndoSound() {
   if (settings.feedbackEnabled === false) return;
   try {
     if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const ctx = audioContext;
+    const ctx = /** @type {AudioContext} */ (audioContext);
     const now = ctx.currentTime;
     [659.25, 523.25].forEach((freq, index) => {
       const osc = ctx.createOscillator();
@@ -60,7 +61,7 @@ function playAddedSound() {
   if (settings.feedbackEnabled === false) return;
   try {
     if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const ctx = audioContext;
+    const ctx = /** @type {AudioContext} */ (audioContext);
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
