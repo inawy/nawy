@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: 22
       - name: Install dev tools and write the lockfile
-        run: npm install --save-dev --package-lock-only --no-audit --no-fund vite typescript playwright react react-dom @types/react @types/react-dom @vitejs/plugin-react eslint @eslint/js globals prettier
+        run: npm install --save-dev --package-lock-only --no-audit --no-fund vite typescript playwright react react-dom preact @types/react @types/react-dom @vitejs/plugin-react eslint @eslint/js globals prettier
       - name: Commit
         run: |
           git config user.name "github-actions[bot]"

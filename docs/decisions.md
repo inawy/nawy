@@ -387,3 +387,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Next candidates, in order of expected gain: shrink the bundle (check what React DOM adds versus Preact-compat only if the DOM parity tests stay green), then lazy-load Dexie-independent code such as sounds/confetti. No change to behavior was made.
 - Version: 1.43.0.
 
+## 046 — The UI bundle is built on Preact (React API through preact/compat)
+
+- Why: after decision 045 the React bundle (`nawy-ui.js`, 221KB) was no longer in the start-up path but was still the largest file to download, cache and parse. The two screens only use plain React features (function components, props, keys, click handlers, `createRoot`, `flushSync`), so the same source can be built on Preact, which exposes that API through `preact/compat`.
+- Change: no screen source changed. `scripts/build-core.mjs` aliases `react`, `react-dom`, `react-dom/client` and the JSX runtime to `preact/compat`, `preact/compat/client` and `preact/jsx-runtime` for the UI entry only. `preact` is a dev dependency (compiled into the bundle; the app still has no runtime dependency). `@types/react` stays for type checking the `.tsx` files.
+- Result: `nawy-ui.js` 221KB -> about 18KB. The DOM parity tests (React path vs the vanilla fallback, in both languages, with search, empty states, and every handler) are the safety net; they ran unchanged in CI.
+- Rule: keep to the React API subset that `preact/compat` supports; if a screen ever needs something outside it, switch the alias off rather than patching around it. The source of truth stays plain React TSX.
+- Version: 1.44.0.
+

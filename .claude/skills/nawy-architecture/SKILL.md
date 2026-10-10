@@ -76,3 +76,4 @@ Each step must leave the app deployable and behaving the same. Do not start a st
 Do not rewrite the whole app in one change (see nawy-quality, change rule).
 
 Note: `nawy-ui.js` (React) is loaded after the first render by `loadUiBundle()` in app.js, never as a blocking or deferred script in `index.html`; every React screen must keep its vanilla fallback (decision 045).
+The UI bundle is built with React sources aliased to Preact (`preact/compat`) in `scripts/build-core.mjs` (decision 046); stay within the React API subset Preact supports and let the DOM parity tests judge.

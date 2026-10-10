@@ -32,6 +32,18 @@ for (const e of entries) {
     configFile: false,
     logLevel: "warn",
     plugins: e.ui ? [react()] : [],
+    // الواجهة مكتوبة بـ React API لكن بتتجمّع على Preact (نفس الـ API عبر preact/compat، حوالي 10KB بدل 200KB+)؛
+    // اختبارات تطابق الـ DOM في CI هي اللي بتضمن إن الناتج مطابق.
+    resolve: e.ui
+      ? {
+          alias: [
+            { find: /^react-dom\/client$/, replacement: "preact/compat/client" },
+            { find: /^react-dom$/, replacement: "preact/compat" },
+            { find: /^react\/jsx-(dev-)?runtime$/, replacement: "preact/jsx-runtime" },
+            { find: /^react$/, replacement: "preact/compat" }
+          ]
+        }
+      : {},
     define: e.ui ? { "process.env.NODE_ENV": JSON.stringify("production") } : {},
     build: {
       outDir,
