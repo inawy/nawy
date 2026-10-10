@@ -395,3 +395,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Rule: keep to the React API subset that `preact/compat` supports; if a screen ever needs something outside it, switch the alias off rather than patching around it. The source of truth stays plain React TSX.
 - Version: 1.44.0.
 
+## 047 — Page scripts: five more strict type checks switched on
+
+- `tsconfig.pages.json` now also enables `strictNullChecks`, `noImplicitThis`, `strictFunctionTypes`, `strictBindCallApply` and `useUnknownInCatchVariables` (the whole `strict` family except `noImplicitAny`, which stays off: it reported about 200 errors and was reverted before, decision 034). Counting them one flag at a time showed only 15 findings in total, all typing noise rather than bugs: nullable values from `getItem`/`getContext`/`querySelector`, `this` in handlers, and default parameters of `null` (`showToast` callback, `drawShareContent` image).
+- Fixed with JSDoc annotations and casts only (`@this`, `@param`, `@type`); no runtime line changed, so behavior is the same. A cast hides nothing that was guarded before: the code paths already checked these values (`canUndo && undoCallback`) or are fixed markup.
+- Why not `noImplicitAny` yet: it needs about 200 parameter annotations; the plan is to do it file by file (smallest first) when a file is touched anyway, not in one sweep.
+- Version: 1.45.0 (comments only, but the files are cached app shell files).
+
