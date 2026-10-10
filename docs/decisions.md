@@ -379,3 +379,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Checked at 320, 390 and 1280px; tabs never wrap.
 - Version: 1.42.0.
 
+## 045 — The React bundle loads after the first render, not during start-up
+
+- Question from the user: the app feels a little heavy; is it TypeScript, Vite or React? TypeScript is checked in CI only and Vite is a build tool; neither costs anything at run time. React is shipped, inside `nawy-ui.js` (about 221KB, the largest file), and it was parsed and run while the app was opening, although its two screens (archive, pick today's intention) are not on the first screen.
+- Change: `index.html` no longer runs `nawy-ui.js` as a deferred script. It keeps a `<link rel="prefetch" id="nawyUiLink">` with the versioned URL (so the version coupling test and the app shell still cover it), and `app.js` injects the script when the browser is idle after the first render (`loadUiBundleWhenIdle`, at most 1s later), or at once when the archive is opened. Until it is there, or if it never loads, the existing vanilla fallback renders the same DOM; the first render after loading replaces it. The browser tests now wait for `NawyUI` before checking the React path.
+- Measured (headless Chromium, CPU 4x slower, median of 7 runs, no service worker): DOMContentLoaded 624 ms -> 474 ms and first contentful paint 808 ms -> 660 ms, about 150 ms (-23%). Not measured on a real phone.
+- Next candidates, in order of expected gain: shrink the bundle (check what React DOM adds versus Preact-compat only if the DOM parity tests stay green), then lazy-load Dexie-independent code such as sounds/confetti. No change to behavior was made.
+- Version: 1.43.0.
+

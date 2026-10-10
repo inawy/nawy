@@ -74,3 +74,5 @@ Each step must leave the app deployable and behaving the same. Do not start a st
 4. Rework the service worker for hashed build assets and cache versioning.
 
 Do not rewrite the whole app in one change (see nawy-quality, change rule).
+
+Note: `nawy-ui.js` (React) is loaded after the first render by `loadUiBundle()` in app.js, never as a blocking or deferred script in `index.html`; every React screen must keep its vanilla fallback (decision 045).

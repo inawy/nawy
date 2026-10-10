@@ -70,6 +70,7 @@ async function openApp(ctx) {
   await page.goto(`${base}/index.html`);
   await page.waitForLoadState("load");
   await page.waitForTimeout(1200);
+  if (ctx === reactCtx) await page.waitForFunction(() => typeof NawyUI !== "undefined", null, { timeout: 8000 });
   return page;
 }
 
