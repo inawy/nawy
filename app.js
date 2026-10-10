@@ -2379,58 +2379,67 @@ $$("[data-language]").forEach(btn => {
 
 let notificationChanging = false;
 
-$("#feedbackToggleCheckbox").addEventListener("change", /** @this {HTMLInputElement} */ function () {
-  settings.feedbackEnabled = this.checked;
-  saveSettings();
-  showToast(this.checked ? t("feedbackEnabledToast") : t("feedbackDisabledToast"));
-});
+$("#feedbackToggleCheckbox").addEventListener(
+  "change",
+  /** @this {HTMLInputElement} */ function () {
+    settings.feedbackEnabled = this.checked;
+    saveSettings();
+    showToast(this.checked ? t("feedbackEnabledToast") : t("feedbackDisabledToast"));
+  }
+);
 
-$("#achievementToneSelect").addEventListener("change", /** @this {HTMLSelectElement} */ function () {
-  settings.achievementTone = this.value;
-  saveSettings();
-  playAchievedSound();
-});
+$("#achievementToneSelect").addEventListener(
+  "change",
+  /** @this {HTMLSelectElement} */ function () {
+    settings.achievementTone = this.value;
+    saveSettings();
+    playAchievedSound();
+  }
+);
 
 $("#tonePreviewBtn").addEventListener("click", () => playAchievedSound());
 
-$("#notifToggleCheckbox").addEventListener("change", /** @this {HTMLInputElement} */ async function () {
-  if (notificationChanging) return;
+$("#notifToggleCheckbox").addEventListener(
+  "change",
+  /** @this {HTMLInputElement} */ async function () {
+    if (notificationChanging) return;
 
-  const checkbox = /** @type {HTMLInputElement} */ (this);
-  const requestedState = checkbox.checked;
+    const checkbox = /** @type {HTMLInputElement} */ (this);
+    const requestedState = checkbox.checked;
 
-  notificationChanging = true;
-  checkbox.disabled = true;
+    notificationChanging = true;
+    checkbox.disabled = true;
 
-  try {
-    if (requestedState) {
-      const granted = await requestNotificationPermission();
+    try {
+      if (requestedState) {
+        const granted = await requestNotificationPermission();
 
-      if (!granted) {
-        settings.notificationEnabled = false;
-        checkbox.checked = false;
+        if (!granted) {
+          settings.notificationEnabled = false;
+          checkbox.checked = false;
+          updateNotifUI();
+          return;
+        }
+
+        settings.notificationEnabled = true;
+        saveSettings();
+        registerPeriodicReminderSync();
+
+        showToast(`✅ ${t("notifEnabledToast")}`);
         updateNotifUI();
-        return;
+      } else {
+        settings.notificationEnabled = false;
+        saveSettings();
+
+        showToast(t("notifDisabledToast"));
+        updateNotifUI();
       }
-
-      settings.notificationEnabled = true;
-      saveSettings();
-      registerPeriodicReminderSync();
-
-      showToast(`✅ ${t("notifEnabledToast")}`);
-      updateNotifUI();
-    } else {
-      settings.notificationEnabled = false;
-      saveSettings();
-
-      showToast(t("notifDisabledToast"));
-      updateNotifUI();
+    } finally {
+      checkbox.disabled = false;
+      notificationChanging = false;
     }
-  } finally {
-    checkbox.disabled = false;
-    notificationChanging = false;
   }
-});
+);
 
 document.addEventListener(
   "touchstart",
