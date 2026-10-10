@@ -2243,6 +2243,7 @@ $("#menuBtn").addEventListener("click", () => {
 
 $("#archiveBtn").addEventListener("click", () => {
   dismissMenuForNavigation();
+  loadUiBundle();
   archiveSearchQuery = "";
   $("#archiveSearchInput").value = "";
   renderArchive();
@@ -2686,12 +2687,31 @@ function startCrossTabSync() {
   });
 }
 
+// حزمة React (nawy-ui.js) كبيرة (~220KB) وشاشاتها (الأرشيف واختيار نية اليوم) مش على أول شاشة، فبنحمّلها
+// بعد أول رسم وساعة الفراغ بدل ما تتحلل أثناء فتح التطبيق. لحد ما تتحمّل (أو لو فشلت) بيشتغل الرسم الاحتياطي
+// بنفس الـ DOM، وأول render بعد التحميل بيحل محله.
+let uiBundleRequested = false;
+function loadUiBundle() {
+  if (uiBundleRequested || window.NawyUI) return;
+  const link = /** @type {HTMLLinkElement | null} */ ($("#nawyUiLink"));
+  if (!link) return;
+  uiBundleRequested = true;
+  const script = document.createElement("script");
+  script.src = link.href;
+  document.head.appendChild(script);
+}
+function loadUiBundleWhenIdle() {
+  if ("requestIdleCallback" in window) window.requestIdleCallback(loadUiBundle, { timeout: 1000 });
+  else setTimeout(loadUiBundle, 500);
+}
+
 async function init() {
   await loadData();
   checkTodayIntentionRollover();
   applySettings();
   render();
   initSidebar();
+  loadUiBundleWhenIdle();
   // أول عرض جاهز: نكشف الصفحة (بعد ما الخط يتحمّل، بحد أقصى 400ms) بدل ما نعرض هيكل فاضي.
   Promise.race([document.fonts ? document.fonts.ready : null, new Promise(resolve => setTimeout(resolve, 400))]).then(
     () => document.documentElement.classList.remove("booting")
