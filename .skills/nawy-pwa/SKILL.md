@@ -27,7 +27,7 @@ description: Nawy PWA rules: service worker caching and safe updates, offline be
 
 ## Reminders and notifications
 
-- Reminders are automatic at platform-appropriate times. There is no user-set reminder time. The decision is `decideReminder()` in the Core (page and service worker share it). System notifications only between 07:00 and 20:59 device time; never at night, and a skipped run does not mark the day as shown. The notification has a «تم ✓» action that marks the pinned intention achieved from the service worker via `achieveRecord()` (decision 016); keep that transformation in the Core.
+- Reminders are automatic at platform-appropriate times. There is no user-set reminder time. The decision is `decideReminder()` in the Core (page and service worker share it). System notifications only between 07:00 and 20:59 device time, at most 3 a day with 3 hours between them, no pinned intention needed (decision 048); never at night, and a skipped run is not counted. The notification has a «تم ✓» action that marks the pinned intention achieved from the service worker via `achieveRecord()` (decision 016); keep that transformation in the Core.
 - They must work when the app is open, in the foreground or background, and where the browser allows it. Where the platform does not allow background delivery, degrade gracefully and never promise it.
 - Ask for notification permission in context, after the user shows intent, never on first load.
 - Push (server-sent) is an optional service. It is postponed until a simple serverless, no-cost option exists. Local scheduling and in-app reminders must work without it.

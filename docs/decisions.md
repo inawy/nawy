@@ -402,3 +402,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Why not `noImplicitAny` yet: it needs about 200 parameter annotations; the plan is to do it file by file (smallest first) when a file is touched anyway, not in one sweep.
 - Version: 1.45.0 (comments only, but the files are cached app shell files).
 
+## 048 — Reminders: up to 3 a day, no pinned intention needed, page-side check, test notification
+
+- Report: the system notification never showed on the owner's device; the wish was a reminder every day whenever the browser is available, at most 3 times.
+- Why it rarely showed (decisions 005/015): one reminder per day, only with a pinned and unfinished intention, and delivery only from Periodic Background Sync, which exists only in Chromium for installed apps, which the browser runs when it decides (12 hour minimum, tied to how much the app is used), and which is not run at all on iOS or in a normal tab. The page also never showed a system notification itself because it only checked when it opened (visible).
+- Change, all in the shared Core policy `decideReminder` (channel `notification`): up to `REMINDER_MAX_PER_DAY` = 3 per day, at least `REMINDER_MIN_GAP_MS` = 3 hours apart, only 07:00-20:59 device time (unchanged), no pinned intention required (the body, "What are you up to today?", fits either way; there is no "Done" button when nothing is pinned), and nothing once the pinned intention is achieved. The count lives in the settings row (`reminderCountDate`, `reminderCount`, `lastReminderAt`), written by both the service worker and the page; the page's cross-tab sync already carries the worker's writes. The in-app message (channel `in-app`) is unchanged: once a day, with a pinned intention.
+- Page side: while the app is alive in the background, `runBackgroundReminderCheck()` runs every 15 minutes and applies the same decision (never while the app is visible). Turning notifications on now shows an immediate test notification (not counted in the 3) so the user can see that notifications work on this device.
+- Limits, stated plainly: there is still no server push (decision 005), so nothing can be delivered while the browser is fully closed or the device is asleep unless the browser runs the periodic sync. Timers in a background tab or PWA are throttled or frozen by the browser. "Up to 3" means the browser got a chance to run; it can be fewer. Not verified on a real device. A real fix for guaranteed delivery needs web push with a server, which stays out of scope.
+- Verified: policy tests (limit, gap, day rollover, clock set back, 08:00/11:00/14:00 sequence), and the real service worker loaded in Node with a fake Dexie and time (counts, gap, no intention, achieved, disabled).
+- Version: 1.46.0.
+
