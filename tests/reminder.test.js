@@ -39,15 +39,54 @@ test("the in-app message is not limited by the hour and does not need notificati
 
 test("each reason is reported", () => {
   assert.equal(decide({ settings: { ...base.settings, notificationEnabled: false } }).reason, "disabled");
-  assert.equal(decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-5" } }).reason, "already-shown");
+  assert.equal(decide({ pinnedTask: { id: "t1", status: "achieved" } }).reason, "achieved");
+  // in-app message: once a day, needs a pinned intention
   assert.equal(
-    decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-4" } }).show,
+    decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-5" } }, "in-app").reason,
+    "already-shown"
+  );
+  assert.equal(
+    decide({ settings: { ...base.settings, lastReminderShownDate: "2026-9-4" } }, "in-app").show,
     true,
     "yesterday does not block today"
   );
-  assert.equal(decide({ settings: { ...base.settings, todayIntentionId: null } }).reason, "no-intention");
-  assert.equal(decide({ pinnedTask: null }).reason, "no-intention");
-  assert.equal(decide({ pinnedTask: { id: "t1", status: "achieved" } }).reason, "achieved");
+  assert.equal(decide({ settings: { ...base.settings, todayIntentionId: null } }, "in-app").reason, "no-intention");
+  assert.equal(decide({ pinnedTask: null }, "in-app").reason, "no-intention");
+  assert.equal(decide({ pinnedTask: { id: "t1", status: "achieved" } }, "in-app").reason, "achieved");
+});
+
+test("the system notification does not need a pinned intention", () => {
+  assert.equal(decide({ settings: { ...base.settings, todayIntentionId: null }, pinnedTask: null }).show, true);
+});
+
+test("system notifications: at most 3 a day, at least 3 hours apart, counter resets next day", () => {
+  const H = 3600 * 1000;
+  const s = (count, lastAt, date = "2026-9-5") => ({
+    ...base.settings,
+    reminderCountDate: date,
+    reminderCount: count,
+    lastReminderAt: lastAt
+  });
+  const t10 = at(10).getTime();
+  assert.equal(decide({ settings: s(1, t10 - 2 * H) }).reason, "too-soon");
+  assert.equal(decide({ settings: s(1, t10 - 3 * H) }).show, true, "exactly 3 hours is enough");
+  assert.equal(decide({ settings: s(3, t10 - 8 * H) }).reason, "limit-reached");
+  assert.equal(decide({ settings: s(2, t10 - 4 * H) }).show, true, "the third one is allowed");
+  // yesterday's count does not count today
+  assert.equal(decide({ settings: s(3, t10 - 23 * H, "2026-9-4") }).show, true);
+  // a clock set backwards never blocks forever
+  assert.equal(decide({ settings: s(1, t10 + 5 * H) }).show, true);
+  // 3 spread through the day: 08:00, 11:00, 14:00, then no more
+  let st = { ...base.settings };
+  const shownAt = [];
+  for (const h of [8, 9, 11, 12, 14, 17, 20]) {
+    const now = at(h);
+    if (NawyData.decideReminder({ settings: st, pinnedTask: base.pinnedTask, now, channel: "notification" }).show) {
+      shownAt.push(h);
+      st = { ...st, ...NawyData.recordReminderShown(st, now) };
+    }
+  }
+  assert.deepEqual(shownAt, [8, 11, 14]);
 });
 
 test("the date key format is the stored one (month is zero-based)", () => {
@@ -181,6 +220,33 @@ test("worker: shows the notification at 10:00 and records the day", async () => 
   assert.equal(w.shown[0].options.dir, "rtl");
   assert.equal(w.saved.length, 1);
   assert.equal(w.saved[0].lastReminderShownDate, "2026-9-5");
+  assert.equal(w.saved[0].reminderCount, 1);
+  assert.equal(w.saved[0].reminderCountDate, "2026-9-5");
+});
+
+test("worker: without a pinned intention it still notifies, with no done action and no task id", async () => {
+  const w = loadWorker({ settingsRow: row({ todayIntentionId: null }), tasks, now: at(10) });
+  await w.fire();
+  assert.equal(w.shown.length, 1);
+  assert.equal(JSON.stringify(w.shown[0].options.actions), "[]");
+  assert.equal(w.shown[0].options.data.taskId, null);
+});
+
+test("worker: a second run 3 hours later notifies again, a third too, a fourth does not", async () => {
+  let r = row();
+  for (const [h, expected] of [
+    [8, true],
+    [10, false],
+    [11, true],
+    [14, true],
+    [18, false]
+  ]) {
+    const w = loadWorker({ settingsRow: r, tasks, now: at(h) });
+    await w.fire();
+    assert.equal(w.shown.length === 1, expected, "hour " + h);
+    if (w.saved.length) r = { ...r, ...w.saved[0] };
+  }
+  assert.equal(r.reminderCount, 3);
 });
 
 test("worker: English body and ltr", async () => {
@@ -208,13 +274,12 @@ test("worker: a later run inside the window still delivers after a night run was
   assert.equal(morning.shown.length, 1);
 });
 
-test("worker: no notification when disabled, already shown, achieved, no intention or no settings", async () => {
+test("worker: no notification when disabled, achieved, over the daily limit, too soon or no settings", async () => {
   const cases = [
     [row({ notificationEnabled: false }), tasks],
-    [row({ lastReminderShownDate: "2026-9-5" }), tasks],
     [row(), { t1: { id: "t1", status: "achieved" } }],
-    [row({ todayIntentionId: null }), tasks],
-    [row({ todayIntentionId: "missing" }), tasks],
+    [row({ reminderCountDate: "2026-9-5", reminderCount: 3, lastReminderAt: at(8).getTime() }), tasks],
+    [row({ reminderCountDate: "2026-9-5", reminderCount: 1, lastReminderAt: at(9).getTime() }), tasks],
     [undefined, tasks]
   ];
   for (const [settingsRow, t] of cases) {

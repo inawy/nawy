@@ -1,30 +1,30 @@
-const CACHE_NAME = "nawy-runtime-v1.45.0";
+const CACHE_NAME = "nawy-runtime-v1.46.0";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.45.0");
+importScripts("./nawy-data.js?v=1.46.0");
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./manifest.json?v=1.45.0",
+  "./manifest.json?v=1.46.0",
   "./service-worker.js",
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./styles.css?v=1.45.0",
-  "./translations.js?v=1.45.0",
-  "./sounds.js?v=1.45.0",
-  "./share.js?v=1.45.0",
-  "./sheet-gestures.js?v=1.45.0",
-  "./banners.js?v=1.45.0",
-  "./date-format.js?v=1.45.0",
-  "./app.js?v=1.45.0",
-  "./nawy-data.js?v=1.45.0",
-  "./nawy-storage.js?v=1.45.0",
-  "./nawy-backup.js?v=1.45.0",
-  "./nawy-ui.js?v=1.45.0",
+  "./styles.css?v=1.46.0",
+  "./translations.js?v=1.46.0",
+  "./sounds.js?v=1.46.0",
+  "./share.js?v=1.46.0",
+  "./sheet-gestures.js?v=1.46.0",
+  "./banners.js?v=1.46.0",
+  "./date-format.js?v=1.46.0",
+  "./app.js?v=1.46.0",
+  "./nawy-data.js?v=1.46.0",
+  "./nawy-storage.js?v=1.46.0",
+  "./nawy-backup.js?v=1.46.0",
+  "./nawy-ui.js?v=1.46.0",
   "./fonts/cairo-ar-latin.woff2",
   "./icon-192.png",
   "./icon-512.png",
@@ -167,7 +167,7 @@ async function checkAndShowDailyReminder() {
       tag: "nawy-morning",
       requireInteraction: true,
       vibrate: [100, 50, 100],
-      actions: NawyData.reminderActions(settingsRow.language),
+      actions: pinnedTask ? NawyData.reminderActions(settingsRow.language) : [],
       data: { taskId: pinnedTask ? pinnedTask.id : null }
     });
 
