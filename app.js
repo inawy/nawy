@@ -1546,7 +1546,14 @@ function updateBodyScrollLock() {
 
 function openOverlay(overlay) {
   const sheet = overlay.querySelector(".sheet");
-  if (sheet) {
+  if (sheet && overlay.id === "menuOverlay") {
+    // الدرج الجانبي بيدخل من جنبه (حالة الإغلاق في الـ CSS)، مش من تحت زي باقي الشيتات؛
+    // بنمسح أي إزاحة سحب فاضلة من آخر إغلاق من غير أنيميشن، وبعدين الكلاس هو اللي بيحرّكه.
+    sheet.style.transition = "none";
+    sheet.style.transform = "";
+    void sheet.offsetHeight;
+    sheet.style.transition = "";
+  } else if (sheet) {
     // لازم الدخول يبدأ من تحت دايمًا، حتى لو آخر مرة البطاقة
     // قفلت بسحب يمين/شمال وسابت transform أفقي على العنصر. فبنرجّع
     // الوضع الأصلي (تحت) بالقوة، ونعمل reflow، قبل ما نشغّل
