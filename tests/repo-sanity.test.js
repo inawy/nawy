@@ -368,9 +368,17 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
   const css = read("styles.css").replace(/\r/g, "");
   const app = read("app.js");
   // phone: the drawer hides toward the menu-button edge (left in Arabic, right in English)
-  assert.match(css, /--drawer-hide: -100%;\s*\}\s*html\[dir="ltr"\] \{\s*--drawer-hide: 100%;/, "phone drawer directions");
+  assert.match(
+    css,
+    /--drawer-hide: -100%;\s*\}\s*html\[dir="ltr"\] \{\s*--drawer-hide: 100%;/,
+    "phone drawer directions"
+  );
   assert.match(css, /translateX\(var\(--drawer-hide\)\)/);
-  assert.match(css, /@media \(min-width: 1024px\) \{[\s\S]*?#menuOverlay \{\s*inset: 0 auto 0 auto;/, "docked sidebar block missing");
+  assert.match(
+    css,
+    /@media \(min-width: 1024px\) \{[\s\S]*?#menuOverlay \{\s*inset: 0 auto 0 auto;/,
+    "docked sidebar block missing"
+  );
   assert.match(app, /const SIDEBAR_QUERY = "\(min-width: 1024px\)";/, "JS breakpoint must match the CSS one");
   // every screen opened from the menu goes through the one helper so the docked sidebar stays open
   assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 5);
