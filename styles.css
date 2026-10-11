@@ -2547,19 +2547,19 @@ html[data-theme="light"] .toastify {
 }
 
 /* ===== القائمة الجانبية =====
-   موبايل: درج بيطلع من الحافة (يمين في العربي، شمال في الإنجليزي) فوق خلفية معتمة.
+   موبايل: درج بيطلع من جنب (من ناحية زر القائمة: شمال في العربي، يمين في الإنجليزي) فوق خلفية معتمة.
    ديسكتوب (>=1024px): سايدبار مثبّت جنب المحتوى وقابل للطي (زي claude.ai). */
 :root {
   --sidebar-w: 300px;
-  --drawer-hide: 100%;
+  --drawer-hide: -100%;
 }
 html[dir="ltr"] {
-  --drawer-hide: -100%;
+  --drawer-hide: 100%;
 }
 #menuOverlay {
   padding: 0;
   align-items: stretch;
-  justify-content: flex-start;
+  justify-content: flex-end;
   transition:
     visibility 0.26s ease-out,
     background-color 0.26s ease-out;
@@ -2576,10 +2576,10 @@ html[dir="ltr"] {
   align-self: stretch;
   padding: calc(16px + env(safe-area-inset-top)) 14px calc(16px + env(safe-area-inset-bottom));
   border: 0;
-  border-inline-end: 1px solid var(--border);
+  border-inline-start: 1px solid var(--border);
   border-radius: 0;
-  border-start-end-radius: 28px;
-  border-end-end-radius: 28px;
+  border-start-start-radius: 28px;
+  border-end-start-radius: 28px;
   transform: translateX(var(--drawer-hide));
   transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.26, 1);
   box-shadow: var(--shadow-sheet);
@@ -2603,10 +2603,17 @@ html[dir="ltr"] {
 #menuOverlay.overlay-fullscreen .sheet {
   width: 100%;
   border-radius: 0;
-  border-inline-end: 0;
+  border-inline-start: 0;
 }
 
 @media (min-width: 1024px) {
+  /* السايدبار المثبّت على جنب بداية الكتابة (يمين في العربي)، فبيختفي ناحية نفس الحافة */
+  :root {
+    --drawer-hide: 100%;
+  }
+  html[dir="ltr"] {
+    --drawer-hide: -100%;
+  }
   #menuOverlay {
     inset: 0 auto 0 auto;
     inset-inline-start: 0;
@@ -2627,6 +2634,8 @@ html[dir="ltr"] {
   #menuOverlay .sheet {
     width: var(--sidebar-w);
     border-radius: 0;
+    border-inline-start: 0;
+    border-inline-end: 1px solid var(--border);
     box-shadow: none;
   }
   #menuOverlay .sheet-close-small {

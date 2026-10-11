@@ -412,3 +412,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Verified: policy tests (limit, gap, day rollover, clock set back, 08:00/11:00/14:00 sequence), and the real service worker loaded in Node with a fake Dexie and time (counts, gap, no intention, achieved, disabled).
 - Version: 1.46.0.
 
+## 049 — The phone drawer comes from the menu-button side, and always slides in sideways
+
+- Feedback on decision 041: the menu should come out from the same side as its button (the button is at the left in Arabic since decision 044), as a side panel, not from the bottom.
+- Two causes fixed: (1) the drawer sat on the opposite edge (reading-start); it now sits on the button's edge: left in Arabic, right in English (`--drawer-hide` flipped, rounded corners on its inner edge, border on its inner side, swipe-to-close toward its own edge). (2) `openOverlay()` reset every sheet to `translateY(100%)` before opening, which made the drawer fly in from below diagonally; the menu now skips that and enters only from its CSS closed state, also after a swipe-dismiss.
+- Desktop (>= 1024px) is unchanged in place: the docked sidebar stays on the reading-start edge like claude.ai (right in Arabic), and its closed state now slides toward that same edge.
+- Checked by sampling the sheet position every 25 ms while opening (top stays 0, only the horizontal position moves, both directions, also reopening after a swipe) and by the phone browser test, which now asserts the button-side edge.
+- Version: 1.47.0.
+

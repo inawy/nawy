@@ -27,7 +27,7 @@ function initSheetGestures() {
     const scrollArea = wrapSheetScrollArea(sheet);
     // القائمة الجانبية درج: بيتسحب ناحية الحافة اللي طالع منها بس، والسحب الرأسي سكرول عادي للمحتوى.
     const isDrawer = overlay.id === "menuOverlay";
-    const drawerDir = () => (document.documentElement.dir === "rtl" ? 1 : -1);
+    const drawerDir = () => (document.documentElement.dir === "rtl" ? -1 : 1);
 
     let startX = 0;
     let startY = 0;

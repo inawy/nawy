@@ -307,7 +307,7 @@ const menuState = page =>
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth
   }));
 
-test("phone: the menu is a side drawer on the reading-start edge, closes on backdrop and swipe", async () => {
+test("phone: the menu is a side drawer on the menu-button edge, closes on backdrop and swipe", async () => {
   const page = await open(`${base}/index.html`);
   assert.equal((await menuState(page)).show, false);
   await page.click("#menuBtn");
@@ -324,10 +324,10 @@ test("phone: the menu is a side drawer on the reading-start edge, closes on back
       rtl: document.documentElement.dir === "rtl"
     };
   });
-  assert.equal(Math.round(box.rtl ? box.right : box.left), box.rtl ? 390 : 0, "drawer sits on the reading-start edge");
+  assert.equal(Math.round(box.rtl ? box.left : box.right), box.rtl ? 0 : 390, "drawer sits on the menu-button edge");
   assert.ok(box.right - box.left < 390 && box.height >= box.vh - 1, JSON.stringify(box));
   // swipe toward the hidden edge closes it
-  const dir = box.rtl ? 1 : -1;
+  const dir = box.rtl ? -1 : 1;
   await page.mouse.move(box.left + 100, 500);
   await page.mouse.down();
   for (let i = 1; i <= 12; i++) await page.mouse.move(box.left + 100 + dir * i * 15, 500);
@@ -337,7 +337,7 @@ test("phone: the menu is a side drawer on the reading-start edge, closes on back
   // backdrop click closes it too
   await page.click("#menuBtn");
   await page.waitForTimeout(400);
-  await page.mouse.click(box.rtl ? 10 : 380, 400);
+  await page.mouse.click(box.rtl ? 380 : 10, 400);
   await page.waitForTimeout(400);
   assert.equal((await menuState(page)).show, false);
   await page.close();
