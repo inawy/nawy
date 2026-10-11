@@ -158,6 +158,8 @@
 	var REMINDER_START_HOUR = 7;
 	var REMINDER_END_HOUR = 21;
 	var REMINDER_TITLE = "ناوي 🌱";
+	var REMINDER_MAX_PER_DAY = 3;
+	var REMINDER_MIN_GAP_MS = 108e5;
 	function reminderDateKey(date) {
 		return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 	}
@@ -165,12 +167,45 @@
 		const hour = date.getHours();
 		return hour >= 7 && hour < 21;
 	}
+	function reminderCountToday(settings, now) {
+		return settings.reminderCountDate === reminderDateKey(now) ? Number(settings.reminderCount) || 0 : 0;
+	}
+	function recordReminderShown(settings, now) {
+		return {
+			reminderCountDate: reminderDateKey(now),
+			reminderCount: reminderCountToday(settings, now) + 1,
+			lastReminderAt: now.getTime()
+		};
+	}
 	function decideReminder(input) {
 		const { settings, pinnedTask, now, channel } = input;
-		if (channel === "notification" && !settings.notificationEnabled) return {
-			show: false,
-			reason: "disabled"
-		};
+		if (channel === "notification") {
+			if (!settings.notificationEnabled) return {
+				show: false,
+				reason: "disabled"
+			};
+			if (pinnedTask && pinnedTask.status === "achieved") return {
+				show: false,
+				reason: "achieved"
+			};
+			if (!isReminderHour(now)) return {
+				show: false,
+				reason: "quiet-hours"
+			};
+			if (reminderCountToday(settings, now) >= 3) return {
+				show: false,
+				reason: "limit-reached"
+			};
+			const last = Number(settings.lastReminderAt) || 0;
+			if (last > 0 && now.getTime() >= last && now.getTime() - last < 108e5) return {
+				show: false,
+				reason: "too-soon"
+			};
+			return {
+				show: true,
+				reason: "ok"
+			};
+		}
 		if (settings.lastReminderShownDate === reminderDateKey(now)) return {
 			show: false,
 			reason: "already-shown"
@@ -182,10 +217,6 @@
 		if (pinnedTask.status === "achieved") return {
 			show: false,
 			reason: "achieved"
-		};
-		if (channel === "notification" && !isReminderHour(now)) return {
-			show: false,
-			reason: "quiet-hours"
 		};
 		return {
 			show: true,
@@ -314,6 +345,8 @@
 	exports.DEFAULT_SETTINGS = DEFAULT_SETTINGS;
 	exports.REMINDER_DONE_ACTION = REMINDER_DONE_ACTION;
 	exports.REMINDER_END_HOUR = REMINDER_END_HOUR;
+	exports.REMINDER_MAX_PER_DAY = REMINDER_MAX_PER_DAY;
+	exports.REMINDER_MIN_GAP_MS = REMINDER_MIN_GAP_MS;
 	exports.REMINDER_START_HOUR = REMINDER_START_HOUR;
 	exports.REMINDER_TITLE = REMINDER_TITLE;
 	exports.SCHEMA_VERSION = SCHEMA_VERSION;
@@ -331,8 +364,10 @@
 	exports.mergeNawyData = mergeNawyData;
 	exports.normalizeSettings = normalizeSettings;
 	exports.normalizeTaskText = normalizeTaskText;
+	exports.recordReminderShown = recordReminderShown;
 	exports.reminderActions = reminderActions;
 	exports.reminderBody = reminderBody;
+	exports.reminderCountToday = reminderCountToday;
 	exports.reminderDateKey = reminderDateKey;
 	exports.rolloverToday = rolloverToday;
 	exports.sanitizeNawyData = sanitizeNawyData;
