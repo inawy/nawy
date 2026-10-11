@@ -303,23 +303,40 @@ export function mergeNawyData(localData: any, remoteData: any): NawyData {
 // قناتين:
 //   "in-app"       : رسالة جوه التطبيق وقت ما المستخدم بيفتحه. بتظهر في أي ساعة
 //                    (هو قدامها)، ومش محتاجة إذن إشعارات.
-//   "notification" : إشعار النظام (Periodic Background Sync). بيظهر بس بين
-//                    REMINDER_START_HOUR و REMINDER_END_HOUR بتوقيت الجهاز —
-//                    مفيش إشعار بالليل. لو المزامنة جت بره الفترة ده "ماظهرش" ومش
-//                    بيتسجّل إنه اتعرض، فأول مزامنة جاية جوه الفترة بتعرضه.
+//   "notification" : إشعار النظام (Periodic Background Sync أو الصفحة وهي في الخلفية).
+//                    بيظهر بس بين REMINDER_START_HOUR و REMINDER_END_HOUR بتوقيت
+//                    الجهاز — مفيش إشعار بالليل — ولحد REMINDER_MAX_PER_DAY مرات في
+//                    اليوم بفاصل REMINDER_MIN_GAP_MS على الأقل. مش محتاج نية مثبّتة.
+//                    اللي ما اتعرضش (بره الفترة/قبل الفاصل) مبيتحسبش.
 // ---------------------------------------------------------
 export const REMINDER_START_HOUR = 7;
 export const REMINDER_END_HOUR = 21;
 export const REMINDER_TITLE = "ناوي 🌱";
 
 export type ReminderChannel = "in-app" | "notification";
-export type ReminderReason = "ok" | "disabled" | "already-shown" | "no-intention" | "achieved" | "quiet-hours";
+export type ReminderReason =
+  | "ok"
+  | "disabled"
+  | "already-shown"
+  | "no-intention"
+  | "achieved"
+  | "quiet-hours"
+  | "limit-reached"
+  | "too-soon";
+
+// إشعار النظام: لحد REMINDER_MAX_PER_DAY مرات في اليوم، بينهم REMINDER_MIN_GAP_MS على الأقل.
+// العدّاد محفوظ في الإعدادات (reminderCountDate / reminderCount / lastReminderAt).
+export const REMINDER_MAX_PER_DAY = 3;
+export const REMINDER_MIN_GAP_MS = 3 * 60 * 60 * 1000;
 
 export interface ReminderInput {
   settings: {
     notificationEnabled?: boolean;
     lastReminderShownDate?: string | null;
     todayIntentionId?: string | null;
+    reminderCountDate?: string | null;
+    reminderCount?: number;
+    lastReminderAt?: number;
   };
   pinnedTask: Item | null | undefined;
   now: Date;
@@ -337,14 +354,42 @@ export function isReminderHour(date: Date): boolean {
   return hour >= REMINDER_START_HOUR && hour < REMINDER_END_HOUR;
 }
 
+// كام إشعار نظام اتعرض النهارده (العدّاد بيبدأ من صفر كل يوم).
+export function reminderCountToday(settings: ReminderInput["settings"], now: Date): number {
+  return settings.reminderCountDate === reminderDateKey(now) ? Number(settings.reminderCount) || 0 : 0;
+}
+
+// الحقول اللي لازم تتسجّل في الإعدادات بعد ما إشعار اتعرض.
+export function recordReminderShown(
+  settings: ReminderInput["settings"],
+  now: Date
+): { reminderCountDate: string; reminderCount: number; lastReminderAt: number } {
+  return {
+    reminderCountDate: reminderDateKey(now),
+    reminderCount: reminderCountToday(settings, now) + 1,
+    lastReminderAt: now.getTime()
+  };
+}
+
 export function decideReminder(input: ReminderInput): { show: boolean; reason: ReminderReason } {
   const { settings, pinnedTask, now, channel } = input;
 
-  if (channel === "notification" && !settings.notificationEnabled) return { show: false, reason: "disabled" };
+  if (channel === "notification") {
+    // إشعار النظام: مش محتاج نية مثبّتة (الرسالة عامة)، بس لو نية النهارده اتحققت مفيش داعي يفضل يزعج.
+    if (!settings.notificationEnabled) return { show: false, reason: "disabled" };
+    if (pinnedTask && pinnedTask.status === "achieved") return { show: false, reason: "achieved" };
+    if (!isReminderHour(now)) return { show: false, reason: "quiet-hours" };
+    if (reminderCountToday(settings, now) >= REMINDER_MAX_PER_DAY) return { show: false, reason: "limit-reached" };
+    const last = Number(settings.lastReminderAt) || 0;
+    if (last > 0 && now.getTime() >= last && now.getTime() - last < REMINDER_MIN_GAP_MS) {
+      return { show: false, reason: "too-soon" };
+    }
+    return { show: true, reason: "ok" };
+  }
+
   if (settings.lastReminderShownDate === reminderDateKey(now)) return { show: false, reason: "already-shown" };
   if (!settings.todayIntentionId || !pinnedTask) return { show: false, reason: "no-intention" };
   if (pinnedTask.status === "achieved") return { show: false, reason: "achieved" };
-  if (channel === "notification" && !isReminderHour(now)) return { show: false, reason: "quiet-hours" };
 
   return { show: true, reason: "ok" };
 }

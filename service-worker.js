@@ -168,9 +168,11 @@ async function checkAndShowDailyReminder() {
       requireInteraction: true,
       vibrate: [100, 50, 100],
       actions: NawyData.reminderActions(settingsRow.language),
-      data: { taskId: pinnedTask.id }
+      data: { taskId: pinnedTask ? pinnedTask.id : null }
     });
 
+    // نسجّل العدّاد (لحد 3 في اليوم) ونعتبر رسالة التطبيق اتقدّمت كمان عشان ما تتكررش.
+    Object.assign(settingsRow, NawyData.recordReminderShown(settingsRow, now));
     settingsRow.lastReminderShownDate = NawyData.reminderDateKey(now);
     settingsRow.updatedAt = Date.now();
     await db.settings.put(settingsRow);

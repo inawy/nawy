@@ -1811,6 +1811,26 @@ function runDailyReminderCheck() {
   }
 }
 
+// إشعار النظام من الصفحة نفسها: بيشتغل كل ربع ساعة طول ما التطبيق عايش في الخلفية (المتصفح ممكن يوقف
+// المؤقتات لو التطبيق اتقفل أو الجهاز نايم، فده مكمّل لمزامنة الخلفية مش بديل). نفس قرار الـ Core:
+// لحد ٣ مرات في اليوم بين ٧ ص و٩ م بفاصل ٣ ساعات، ومبيظهرش والتطبيق قدام المستخدم.
+function runBackgroundReminderCheck() {
+  if (!settings.notificationEnabled || !("Notification" in window) || Notification.permission !== "granted") return;
+  if (document.visibilityState === "visible") return;
+  const now = new Date();
+  const decision = NawyData.decideReminder({
+    settings,
+    pinnedTask: getTodayPinnedTask(),
+    now,
+    channel: "notification"
+  });
+  if (!decision.show) return;
+  Object.assign(settings, NawyData.recordReminderShown(settings, now));
+  settings.lastReminderShownDate = getDateKey(now);
+  saveSettings();
+  showMorningNotification();
+}
+
 // تسجيل Periodic Background Sync لو المتصفح والمنصة بتدعمه (كروم
 // على أندرويد للتطبيقات المُثبّتة بس)، عشان نحاول نبعت تذكير حتى
 // لو التطبيق مقفول خالص. ده "بأفضل إمكانية" ومش مضمون التوقيت.
@@ -1834,8 +1854,8 @@ function registerPeriodicReminderSync() {
     .catch(() => {});
 }
 
-function showMorningNotification() {
-  const body = t("morningNotif");
+function showMorningNotification(bodyText) {
+  const body = bodyText || t("morningNotif");
   /** @type {NotificationOptions & { vibrate?: number[] }} */
   const options = {
     body,
@@ -1844,7 +1864,7 @@ function showMorningNotification() {
     dir: settings.language === "en" ? "ltr" : "rtl",
     lang: settings.language,
     tag: "nawy-morning",
-    requireInteraction: true,
+    requireInteraction: !bodyText,
     vibrate: [100, 50, 100]
   };
 
@@ -1855,7 +1875,8 @@ function showMorningNotification() {
         reg.showNotification(
           "ناوي 🌱",
           Object.assign({}, options, {
-            actions: NawyData.reminderActions(settings.language),
+            // زر «تم ✓» بس لو فيه نية مثبّتة يحققها
+            actions: pinned && !bodyText ? NawyData.reminderActions(settings.language) : [],
             data: { taskId: pinned ? pinned.id : null }
           })
         );
@@ -2428,6 +2449,8 @@ $("#notifToggleCheckbox").addEventListener(
         saveSettings();
         registerPeriodicReminderSync();
 
+        // إشعار تجريبي فوري: يوضّح إن الإشعارات شغالة فعلًا على الجهاز ده (ومبيتحسبش من الـ ٣ يوميًا).
+        showMorningNotification(t("reminderTestBody"));
         showToast(`✅ ${t("notifEnabledToast")}`);
         updateNotifUI();
       } else {
@@ -2738,6 +2761,7 @@ async function init() {
   }
 
   runDailyReminderCheck();
+  setInterval(runBackgroundReminderCheck, 15 * 60 * 1000);
 
   if (settings.notificationEnabled && "Notification" in window && Notification.permission === "granted") {
     registerPeriodicReminderSync();
