@@ -420,3 +420,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Checked by sampling the sheet position every 25 ms while opening (top stays 0, only the horizontal position moves, both directions, also reopening after a swipe) and by the phone browser test, which now asserts the button-side edge.
 - Version: 1.47.0.
 
+## 050 — One back/close pattern for the menu screens; the archive slides in from the side
+
+- Feedback: the archive should come in from the side like the menu, and the back and close buttons in settings, backup and archive were confusing to press.
+- What was wrong: settings had a tiny 28px back chevron at the far end, the archive had a back chevron styled as the floating close mark in the corner, and the menu's own close mark was an absolutely positioned 28px icon. Same corner, same look, different jobs, and below the 44px touch target.
+- New shared component `.nav-bar` with `.nav-btn` (44px round buttons, visible focus ring): **Back** (a chevron, `.nav-back`) at the start of the bar goes up exactly one level; **Close** (an X, `.nav-close`) at the end of the bar closes the whole screen. They sit at opposite ends and have different icons. Used by settings, backup, stats and the archive; the main menu's close button lives in its header. The bar stays fixed on top in the archive and stats sheets (`nav-bar` joins the parts kept outside the scrolling area). The old `.account-menu-subhead`, `.account-menu-back`, the settings overrides and the floating close for the menu were removed.
+- Archive: slides in horizontally from the menu-button side (left in Arabic, right in English; `--panel-hide`, which is not flipped on desktop), full width on phones, a 520px side panel from 640px up. `openOverlay()` gives it the same sideways entry as the menu instead of the bottom-sheet reset; swipe toward its edge closes it, vertical swipes only scroll. Stats and the task sheets are unchanged (still bottom sheets).
+- Checked: screenshots at 390 and 1280px, the archive position sampled while opening (top stays 0), back goes to the menu, close closes everything, and a browser test asserts 44px buttons at opposite ends in settings and backup and the archive navigation.
+- Version: 1.48.0.
+

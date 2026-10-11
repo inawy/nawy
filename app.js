@@ -1546,7 +1546,7 @@ function updateBodyScrollLock() {
 
 function openOverlay(overlay) {
   const sheet = overlay.querySelector(".sheet");
-  if (sheet && overlay.id === "menuOverlay") {
+  if (sheet && (overlay.id === "menuOverlay" || overlay.id === "archiveOverlay")) {
     // الدرج الجانبي بيدخل من جنبه (حالة الإغلاق في الـ CSS)، مش من تحت زي باقي الشيتات؛
     // بنمسح أي إزاحة سحب فاضلة من آخر إغلاق من غير أنيميشن، وبعدين الكلاس هو اللي بيحرّكه.
     sheet.style.transition = "none";

@@ -10,7 +10,7 @@ function wrapSheetScrollArea(sheet) {
   if (sheet.querySelector(".sheet-scroll")) return sheet.querySelector(".sheet-scroll");
   const scrollArea = document.createElement("div");
   scrollArea.className = "sheet-scroll";
-  const keepOutside = new Set(["sheet-close-small", "sheet-handle"]);
+  const keepOutside = new Set(["sheet-close-small", "sheet-handle", "nav-bar"]);
   const toMove = [...sheet.children].filter(child => ![...child.classList].some(c => keepOutside.has(c)));
   toMove.forEach(child => scrollArea.appendChild(child));
   sheet.appendChild(scrollArea);
@@ -26,7 +26,8 @@ function initSheetGestures() {
 
     const scrollArea = wrapSheetScrollArea(sheet);
     // القائمة الجانبية درج: بيتسحب ناحية الحافة اللي طالع منها بس، والسحب الرأسي سكرول عادي للمحتوى.
-    const isDrawer = overlay.id === "menuOverlay";
+    const isDrawer = overlay.id === "menuOverlay" || overlay.id === "archiveOverlay";
+    // الدرج بيختفي ناحية زر القائمة (شمال في العربي، يمين في الإنجليزي)؛ السايدبار المثبّت بس هو اللي بيختفي ناحية بداية الكتابة
     const drawerDir = () => (document.documentElement.dir === "rtl" ? -1 : 1);
 
     let startX = 0;
@@ -50,7 +51,7 @@ function initSheetGestures() {
       // منمنع بدء السحب فقط من عناصر نصية ممكن يكون فيها تحديد نص
       // (تحرير المهمة، خانة البحث) — كل حاجة تانية على البطاقة،
       // حتى الأزرار والمفاتيح، تقدر تبدأ منها سحب البطاقة كلها.
-      if (isDrawer && isSidebarDocked()) return;
+      if (overlay.id === "menuOverlay" && isSidebarDocked()) return;
       if (/** @type {Element} */ (event.target).closest("textarea, input[type='text'], input[type='search']")) return;
 
       startX = event.clientX;
