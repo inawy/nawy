@@ -315,14 +315,7 @@ export const REMINDER_TITLE = "ناوي 🌱";
 
 export type ReminderChannel = "in-app" | "notification";
 export type ReminderReason =
-  | "ok"
-  | "disabled"
-  | "already-shown"
-  | "no-intention"
-  | "achieved"
-  | "quiet-hours"
-  | "limit-reached"
-  | "too-soon";
+  "ok" | "disabled" | "already-shown" | "no-intention" | "achieved" | "quiet-hours" | "limit-reached" | "too-soon";
 
 // إشعار النظام: لحد REMINDER_MAX_PER_DAY مرات في اليوم، بينهم REMINDER_MIN_GAP_MS على الأقل.
 // العدّاد محفوظ في الإعدادات (reminderCountDate / reminderCount / lastReminderAt).
