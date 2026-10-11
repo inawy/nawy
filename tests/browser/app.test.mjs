@@ -386,6 +386,64 @@ test("desktop: the menu is a docked sidebar that stays open, collapses, and reme
   await page.close();
 });
 
+test("phone: sub-screens have clear back/close buttons, and the archive slides in sideways", async () => {
+  const page = await open(`${base}/index.html`);
+  await page.click("#menuBtn");
+  await page.waitForTimeout(450);
+  for (const [open, back, panel] of [
+    ["#settingsBtn", "#settingsMenuBackBtn", "#settingsMenuPanel"],
+    ["#backupMenuBtn", "#backupMenuBackBtn", "#backupMenuPanel"]
+  ]) {
+    await page.click(open);
+    await page.waitForTimeout(250);
+    const m = await page.evaluate(
+      ([panelSel, backSel]) => {
+        const bar = document.querySelector(panelSel + " .nav-bar");
+        const b = document.querySelector(backSel).getBoundingClientRect();
+        const x = bar.querySelector(".nav-close").getBoundingClientRect();
+        return { bw: b.width, bh: b.height, xw: x.width, xh: x.height, apart: Math.abs(b.left - x.left) };
+      },
+      [panel, back]
+    );
+    assert.ok(m.bw >= 44 && m.bh >= 44 && m.xw >= 44 && m.xh >= 44, JSON.stringify(m));
+    assert.ok(m.apart > 200, "back and close sit at opposite ends: " + JSON.stringify(m));
+    await page.click(back);
+    await page.waitForTimeout(200);
+    assert.equal(await page.evaluate(() => document.querySelector("#mainMenuPanel").hidden), false);
+  }
+  // archive: horizontal entry only, back returns to the menu, close closes everything
+  const tops = await page.evaluate(
+    () =>
+      new Promise(resolve => {
+        const out = [];
+        document.querySelector("#archiveBtn").click();
+        let n = 0;
+        const tick = () => {
+          const r = document.querySelector("#archiveOverlay .sheet").getBoundingClientRect();
+          out.push(Math.round(r.top));
+          if (++n < 8) setTimeout(tick, 30);
+          else resolve(out);
+        };
+        tick();
+      })
+  );
+  assert.deepEqual([...new Set(tops)], [0], "the archive never moves vertically: " + tops);
+  await page.waitForTimeout(300);
+  await page.click("#archiveBackBtn");
+  await page.waitForTimeout(400);
+  assert.equal(await page.evaluate(() => document.querySelector("#menuOverlay").classList.contains("show")), true);
+  await page.click("#archiveBtn");
+  await page.waitForTimeout(400);
+  await page.click("#archiveOverlay .nav-close");
+  await page.waitForTimeout(400);
+  const shown = await page.evaluate(() => [
+    document.querySelector("#menuOverlay").classList.contains("show"),
+    document.querySelector("#archiveOverlay").classList.contains("show")
+  ]);
+  assert.deepEqual(shown, [false, false]);
+  await page.close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });

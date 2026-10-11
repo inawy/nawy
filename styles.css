@@ -755,12 +755,6 @@ html[dir="rtl"] .section.collapsed .section-chevron {
 .overlay-fullscreen .sheet-handle {
   display: none;
 }
-/* جوه قائمة الحساب، لما شاشة الإعدادات فاتحة، زرار الرجوع بتاعها
-       بياخد مكان زرار الإغلاق العائم (X) عشان ما يتداخلوش مع بعض —
-       بيبقى فيه زرار واحد واضح بس في أعلى يسار الشاشة. */
-#menuOverlay.overlay-fullscreen > .sheet > .sheet-close-small {
-  display: none;
-}
 /* لازم specificity أعلى من #menuOverlay .sheet القديمة */
 #menuOverlay.overlay-fullscreen .sheet {
   width: 100%;
@@ -1028,73 +1022,12 @@ html[data-theme="light"] #taskActions {
 .account-menu-panel[hidden] {
   display: none;
 }
-.account-menu-subhead {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 0 8px 8px;
-  margin-bottom: 4px;
-  border-bottom: 1px solid var(--border);
-}
-.account-menu-subhead .menu-text {
-  font-weight: 700;
-}
-.account-menu-back {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: var(--muted);
-}
-.account-menu-back:active {
-  background: var(--surface-2);
-}
-/* هيدر الإعدادات بقى شكله زي عنوان أي بطاقة تانية (.sheet-title +
-       زرار إغلاق صغير شفاف) بدل الشريط المحدود القديم. */
-#settingsMenuPanel .account-menu-subhead {
-  border-bottom: 0;
-  min-height: 0;
-  padding: 4px 4px 16px;
-  margin-bottom: 0;
-}
-#settingsMenuPanel .account-menu-subhead .menu-text {
-  font-size: var(--fs-lg);
-  font-weight: 750;
-  letter-spacing: -0.3px;
-}
-#settingsMenuPanel .account-menu-back {
-  width: 28px;
-  height: 28px;
-  border-radius: 0;
-  background: transparent;
-  color: var(--muted);
-  opacity: 0.68;
-  order: 2;
-}
-#settingsMenuPanel .account-menu-back .icon {
-  width: 15px;
-  height: 15px;
-}
-#settingsMenuPanel .account-menu-back:active {
-  background: transparent;
-  transform: scale(0.88);
-}
-#settingsMenuPanel .account-menu-subhead {
-  justify-content: space-between;
-}
-.account-menu-back .icon {
-  width: 19px;
-  height: 19px;
-}
 html[dir="rtl"] #statsBtn > .icon:last-child,
 html[dir="rtl"] #settingsBtn > .icon:last-child,
 html[dir="rtl"] #backupMenuBtn > .icon:last-child,
 html[dir="rtl"] #archiveBtn > .icon:last-child,
 html[dir="rtl"] #runBtn > .icon:last-child,
-html[dir="rtl"] #archiveBackBtn .icon,
-html[dir="rtl"] .account-menu-back .icon {
+html[dir="rtl"] .nav-back .icon {
   transform: scaleX(-1);
 }
 .backup-group {
@@ -1887,13 +1820,6 @@ html[data-theme="light"] .toastify {
 .archive-search input::placeholder {
   color: var(--muted);
 }
-.archive-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-  padding-left: 36px;
-}
 .archive-count {
   font-size: var(--fs-xs);
   color: var(--muted);
@@ -2590,12 +2516,6 @@ html[dir="ltr"] {
 #menuOverlay .sheet-handle {
   display: none;
 }
-#menuOverlay .sheet-close-small {
-  top: calc(12px + env(safe-area-inset-top));
-  inset-inline-start: auto;
-  inset-inline-end: 12px;
-  left: auto;
-}
 #menuOverlay .menu-item {
   border-radius: 14px;
 }
@@ -2638,9 +2558,6 @@ html[dir="ltr"] {
     border-inline-end: 1px solid var(--border);
     box-shadow: none;
   }
-  #menuOverlay .sheet-close-small {
-    inset-inline-end: 12px;
-  }
   html[data-sidebar="open"] body {
     padding-inline-start: var(--sidebar-w);
   }
@@ -2656,7 +2573,7 @@ html[dir="ltr"] {
   html[data-sidebar="open"] .toastify {
     left: calc(50% + var(--sb-shift));
   }
-  html[data-sidebar="open"] .overlay:not(#menuOverlay) {
+  html[data-sidebar="open"] .overlay:not(#menuOverlay):not(#archiveOverlay) {
     padding-inline-start: calc(16px + var(--sidebar-w));
   }
   body {
@@ -2679,4 +2596,102 @@ html[dir="ltr"] {
 }
 .header .brand-name {
   font-size: var(--fs-xl, 1.35rem);
+}
+
+/* ===== شريط التنقل الموحّد (رجوع / عنوان / إغلاق) =====
+   رجوع = سهم في بداية الشريط ويرجّعك لمستوى واحد؛ إغلاق = X في آخر الشريط ويقفل الشاشة كلها.
+   الزرّين بنفس الحجم (٤٤px، الحد الأدنى للمس) وعلى طرفين متقابلين، بأيقونتين مختلفتين. */
+/* لوح بيطلع من ناحية زر القائمة (شمال في العربي) في كل المقاسات، عكس --drawer-hide اللي بيتقلب على الديسكتوب */
+:root {
+  --panel-hide: -100%;
+}
+html[dir="ltr"] {
+  --panel-hide: 100%;
+}
+.nav-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 4px 0 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+.nav-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: var(--fs-lg);
+  font-weight: 750;
+  letter-spacing: -0.3px;
+}
+.nav-title .archive-count {
+  font-weight: 500;
+}
+.nav-btn {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    transform 0.14s ease;
+}
+.nav-btn .icon {
+  width: 20px;
+  height: 20px;
+}
+.nav-close {
+  color: var(--muted);
+}
+.nav-btn:active {
+  transform: scale(0.92);
+}
+.nav-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.account-menu-head .nav-close {
+  margin-inline-start: auto;
+}
+
+/* أرشيف ناوي: بيدخل من الجنب زي القائمة (مش من تحت)، وعلى الديسكتوب لوح جانبي مش شاشة كاملة */
+#archiveOverlay {
+  padding: 0;
+  align-items: stretch;
+  justify-content: flex-end;
+}
+#archiveOverlay .sheet {
+  width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: calc(8px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
+  border-radius: 0;
+  border: 0;
+  transform: translateX(var(--panel-hide));
+  transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.26, 1);
+}
+#archiveOverlay.show .sheet {
+  transform: none;
+}
+@media (min-width: 640px) {
+  #archiveOverlay .sheet {
+    width: min(520px, 100%);
+    border-inline-start: 1px solid var(--border);
+    border-start-start-radius: 28px;
+    border-end-start-radius: 28px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #archiveOverlay .sheet {
+    transition: none;
+  }
 }

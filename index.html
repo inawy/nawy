@@ -50,7 +50,7 @@
   <title>ناوي</title>
   
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json?v=1.47.0">
+  <link rel="manifest" href="manifest.json?v=1.48.0">
   <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -69,18 +69,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.47.0"></script>
+  <script src="./nawy-data.js?v=1.48.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.47.0"></script>
+  <script src="./nawy-storage.js?v=1.48.0"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.47.0"></script>
+  <script src="./nawy-backup.js?v=1.48.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي. بتتحمّل من app.js بعد أول رسم (loadUiBundle) عشان ماتأخّرش فتح التطبيق -->
-  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.47.0">
+  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.48.0">
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.47.0">
+  <link rel="stylesheet" href="./styles.css?v=1.48.0">
 </head>
 <body>
   <div class="app">
@@ -138,7 +138,6 @@
 
   <div class="overlay" id="menuOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="sheet-handle"></div>
       <div class="account-menu-panel" id="mainMenuPanel">
       <span id="statsMenuSub" hidden></span>
@@ -152,6 +151,7 @@
           <div class="account-menu-name" id="brandName" data-i18n="appName">ناوي</div>
           <div class="account-menu-subtitle" id="menuStatusLine" data-i18n="accountSubtitle">مساحتك الشخصية</div>
         </div>
+        <button class="nav-btn nav-close" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       </div>
       <button class="menu-item" id="statsBtn" type="button">
         <svg class="icon" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15v3M12 11v7M17 7v11"/></svg>
@@ -193,11 +193,10 @@
       </button>
       </div>
       <div class="account-menu-panel" id="backupMenuPanel" hidden>
-        <div class="account-menu-subhead">
-          <button class="account-menu-back" id="backupMenuBackBtn" type="button" aria-label="رجوع">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
-          </button>
-          <span class="menu-text" data-i18n="backupTitle">النسخ الاحتياطي</span>
+        <div class="nav-bar">
+          <button class="nav-btn nav-back" id="backupMenuBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+          <span class="nav-title" data-i18n="backupTitle">النسخ الاحتياطي</span>
+          <button class="nav-btn nav-close" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div class="backup-group" id="cloudBackupGroup">
           <div class="backup-group-head">
@@ -254,11 +253,10 @@
         </div>
       </div>
       <div class="account-menu-panel" id="settingsMenuPanel" hidden>
-        <div class="account-menu-subhead">
-          <button class="account-menu-back" id="settingsMenuBackBtn" type="button" aria-label="رجوع">
-            <svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
-          </button>
-          <span class="menu-text" data-i18n="settings">الإعدادات</span>
+        <div class="nav-bar">
+          <button class="nav-btn nav-back" id="settingsMenuBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+          <span class="nav-title" data-i18n="settings">الإعدادات</span>
+          <button class="nav-btn nav-close" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
         </div>
         <div id="settingsMenuContent"></div>
       </div>
@@ -382,12 +380,11 @@
   <div class="overlay" id="statsOverlay">
     <div class="sheet">
       <div class="sheet-handle"></div>
-      <div class="account-menu-subhead">
-        <button class="account-menu-back" id="statsBackBtn" type="button" aria-label="رجوع">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg>
-        </button>
-        <span class="menu-text" data-i18n="stats">إحصائياتي</span>
-      </div>
+      <div class="nav-bar">
+          <button class="nav-btn nav-back" id="statsBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+          <span class="nav-title" data-i18n="stats">إحصائياتي</span>
+          <button class="nav-btn nav-close" type="button" data-close="statsOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
 
       <div class="stat-hero">
         <div class="stat-hero-main">
@@ -435,12 +432,12 @@
 
   <div class="overlay overlay-fullscreen" id="archiveOverlay">
     <div class="sheet">
-      <button class="sheet-close-small" id="archiveBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+      <div class="nav-bar">
+          <button class="nav-btn nav-back" id="archiveBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+          <span class="nav-title"><span data-i18n="archive">أرشيف ناوي</span><span class="archive-count" id="archiveCount"></span></span>
+          <button class="nav-btn nav-close" type="button" data-close="archiveOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
       <div class="sheet-handle"></div>
-      <div class="archive-header-row">
-        <div class="sheet-title" style="padding:0;" data-i18n="archive">أرشيف ناوي</div>
-        <span class="archive-count" id="archiveCount"></span>
-      </div>
       <div class="archive-search">
         <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input type="text" id="archiveSearchInput" data-i18n-placeholder="archiveSearchPlaceholder" placeholder="ابحث في الأرشيف">
@@ -520,12 +517,12 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.47.0"></script>
-  <script src="./sounds.js?v=1.47.0"></script>
-  <script src="./share.js?v=1.47.0"></script>
-  <script src="./sheet-gestures.js?v=1.47.0"></script>
-  <script src="./banners.js?v=1.47.0"></script>
-  <script src="./date-format.js?v=1.47.0"></script>
-  <script src="./app.js?v=1.47.0"></script>
+  <script src="./translations.js?v=1.48.0"></script>
+  <script src="./sounds.js?v=1.48.0"></script>
+  <script src="./share.js?v=1.48.0"></script>
+  <script src="./sheet-gestures.js?v=1.48.0"></script>
+  <script src="./banners.js?v=1.48.0"></script>
+  <script src="./date-format.js?v=1.48.0"></script>
+  <script src="./app.js?v=1.48.0"></script>
 </body>
 </html>
