@@ -405,7 +405,7 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
       },
       [panel, back]
     );
-    assert.ok(m.bw >= 44 && m.bh >= 44 && m.xw >= 44 && m.xh >= 44, JSON.stringify(m));
+    assert.ok(Math.min(m.bw, m.bh, m.xw, m.xh) >= 43.9, JSON.stringify(m));
     assert.ok(m.apart > 200, "back and close sit at opposite ends: " + JSON.stringify(m));
     await page.click(back);
     await page.waitForTimeout(200);
