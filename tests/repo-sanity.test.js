@@ -383,3 +383,23 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
   // every screen opened from the menu goes through the one helper so the docked sidebar stays open
   assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 5);
 });
+
+test("backup nudge policy: needs enough data and an old or missing backup", () => {
+  const src = read("app.js").replace(/\r\n/g, "\n");
+  const m = src.match(/const BACKUP_NUDGE_MIN_ITEMS[\s\S]*?function shouldNudgeBackup[\s\S]*?\n}\n/);
+  assert.ok(m, "nudge policy exists in app.js");
+  const { shouldNudgeBackup, DAY } = vm.runInNewContext(m[0] + "; ({ shouldNudgeBackup, DAY: 86400000 })");
+  const now = 1e12;
+  assert.equal(shouldNudgeBackup(2, 0, now), false, "too little data");
+  assert.equal(shouldNudgeBackup(5, 0, now), true, "never backed up");
+  assert.equal(shouldNudgeBackup(9, now - 3 * DAY, now), false, "recent backup");
+  assert.equal(shouldNudgeBackup(9, now - 15 * DAY, now), true, "old backup");
+});
+
+test("manual export counts as a backup and permanent deletes are undoable", () => {
+  const src = read("app.js");
+  assert.match(src, /URL\.revokeObjectURL\(url\);\s*markBackupSuccessful\(\);/);
+  assert.match(src, /showToast\(t\("deletedForeverToast"\), true,/);
+  assert.match(src, /showToast\(t\("deleteAllDoneToast"\), true,/);
+  assert.match(src, /navigator\.storage\.persist/);
+});

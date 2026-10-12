@@ -500,6 +500,13 @@ function deleteForever(id) {
   archive.splice(index, 1);
   persistAcrossStores();
   renderArchive();
+  showToast(t("deletedForeverToast"), true, () => {
+    // تراجع: نرجّع النية للأرشيف ونشيل التومبستون بتاعها
+    deletedIds = deletedIds.filter(item => item.id !== deleted.id);
+    archive.splice(Math.min(index, archive.length), 0, deleted);
+    persistAcrossStores();
+    renderArchive();
+  });
 }
 
 // حذف نهائي لنية لسه نشطة (من غير ما تمر بالأرشيف)، بنفس منطق التومبستون
@@ -517,12 +524,18 @@ function deleteTaskPermanently(id) {
 
 function deleteAllArchived() {
   const now = Date.now();
+  const removed = archive.slice();
   const newTombstones = archive.map(item => ({ id: item.id, deletedAt: now }));
   deletedIds = [...deletedIds.filter(item => !newTombstones.some(nt => nt.id === item.id)), ...newTombstones];
   archive = [];
   persistAcrossStores();
   renderArchive();
-  showToast(t("deleteAllDoneToast"));
+  showToast(t("deleteAllDoneToast"), true, () => {
+    deletedIds = deletedIds.filter(item => !removed.some(r => r.id === item.id));
+    archive = [...removed, ...archive];
+    persistAcrossStores();
+    renderArchive();
+  });
 }
 
 function fallbackCopy(text) {
@@ -1468,14 +1481,40 @@ function updateBackupStatusCard() {
           })
         })
       : t("lastSyncNever");
+  refreshBackupNudge();
 }
 
 function markBackupSuccessful(email) {
   lastBackupTimestamp = Date.now();
   storage.setLastBackupTs(lastBackupTimestamp).catch(reportStorageWriteError);
   if (email) lastGoogleAccountEmail = email;
-  setMenuBadge(false);
+  refreshBackupNudge();
   updateMenuStatusLine();
+}
+
+// تنبيه النسخة الاحتياطية: لو فيه بيانات كفاية ومفيش نسخة من فترة طويلة.
+const BACKUP_NUDGE_MIN_ITEMS = 5;
+const BACKUP_NUDGE_AFTER_MS = 14 * 24 * 60 * 60 * 1000;
+function shouldNudgeBackup(itemCount, lastBackupTs, now) {
+  if (itemCount < BACKUP_NUDGE_MIN_ITEMS) return false;
+  if (!lastBackupTs) return true;
+  return now - lastBackupTs >= BACKUP_NUDGE_AFTER_MS;
+}
+function refreshBackupNudge() {
+  const nudge = shouldNudgeBackup(tasks.length + archive.length, lastBackupTimestamp, Date.now());
+  setMenuBadge(nudge);
+  const hint = $("#backupNudgeHint");
+  if (hint) hint.hidden = !nudge;
+}
+
+// بنطلب من المتصفح يثبّت التخزين عشان ميمسحش بياناتنا لو المساحة قلّت.
+async function requestPersistentStorage() {
+  try {
+    if (!navigator.storage || !navigator.storage.persist) return;
+    if (!(await navigator.storage.persisted())) await navigator.storage.persist();
+  } catch (e) {
+    console.warn("persist failed", e);
+  }
 }
 
 function setMenuBadge(show) {
@@ -1546,7 +1585,7 @@ function updateBodyScrollLock() {
 
 function openOverlay(overlay) {
   const sheet = overlay.querySelector(".sheet");
-  if (sheet && (overlay.id === "menuOverlay" || overlay.id === "archiveOverlay")) {
+  if (sheet && (overlay.id === "menuOverlay" || overlay.id === "archiveOverlay" || overlay.id === "statsOverlay")) {
     // الدرج الجانبي بيدخل من جنبه (حالة الإغلاق في الـ CSS)، مش من تحت زي باقي الشيتات؛
     // بنمسح أي إزاحة سحب فاضلة من آخر إغلاق من غير أنيميشن، وبعدين الكلاس هو اللي بيحرّكه.
     sheet.style.transition = "none";
@@ -1926,6 +1965,7 @@ function exportData() {
   a.download = `nawy-backup-${new Date().toISOString().split("T")[0]}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  markBackupSuccessful();
   showToast(t("exported"));
 }
 
@@ -2754,6 +2794,8 @@ async function init() {
   applySettings();
   render();
   initSidebar();
+  refreshBackupNudge();
+  requestPersistentStorage();
   loadUiBundleWhenIdle();
   // أول عرض جاهز: نكشف الصفحة (بعد ما الخط يتحمّل، بحد أقصى 400ms) بدل ما نعرض هيكل فاضي.
   Promise.race([document.fonts ? document.fonts.ready : null, new Promise(resolve => setTimeout(resolve, 400))]).then(
