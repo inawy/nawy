@@ -1585,7 +1585,7 @@ function updateBodyScrollLock() {
 
 function openOverlay(overlay) {
   const sheet = overlay.querySelector(".sheet");
-  if (sheet && (overlay.id === "menuOverlay" || overlay.id === "archiveOverlay" || overlay.id === "statsOverlay")) {
+  if (sheet && SIDE_PANEL_IDS.has(overlay.id)) {
     // الدرج الجانبي بيدخل من جنبه (حالة الإغلاق في الـ CSS)، مش من تحت زي باقي الشيتات؛
     // بنمسح أي إزاحة سحب فاضلة من آخر إغلاق من غير أنيميشن، وبعدين الكلاس هو اللي بيحرّكه.
     sheet.style.transition = "none";
@@ -1608,10 +1608,13 @@ function openOverlay(overlay) {
   if (overlay.id === "menuOverlay") syncMenuState(true, true);
   updateBodyScrollLock();
 }
+const SIDE_PANEL_IDS = new Set(["menuOverlay", "archiveOverlay", "statsOverlay"]);
+const SIDE_PANEL_TRANSITION = "transform .28s cubic-bezier(.22,.8,.26,1)";
 function closeOverlay(overlay) {
   const sheet = overlay.querySelector(".sheet");
   if (sheet) {
-    sheet.style.transition = "transform .22s ease-out";
+    // الألواح الجانبية بتخرج بنفس منحنى دخولها (من غير انتقال تاني)، والشيتات السفلية زي ما كانت
+    sheet.style.transition = SIDE_PANEL_IDS.has(overlay.id) ? SIDE_PANEL_TRANSITION : "transform .22s ease-out";
   }
   overlay.classList.remove("show");
   if (overlay.id === "menuOverlay") {
@@ -2272,16 +2275,21 @@ $$(".tab").forEach(tab => {
 
 $("#menuBtn").setAttribute("aria-expanded", "false");
 $("#settingsMenuContent").append(...$$("#settingsOverlay .setting-group"));
+// الأرشيف والإحصائيات بيتفتحوا فوق القائمة وهي مفتوحة (زي الإعدادات والنسخ)، مش بعد ما تتقفل،
+// فمفيش لوحين بيتحركوا ضد بعض ولا خلفية بتومض. الرجوع بيقفل اللوح بس، والإغلاق بيقفل الاتنين.
+function backFromSidePanel(overlay) {
+  closeOverlay(overlay);
+  const menu = $("#menuOverlay");
+  if (!menu.classList.contains("show")) {
+    openOverlay(menu);
+    $("#menuBtn").setAttribute("aria-expanded", "true");
+  }
+}
 $("#statsBtn").addEventListener("click", () => {
-  dismissMenuForNavigation();
   renderStats();
   openOverlay($("#statsOverlay"));
 });
-$("#statsBackBtn").addEventListener("click", () => {
-  closeOverlay($("#statsOverlay"));
-  openOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "true");
-});
+$("#statsBackBtn").addEventListener("click", () => backFromSidePanel($("#statsOverlay")));
 function backToMainMenuPanel(fromSelector) {
   const main = $("#mainMenuPanel");
   $(fromSelector).hidden = true;
@@ -2315,18 +2323,13 @@ $("#menuBtn").addEventListener("click", () => {
 });
 
 $("#archiveBtn").addEventListener("click", () => {
-  dismissMenuForNavigation();
   loadUiBundle();
   archiveSearchQuery = "";
   $("#archiveSearchInput").value = "";
   renderArchive();
   openOverlay($("#archiveOverlay"));
 });
-$("#archiveBackBtn").addEventListener("click", () => {
-  closeOverlay($("#archiveOverlay"));
-  openOverlay($("#menuOverlay"));
-  $("#menuBtn").setAttribute("aria-expanded", "true");
-});
+$("#archiveBackBtn").addEventListener("click", () => backFromSidePanel($("#archiveOverlay")));
 
 $("#archiveSearchInput").addEventListener("input", e => {
   archiveSearchQuery = e.target.value;
@@ -2388,6 +2391,8 @@ $$("[data-close]").forEach(btn => {
   btn.addEventListener("click", () => {
     const overlay = /** @type {HTMLElement} */ (document.getElementById(btn.dataset.close));
     closeOverlay(overlay);
+    // إغلاق الأرشيف/الإحصائيات بيقفل القائمة اللي تحتهم كمان (على الموبايل)
+    if (overlay.id === "archiveOverlay" || overlay.id === "statsOverlay") dismissMenuForNavigation();
 
     if (overlay.id === "menuOverlay") {
       $("#menuBtn").setAttribute("aria-expanded", "false");

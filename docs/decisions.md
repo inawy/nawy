@@ -446,3 +446,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Standard now: one width token `--panel-w: min(92vw, 420px)` for the menu drawer, the archive and stats, with the same rounded inner edge and border. Settings and backup live inside the drawer, never resize it (the fullscreen toggle was removed), and slide in from the drawer's side (`panel-in`); going back slides the main menu in from the opposite side (`panel-back`). Reduced motion disables both. The docked desktop sidebar keeps `--sidebar-w`.
 - Checked: panel widths are equal on a 390px phone (menu, settings, archive, stats), the archive still enters with top fixed at 0, and a browser test asserts equal widths.
 - Version: 1.50.0.
+
+## 053 — Archive and stats open over the menu, with one motion curve
+
+- Feedback: the archive's entry felt rushed and shaky compared with settings and backup.
+- Cause: opening the archive (or stats) first closed the menu drawer, so two panels moved in the same direction at once (the menu leaving at .22s ease-out, the archive arriving at .28s) and the menu's dim/blur backdrop faded out at the same time, which read as a jolt. Closing also used a different inline transition (.22s ease-out) from the entry curve.
+- Change: the archive and stats now open on top of the menu, which stays still underneath, like settings and backup inside it. Back closes only the panel (the menu is already there, no re-open animation); Close (X) closes the panel and, on phones, the menu too. Side panels (menu, archive, stats) leave with the same curve they enter with (`SIDE_PANEL_TRANSITION`, .28s), and the archive/stats sheets get `will-change: transform`. Bottom sheets keep their own motion. On the docked desktop sidebar nothing changes: the sidebar stays and the panel opens over the content.
+- Checked: sampling the sheets every 30 ms while opening and closing the archive on a 390px phone: the menu stays at 0, the archive moves monotonically with a decelerating curve.
+- Limit: judged from sampled positions, not on a real device.
+- Version: 1.51.0.
