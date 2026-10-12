@@ -2687,7 +2687,7 @@ html[dir="ltr"] {
 }
 @media (min-width: 640px) {
   #archiveOverlay .sheet,
-#statsOverlay .sheet {
+  #statsOverlay .sheet {
     width: min(520px, 100%);
     border-inline-start: 1px solid var(--border);
     border-start-start-radius: 28px;
@@ -2696,7 +2696,7 @@ html[dir="ltr"] {
 }
 @media (prefers-reduced-motion: reduce) {
   #archiveOverlay .sheet,
-#statsOverlay .sheet {
+  #statsOverlay .sheet {
     transition: none;
   }
 }
