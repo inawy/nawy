@@ -2706,6 +2706,7 @@ html[dir="ltr"] {
   border-end-start-radius: 28px;
   transform: translateX(var(--panel-hide));
   transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.26, 1);
+  will-change: transform;
 }
 #archiveOverlay.show .sheet,
 #statsOverlay.show .sheet {
