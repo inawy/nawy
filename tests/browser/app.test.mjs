@@ -444,6 +444,28 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
   await page.close();
 });
 
+test("stats opens as a side panel and permanent delete can be undone", async () => {
+  const page = await open(`${base}/index.html`);
+  await page.evaluate(() => {
+    archive.push({ id: "undo-1", text: "x", createdAt: Date.now(), completedAt: Date.now() });
+  });
+  const count = () => page.evaluate(() => archive.length);
+  const before = await count();
+  await page.evaluate(() => deleteForever("undo-1"));
+  assert.equal(await count(), before - 1);
+  await page.click(".toast-undo");
+  assert.equal(await count(), before);
+  assert.equal(await page.evaluate(() => deletedIds.some(d => d.id === "undo-1")), false);
+  await page.evaluate(() => document.querySelector("#statsBtn").click());
+  await page.waitForTimeout(500);
+  const r = await page.evaluate(() => {
+    const b = document.querySelector("#statsOverlay .sheet").getBoundingClientRect();
+    return { top: Math.round(b.top), shown: document.querySelector("#statsOverlay").classList.contains("show") };
+  });
+  assert.deepEqual(r, { top: 0, shown: true });
+  await page.close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });

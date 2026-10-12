@@ -2573,7 +2573,7 @@ html[dir="ltr"] {
   html[data-sidebar="open"] .toastify {
     left: calc(50% + var(--sb-shift));
   }
-  html[data-sidebar="open"] .overlay:not(#menuOverlay):not(#archiveOverlay) {
+  html[data-sidebar="open"] .overlay:not(#menuOverlay):not(#archiveOverlay):not(#statsOverlay) {
     padding-inline-start: calc(16px + var(--sidebar-w));
   }
   body {
@@ -2664,12 +2664,14 @@ html[dir="ltr"] {
 }
 
 /* أرشيف ناوي: بيدخل من الجنب زي القائمة (مش من تحت)، وعلى الديسكتوب لوح جانبي مش شاشة كاملة */
-#archiveOverlay {
+#archiveOverlay,
+#statsOverlay {
   padding: 0;
   align-items: stretch;
   justify-content: flex-end;
 }
-#archiveOverlay .sheet {
+#archiveOverlay .sheet,
+#statsOverlay .sheet {
   width: 100%;
   height: 100dvh;
   max-height: 100dvh;
@@ -2679,11 +2681,13 @@ html[dir="ltr"] {
   transform: translateX(var(--panel-hide));
   transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.26, 1);
 }
-#archiveOverlay.show .sheet {
+#archiveOverlay.show .sheet,
+#statsOverlay.show .sheet {
   transform: none;
 }
 @media (min-width: 640px) {
-  #archiveOverlay .sheet {
+  #archiveOverlay .sheet,
+#statsOverlay .sheet {
     width: min(520px, 100%);
     border-inline-start: 1px solid var(--border);
     border-start-start-radius: 28px;
@@ -2691,7 +2695,8 @@ html[dir="ltr"] {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  #archiveOverlay .sheet {
+  #archiveOverlay .sheet,
+#statsOverlay .sheet {
     transition: none;
   }
 }

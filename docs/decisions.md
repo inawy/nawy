@@ -429,3 +429,13 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Checked: screenshots at 390 and 1280px, the archive position sampled while opening (top stays 0), back goes to the menu, close closes everything, and a browser test asserts 44px buttons at opposite ends in settings and backup and the archive navigation.
 - Version: 1.48.0.
 
+## 051 — Data trust (persistent storage, backup nudge, undoable deletes) and a side-panel stats screen
+
+- Persistent storage: at startup the page asks `navigator.storage.persist()` (if not already persisted) so the browser does not evict the local data under storage pressure. The browser may still refuse; nothing breaks if so.
+- Backup nudge: `shouldNudgeBackup(itemCount, lastBackupTs, now)` is true when there are at least 5 intentions (active + archive) and the last backup is missing or older than 14 days. It shows the red dot on the menu button (the badge that existed but was never used) and a line in the backup panel (`#backupNudgeHint`). It lives in `app.js`, not Core, because it is presentation policy over a timestamp the page already holds; it is pure and tested.
+- A manual JSON export now counts as a backup (it did not record the time before), so the nudge and "last backup" reflect it.
+- Permanent delete from the archive, and "delete all", now show an undo toast (6 s): the item(s) return to the archive and their tombstones are removed, so a cloud merge cannot resurrect or lose them wrongly.
+- Stats now opens as a side panel exactly like the archive (same CSS, sideways entry, swipe toward its edge). Task and pick-today sheets stay bottom sheets.
+- Limits: persistence is a request, not a guarantee; undo works only while the toast is visible. Not verified on a real device.
+- Version: 1.49.0.
+

@@ -50,7 +50,7 @@
   <title>ناوي</title>
   
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json?v=1.48.0">
+  <link rel="manifest" href="manifest.json?v=1.49.0">
   <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -69,18 +69,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.48.0"></script>
+  <script src="./nawy-data.js?v=1.49.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.48.0"></script>
+  <script src="./nawy-storage.js?v=1.49.0"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.48.0"></script>
+  <script src="./nawy-backup.js?v=1.49.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي. بتتحمّل من app.js بعد أول رسم (loadUiBundle) عشان ماتأخّرش فتح التطبيق -->
-  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.48.0">
+  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.49.0">
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.48.0">
+  <link rel="stylesheet" href="./styles.css?v=1.49.0">
 </head>
 <body>
   <div class="app">
@@ -214,6 +214,7 @@
               </div>
             </div>
             <div class="backup-status-time" id="backupLastSync"></div>
+            <div class="backup-status-time backup-nudge" id="backupNudgeHint" hidden data-i18n="backupNudge">مفيش نسخة احتياطية حديثة. احفظ نسخة عشان بياناتك تبقى في أمان.</div>
             <div class="backup-status-actions">
               <button id="syncBtn" type="button">
                 <svg class="icon" viewBox="0 0 24 24"><path d="M4 14.5a4.5 4.5 0 0 1 3.8-4.45A5.5 5.5 0 0 1 18.5 12a3.5 3.5 0 0 1 .5 6.96"/><path d="M12 19V8"/><path d="m8.5 11.5 3.5-3.5 3.5 3.5"/></svg>
@@ -377,9 +378,8 @@
     </div>
   </div>
 
-  <div class="overlay" id="statsOverlay">
+  <div class="overlay overlay-fullscreen" id="statsOverlay">
     <div class="sheet">
-      <div class="sheet-handle"></div>
       <div class="nav-bar">
           <button class="nav-btn nav-back" id="statsBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
           <span class="nav-title" data-i18n="stats">إحصائياتي</span>
@@ -517,12 +517,12 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.48.0"></script>
-  <script src="./sounds.js?v=1.48.0"></script>
-  <script src="./share.js?v=1.48.0"></script>
-  <script src="./sheet-gestures.js?v=1.48.0"></script>
-  <script src="./banners.js?v=1.48.0"></script>
-  <script src="./date-format.js?v=1.48.0"></script>
-  <script src="./app.js?v=1.48.0"></script>
+  <script src="./translations.js?v=1.49.0"></script>
+  <script src="./sounds.js?v=1.49.0"></script>
+  <script src="./share.js?v=1.49.0"></script>
+  <script src="./sheet-gestures.js?v=1.49.0"></script>
+  <script src="./banners.js?v=1.49.0"></script>
+  <script src="./date-format.js?v=1.49.0"></script>
+  <script src="./app.js?v=1.49.0"></script>
 </body>
 </html>
