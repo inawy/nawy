@@ -466,6 +466,27 @@ test("stats opens as a side panel and permanent delete can be undone", async () 
   await page.close();
 });
 
+test("menu, settings, backup, archive and stats share one panel width", async () => {
+  const page = await open(`${base}/index.html`);
+  const width = sel => page.evaluate(q => Math.round(document.querySelector(q).getBoundingClientRect().width), sel);
+  await page.click("#menuBtn");
+  await page.waitForTimeout(450);
+  const menu = await width("#menuOverlay .sheet");
+  await page.click("#settingsBtn");
+  await page.waitForTimeout(400);
+  assert.equal(await width("#menuOverlay .sheet"), menu, "settings does not resize the drawer");
+  await page.click("#settingsMenuBackBtn");
+  await page.click("#archiveBtn");
+  await page.waitForTimeout(500);
+  assert.equal(await width("#archiveOverlay .sheet"), menu);
+  await page.click("#archiveBackBtn");
+  await page.waitForTimeout(400);
+  await page.click("#statsBtn");
+  await page.waitForTimeout(500);
+  assert.equal(await width("#statsOverlay .sheet"), menu);
+  await page.close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });

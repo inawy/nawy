@@ -439,3 +439,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Limits: persistence is a request, not a guarantee; undo works only while the toast is visible. Not verified on a real device.
 - Version: 1.49.0.
 
+## 052 — One side-panel standard for menu, settings, backup, archive and stats
+
+- Feedback: settings, backup and the archive should all slide in from the side, consistent with the side menu, and any odd animation should be removed or brought back to the menu's standard.
+- Odd behaviour found: opening settings on a phone switched the drawer to a full-width sheet (`overlay-fullscreen`) with an instant width jump, and settings/backup swapped content with no motion; the archive and stats were full width on phones and 520px on tablets while the menu was 340px.
+- Standard now: one width token `--panel-w: min(92vw, 420px)` for the menu drawer, the archive and stats, with the same rounded inner edge and border. Settings and backup live inside the drawer, never resize it (the fullscreen toggle was removed), and slide in from the drawer's side (`panel-in`); going back slides the main menu in from the opposite side (`panel-back`). Reduced motion disables both. The docked desktop sidebar keeps `--sidebar-w`.
+- Checked: panel widths are equal on a 390px phone (menu, settings, archive, stats), the archive still enters with top fixed at 0, and a browser test asserts equal widths.
+- Version: 1.50.0.
