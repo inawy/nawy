@@ -1618,7 +1618,6 @@ function closeOverlay(overlay) {
     $("#backupMenuPanel").hidden = true;
     $("#settingsMenuPanel").hidden = true;
     $("#mainMenuPanel").hidden = false;
-    overlay.classList.remove("overlay-fullscreen");
     syncMenuState(false, true);
   }
   if (overlay.id === "taskOverlay" && activeTaskEditRestore) {
@@ -2283,25 +2282,27 @@ $("#statsBackBtn").addEventListener("click", () => {
   openOverlay($("#menuOverlay"));
   $("#menuBtn").setAttribute("aria-expanded", "true");
 });
+function backToMainMenuPanel(fromSelector) {
+  const main = $("#mainMenuPanel");
+  $(fromSelector).hidden = true;
+  main.hidden = false;
+  // إعادة تشغيل الأنيميشن العكسي حتى لو الكلاس كان لسه موجود
+  main.classList.remove("slide-back");
+  void main.offsetWidth;
+  main.classList.add("slide-back");
+  main.addEventListener("animationend", () => main.classList.remove("slide-back"), { once: true });
+}
 $("#backupMenuBtn").addEventListener("click", () => {
   $("#mainMenuPanel").hidden = true;
   $("#backupMenuPanel").hidden = false;
   loadGoogleIdentity().catch(() => {}); // تجهيز مسبق؛ لو فشل (بلا إنترنت) النسخ المحلي شغال عادي
 });
-$("#backupMenuBackBtn").addEventListener("click", () => {
-  $("#backupMenuPanel").hidden = true;
-  $("#mainMenuPanel").hidden = false;
-});
+$("#backupMenuBackBtn").addEventListener("click", () => backToMainMenuPanel("#backupMenuPanel"));
 $("#settingsBtn").addEventListener("click", () => {
   $("#mainMenuPanel").hidden = true;
   $("#settingsMenuPanel").hidden = false;
-  if (!isSidebarDocked()) $("#menuOverlay").classList.add("overlay-fullscreen");
 });
-$("#settingsMenuBackBtn").addEventListener("click", () => {
-  $("#settingsMenuPanel").hidden = true;
-  $("#mainMenuPanel").hidden = false;
-  $("#menuOverlay").classList.remove("overlay-fullscreen");
-});
+$("#settingsMenuBackBtn").addEventListener("click", () => backToMainMenuPanel("#settingsMenuPanel"));
 $("#menuBtn").addEventListener("click", () => {
   const menu = $("#menuOverlay");
   const isOpen = menu.classList.contains("show");

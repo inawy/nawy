@@ -2496,7 +2496,7 @@ html[dir="ltr"] {
   backdrop-filter: blur(3px);
 }
 #menuOverlay .sheet {
-  width: min(86vw, 340px);
+  width: var(--panel-w);
   height: 100dvh;
   max-height: 100dvh;
   align-self: stretch;
@@ -2519,11 +2519,33 @@ html[dir="ltr"] {
 #menuOverlay .menu-item {
   border-radius: 14px;
 }
-/* الإعدادات على الموبايل بتفضل بكامل الشاشة زي قبل */
-#menuOverlay.overlay-fullscreen .sheet {
-  width: 100%;
-  border-radius: 0;
-  border-inline-start: 0;
+/* شاشات القائمة الفرعية (الإعدادات والنسخ) بتنزلق جوه نفس الدرج من نفس الجنب،
+   وبترجع للقائمة الرئيسية بانزلاق عكسي؛ العرض ثابت فمفيش قفزة. */
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    transform: translateX(var(--panel-hide));
+  }
+}
+@keyframes panel-back {
+  from {
+    opacity: 0;
+    transform: translateX(calc(var(--panel-hide) * -1));
+  }
+}
+#backupMenuPanel:not([hidden]),
+#settingsMenuPanel:not([hidden]) {
+  animation: panel-in 0.26s cubic-bezier(0.22, 0.8, 0.26, 1);
+}
+#mainMenuPanel.slide-back {
+  animation: panel-back 0.26s cubic-bezier(0.22, 0.8, 0.26, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  #backupMenuPanel:not([hidden]),
+  #settingsMenuPanel:not([hidden]),
+  #mainMenuPanel.slide-back {
+    animation: none;
+  }
 }
 
 @media (min-width: 1024px) {
@@ -2604,6 +2626,7 @@ html[dir="ltr"] {
 /* لوح بيطلع من ناحية زر القائمة (شمال في العربي) في كل المقاسات، عكس --drawer-hide اللي بيتقلب على الديسكتوب */
 :root {
   --panel-hide: -100%;
+  --panel-w: min(92vw, 420px);
 }
 html[dir="ltr"] {
   --panel-hide: 100%;
@@ -2672,27 +2695,21 @@ html[dir="ltr"] {
 }
 #archiveOverlay .sheet,
 #statsOverlay .sheet {
-  width: 100%;
+  width: var(--panel-w);
   height: 100dvh;
   max-height: 100dvh;
   padding: calc(8px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));
-  border-radius: 0;
   border: 0;
+  border-inline-start: 1px solid var(--border);
+  border-radius: 0;
+  border-start-start-radius: 28px;
+  border-end-start-radius: 28px;
   transform: translateX(var(--panel-hide));
   transition: transform 0.28s cubic-bezier(0.22, 0.8, 0.26, 1);
 }
 #archiveOverlay.show .sheet,
 #statsOverlay.show .sheet {
   transform: none;
-}
-@media (min-width: 640px) {
-  #archiveOverlay .sheet,
-  #statsOverlay .sheet {
-    width: min(520px, 100%);
-    border-inline-start: 1px solid var(--border);
-    border-start-start-radius: 28px;
-    border-end-start-radius: 28px;
-  }
 }
 @media (prefers-reduced-motion: reduce) {
   #archiveOverlay .sheet,

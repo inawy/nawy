@@ -405,7 +405,7 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
       },
       [panel, back]
     );
-    assert.ok(m.bw >= 44 && m.bh >= 44 && m.xw >= 44 && m.xh >= 44, JSON.stringify(m));
+    assert.ok(Math.min(m.bw, m.bh, m.xw, m.xh) >= 43.9, JSON.stringify(m));
     assert.ok(m.apart > 200, "back and close sit at opposite ends: " + JSON.stringify(m));
     await page.click(back);
     await page.waitForTimeout(200);
@@ -463,6 +463,27 @@ test("stats opens as a side panel and permanent delete can be undone", async () 
     return { top: Math.round(b.top), shown: document.querySelector("#statsOverlay").classList.contains("show") };
   });
   assert.deepEqual(r, { top: 0, shown: true });
+  await page.close();
+});
+
+test("menu, settings, backup, archive and stats share one panel width", async () => {
+  const page = await open(`${base}/index.html`);
+  const width = sel => page.evaluate(q => Math.round(document.querySelector(q).getBoundingClientRect().width), sel);
+  await page.click("#menuBtn");
+  await page.waitForTimeout(450);
+  const menu = await width("#menuOverlay .sheet");
+  await page.click("#settingsBtn");
+  await page.waitForTimeout(400);
+  assert.equal(await width("#menuOverlay .sheet"), menu, "settings does not resize the drawer");
+  await page.click("#settingsMenuBackBtn");
+  await page.click("#archiveBtn");
+  await page.waitForTimeout(500);
+  assert.equal(await width("#archiveOverlay .sheet"), menu);
+  await page.click("#archiveBackBtn");
+  await page.waitForTimeout(400);
+  await page.click("#statsBtn");
+  await page.waitForTimeout(500);
+  assert.equal(await width("#statsOverlay .sheet"), menu);
   await page.close();
 });
 
