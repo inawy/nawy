@@ -428,7 +428,8 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
       ([p, w]) => ({
         shown: !document.querySelector(p).hidden,
         main: document.querySelector("#mainMenuPanel").hidden,
-        sameWidth: Math.round(document.querySelector("#menuOverlay .sheet").getBoundingClientRect().width) === Math.round(w)
+        sameWidth:
+          Math.round(document.querySelector("#menuOverlay .sheet").getBoundingClientRect().width) === Math.round(w)
       }),
       [panel, w0]
     );

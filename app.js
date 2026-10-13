@@ -2411,7 +2411,8 @@ $$(".overlay").forEach(overlay => {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
     // السايدبار المثبّت مابيتقفلش بـ Escape، لكن شاشته الفرعية بترجع للقائمة الرئيسية
-    const sub = isSidebarDocked() && $$("#menuOverlay .account-menu-panel").find(p => !p.hidden && p.id !== "mainMenuPanel");
+    const sub =
+      isSidebarDocked() && $$("#menuOverlay .account-menu-panel").find(p => !p.hidden && p.id !== "mainMenuPanel");
     if (sub) backToMainMenuPanel("#" + sub.id);
     closeAllOverlays();
     if ($("#composerPanel").classList.contains("open")) closeComposer();
