@@ -491,6 +491,23 @@ test("menu, settings, backup, archive and stats share one panel width", async ()
   await page.close();
 });
 
+test("desktop: the archive opens beside the docked sidebar, on the same side", async () => {
+  const page = await open(`${base}/index.html`);
+  await page.setViewportSize({ width: 1280, height: 780 });
+  await page.waitForTimeout(600);
+  await page.click("#archiveBtn");
+  await page.waitForTimeout(600);
+  const g = await page.evaluate(() => {
+    const m = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
+    const a = document.querySelector("#archiveOverlay .sheet").getBoundingClientRect();
+    return { menuLeft: m.left, menuRight: m.right, aLeft: a.left, aRight: a.right, rtl: document.documentElement.dir === "rtl" };
+  });
+  // the panel touches the sidebar's inner edge (10px gap) and never overlaps it
+  if (g.rtl) assert.ok(g.aRight <= g.menuLeft && g.menuLeft - g.aRight < 20, JSON.stringify(g));
+  else assert.ok(g.aLeft >= g.menuRight && g.aLeft - g.menuRight < 20, JSON.stringify(g));
+  await page.close();
+});
+
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });
