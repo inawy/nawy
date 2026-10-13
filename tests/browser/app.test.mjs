@@ -500,7 +500,13 @@ test("desktop: the archive opens beside the docked sidebar, on the same side", a
   const g = await page.evaluate(() => {
     const m = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
     const a = document.querySelector("#archiveOverlay .sheet").getBoundingClientRect();
-    return { menuLeft: m.left, menuRight: m.right, aLeft: a.left, aRight: a.right, rtl: document.documentElement.dir === "rtl" };
+    return {
+      menuLeft: m.left,
+      menuRight: m.right,
+      aLeft: a.left,
+      aRight: a.right,
+      rtl: document.documentElement.dir === "rtl"
+    };
   });
   // the panel touches the sidebar's inner edge (10px gap) and never overlaps it
   if (g.rtl) assert.ok(g.aRight <= g.menuLeft && g.menuLeft - g.aRight < 20, JSON.stringify(g));
