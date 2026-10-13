@@ -326,10 +326,10 @@ test("phone: the menu is a side drawer on the menu-button edge, closes on backdr
   });
   assert.equal(
     Math.round(box.rtl ? box.left : box.right),
-    box.rtl ? 10 : 380,
-    "drawer floats 10px from the menu-button edge"
+    box.rtl ? 0 : 390,
+    "drawer sits flush on the menu-button edge"
   );
-  assert.ok(box.right - box.left < 390 && box.height >= box.vh - 21, JSON.stringify(box));
+  assert.ok(box.right - box.left < 390 && box.height >= box.vh - 1, JSON.stringify(box));
   // swipe toward the hidden edge closes it
   const dir = box.rtl ? -1 : 1;
   await page.mouse.move(box.left + 100, 500);

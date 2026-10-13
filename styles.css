@@ -2630,7 +2630,6 @@ html[dir="ltr"] {
 /* لوح بيطلع من ناحية زر القائمة (شمال في العربي) في كل المقاسات، عكس --drawer-hide اللي بيتقلب على الديسكتوب */
 :root {
   --panel-hide: calc(-100% - 24px);
-  --panel-w: min(92vw, 420px);
 }
 html[dir="ltr"] {
   --panel-hide: calc(100% + 24px);
@@ -2690,44 +2689,41 @@ html[dir="ltr"] {
   margin-inline-start: auto;
 }
 
-/* شكل موحّد للوحات الجانبية (القائمة بكل شاشاتها: الإعدادات والنسخ والإحصائيات والأرشيف): لوح عائم بزوايا مدورة وظل ناعم
-   بدل شريط حاد ملزوق في الحافة. على الديسكتوب السايدبار المثبّت بيفضل مسطّح جنب المحتوى. */
+/* القائمة الجانبية بشكل التطبيقات الاحترافية (زي كلود): لوح بطول الشاشة كلها ملزوق في الحافة، من غير زوايا
+   مدورة، بخط رفيع من جنبه الداخلي وظل خفيف على الموبايل، وعناصر مدمجة بخلفية ناعمة عند التمرير/الضغط.
+   الشاشات الفرعية (الإعدادات والنسخ والإحصائيات والأرشيف) جواه بنفس الشكل. */
 :root {
-  --panel-gap: 10px;
-  --panel-radius: 26px;
-  --panel-shadow: 0 18px 48px rgba(10, 14, 24, 0.18), 0 2px 8px rgba(10, 14, 24, 0.08);
+  --panel-w: min(84vw, 320px);
 }
 #menuOverlay .sheet {
-  --panel-v: calc(var(--panel-gap) * 2 + env(safe-area-inset-top) + env(safe-area-inset-bottom));
-  margin: calc(var(--panel-gap) + env(safe-area-inset-top)) var(--panel-gap)
-    calc(var(--panel-gap) + env(safe-area-inset-bottom));
-  height: calc(100dvh - var(--panel-v));
-  max-height: calc(100dvh - var(--panel-v));
-  padding: 14px;
+  margin: 0;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: calc(12px + env(safe-area-inset-top)) 10px calc(12px + env(safe-area-inset-bottom));
   border: 0;
-  border-radius: var(--panel-radius);
-  box-shadow:
-    var(--panel-shadow),
-    0 0 0 1px var(--border);
+  border-inline-start: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: 0 0 40px rgba(10, 14, 24, 0.16);
 }
 #menuOverlay.show {
-  background: rgba(8, 10, 16, 0.34);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  background: rgba(8, 10, 16, 0.4);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
-/* عناصر القائمة: العنوان بعد الأيقونة مباشرة، وحالة ضغط/تمرير واضحة */
+/* عناصر القائمة: العنوان بعد الأيقونة مباشرة، مدمجة، وحالة ضغط/تمرير واضحة */
 .menu-item {
   text-align: start;
 }
 #menuOverlay .menu-item {
-  min-height: 50px;
+  min-height: 44px;
   padding: 0 12px;
-  gap: 14px;
+  gap: 12px;
+  border-radius: 10px;
 }
 #menuOverlay .menu-item > .icon:last-child {
-  width: 16px;
-  height: 16px;
-  opacity: 0.45;
+  width: 15px;
+  height: 15px;
+  opacity: 0.4;
 }
 @media (hover: hover) {
   #menuOverlay .menu-item:hover {
@@ -2735,7 +2731,7 @@ html[dir="ltr"] {
   }
 }
 .account-menu-head {
-  padding: 6px 6px 14px;
+  padding: 4px 6px 12px;
 }
 .account-menu-head .nav-close {
   background: transparent;
@@ -2747,12 +2743,9 @@ html[dir="ltr"] {
 }
 @media (min-width: 1024px) {
   #menuOverlay .sheet {
-    margin: 0;
-    height: 100dvh;
-    max-height: 100dvh;
-    padding: calc(16px + env(safe-area-inset-top)) 12px 16px;
-    border-radius: 0;
+    padding: calc(14px + env(safe-area-inset-top)) 10px 14px;
     box-shadow: none;
+    border-inline-start: 0;
     border-inline-end: 1px solid var(--border);
   }
 }
@@ -2765,4 +2758,14 @@ html[dir="ltr"] {
   html[dir="ltr"] {
     --panel-hide: calc(-100% - 24px);
   }
+}
+
+/* صفوف الإعدادات جوه اللوح الضيق: العنوان ياخد سطره كامل لو الأداة مش فاضل لها مكان، بدل ما الكلام يتكسر كلمة كلمة */
+#settingsMenuContent .setting-row {
+  flex-wrap: wrap;
+  padding: 8px 12px;
+  row-gap: 8px;
+}
+#settingsMenuContent .setting-info {
+  flex: 1 1 130px;
 }
