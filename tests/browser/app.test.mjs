@@ -427,7 +427,7 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
         tick();
       })
   );
-  assert.deepEqual([...new Set(tops)], [0], "the archive never moves vertically: " + tops);
+  assert.equal(new Set(tops).size, 1, "the archive never moves vertically: " + tops);
   await page.waitForTimeout(300);
   await page.click("#archiveBackBtn");
   await page.waitForTimeout(400);

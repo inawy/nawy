@@ -455,3 +455,14 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Checked: sampling the sheets every 30 ms while opening and closing the archive on a 390px phone: the menu stays at 0, the archive moves monotonically with a decelerating curve.
 - Limit: judged from sampled positions, not on a real device.
 - Version: 1.51.0.
+
+## 054 — One softer look for the side panels: floating card, not an edge-glued strip
+
+- Feedback: the sidebar looked too sharp; make it look like a professional app and unify every side panel.
+- What looked sharp: a full-height strip glued to the screen edge with one rounded corner, a hard border, a heavy dim+blur scrim, and menu titles centred (button default) instead of starting after the icon.
+- Standard now (phones and tablets): the menu drawer, archive and stats are floating cards: `--panel-gap` 10px from the screen edges (safe areas included), `--panel-radius` 26px on all corners, a soft two-layer shadow plus a 1px ring, a lighter scrim (.34 with 2px blur). The hidden state adds 24px to `--drawer-hide`/`--panel-hide` so the card fully leaves the screen despite the gap. Menu rows: label directly after the icon (`text-align: start`), a smaller muted chevron, a hover state, a ghost close button.
+- The docked desktop sidebar (>= 1024px) stays a flat column beside the content with a hairline, no shadow, since it is part of the layout rather than an overlay.
+- Tests: the archive entry check now asserts a constant top (it is the gap, not 0); the drawer-direction sanity test follows the new hidden-state values.
+- Limit: judged from screenshots at 390px and 1280px, not on a real device.
+- Version: 1.52.0.
+
