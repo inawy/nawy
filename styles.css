@@ -2477,10 +2477,10 @@ html[data-theme="light"] .toastify {
    ديسكتوب (>=1024px): سايدبار مثبّت جنب المحتوى وقابل للطي (زي claude.ai). */
 :root {
   --sidebar-w: 300px;
-  --drawer-hide: -100%;
+  --drawer-hide: calc(-100% - 24px);
 }
 html[dir="ltr"] {
-  --drawer-hide: 100%;
+  --drawer-hide: calc(100% + 24px);
 }
 #menuOverlay {
   padding: 0;
@@ -2551,10 +2551,10 @@ html[dir="ltr"] {
 @media (min-width: 1024px) {
   /* السايدبار المثبّت على جنب بداية الكتابة (يمين في العربي)، فبيختفي ناحية نفس الحافة */
   :root {
-    --drawer-hide: 100%;
+    --drawer-hide: calc(100% + 24px);
   }
   html[dir="ltr"] {
-    --drawer-hide: -100%;
+    --drawer-hide: calc(-100% - 24px);
   }
   #menuOverlay {
     inset: 0 auto 0 auto;
@@ -2625,11 +2625,11 @@ html[dir="ltr"] {
    الزرّين بنفس الحجم (٤٤px، الحد الأدنى للمس) وعلى طرفين متقابلين، بأيقونتين مختلفتين. */
 /* لوح بيطلع من ناحية زر القائمة (شمال في العربي) في كل المقاسات، عكس --drawer-hide اللي بيتقلب على الديسكتوب */
 :root {
-  --panel-hide: -100%;
+  --panel-hide: calc(-100% - 24px);
   --panel-w: min(92vw, 420px);
 }
 html[dir="ltr"] {
-  --panel-hide: 100%;
+  --panel-hide: calc(100% + 24px);
 }
 .nav-bar {
   display: flex;
@@ -2716,5 +2716,78 @@ html[dir="ltr"] {
   #archiveOverlay .sheet,
   #statsOverlay .sheet {
     transition: none;
+  }
+}
+
+/* شكل موحّد للوحات الجانبية (القائمة والأرشيف والإحصائيات): لوح عائم بزوايا مدورة وظل ناعم
+   بدل شريط حاد ملزوق في الحافة. على الديسكتوب السايدبار المثبّت بيفضل مسطّح جنب المحتوى. */
+:root {
+  --panel-gap: 10px;
+  --panel-radius: 26px;
+  --panel-shadow: 0 18px 48px rgba(10, 14, 24, 0.18), 0 2px 8px rgba(10, 14, 24, 0.08);
+}
+#menuOverlay .sheet,
+#archiveOverlay .sheet,
+#statsOverlay .sheet {
+  --panel-v: calc(var(--panel-gap) * 2 + env(safe-area-inset-top) + env(safe-area-inset-bottom));
+  margin: calc(var(--panel-gap) + env(safe-area-inset-top)) var(--panel-gap)
+    calc(var(--panel-gap) + env(safe-area-inset-bottom));
+  height: calc(100dvh - var(--panel-v));
+  max-height: calc(100dvh - var(--panel-v));
+  padding: 14px;
+  border: 0;
+  border-radius: var(--panel-radius);
+  box-shadow:
+    var(--panel-shadow),
+    0 0 0 1px var(--border);
+}
+#archiveOverlay .sheet,
+#statsOverlay .sheet {
+  padding: 8px 16px 16px;
+}
+#menuOverlay.show {
+  background: rgba(8, 10, 16, 0.34);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+}
+/* عناصر القائمة: العنوان بعد الأيقونة مباشرة، وحالة ضغط/تمرير واضحة */
+.menu-item {
+  text-align: start;
+}
+#menuOverlay .menu-item {
+  min-height: 50px;
+  padding: 0 12px;
+  gap: 14px;
+}
+#menuOverlay .menu-item > .icon:last-child {
+  width: 16px;
+  height: 16px;
+  opacity: 0.45;
+}
+@media (hover: hover) {
+  #menuOverlay .menu-item:hover {
+    background: var(--surface-2);
+  }
+}
+.account-menu-head {
+  padding: 6px 6px 14px;
+}
+.account-menu-head .nav-close {
+  background: transparent;
+}
+@media (hover: hover) {
+  .account-menu-head .nav-close:hover {
+    background: var(--surface-2);
+  }
+}
+@media (min-width: 1024px) {
+  #menuOverlay .sheet {
+    margin: 0;
+    height: 100dvh;
+    max-height: 100dvh;
+    padding: calc(16px + env(safe-area-inset-top)) 12px 16px;
+    border-radius: 0;
+    box-shadow: none;
+    border-inline-end: 1px solid var(--border);
   }
 }

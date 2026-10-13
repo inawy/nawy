@@ -324,8 +324,12 @@ test("phone: the menu is a side drawer on the menu-button edge, closes on backdr
       rtl: document.documentElement.dir === "rtl"
     };
   });
-  assert.equal(Math.round(box.rtl ? box.left : box.right), box.rtl ? 0 : 390, "drawer sits on the menu-button edge");
-  assert.ok(box.right - box.left < 390 && box.height >= box.vh - 1, JSON.stringify(box));
+  assert.equal(
+    Math.round(box.rtl ? box.left : box.right),
+    box.rtl ? 10 : 380,
+    "drawer floats 10px from the menu-button edge"
+  );
+  assert.ok(box.right - box.left < 390 && box.height >= box.vh - 21, JSON.stringify(box));
   // swipe toward the hidden edge closes it
   const dir = box.rtl ? -1 : 1;
   await page.mouse.move(box.left + 100, 500);
@@ -427,7 +431,7 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
         tick();
       })
   );
-  assert.deepEqual([...new Set(tops)], [0], "the archive never moves vertically: " + tops);
+  assert.equal(new Set(tops).size, 1, "the archive never moves vertically: " + tops);
   await page.waitForTimeout(300);
   await page.click("#archiveBackBtn");
   await page.waitForTimeout(400);
@@ -462,7 +466,7 @@ test("stats opens as a side panel and permanent delete can be undone", async () 
     const b = document.querySelector("#statsOverlay .sheet").getBoundingClientRect();
     return { top: Math.round(b.top), shown: document.querySelector("#statsOverlay").classList.contains("show") };
   });
-  assert.deepEqual(r, { top: 0, shown: true });
+  assert.deepEqual(r, { top: 10, shown: true });
   await page.close();
 });
 

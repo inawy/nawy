@@ -370,7 +370,7 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
   // phone: the drawer hides toward the menu-button edge (left in Arabic, right in English)
   assert.match(
     css,
-    /--drawer-hide: -100%;\s*\}\s*html\[dir="ltr"\] \{\s*--drawer-hide: 100%;/,
+    /--drawer-hide: calc\(-100% - 24px\);\s*\}\s*html\[dir="ltr"\] \{\s*--drawer-hide: calc\(100% \+ 24px\);/,
     "phone drawer directions"
   );
   assert.match(css, /translateX\(var\(--drawer-hide\)\)/);
