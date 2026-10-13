@@ -492,3 +492,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Tests: the phone drawer test again expects the panel flush on the button edge and full height.
 - Limit: judged from screenshots at 390px and 1280px, not on a real device.
 - Version: 1.55.0.
+
+## 058 — The game gets a pixel-art look
+
+- Request: give the game the pixel-art feel, with the Google pixel font.
+- Font: Press Start 2P (OFL, Google Fonts) is already bundled locally in `fonts/press-start-2p.woff2` since 1.12.1, so nothing is fetched at startup. It only covers Latin letters and digits: the score numbers use it, Arabic text stays in Cairo (there is no pixel font for Arabic in Google Fonts, and the download of another pixel font was not possible from this environment). Using it on the Arabic title made the word spaces huge, so headings stay in Cairo.
+- Pixel rendering: the game canvas now draws into a buffer where one pixel is `PIXEL` = 3 screen pixels and is scaled with `image-rendering: pixelated` and smoothing off, so every shape (Nawy, obstacles, clouds, hills, sun) gets hard pixel edges without changing the drawing code. The overlay portrait canvas is 48px, scaled the same way. The share-image canvas (1080x1920) is untouched.
+- Pixel UI: the overlay card, portrait frame, buttons, badge and control bar lose their rounded corners and soft shadows and get stepped (notched) corners drawn with box-shadow, a flat inner shade on buttons and stepped press animation.
+- Limits: the Arabic text is still smooth, the sky gradient is smooth (only its resolution is chunky), and the look was judged from screenshots at 390px, not played on a device.
+- Version: 1.56.0.
