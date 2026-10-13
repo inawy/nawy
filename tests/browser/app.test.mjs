@@ -324,7 +324,11 @@ test("phone: the menu is a side drawer on the menu-button edge, closes on backdr
       rtl: document.documentElement.dir === "rtl"
     };
   });
-  assert.equal(Math.round(box.rtl ? box.left : box.right), box.rtl ? 10 : 380, "drawer floats 10px from the menu-button edge");
+  assert.equal(
+    Math.round(box.rtl ? box.left : box.right),
+    box.rtl ? 10 : 380,
+    "drawer floats 10px from the menu-button edge"
+  );
   assert.ok(box.right - box.left < 390 && box.height >= box.vh - 21, JSON.stringify(box));
   // swipe toward the hidden edge closes it
   const dir = box.rtl ? -1 : 1;
