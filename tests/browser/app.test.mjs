@@ -359,9 +359,10 @@ test("desktop: the menu is a docked sidebar that stays open, collapses, and reme
   await page.click("#statsBtn");
   await page.waitForTimeout(400);
   assert.equal((await menuState(page)).show, true);
-  assert.equal(await page.evaluate(() => document.querySelector("#statsOverlay").classList.contains("show")), true);
+  assert.equal(await page.evaluate(() => document.querySelector("#statsMenuPanel").hidden), false);
   await page.keyboard.press("Escape");
   await page.waitForTimeout(300);
+  assert.equal(await page.evaluate(() => document.querySelector("#mainMenuPanel").hidden), false);
   st = await menuState(page);
   assert.equal(st.show, true);
   // the page content never sits under the sidebar
@@ -415,40 +416,38 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
     await page.waitForTimeout(200);
     assert.equal(await page.evaluate(() => document.querySelector("#mainMenuPanel").hidden), false);
   }
-  // archive: horizontal entry only, back returns to the menu, close closes everything
-  const tops = await page.evaluate(
-    () =>
-      new Promise(resolve => {
-        const out = [];
-        document.querySelector("#archiveBtn").click();
-        let n = 0;
-        const tick = () => {
-          const r = document.querySelector("#archiveOverlay .sheet").getBoundingClientRect();
-          out.push(Math.round(r.top));
-          if (++n < 8) setTimeout(tick, 30);
-          else resolve(out);
-        };
-        tick();
-      })
-  );
-  assert.equal(new Set(tops).size, 1, "the archive never moves vertically: " + tops);
-  await page.waitForTimeout(300);
-  await page.click("#archiveBackBtn");
-  await page.waitForTimeout(400);
-  assert.equal(await page.evaluate(() => document.querySelector("#menuOverlay").classList.contains("show")), true);
+  // stats and archive open inside the same panel, with the same slide as settings and backup
+  for (const [open, back, panel] of [
+    ["#statsBtn", "#statsBackBtn", "#statsMenuPanel"],
+    ["#archiveBtn", "#archiveBackBtn", "#archiveMenuPanel"]
+  ]) {
+    const w0 = await page.evaluate(() => document.querySelector("#menuOverlay .sheet").getBoundingClientRect().width);
+    await page.click(open);
+    await page.waitForTimeout(350);
+    const m = await page.evaluate(
+      ([p, w]) => ({
+        shown: !document.querySelector(p).hidden,
+        main: document.querySelector("#mainMenuPanel").hidden,
+        sameWidth:
+          Math.round(document.querySelector("#menuOverlay .sheet").getBoundingClientRect().width) === Math.round(w)
+      }),
+      [panel, w0]
+    );
+    assert.deepEqual(m, { shown: true, main: true, sameWidth: true }, panel);
+    await page.click(back);
+    await page.waitForTimeout(300);
+    assert.equal(await page.evaluate(() => document.querySelector("#mainMenuPanel").hidden), false);
+  }
+  // close (X) from the archive closes the whole menu on a phone
   await page.click("#archiveBtn");
+  await page.waitForTimeout(350);
+  await page.click("#archiveMenuPanel .nav-close");
   await page.waitForTimeout(400);
-  await page.click("#archiveOverlay .nav-close");
-  await page.waitForTimeout(400);
-  const shown = await page.evaluate(() => [
-    document.querySelector("#menuOverlay").classList.contains("show"),
-    document.querySelector("#archiveOverlay").classList.contains("show")
-  ]);
-  assert.deepEqual(shown, [false, false]);
+  assert.equal(await page.evaluate(() => document.querySelector("#menuOverlay").classList.contains("show")), false);
   await page.close();
 });
 
-test("stats opens as a side panel and permanent delete can be undone", async () => {
+test("permanent delete can be undone", async () => {
   const page = await open(`${base}/index.html`);
   await page.evaluate(() => {
     archive.push({ id: "undo-1", text: "x", createdAt: Date.now(), completedAt: Date.now() });
@@ -460,57 +459,31 @@ test("stats opens as a side panel and permanent delete can be undone", async () 
   await page.click(".toast-undo");
   assert.equal(await count(), before);
   assert.equal(await page.evaluate(() => deletedIds.some(d => d.id === "undo-1")), false);
-  await page.evaluate(() => document.querySelector("#statsBtn").click());
-  await page.waitForTimeout(500);
-  const r = await page.evaluate(() => {
-    const b = document.querySelector("#statsOverlay .sheet").getBoundingClientRect();
-    return { top: Math.round(b.top), shown: document.querySelector("#statsOverlay").classList.contains("show") };
-  });
-  assert.deepEqual(r, { top: 10, shown: true });
   await page.close();
 });
 
-test("menu, settings, backup, archive and stats share one panel width", async () => {
-  const page = await open(`${base}/index.html`);
-  const width = sel => page.evaluate(q => Math.round(document.querySelector(q).getBoundingClientRect().width), sel);
-  await page.click("#menuBtn");
-  await page.waitForTimeout(450);
-  const menu = await width("#menuOverlay .sheet");
-  await page.click("#settingsBtn");
-  await page.waitForTimeout(400);
-  assert.equal(await width("#menuOverlay .sheet"), menu, "settings does not resize the drawer");
-  await page.click("#settingsMenuBackBtn");
-  await page.click("#archiveBtn");
-  await page.waitForTimeout(500);
-  assert.equal(await width("#archiveOverlay .sheet"), menu);
-  await page.click("#archiveBackBtn");
-  await page.waitForTimeout(400);
-  await page.click("#statsBtn");
-  await page.waitForTimeout(500);
-  assert.equal(await width("#statsOverlay .sheet"), menu);
-  await page.close();
-});
-
-test("desktop: the archive opens beside the docked sidebar, on the same side", async () => {
+test("desktop: archive and stats open inside the docked sidebar like settings", async () => {
   const page = await open(`${base}/index.html`);
   await page.setViewportSize({ width: 1280, height: 780 });
   await page.waitForTimeout(600);
-  await page.click("#archiveBtn");
-  await page.waitForTimeout(600);
-  const g = await page.evaluate(() => {
-    const m = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
-    const a = document.querySelector("#archiveOverlay .sheet").getBoundingClientRect();
-    return {
-      menuLeft: m.left,
-      menuRight: m.right,
-      aLeft: a.left,
-      aRight: a.right,
-      rtl: document.documentElement.dir === "rtl"
-    };
-  });
-  // the panel touches the sidebar's inner edge (10px gap) and never overlaps it
-  if (g.rtl) assert.ok(g.aRight <= g.menuLeft && g.menuLeft - g.aRight < 20, JSON.stringify(g));
-  else assert.ok(g.aLeft >= g.menuRight && g.aLeft - g.menuRight < 20, JSON.stringify(g));
+  const box = () =>
+    page.evaluate(() => {
+      const r = document.querySelector("#menuOverlay .sheet").getBoundingClientRect();
+      return [Math.round(r.left), Math.round(r.width)];
+    });
+  const before = await box();
+  for (const [open, back, panel] of [
+    ["#settingsBtn", "#settingsMenuBackBtn", "#settingsMenuPanel"],
+    ["#archiveBtn", "#archiveBackBtn", "#archiveMenuPanel"],
+    ["#statsBtn", "#statsBackBtn", "#statsMenuPanel"]
+  ]) {
+    await page.click(open);
+    await page.waitForTimeout(350);
+    assert.equal(await page.evaluate(p => !document.querySelector(p).hidden, panel), true, panel);
+    assert.deepEqual(await box(), before, "the sidebar never moves or resizes: " + panel);
+    await page.click(back);
+    await page.waitForTimeout(300);
+  }
   await page.close();
 });
 

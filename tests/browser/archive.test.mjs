@@ -201,7 +201,9 @@ for (const [label, ctxGetter] of [
     const page = await openApp(ctxGetter());
     await seed(page, { language: "ar", query: "" });
     const r = await page.evaluate(async () => {
-      document.getElementById("archiveOverlay").classList.add("show"); // الحقل لازم يكون ظاهر عشان ياخد focus
+      document.getElementById("menuOverlay").classList.add("show");
+      document.getElementById("mainMenuPanel").hidden = true;
+      document.getElementById("archiveMenuPanel").hidden = false; // الحقل لازم يكون ظاهر عشان ياخد focus
       await new Promise(r => setTimeout(r, 500));
       const input = document.getElementById("archiveSearchInput");
       input.focus();

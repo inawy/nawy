@@ -50,7 +50,7 @@
   <title>ناوي</title>
   
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json?v=1.53.0">
+  <link rel="manifest" href="manifest.json?v=1.54.0">
   <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -69,18 +69,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.53.0"></script>
+  <script src="./nawy-data.js?v=1.54.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.53.0"></script>
+  <script src="./nawy-storage.js?v=1.54.0"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.53.0"></script>
+  <script src="./nawy-backup.js?v=1.54.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي. بتتحمّل من app.js بعد أول رسم (loadUiBundle) عشان ماتأخّرش فتح التطبيق -->
-  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.53.0">
+  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.54.0">
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.53.0">
+  <link rel="stylesheet" href="./styles.css?v=1.54.0">
 </head>
 <body>
   <div class="app">
@@ -261,6 +261,71 @@
         </div>
         <div id="settingsMenuContent"></div>
       </div>
+  <div class="account-menu-panel" id="statsMenuPanel" hidden>
+      <div class="nav-bar">
+          <button class="nav-btn nav-back" id="statsBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+          <span class="nav-title" data-i18n="stats">إحصائياتي</span>
+          <button class="nav-btn nav-close" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+
+      <div class="stat-hero">
+        <div class="stat-hero-main">
+          <span class="stat-hero-number" id="statAchievedThisMonth">0</span>
+          <span class="stat-hero-label" id="statAchievedThisMonthLabel"></span>
+        </div>
+        <div class="stat-hero-delta" id="statMonthDelta"></div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-box">
+          <div class="stat-box-value" id="statActiveCount">0</div>
+          <div class="stat-box-label" data-i18n="statActiveLabel">نشطة الآن</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-value" id="statCompletionRate">0%</div>
+          <div class="stat-box-label" data-i18n="statRateLabel">معدل الإنجاز</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-box-value">
+            <svg class="icon" viewBox="0 0 24 24" style="width:17px;height:17px;color:#f97316;"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c1.5 1.5 2 3.5 2 5a6 6 0 0 1-12 0c0-4 2-6 4-12Z"/></svg>
+            <span id="statStreak">0</span>
+          </div>
+          <div class="stat-box-label" data-i18n="statStreakLabel">أيام متتالية</div>
+        </div>
+      </div>
+
+      <div class="stat-section-label" data-i18n="statWeeklyLabel">النشاط الأسبوعي</div>
+      <div class="stat-week-box">
+        <div class="stat-week-bars" id="statWeekBars"></div>
+      </div>
+
+      <div class="stat-section-label" id="statTopTaskLabel" style="display:none;" data-i18n="statTopTaskLabel">أكتر نية اتكررت تحقيقها</div>
+      <div class="stat-top-task" id="statTopTaskCard" style="display:none;">
+        <div class="stat-top-task-icon">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M17 4H7v4a5 5 0 0 0 10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>
+        </div>
+        <div class="stat-top-task-copy">
+          <div class="stat-top-task-text" id="statTopTaskText"></div>
+          <div class="stat-top-task-count" id="statTopTaskCount"></div>
+        </div>
+      </div>
+</div>
+  <div class="account-menu-panel" id="archiveMenuPanel" hidden>
+      <div class="nav-bar">
+          <button class="nav-btn nav-back" id="archiveBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
+          <span class="nav-title"><span data-i18n="archive">أرشيف ناوي</span><span class="archive-count" id="archiveCount"></span></span>
+          <button class="nav-btn nav-close" type="button" data-close="menuOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+        </div>
+      <div class="archive-search">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="archiveSearchInput" data-i18n-placeholder="archiveSearchPlaceholder" placeholder="ابحث في الأرشيف">
+      </div>
+      <button class="archive-delete-all-btn hidden" id="archiveDeleteAllBtn" type="button">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M3 6H21"/><path d="M19 6V22H5V6"/><path d="M8 6V4H16V6"/><path d="M10 11v6M14 11v6"/></svg>
+        <span data-i18n="deleteAllArchive">حذف كل الأرشيف</span>
+      </button>
+      <div id="archiveList"></div>
+</div>
     </div>
   </div>
 
@@ -378,78 +443,6 @@
     </div>
   </div>
 
-  <div class="overlay overlay-fullscreen" id="statsOverlay">
-    <div class="sheet">
-      <div class="nav-bar">
-          <button class="nav-btn nav-back" id="statsBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
-          <span class="nav-title" data-i18n="stats">إحصائياتي</span>
-          <button class="nav-btn nav-close" type="button" data-close="statsOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-        </div>
-
-      <div class="stat-hero">
-        <div class="stat-hero-main">
-          <span class="stat-hero-number" id="statAchievedThisMonth">0</span>
-          <span class="stat-hero-label" id="statAchievedThisMonthLabel"></span>
-        </div>
-        <div class="stat-hero-delta" id="statMonthDelta"></div>
-      </div>
-
-      <div class="stat-grid">
-        <div class="stat-box">
-          <div class="stat-box-value" id="statActiveCount">0</div>
-          <div class="stat-box-label" data-i18n="statActiveLabel">نشطة الآن</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-box-value" id="statCompletionRate">0%</div>
-          <div class="stat-box-label" data-i18n="statRateLabel">معدل الإنجاز</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-box-value">
-            <svg class="icon" viewBox="0 0 24 24" style="width:17px;height:17px;color:#f97316;"><path d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c1.5 1.5 2 3.5 2 5a6 6 0 0 1-12 0c0-4 2-6 4-12Z"/></svg>
-            <span id="statStreak">0</span>
-          </div>
-          <div class="stat-box-label" data-i18n="statStreakLabel">أيام متتالية</div>
-        </div>
-      </div>
-
-      <div class="stat-section-label" data-i18n="statWeeklyLabel">النشاط الأسبوعي</div>
-      <div class="stat-week-box">
-        <div class="stat-week-bars" id="statWeekBars"></div>
-      </div>
-
-      <div class="stat-section-label" id="statTopTaskLabel" style="display:none;" data-i18n="statTopTaskLabel">أكتر نية اتكررت تحقيقها</div>
-      <div class="stat-top-task" id="statTopTaskCard" style="display:none;">
-        <div class="stat-top-task-icon">
-          <svg class="icon" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M17 4H7v4a5 5 0 0 0 10 0V4Z"/><path d="M17 5h3a2 2 0 0 1-2 4M7 5H4a2 2 0 0 0 2 4"/></svg>
-        </div>
-        <div class="stat-top-task-copy">
-          <div class="stat-top-task-text" id="statTopTaskText"></div>
-          <div class="stat-top-task-count" id="statTopTaskCount"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="overlay overlay-fullscreen" id="archiveOverlay">
-    <div class="sheet">
-      <div class="nav-bar">
-          <button class="nav-btn nav-back" id="archiveBackBtn" type="button" aria-label="رجوع"><svg class="icon" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></svg></button>
-          <span class="nav-title"><span data-i18n="archive">أرشيف ناوي</span><span class="archive-count" id="archiveCount"></span></span>
-          <button class="nav-btn nav-close" type="button" data-close="archiveOverlay" aria-label="إغلاق"><svg class="icon" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-        </div>
-      <div class="sheet-handle"></div>
-      <div class="archive-search">
-        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" id="archiveSearchInput" data-i18n-placeholder="archiveSearchPlaceholder" placeholder="ابحث في الأرشيف">
-      </div>
-      <button class="archive-delete-all-btn hidden" id="archiveDeleteAllBtn" type="button">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M3 6H21"/><path d="M19 6V22H5V6"/><path d="M8 6V4H16V6"/><path d="M10 11v6M14 11v6"/></svg>
-        <span data-i18n="deleteAllArchive">حذف كل الأرشيف</span>
-      </button>
-      <div id="archiveList"></div>
-    </div>
-  </div>
-
   <div class="confirm-overlay" id="deleteAllConfirmOverlay">
     <div class="confirm-card">
       <div class="confirm-icon">
@@ -517,12 +510,12 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.53.0"></script>
-  <script src="./sounds.js?v=1.53.0"></script>
-  <script src="./share.js?v=1.53.0"></script>
-  <script src="./sheet-gestures.js?v=1.53.0"></script>
-  <script src="./banners.js?v=1.53.0"></script>
-  <script src="./date-format.js?v=1.53.0"></script>
-  <script src="./app.js?v=1.53.0"></script>
+  <script src="./translations.js?v=1.54.0"></script>
+  <script src="./sounds.js?v=1.54.0"></script>
+  <script src="./share.js?v=1.54.0"></script>
+  <script src="./sheet-gestures.js?v=1.54.0"></script>
+  <script src="./banners.js?v=1.54.0"></script>
+  <script src="./date-format.js?v=1.54.0"></script>
+  <script src="./app.js?v=1.54.0"></script>
 </body>
 </html>
