@@ -484,3 +484,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Limits: the sub-panels sit in the sidebar's scroll area like settings does, so on desktop the archive list is as wide as the 300px sidebar. Not verified on a real device.
 - Version: 1.54.0.
 
+## 057 — The menu goes back to a flat full-height side panel (like Claude), no floating card
+
+- Feedback: size and shape the menu like a professional app such as Claude, sliding in from the side; it does not need to float.
+- Reverses the floating-card part of decision 054 (and its 10px gap and 26px radius). Now: a full-height panel flush with the screen edge, square corners, a 1px hairline on its inner edge and a light shadow on phones (none on the docked desktop sidebar), a lighter scrim without blur. Width: `--panel-w` = min(84vw, 320px) on phones and tablets, `--sidebar-w` 300px docked. Rows are compact: 44px high, 10px radius, soft hover/press background, a small muted chevron, the label directly after the icon. The slide, the nav bar and the shared sub-panel behaviour of 056 are unchanged.
+- Settings rows can wrap inside the narrow panel (`#settingsMenuContent .setting-row`): when the control does not fit beside the label it moves under it, so labels are no longer broken one word per line.
+- Tests: the phone drawer test again expects the panel flush on the button edge and full height.
+- Limit: judged from screenshots at 390px and 1280px, not on a real device.
+- Version: 1.55.0.
