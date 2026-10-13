@@ -466,3 +466,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Limit: judged from screenshots at 390px and 1280px, not on a real device.
 - Version: 1.52.0.
 
+## 055 — On desktop the archive and stats open beside the sidebar, not on the far side
+
+- Report: on desktop the archive opened at the left of the page while the sidebar sits at the right (Arabic).
+- Cause: archive and stats used `--panel-hide`, which always points to the menu-button side (the phone drawer's side); on desktop the docked sidebar is on the opposite edge (reading-start).
+- Change (>= 1024px): `--panel-hide` follows the sidebar edge, the two overlays anchor at reading-start and, while the sidebar is open, start right after it (`inset-inline-start: var(--sidebar-w)`), so they slide out from the sidebar's edge and sit next to it, 10px apart, in both Arabic and English. Swipe-to-dismiss direction for them flips the same way. Phones and tablets are unchanged.
+- Checked: the panel's position sampled while opening in Arabic (550-970 next to a sidebar at 980-1280) and English (310-730 next to 0-300), plus a browser test.
+- Version: 1.53.0.
+- Also fixed: the owner's direct "Update game.html" commit (the new slash-shaped eyes) had exported the page with Google Fonts links and inline icon data URIs, which broke two repo-sanity tests and the main deploy. The new game logic is kept as-is; only the head was restored to local fonts (`fonts/*.woff2`, `@font-face`) and the shared `favicon.svg` / `apple-touch-icon.png`, per the no-network-at-startup rule.
+

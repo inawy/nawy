@@ -28,7 +28,9 @@ function initSheetGestures() {
     // القائمة الجانبية درج: بيتسحب ناحية الحافة اللي طالع منها بس، والسحب الرأسي سكرول عادي للمحتوى.
     const isDrawer = overlay.id === "menuOverlay" || overlay.id === "archiveOverlay" || overlay.id === "statsOverlay";
     // الدرج بيختفي ناحية زر القائمة (شمال في العربي، يمين في الإنجليزي)؛ السايدبار المثبّت بس هو اللي بيختفي ناحية بداية الكتابة
-    const drawerDir = () => (document.documentElement.dir === "rtl" ? -1 : 1);
+    // الأرشيف/الإحصائيات على الديسكتوب بتطلع من ناحية السايدبار (عكس ناحية زر القائمة على الموبايل)
+    const drawerDir = () =>
+      (document.documentElement.dir === "rtl" ? -1 : 1) * (isSidebarDocked() && overlay.id !== "menuOverlay" ? -1 : 1);
 
     let startX = 0;
     let startY = 0;

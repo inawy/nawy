@@ -2791,3 +2791,22 @@ html[dir="ltr"] {
     border-inline-end: 1px solid var(--border);
   }
 }
+
+/* ديسكتوب: الأرشيف والإحصائيات بيطلعوا من ناحية السايدبار (بداية الكتابة، يمين في العربي) ومزاحين جنبه،
+   مش من ناحية زر القائمة اللي بتبقى الناحية التانية. بيتقصّوا عند حافة السايدبار فبيبانوا خارجين منه. */
+@media (min-width: 1024px) {
+  :root {
+    --panel-hide: calc(100% + 24px);
+  }
+  html[dir="ltr"] {
+    --panel-hide: calc(-100% - 24px);
+  }
+  #archiveOverlay,
+  #statsOverlay {
+    justify-content: flex-start;
+  }
+  html[data-sidebar="open"] #archiveOverlay,
+  html[data-sidebar="open"] #statsOverlay {
+    inset-inline-start: var(--sidebar-w);
+  }
+}
