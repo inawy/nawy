@@ -2724,15 +2724,14 @@ html[dir="ltr"] {
 :root {
   --panel-gap: 10px;
   --panel-radius: 26px;
-  --panel-shadow:
-    0 18px 48px rgba(10, 14, 24, 0.18),
-    0 2px 8px rgba(10, 14, 24, 0.08);
+  --panel-shadow: 0 18px 48px rgba(10, 14, 24, 0.18), 0 2px 8px rgba(10, 14, 24, 0.08);
 }
 #menuOverlay .sheet,
 #archiveOverlay .sheet,
 #statsOverlay .sheet {
   --panel-v: calc(var(--panel-gap) * 2 + env(safe-area-inset-top) + env(safe-area-inset-bottom));
-  margin: calc(var(--panel-gap) + env(safe-area-inset-top)) var(--panel-gap) calc(var(--panel-gap) + env(safe-area-inset-bottom));
+  margin: calc(var(--panel-gap) + env(safe-area-inset-top)) var(--panel-gap)
+    calc(var(--panel-gap) + env(safe-area-inset-bottom));
   height: calc(100dvh - var(--panel-v));
   max-height: calc(100dvh - var(--panel-v));
   padding: 14px;
