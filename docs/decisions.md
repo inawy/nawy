@@ -475,3 +475,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Version: 1.53.0.
 - Also fixed: the owner's direct "Update game.html" commit (the new slash-shaped eyes) had exported the page with Google Fonts links and inline icon data URIs, which broke two repo-sanity tests and the main deploy. The new game logic is kept as-is; only the head was restored to local fonts (`fonts/*.woff2`, `@font-face`) and the shared `favicon.svg` / `apple-touch-icon.png`, per the no-network-at-startup rule.
 
+## 056 — Every menu screen opens inside the same panel (settings, backup, stats, archive)
+
+- Report: on desktop the archive and stats opened as a separate panel beside the sidebar while settings and backup opened inside it; unify how the menu screens look, open and are carded.
+- Change: stats and the archive are no longer separate overlays (`#statsOverlay`, `#archiveOverlay` removed). They are sub-panels of the menu, `#statsMenuPanel` and `#archiveMenuPanel`, exactly like `#settingsMenuPanel` and `#backupMenuPanel`: same container, same width (the drawer on phones, the docked sidebar on desktop), same nav bar (Back one level, Close all), same slide (`panel-in` from the panel edge, `panel-back` on return), same card styling. `showMenuSubPanel()` and `backToMainMenuPanel()` drive all four; closing the menu resets them to the main panel.
+- This supersedes the side-panel and desktop-placement parts of decisions 050, 053 and 055 for stats and the archive (their separate overlay, `--panel-w` width, the open-over-the-menu behaviour and the beside-the-sidebar placement); what stays is the nav-bar pattern, the floating card of 054 for the menu, and the motion curve.
+- On desktop, Escape now returns from a sub-panel to the main menu (the docked sidebar itself is never closed by Escape). The sidebar stays at the same position and width while switching screens, which a browser test asserts for all three screens.
+- Limits: the sub-panels sit in the sidebar's scroll area like settings does, so on desktop the archive list is as wide as the 300px sidebar. Not verified on a real device.
+- Version: 1.54.0.
+

@@ -381,7 +381,7 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
   );
   assert.match(app, /const SIDEBAR_QUERY = "\(min-width: 1024px\)";/, "JS breakpoint must match the CSS one");
   // every screen opened from the menu goes through the one helper so the docked sidebar stays open
-  assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 4);
+  assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 3);
 });
 
 test("backup nudge policy: needs enough data and an old or missing backup", () => {

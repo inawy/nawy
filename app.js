@@ -1608,7 +1608,7 @@ function openOverlay(overlay) {
   if (overlay.id === "menuOverlay") syncMenuState(true, true);
   updateBodyScrollLock();
 }
-const SIDE_PANEL_IDS = new Set(["menuOverlay", "archiveOverlay", "statsOverlay"]);
+const SIDE_PANEL_IDS = new Set(["menuOverlay"]);
 const SIDE_PANEL_TRANSITION = "transform .28s cubic-bezier(.22,.8,.26,1)";
 function closeOverlay(overlay) {
   const sheet = overlay.querySelector(".sheet");
@@ -1620,6 +1620,8 @@ function closeOverlay(overlay) {
   if (overlay.id === "menuOverlay") {
     $("#backupMenuPanel").hidden = true;
     $("#settingsMenuPanel").hidden = true;
+    $("#statsMenuPanel").hidden = true;
+    $("#archiveMenuPanel").hidden = true;
     $("#mainMenuPanel").hidden = false;
     syncMenuState(false, true);
   }
@@ -2275,21 +2277,16 @@ $$(".tab").forEach(tab => {
 
 $("#menuBtn").setAttribute("aria-expanded", "false");
 $("#settingsMenuContent").append(...$$("#settingsOverlay .setting-group"));
-// الأرشيف والإحصائيات بيتفتحوا فوق القائمة وهي مفتوحة (زي الإعدادات والنسخ)، مش بعد ما تتقفل،
-// فمفيش لوحين بيتحركوا ضد بعض ولا خلفية بتومض. الرجوع بيقفل اللوح بس، والإغلاق بيقفل الاتنين.
-function backFromSidePanel(overlay) {
-  closeOverlay(overlay);
-  const menu = $("#menuOverlay");
-  if (!menu.classList.contains("show")) {
-    openOverlay(menu);
-    $("#menuBtn").setAttribute("aria-expanded", "true");
-  }
+// كل شاشات القائمة (الإعدادات والنسخ والإحصائيات والأرشيف) بتفتح جوه نفس اللوح بنفس الانزلاق.
+function showMenuSubPanel(selector) {
+  $("#mainMenuPanel").hidden = true;
+  $(selector).hidden = false;
 }
 $("#statsBtn").addEventListener("click", () => {
   renderStats();
-  openOverlay($("#statsOverlay"));
+  showMenuSubPanel("#statsMenuPanel");
 });
-$("#statsBackBtn").addEventListener("click", () => backFromSidePanel($("#statsOverlay")));
+$("#statsBackBtn").addEventListener("click", () => backToMainMenuPanel("#statsMenuPanel"));
 function backToMainMenuPanel(fromSelector) {
   const main = $("#mainMenuPanel");
   $(fromSelector).hidden = true;
@@ -2327,9 +2324,9 @@ $("#archiveBtn").addEventListener("click", () => {
   archiveSearchQuery = "";
   $("#archiveSearchInput").value = "";
   renderArchive();
-  openOverlay($("#archiveOverlay"));
+  showMenuSubPanel("#archiveMenuPanel");
 });
-$("#archiveBackBtn").addEventListener("click", () => backFromSidePanel($("#archiveOverlay")));
+$("#archiveBackBtn").addEventListener("click", () => backToMainMenuPanel("#archiveMenuPanel"));
 
 $("#archiveSearchInput").addEventListener("input", e => {
   archiveSearchQuery = e.target.value;
@@ -2391,8 +2388,6 @@ $$("[data-close]").forEach(btn => {
   btn.addEventListener("click", () => {
     const overlay = /** @type {HTMLElement} */ (document.getElementById(btn.dataset.close));
     closeOverlay(overlay);
-    // إغلاق الأرشيف/الإحصائيات بيقفل القائمة اللي تحتهم كمان (على الموبايل)
-    if (overlay.id === "archiveOverlay" || overlay.id === "statsOverlay") dismissMenuForNavigation();
 
     if (overlay.id === "menuOverlay") {
       $("#menuBtn").setAttribute("aria-expanded", "false");
@@ -2415,6 +2410,9 @@ $$(".overlay").forEach(overlay => {
 
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") {
+    // السايدبار المثبّت مابيتقفلش بـ Escape، لكن شاشته الفرعية بترجع للقائمة الرئيسية
+    const sub = isSidebarDocked() && $$("#menuOverlay .account-menu-panel").find(p => !p.hidden && p.id !== "mainMenuPanel");
+    if (sub) backToMainMenuPanel("#" + sub.id);
     closeAllOverlays();
     if ($("#composerPanel").classList.contains("open")) closeComposer();
   }
@@ -2769,8 +2767,8 @@ function startCrossTabSync() {
       }
 
       render();
-      if ($("#archiveOverlay")?.classList.contains("show")) renderArchive();
-      if ($("#statsOverlay")?.classList.contains("show")) renderStats();
+      if (!$("#archiveMenuPanel").hidden) renderArchive();
+      if (!$("#statsMenuPanel").hidden) renderStats();
     },
     error: error => console.error("Cross-tab live sync error", error)
   });
