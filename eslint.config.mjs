@@ -40,7 +40,7 @@ export default [
   },
   {
     // الصفحة: classic script في المتصفح
-    files: ["google-drive-config.js", "nawy-mascot.js", "translations.js"],
+    files: ["google-drive-config.js", "nawy-mascot.js", "translations.js", "game.js"],
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }
   },
   {

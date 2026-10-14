@@ -510,3 +510,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Nothing is fetched from the network; no gameplay code changed.
 - Version: 1.57.0.
 
+## 060 — The game script moves out of game.html into game.js (step 1 of the game's migration)
+
+- Decision: the game stays in this repository (shared fonts, icons, brand, service worker, one deploy, one version), developed incrementally toward TypeScript + Vite + Vitest. Canvas stays the renderer; Phaser is deferred until the game needs levels, tilemaps, heavier physics or a family of games, and would first be measured in a throw-away spike (bundle size, load time, mobile frame rate), because it is a rewrite and roughly 1 MB before compression against an 83 KB game today.
+- Step 1 (this change): the 1,950-line inline script of `game.html` is now `game.js`, loaded with `<script src="./game.js?v=VERSION">` at the same place, so execution order and behaviour are unchanged. The one code edit: the unused variable `lastT` was removed (the only ESLint finding). `game.js` is a classic script like the other page scripts, linted by ESLint (its own entry in `eslint.config.mjs`) and formatted by Prettier; it is not type-checked yet (step 2).
+- Version coupling: `game.js?v=` must equal the app version; a sanity test enforces it, and README's release list now has it as item 4. `game.html` has no inline script any more (also tested).
+- Next steps: JSDoc/TS checking of the file, splitting it into modules (physics, drawing, audio, share) with the Vite build keeping static output, Vitest for pure logic, and only then a decision on Preact for the overlay cards.
+- Limit: verified by running the page in Chromium (it starts, plays and ends with no page errors) and by the browser test that loads it with no external request; not played on a real device.
+- Version: 1.58.0.
