@@ -409,7 +409,9 @@ test("game.html loads game.js (no inline game script) with the same ?v= as the a
   assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/.test(game), "game.html must have no inline script");
   const v = game.match(/<script src="\.\/game\.js\?v=([\w.]+)"><\/script>/);
   assert.ok(v, "game.html must load game.js with ?v=");
-  const sw = read("service-worker.js").match(/CACHE_NAME = "nawy-v([\w.]+)"/) || read("service-worker.js").match(/CACHE_NAME\s*=\s*["'][^"']*?([\d.]+)["']/);
+  const sw =
+    read("service-worker.js").match(/CACHE_NAME = "nawy-v([\w.]+)"/) ||
+    read("service-worker.js").match(/CACHE_NAME\s*=\s*["'][^"']*?([\d.]+)["']/);
   assert.ok(sw && sw[1] === v[1], "game.js ?v= must equal the app version: " + (sw && sw[1]) + " vs " + v[1]);
   assert.ok(fs.existsSync(path.join(ROOT, "game.js")));
 });
