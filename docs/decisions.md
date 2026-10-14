@@ -501,3 +501,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Pixel UI: the overlay card, portrait frame, buttons, badge and control bar lose their rounded corners and soft shadows and get stepped (notched) corners drawn with box-shadow, a flat inner shade on buttons and stepped press animation.
 - Limits: the Arabic text is still smooth, the sky gradient is smooth (only its resolution is chunky), and the look was judged from screenshots at 390px, not played on a device.
 - Version: 1.56.0.
+
+## 059 — Pixel font only for numbers and Latin headings; the pixel-art rendering of the game is reverted
+
+- Feedback: decision 058 went too far; the request was only headings and numbers in a pixel font, not a pixel-art look for the whole game.
+- Reverted: `game.html` returns to its 1.55.0 rendering (smooth canvas, rounded cards and buttons, soft shadows, 168px portrait), i.e. everything from 058 except the font bundled before it.
+- Kept/added, font only: two `@font-face` entries on the already bundled `fonts/press-start-2p.woff2` (OFL), limited by `unicode-range`: `Px Digits` (0-9 and %) is first in the page font stack, so every number anywhere in the game (score, best, stars, combo, results, toasts) is pixel; `Px Latin` (A-Z, a-z) is used by the overlay headings, so a Latin heading would be pixel too. Arabic text keeps Cairo because the font has no Arabic glyphs (and no Arabic pixel font exists in Google Fonts), which also avoids the huge word spaces seen in 058.
+- Nothing is fetched from the network; no gameplay code changed.
+- Version: 1.57.0.
+

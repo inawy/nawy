@@ -13,6 +13,8 @@
 <link rel="preload" href="./fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Cairo';font-style:normal;font-weight:400 1000;font-display:swap;src:url("./fonts/cairo-ar-latin.woff2") format("woff2");}
 @font-face{font-family:'Press Start 2P';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/press-start-2p.woff2") format("woff2");}
+@font-face{font-family:'Px Digits';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/press-start-2p.woff2") format("woff2");unicode-range:U+0030-0039,U+0025;}
+@font-face{font-family:'Px Latin';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/press-start-2p.woff2") format("woff2");unicode-range:U+0041-005A,U+0061-007A;}
   :root{
     --ink:#1e293b;
     --ink-muted:#64748b;
@@ -22,7 +24,7 @@
   *,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
   html,body{
     margin:0;width:100%;height:100%;overflow:hidden;
-    font-family:'Cairo',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    font-family:'Px Digits','Cairo',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
     background:#c5e0f7;user-select:none;-webkit-user-select:none;
     touch-action:manipulation;overscroll-behavior:none;
     position:fixed;inset:0;
@@ -31,7 +33,7 @@
   .stage{position:absolute;inset:0;overflow:hidden;isolation:isolate;}
   canvas{
     width:100%;height:100%;display:block;touch-action:none;
-    image-rendering:pixelated;image-rendering:crisp-edges;
+    image-rendering:auto;
   }
 
   .topbar{
@@ -60,7 +62,7 @@
   }
   .stat b{
     font-family:'Press Start 2P',system-ui,monospace;
-    font-size:12px;color:var(--ink);font-weight:400;
+    font-size:13px;color:var(--ink);font-weight:400;
     font-variant-numeric:tabular-nums;
     text-shadow:0 1px 3px rgba(255,255,255,.6);
   }
@@ -71,10 +73,10 @@
     bottom:max(14px, env(safe-area-inset-bottom));
     z-index:50;
     display:flex;align-items:center;gap:2px;
-    padding:6px;border-radius:0;
-    background:#ffffff;
-    border:0;
-    box-shadow:0 -3px 0 0 #0f172a,-3px 0 0 0 #0f172a,3px 0 0 0 #0f172a,0 6px 0 0 #0f172a,-3px 3px 0 0 #0f172a,3px 3px 0 0 #0f172a;
+    padding:6px;border-radius:999px;
+    background:rgba(255,255,255,.78);
+    border:1px solid rgba(255,255,255,.85);
+    box-shadow:0 6px 16px rgba(20,40,70,.14);
     pointer-events:auto;
   }
   .ctrl-btn{
@@ -127,21 +129,20 @@
   .overlay.hidden{display:none;}
   .overlay-inner{
     position:relative;
-    padding:58px 24px 22px;border-radius:0;
+    padding:58px 24px 22px;border-radius:28px;
     background:#ffffff;
-    border:0;
-    box-shadow:0 -4px 0 0 #0f172a,-4px 0 0 0 #0f172a,4px 0 0 0 #0f172a,0 8px 0 0 #0f172a,-4px 4px 0 0 #0f172a,4px 4px 0 0 #0f172a;
+    border:3px solid #0f172a;
+    box-shadow:0 7px 0 #0f172a, 0 16px 34px rgba(15,23,42,.20);
     max-width:min(380px,92vw);pointer-events:auto;
   }
-  .overlay h1{margin:0 0 6px;font-size:22px;font-weight:900;letter-spacing:-.4px;color:#0f172a;}
+  .overlay h1{margin:0 0 6px;font-family:'Px Latin','Px Digits','Cairo',system-ui,sans-serif;font-size:22px;font-weight:900;letter-spacing:-.4px;color:#0f172a;}
   .overlay p{margin:0;color:#5b6b82;font-size:13px;font-weight:750;line-height:1.7;}
   .overlay p b{color:#0f172a;font-family:'Press Start 2P',system-ui,monospace;font-size:.95em;font-variant-numeric:tabular-nums;}
   .overlay .ov-nawy{
     position:absolute;top:-50px;left:50%;transform:translateX(-50%);
-    width:96px;height:96px;border-radius:0;
-    background:#ffffff;border:0;
-    image-rendering:pixelated;
-    box-shadow:0 -4px 0 0 #0f172a,-4px 0 0 0 #0f172a,4px 0 0 0 #0f172a,0 4px 0 0 #0f172a,-4px 4px 0 0 #0f172a,4px 4px 0 0 #0f172a;
+    width:96px;height:96px;border-radius:50%;
+    background:#ffffff;border:4px solid #0f172a;
+    box-shadow:0 5px 0 #0f172a;
   }
   .overlay .ov-star{
     position:absolute;top:-24px;color:#fbbf24;font-size:16px;
@@ -149,23 +150,23 @@
   }
   .badge{
     display:inline-flex;align-items:center;gap:5px;
-    margin-top:10px;padding:6px 14px;border-radius:0;
+    margin-top:10px;padding:5px 14px;border-radius:999px;
     background:#fff7e6;color:#7a4a08;font-weight:900;font-size:12px;
-    border:0;box-shadow:0 -2px 0 0 #0f172a,-2px 0 0 0 #0f172a,2px 0 0 0 #0f172a,0 4px 0 0 #0f172a;
+    border:2px solid #0f172a;box-shadow:0 3px 0 #0f172a;
   }
   .button{
-    margin-top:20px;border:0;border-radius:0;padding:13px 28px;
+    margin-top:16px;border:2.5px solid #0f172a;border-radius:16px;padding:13px 28px;
     background:#3D7BFF;color:#fff;
     font-size:15px;font-weight:900;letter-spacing:.2px;
     cursor:pointer;pointer-events:auto;font-family:inherit;
-    box-shadow:0 -4px 0 0 #0f172a,-4px 0 0 0 #0f172a,4px 0 0 0 #0f172a,0 4px 0 0 #0f172a,inset 0 -4px 0 0 #21438c,inset 0 4px 0 0 rgba(255,255,255,.28);
-    transition:transform .08s steps(2), box-shadow .08s steps(2);
+    box-shadow:0 5px 0 #21438c;
+    transition:transform .08s ease, box-shadow .08s ease;
     width:100%;
     display:flex;align-items:center;justify-content:center;gap:8px;
   }
-  .button:active{transform:translateY(4px);box-shadow:0 -4px 0 0 #0f172a,-4px 0 0 0 #0f172a,4px 0 0 0 #0f172a,0 4px 0 0 #0f172a,inset 0 4px 0 0 #21438c;}
-  .button.secondary{background:#ffffff;color:#0f172a;box-shadow:0 -4px 0 0 #0f172a,-4px 0 0 0 #0f172a,4px 0 0 0 #0f172a,0 4px 0 0 #0f172a,inset 0 -4px 0 0 #cbd5e1;}
-  .button.secondary:active{box-shadow:0 -4px 0 0 #0f172a,-4px 0 0 0 #0f172a,4px 0 0 0 #0f172a,0 4px 0 0 #0f172a,inset 0 4px 0 0 #cbd5e1;}
+  .button:active{transform:translateY(4px);box-shadow:0 1px 0 #21438c;}
+  .button.secondary{background:#ffffff;color:#0f172a;box-shadow:0 5px 0 #0f172a;}
+  .button.secondary:active{box-shadow:0 1px 0 #0f172a;}
 
   .toast{
     position:absolute;
@@ -320,7 +321,7 @@
 
     <div class="overlay" id="overlay">
       <div class="overlay-inner">
-        <canvas class="ov-nawy" id="ovNawy" width="48" height="48"></canvas>
+        <canvas class="ov-nawy" id="ovNawy" width="168" height="168"></canvas>
         <span class="ov-star" style="left:18px;">★</span>
         <span class="ov-star" style="right:18px;">★</span>
         <h1 id="ovTitle">ناوي جاهز؟</h1>
@@ -511,8 +512,6 @@ const DROP_VY = JUMP_V * 0.45;   // سرعة الهبوط لما تسحب الض
 const JUMP_SPEED_BOOST = 6;      // القفزة تتقوى شوية مع زيادة السرعة الحالية (زي Dino)
 
 const RENDER_MAX_W = 800;
-// فن البكسل: بنرسم على لوحة صغيرة (كل بكسل = PIXEL بكسل شاشة) وتتكبّر بدون تنعيم
-const PIXEL = 3;
 const MAX_PARTICLES = 60;
 const FPS_CAP = 60;
 const FRAME_MIN_MS = 1000 / FPS_CAP - 2;
@@ -877,7 +876,7 @@ function resize(){
   W = nW;
   H = nH;
 
-  let rw = Math.max(1, Math.round(W / PIXEL)), rh = Math.max(1, Math.round(H / PIXEL));
+  let rw = W, rh = H;
   if (rw > RENDER_MAX_W){
     const s = RENDER_MAX_W / rw;
     rw = RENDER_MAX_W;
@@ -890,7 +889,6 @@ function resize(){
   const sx = rw / W;
   const sy = rh / H;
   ctx.setTransform(sx, 0, 0, sy, 0, 0);
-  ctx.imageSmoothingEnabled = false;
 
   const oldGround = groundY;
   groundY = Math.round(H - Math.max(60, H * 0.18));
