@@ -540,3 +540,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - `game/sound.js` owns `audioCtx`, the mute flag (and its `localStorage` key `nawy.muted.v14`), `sfx`, `sfxCoin`, `unlockAudio` and `vibrate`; `game.js` uses `isMuted()` / `setMuted()` instead of a shared variable. Behavior and key unchanged; registered in the `game.html` importmap.
 - Limit: no audio output could be heard in the sandbox; checked that the mute toggle persists and the game runs with no errors. Version: 1.59.2.
+
+## 064 — Game particles and pool are their own module
+
+- `game/particles.js` owns `makePool`, `particlePool`, the live `particles` array (mutated in place, never reassigned), `MAX_PARTICLES`, the dust/spark/confetti bursts and `updateParticles`. `game.js` keeps drawing and the obstacle pool (it imports `makePool`). No behavior change.
+- Limit: checked by playing in Chromium (no errors); particles were not compared pixel by pixel. Version: 1.59.3.

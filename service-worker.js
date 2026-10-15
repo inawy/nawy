@@ -1,30 +1,30 @@
-const CACHE_NAME = "nawy-runtime-v1.59.2";
+const CACHE_NAME = "nawy-runtime-v1.59.3";
 // Dexie متاحة هنا عشان نقدر نقرأ نفس بيانات IndexedDB اللي التطبيق
 // بيستخدمها، وقت ما الـ Periodic Background Sync يشغّل الـ Service
 // Worker من غير أي صفحة مفتوحة أصلاً. nawy-data.js فيه تعريف الـ schema
 // المشترك مع الصفحة، فمفيش نسخة تانية منه هنا تتعارض مع نسخة التطبيق.
 importScripts("./dexie.min.js");
-importScripts("./nawy-data.js?v=1.59.2");
+importScripts("./nawy-data.js?v=1.59.3");
 const APP_SHELL = [
   "./",
   "./index.html",
-  "./manifest.json?v=1.59.2",
+  "./manifest.json?v=1.59.3",
   "./service-worker.js",
   "./Sortable.min.js",
   "./confetti.browser.min.js",
   "./dexie.min.js",
-  "./styles.css?v=1.59.2",
-  "./translations.js?v=1.59.2",
-  "./sounds.js?v=1.59.2",
-  "./share.js?v=1.59.2",
-  "./sheet-gestures.js?v=1.59.2",
-  "./banners.js?v=1.59.2",
-  "./date-format.js?v=1.59.2",
-  "./app.js?v=1.59.2",
-  "./nawy-data.js?v=1.59.2",
-  "./nawy-storage.js?v=1.59.2",
-  "./nawy-backup.js?v=1.59.2",
-  "./nawy-ui.js?v=1.59.2",
+  "./styles.css?v=1.59.3",
+  "./translations.js?v=1.59.3",
+  "./sounds.js?v=1.59.3",
+  "./share.js?v=1.59.3",
+  "./sheet-gestures.js?v=1.59.3",
+  "./banners.js?v=1.59.3",
+  "./date-format.js?v=1.59.3",
+  "./app.js?v=1.59.3",
+  "./nawy-data.js?v=1.59.3",
+  "./nawy-storage.js?v=1.59.3",
+  "./nawy-backup.js?v=1.59.3",
+  "./nawy-ui.js?v=1.59.3",
   "./fonts/cairo-ar-latin.woff2",
   "./icon-192.png",
   "./icon-512.png",
