@@ -210,11 +210,17 @@
   /* ============================================================
    🎨 SPRITES
    ============================================================ */
+  /** @type {any} */
   let skySprite = null;
+  /** @type {any} */
   let sunSprite = null;
+  /** @type {any[]} */
   let cloudSprites = [];
+  /** @type {any} */
   let farHillsSprite = null;
+  /** @type {any} */
   let nearHillsSprite = null;
+  /** @type {any} */
   let groundSprite = null;
   let groundTop = 0;
 
