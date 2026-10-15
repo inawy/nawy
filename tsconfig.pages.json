@@ -16,7 +16,8 @@
     "noImplicitReturns": false,
     "alwaysStrict": true,
     "skipLibCheck": true,
+    "paths": { "nawy-game/*": ["./game/*.js"] },
     "types": []
   },
-  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "app.js", "game.js"]
+  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "app.js", "game.js", "game/*.js"]
 }
