@@ -518,3 +518,11 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Next steps: JSDoc/TS checking of the file, splitting it into modules (physics, drawing, audio, share) with the Vite build keeping static output, Vitest for pure logic, and only then a decision on Preact for the overlay cards.
 - Limit: verified by running the page in Chromium (it starts, plays and ends with no page errors) and by the browser test that loads it with no external request; not played on a real device.
 - Version: 1.58.0.
+
+## 061 — `game.js` is type-checked (step 2 of the game migration)
+
+- `game.js` was added to `tsconfig.pages.json`, so CI type-checks it like `app.js` (JSDoc + `checkJs`, no TypeScript syntax yet).
+- DOM lookups go through three small helpers (`byId`, `canvasById`, `ctx2d`) that cast once instead of at every call site. A few `String()` wraps and one `any` cast were needed; runtime behavior is unchanged.
+- Next: split into modules with the Vite build keeping static output, then Vitest for pure logic.
+- Limit: local `tsc` is 6.0.3 while CI uses 7; the game was played in Chromium only, not on a real device.
+- Version: 1.59.0.

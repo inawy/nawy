@@ -99,41 +99,48 @@
     c.closePath();
   }
 
+  /** @param {string} id @returns {HTMLElement} */
+  const byId = id => /** @type {HTMLElement} */ (document.getElementById(id));
+  /** @param {string} id @returns {HTMLCanvasElement} */
+  const canvasById = id => /** @type {HTMLCanvasElement} */ (document.getElementById(id));
+  /** @param {HTMLCanvasElement} cv @param {CanvasRenderingContext2DSettings} [opts] @returns {CanvasRenderingContext2D} */
+  const ctx2d = (cv, opts) => /** @type {CanvasRenderingContext2D} */ (cv.getContext("2d", opts));
+
   /* ============================================================
    ELEMENTS
    ============================================================ */
-  const stage = document.getElementById("stage");
-  const canvas = document.getElementById("canvas");
-  const ctx = canvas.getContext("2d", { alpha: false });
-  const scoreEl = document.getElementById("score");
-  const bestEl = document.getElementById("best");
-  const comboEl = document.getElementById("combo");
-  const comboStat = document.getElementById("comboStat");
-  const starsEl = document.getElementById("stars");
-  const overlay = document.getElementById("overlay");
-  const ovNawy = document.getElementById("ovNawy");
-  const ovTitle = document.getElementById("ovTitle");
-  const ovText = document.getElementById("ovText");
-  const ovBtn = document.getElementById("ovBtn");
-  const ovShareBtn = document.getElementById("ovShareBtn");
-  const toastEl = document.getElementById("toast");
-  const thoughtEl = document.getElementById("thought");
-  const thoughtText = document.getElementById("thoughtText");
-  const muteBtn = document.getElementById("muteBtn");
-  const pauseBtn = document.getElementById("pauseBtn");
-  const exitBtn = document.getElementById("exitBtn");
-  const hintEl = document.getElementById("hint");
-  const shieldChip = document.getElementById("shieldChip");
-  const shieldTime = document.getElementById("shieldTime");
-  const magnetChip = document.getElementById("magnetChip");
-  const magnetTime = document.getElementById("magnetTime");
+  const stage = byId("stage");
+  const canvas = canvasById("canvas");
+  const ctx = ctx2d(canvas, { alpha: false });
+  const scoreEl = byId("score");
+  const bestEl = byId("best");
+  const comboEl = byId("combo");
+  const comboStat = byId("comboStat");
+  const starsEl = byId("stars");
+  const overlay = byId("overlay");
+  const ovNawy = canvasById("ovNawy");
+  const ovTitle = byId("ovTitle");
+  const ovText = byId("ovText");
+  const ovBtn = byId("ovBtn");
+  const ovShareBtn = byId("ovShareBtn");
+  const toastEl = byId("toast");
+  const thoughtEl = byId("thought");
+  const thoughtText = byId("thoughtText");
+  const muteBtn = byId("muteBtn");
+  const pauseBtn = byId("pauseBtn");
+  const exitBtn = byId("exitBtn");
+  const hintEl = byId("hint");
+  const shieldChip = byId("shieldChip");
+  const shieldTime = byId("shieldTime");
+  const magnetChip = byId("magnetChip");
+  const magnetTime = byId("magnetTime");
 
-  const shareModal = document.getElementById("shareModal");
-  const shareClose = document.getElementById("shareClose");
-  const shareCanvas = document.getElementById("shareCanvas");
-  const shareStoryBtn = document.getElementById("shareStoryBtn");
-  const shareTextBtn = document.getElementById("shareTextBtn");
-  const shareDownloadBtn = document.getElementById("shareDownloadBtn");
+  const shareModal = byId("shareModal");
+  const shareClose = byId("shareClose");
+  const shareCanvas = canvasById("shareCanvas");
+  const shareStoryBtn = byId("shareStoryBtn");
+  const shareTextBtn = byId("shareTextBtn");
+  const shareDownloadBtn = byId("shareDownloadBtn");
 
   /* ============================================================
    CONSTANTS
@@ -225,7 +232,7 @@
     skySprite.width = Math.max(1, W);
     skySprite.height = Math.max(1, groundY + 1);
     {
-      const c = skySprite.getContext("2d");
+      const c = ctx2d(skySprite);
       const g = c.createLinearGradient(0, 0, 0, groundY + 1);
       g.addColorStop(0, "#bfddf5");
       g.addColorStop(0.55, "#d8ebfa");
@@ -240,9 +247,9 @@
     sunSprite = document.createElement("canvas");
     sunSprite.width = sz;
     sunSprite.height = sz;
-    sunSprite.cx = sz / 2;
+    /** @type {any} */ (sunSprite).cx = sz / 2;
     {
-      const c = sunSprite.getContext("2d");
+      const c = ctx2d(sunSprite);
       const cx = sz / 2;
       const halo = c.createRadialGradient(cx, cx, 0, cx, cx, haloR);
       halo.addColorStop(0, "rgba(255,240,180,.42)");
@@ -270,7 +277,7 @@
       const cv = document.createElement("canvas");
       cv.width = cw;
       cv.height = ch;
-      const c = cv.getContext("2d");
+      const c = ctx2d(cv);
       c.fillStyle = "rgba(255,255,255,.82)";
       const r = cw * 0.2;
       const bx = cw * 0.18;
@@ -289,7 +296,7 @@
     farHillsSprite.width = Math.max(1, W);
     farHillsSprite.height = farH;
     {
-      const c = farHillsSprite.getContext("2d");
+      const c = ctx2d(farHillsSprite);
       c.fillStyle = "rgba(190,215,240,.55)";
       c.beginPath();
       c.moveTo(0, farH);
@@ -307,7 +314,7 @@
     nearHillsSprite.width = Math.max(1, W);
     nearHillsSprite.height = nearH;
     {
-      const c = nearHillsSprite.getContext("2d");
+      const c = ctx2d(nearHillsSprite);
       c.fillStyle = "rgba(210,228,245,.7)";
       c.beginPath();
       c.moveTo(0, nearH);
@@ -326,7 +333,7 @@
     groundSprite.width = Math.max(1, W);
     groundSprite.height = Math.max(1, gH);
     {
-      const c = groundSprite.getContext("2d");
+      const c = ctx2d(groundSprite);
       const lineY = 14;
       c.fillStyle = "#f5f9fc";
       c.fillRect(0, lineY, W, gH - lineY);
@@ -1151,7 +1158,7 @@
     const shown = Math.floor(score);
     if (shown !== lastShown) {
       lastShown = shown;
-      scoreEl.textContent = shown;
+      scoreEl.textContent = String(shown);
     }
 
     // منحنى سرعة بنفس نسبة Dino (سرعة قصوى ≈ 2.3x البداية) لكن بنفس توقيته تقريبًا (~115 ثانية بدل ~52)
@@ -1214,7 +1221,7 @@
       if (!o.passed && o.x + o.w < player.x) {
         o.passed = true;
         combo++;
-        comboEl.textContent = combo;
+        comboEl.textContent = String(combo);
         if (combo >= 2) comboStat.classList.add("show");
         if (combo % 10 === 0) {
           setMood("focus", 0.45);
@@ -1264,7 +1271,7 @@
         // الكومبو يؤثر على قيمة النجمة
         score += 10 * (1 + Math.floor(combo / 4) * 0.35);
         starCount++;
-        starsEl.textContent = starCount;
+        starsEl.textContent = String(starCount);
         burstSparkle(s.x, s.y, 6);
         sfxCoin(Math.floor(combo / 4));
         setMood("happy", 0.45);
@@ -1527,7 +1534,7 @@
    NAWY MINI PORTRAIT (overlay)
    ============================================================ */
   function drawNawyPortrait(canvas, mood) {
-    const c = canvas.getContext("2d");
+    const c = ctx2d(canvas);
     const w = canvas.width,
       h = canvas.height;
     c.clearRect(0, 0, w, h);
@@ -1573,7 +1580,7 @@
       if (!badge) {
         badge = document.createElement("div");
         badge.className = "badge";
-        overlay.querySelector(".overlay-inner").appendChild(badge);
+        /** @type {HTMLElement} */ (overlay.querySelector(".overlay-inner")).appendChild(badge);
       }
       badge.textContent = opt.badge;
     } else if (badge) badge.remove();
@@ -1622,7 +1629,7 @@
       CH = 1920;
     shareCanvas.width = CW;
     shareCanvas.height = CH;
-    const c = shareCanvas.getContext("2d");
+    const c = ctx2d(shareCanvas);
 
     const finalScore = Math.floor(score);
     const isRecord = lastRunRecord;
@@ -2111,7 +2118,7 @@
       try {
         localStorage.setItem("nawy.best.v14", String(best));
       } catch (e) {}
-      bestEl.textContent = best;
+      bestEl.textContent = String(best);
       sfx("record");
       setMood("record", 5);
     }
@@ -2187,7 +2194,7 @@
    INIT
    ============================================================ */
   function init() {
-    bestEl.textContent = best;
+    bestEl.textContent = String(best);
     drawNawyPortrait(ovNawy, "idle");
 
     resize();
