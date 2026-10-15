@@ -1,4 +1,5 @@
 import { TAU, FACE, drawNawyFace, clamp, rand, pick, roundRectPath } from "nawy-game/util";
+import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game/sound";
 
 (function () {
   "use strict";
@@ -299,90 +300,6 @@ import { TAU, FACE, drawNawyFace, clamp, rand, pick, roundRectPath } from "nawy-
   function setMood(m, d) {
     player.mood = m;
     player.moodTimer = d || 0;
-  }
-
-  /* ============================================================
-   SOUND
-   ============================================================ */
-  /** @type {AudioContext | null} */
-  let audioCtx = null;
-  let muted = false;
-  try {
-    muted = localStorage.getItem("nawy.muted.v14") === "1";
-  } catch (e) {}
-
-  function unlockAudio() {
-    if (muted) return;
-    try {
-      if (!audioCtx) {
-        const AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) return;
-        audioCtx = new AC();
-      }
-      if (audioCtx.state === "suspended") audioCtx.resume();
-    } catch (e) {}
-  }
-  function beep(f, dur, type, vol, slideTo, delay) {
-    if (muted) return;
-    try {
-      unlockAudio();
-      if (!audioCtx) return;
-      const t0 = audioCtx.currentTime + (delay || 0);
-      const o = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      o.type = type || "sine";
-      o.frequency.setValueAtTime(f, t0);
-      if (slideTo) o.frequency.exponentialRampToValueAtTime(Math.max(1, slideTo), t0 + dur);
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-      o.connect(g);
-      g.connect(audioCtx.destination);
-      o.start(t0);
-      o.stop(t0 + dur + 0.03);
-    } catch (e) {}
-  }
-  function sfx(name) {
-    switch (name) {
-      case "jump":
-        beep(430, 0.11, "square", 0.038, 720);
-        break;
-      case "land":
-        beep(160, 0.06, "sine", 0.028, 110);
-        break;
-      case "coin":
-        beep(1000, 0.08, "sine", 0.045, 1500);
-        beep(1500, 0.08, "sine", 0.025, 1900, 0.06);
-        break;
-      case "hit":
-        beep(220, 0.35, "sawtooth", 0.055, 55);
-        break;
-      case "power":
-        beep(500, 0.08, "sine", 0.038, 800);
-        break;
-      case "shield":
-        beep(360, 0.09, "triangle", 0.045, 560);
-        break;
-      case "milestone":
-        beep(660, 0.11, "triangle", 0.042, 660);
-        beep(880, 0.14, "triangle", 0.042, 880, 0.1);
-        break;
-      case "record":
-        beep(660, 0.09, "sine", 0.045, 660);
-        beep(880, 0.09, "sine", 0.045, 880, 0.09);
-        beep(1200, 0.14, "sine", 0.038, 1200, 0.18);
-        break;
-    }
-  }
-  function sfxCoin(tier) {
-    const base = 1000 + Math.min(tier, 6) * 60;
-    beep(base, 0.08, "sine", 0.045, base * 1.5);
-    beep(base * 1.5, 0.08, "sine", 0.025, base * 1.9, 0.06);
-  }
-  function vibrate(ms) {
-    try {
-      if (navigator.vibrate) navigator.vibrate(ms);
-    } catch (e) {}
   }
 
   /* ============================================================
@@ -1337,17 +1254,14 @@ import { TAU, FACE, drawNawyFace, clamp, rand, pick, roundRectPath } from "nawy-
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M16 9l6 6M22 9l-6 6"/></svg>'
   };
   exitBtn.innerHTML = ICONS.back;
-  muteBtn.innerHTML = muted ? ICONS.soundOff : ICONS.soundOn;
+  muteBtn.innerHTML = isMuted() ? ICONS.soundOff : ICONS.soundOn;
   pauseBtn.innerHTML = ICONS.pause;
 
   muteBtn.addEventListener("click", e => {
     e.stopPropagation();
-    muted = !muted;
-    muteBtn.innerHTML = muted ? ICONS.soundOff : ICONS.soundOn;
-    try {
-      localStorage.setItem("nawy.muted.v14", muted ? "1" : "0");
-    } catch (err) {}
-    if (!muted) sfx("coin");
+    setMuted(!isMuted());
+    muteBtn.innerHTML = isMuted() ? ICONS.soundOff : ICONS.soundOn;
+    if (!isMuted()) sfx("coin");
   });
   pauseBtn.addEventListener("click", e => {
     e.stopPropagation();
