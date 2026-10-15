@@ -18,5 +18,5 @@
     "skipLibCheck": true,
     "types": []
   },
-  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "app.js"]
+  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "sheet-gestures.js", "banners.js", "date-format.js", "app.js", "game.js"]
 }
