@@ -397,6 +397,7 @@
   /* ============================================================
    SOUND
    ============================================================ */
+  /** @type {AudioContext | null} */
   let audioCtx = null;
   let muted = false;
   try {
@@ -1493,6 +1494,7 @@
   }
 
   const THOUGHT_DURATION_MS = 1900;
+  /** @type {any} */
   let thoughtTimeout = null;
   let thoughtVisible = false;
   function showThought(text) {
@@ -1513,6 +1515,7 @@
     thoughtEl.style.top = player.y - 6 + "px";
   }
 
+  /** @type {any} */
   let pendingThought = null;
   let pendingThoughtWait = 0;
   function queueThought(text) {
@@ -1868,6 +1871,7 @@
   /* ============================================================
    SHARE MODAL
    ============================================================ */
+  /** @type {any} */
   let cachedShareBlob = null;
   let shareBlobToken = 0;
 
