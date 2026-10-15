@@ -535,3 +535,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Next slices: sound, particles/pool, share card as modules, then Vitest on the pure ones.
 - Limit: played in Chromium only; no real-device or Safari check.
 - Version: 1.59.1.
+
+## 063 — Game sound/vibration is its own module
+
+- `game/sound.js` owns `audioCtx`, the mute flag (and its `localStorage` key `nawy.muted.v14`), `sfx`, `sfxCoin`, `unlockAudio` and `vibrate`; `game.js` uses `isMuted()` / `setMuted()` instead of a shared variable. Behavior and key unchanged; registered in the `game.html` importmap.
+- Limit: no audio output could be heard in the sandbox; checked that the mute toggle persists and the game runs with no errors. Version: 1.59.2.
