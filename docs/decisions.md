@@ -526,3 +526,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Next: split into modules with the Vite build keeping static output, then Vitest for pure logic.
 - Limit: local `tsc` is 6.0.3 while CI uses 7; the game was played in Chromium only, not on a real device.
 - Version: 1.59.0.
+
+## 062 — Game split starts with native ES modules (step 3, first slice)
+
+- `game.html` loads `game.js` with `type="module"` and an `importmap`; the first extracted module is `game/util.js` (math/drawing helpers, no DOM). Static output, no bundler: the golden rule says Core = web standards, and Vite cannot be run in this sandbox to verify a build.
+- The importmap is the single place carrying `?v=` for modules (bare names like `nawy-game/util`), so the version bump stays a `sed` on `game.html`; `tsconfig.pages.json` maps `nawy-game/*` to `game/*.js` for type-checking, and a sanity test checks the map, the files and every import.
+- Trade-off: importmap needs Safari 16.4+/Chrome 89+/Firefox 108+; older browsers would not start the game page (the main app is unaffected). If that matters, Vite can bundle later without changing the module files.
+- Next slices: sound, particles/pool, share card as modules, then Vitest on the pure ones.
+- Limit: played in Chromium only; no real-device or Safari check.
+- Version: 1.59.1.

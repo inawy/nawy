@@ -40,8 +40,13 @@ export default [
   },
   {
     // الصفحة: classic script في المتصفح
-    files: ["google-drive-config.js", "nawy-mascot.js", "translations.js", "game.js"],
+    files: ["google-drive-config.js", "nawy-mascot.js", "translations.js"],
     languageOptions: { sourceType: "script", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }
+  },
+  {
+    // اللعبة: وحدات ES أصلية (game.html بيحمّل game.js بـ type="module")
+    files: ["game.js", "game/*.js"],
+    languageOptions: { sourceType: "module", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }
   },
   {
     // sounds.js بيقرأ إعدادات التطبيق (settings) وقت التشغيل

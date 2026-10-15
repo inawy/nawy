@@ -40,7 +40,7 @@ npm test
 1. `CACHE_NAME` في `service-worker.js`
 2. `?v=` على رابط `manifest.json` و`styles.css` و`translations.js` و`sounds.js` و`share.js` و`sheet-gestures.js` و`banners.js` و`date-format.js` و`app.js` و`nawy-data.js` و`nawy-storage.js` و`nawy-backup.js` و`nawy-ui.js` في `index.html`
 3. `importScripts(...)` و`APP_SHELL` في `service-worker.js`
-4. `?v=` على رابط `game.js` في `game.html` (نفس الرقم)
+4. `?v=` على رابط `game.js` في `game.html` وعلى كل وحدة في الـ importmap اللي في `game.html` (نفس الرقم)
 
 التحديث يظهر للمستخدم كشريط «نسخة جديدة متاحة»، ولا يُعاد تحميل الصفحة بدون موافقته.
 

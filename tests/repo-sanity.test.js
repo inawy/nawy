@@ -406,12 +406,31 @@ test("manual export counts as a backup and permanent deletes are undoable", () =
 
 test("game.html loads game.js (no inline game script) with the same ?v= as the app", () => {
   const game = read("game.html");
-  assert.ok(!/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/.test(game), "game.html must have no inline script");
-  const v = game.match(/<script src="\.\/game\.js\?v=([\w.]+)"><\/script>/);
-  assert.ok(v, "game.html must load game.js with ?v=");
+  assert.ok(
+    !/<script(?![^>]*\b(?:src=|type="importmap"))[^>]*>[\s\S]*?<\/script>/.test(game),
+    "game.html must have no inline script"
+  );
+  const v = game.match(/<script type="module" src="\.\/game\.js\?v=([\w.]+)"><\/script>/);
+  assert.ok(v, "game.html must load game.js as a module with ?v=");
   const sw =
     read("service-worker.js").match(/CACHE_NAME = "nawy-v([\w.]+)"/) ||
     read("service-worker.js").match(/CACHE_NAME\s*=\s*["'][^"']*?([\d.]+)["']/);
   assert.ok(sw && sw[1] === v[1], "game.js ?v= must equal the app version: " + (sw && sw[1]) + " vs " + v[1]);
   assert.ok(fs.existsSync(path.join(ROOT, "game.js")));
+  // الوحدات بتتحمّل عن طريق importmap في game.html: كل مدخل لازم يشاور على ملف موجود بنفس ?v=،
+  // وكل import في اللعبة لازم يستخدم اسم من الـ map (مش مسار نسبي بدون ?v=)
+  const map = game.match(/<script type="importmap">([\s\S]*?)<\/script>/);
+  assert.ok(map, "game.html must have an importmap");
+  const imports = JSON.parse(map[1]).imports;
+  for (const [name, target] of Object.entries(imports)) {
+    const m = target.match(/^\.\/([^?]+)\?v=([\w.]+)$/);
+    assert.ok(m && m[2] === v[1], "importmap " + name + " must carry the app version: " + target);
+    assert.ok(fs.existsSync(path.join(ROOT, m[1])), "importmap target missing: " + target);
+  }
+  const files = ["game.js", ...fs.readdirSync(path.join(ROOT, "game")).map(f => "game/" + f)];
+  for (const f of files) {
+    for (const m of read(f).matchAll(/(?:import|export)[^;]*?from\s+"([^"]+)"/g)) {
+      assert.ok(imports[m[1]], f + ": import must use an importmap name: " + m[1]);
+    }
+  }
 });
