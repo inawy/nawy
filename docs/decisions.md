@@ -550,3 +550,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - `game/share-card.js` exports `generateShareCard(canvas, { score, starCount, combo, isRecord })`: it no longer reads game state, only draws on the canvas it is given. The share modal (blob, download, Web Share) stays in `game.js` because it touches the DOM.
 - Verified: in Chromium the new module and the old function (taken from `main`) produce byte-identical 1080×1920 PNG data for two sample runs (a record and a zero run). Version: 1.59.4.
+
+## 066 — Game module tests use `node:test`, not Vitest (step 4)
+
+- `tests/game-modules.test.js` covers `game/util.js`, `particles.js`, `share-card.js` and `sound.js` (7 tests: clamp/rand/pick, rounded-rect path, face symmetry, pool reuse, particle cap/aging/recycling, share-card size and texts, mute persistence). It runs inside the existing `npm test` (`node --test`), so no new dependency.
+- Vitest was the plan, but the project already tests with `node:test`, the registry is blocked in this sandbox, and the modules are plain ES. The test resolves the bare `nawy-game/*` names from the same importmap in `game.html` (via `module.registerHooks`, Node 22.15+; CI uses Node 22). Vitest can still be added later if watch mode or DOM mocks are needed.
+- Verified by mutation: breaking `clamp` and the pool reuse each made tests fail. Tests only, so no version bump.
