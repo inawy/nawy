@@ -545,3 +545,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - `game/particles.js` owns `makePool`, `particlePool`, the live `particles` array (mutated in place, never reassigned), `MAX_PARTICLES`, the dust/spark/confetti bursts and `updateParticles`. `game.js` keeps drawing and the obstacle pool (it imports `makePool`). No behavior change.
 - Limit: checked by playing in Chromium (no errors); particles were not compared pixel by pixel. Version: 1.59.3.
+
+## 065 — Game share-card drawing is its own module
+
+- `game/share-card.js` exports `generateShareCard(canvas, { score, starCount, combo, isRecord })`: it no longer reads game state, only draws on the canvas it is given. The share modal (blob, download, Web Share) stays in `game.js` because it touches the DOM.
+- Verified: in Chromium the new module and the old function (taken from `main`) produce byte-identical 1080×1920 PNG data for two sample runs (a record and a zero run). Version: 1.59.4.
