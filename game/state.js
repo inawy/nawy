@@ -56,3 +56,29 @@ export const obstacles = [];
 export const stars = [];
 export const powerups = [];
 export const clouds = [];
+
+/** اللاعب (ناوي): بيتعدّل في مكانه. */
+export const player = {
+  x: 80,
+  y: 0,
+  size: 40,
+  vy: 0,
+  grounded: true,
+  coyote: 0,
+  jumpBuf: 0,
+  squash: 1,
+  rotation: 0,
+  blinkTimer: 2,
+  blinking: 0,
+  mood: "idle",
+  moodTimer: 0,
+  shield: 0,
+  magnet: 0,
+  deathT: -1,
+  deathVy: 0,
+  jumpStartY: 0,
+  reachedMinHeight: false
+};
+
+/** مدة أنيميشن الموت بالثواني. */
+export const DEATH_DUR = 0.85;
