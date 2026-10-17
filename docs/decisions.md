@@ -574,3 +574,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `render()` and the `draw*` helpers (stars, power-ups, obstacles, player, particles, background) moved to `game/render.js`. It reads everything from `S`, the live-object arrays, `player` and `DEATH_DUR` (now exported from `game/state.js` next to `S`), and draws on the context given once through `initRenderer(ctx)`; `game.js` only calls `render()`.
 - Verified with the same deterministic replay as decision 068, comparing the served `main` (1.59.6) with this change (1.59.7): identical score/stars/combo and identical canvas pixels at 9 checkpoints; lint, type-check and 112 tests clean.
 - Limit: one scripted run, Chromium only. Version: 1.59.7.
+
+## 070 — Game spawners are their own module (`game/spawn.js`)
+
+- Difficulty and spawning (`getDifficulty`, `spawnObstacle`, `spawnStarArc`, `spawnPowerup`, `getObstacleSpawnX`, the obstacle pool and the recent-obstacle history) moved to `game/spawn.js`. It uses only `S`, `player`, the live arrays and the util helpers, with no DOM. The history is reset through `resetSpawner()` when a new run starts (lint caught the dangling reference).
+- `update()`, ambient/death updates, input and UI stay in `game.js` for now: they touch DOM chips, `jumpHeld` and callbacks (`gameOver`, `doJump`, `setMood`), so moving them needs explicit hooks first.
+- Verified with a longer deterministic replay (160 steps, scripted jumps, several deaths and restarts): `main` (1.59.7) and this change (1.59.8) give identical score/stars/combo and canvas pixels at 21 checkpoints; lint, type-check and 112 tests clean.
+- Limit: one scripted run, Chromium only. Version: 1.59.8.
