@@ -212,3 +212,38 @@ test("sprites: createSprites sizes every sprite from the scene size", async () =
     delete globalThis.document;
   }
 });
+
+test("clouds: spawn on the timer, drift left with the world speed and are removed off screen", async () => {
+  const { S, clouds } = await load("nawy-game/state");
+  const { updateClouds } = await load("nawy-game/clouds");
+  Object.assign(S, { W: 400, H: 800, groundY: 600, state: "playing", speed: 5, cloudTimer: 0 });
+  S.cloudSprites = [{ width: 100, height: 50 }];
+  clouds.length = 0;
+  withRandom([0.5], () => updateClouds(0.1));
+  assert.equal(clouds.length, 1, "timer elapsed -> one cloud");
+  assert.ok(S.cloudTimer > 5, "timer is re-armed to 6-12 s");
+  const x0 = clouds[0].x;
+  withRandom([0.5], () => updateClouds(0.5));
+  assert.ok(clouds[0].x < x0, "cloud moved left");
+  clouds[0].x = -500;
+  withRandom([0.5], () => updateClouds(0.1));
+  assert.equal(clouds.length, 0, "off-screen cloud removed");
+  clouds.length = 0;
+});
+
+test("portrait: each mood draws its own eye pair on the canvas it is given", async () => {
+  const { drawNawyPortrait } = await load("nawy-game/portrait");
+  const eyesOf = mood => {
+    const { ctx, calls } = fakeCtx();
+    drawNawyPortrait({ width: 100, height: 120, getContext: () => ctx }, mood);
+    assert.deepEqual(calls[0], ["clearRect", 0, 0, 100, 120]);
+    const body = calls.find(c => c[0] === "arc");
+    assert.equal(body[3], (100 / 2) * 0.86, "body radius from the smaller side");
+    return calls.map(c => c[0]).join(",");
+  };
+  const sad = eyesOf("sad");
+  const idle = eyesOf("idle");
+  assert.notEqual(sad, idle, "sad (x eyes) differs from idle (dot + slash)");
+  assert.notEqual(eyesOf("record"), idle, "record (star eyes) differs");
+  assert.notEqual(eyesOf("paused"), idle, "paused (closed eyes) differs");
+});
