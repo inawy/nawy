@@ -581,3 +581,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `update()`, ambient/death updates, input and UI stay in `game.js` for now: they touch DOM chips, `jumpHeld` and callbacks (`gameOver`, `doJump`, `setMood`), so moving them needs explicit hooks first.
 - Verified with a longer deterministic replay (160 steps, scripted jumps, several deaths and restarts): `main` (1.59.7) and this change (1.59.8) give identical score/stars/combo and canvas pixels at 21 checkpoints; lint, type-check and 112 tests clean.
 - Limit: one scripted run, Chromium only. Version: 1.59.8.
+
+## 071 — Game per-frame update is its own module, with hooks for the DOM (`game/update.js`)
+
+- `update`, `updateAmbient`, `updateDeath` (player physics, collisions, stars, power-ups, timers) moved to `game/update.js`; the tuning constants moved to `game/constants.js` and `setMood` to `game/state.js`.
+- The module never touches the DOM: `game.js` registers one `initUpdate({...})` object (jump held, jump, game over, thought tick, score/stars/combo text, shield/magnet seconds and chip visibility). The hook list is typed (`UpdateHooks` JSDoc), so a missing hook is a type error in CI.
+- Verified with the deterministic replay (160 steps, several deaths and restarts), now also logging the shield/magnet/combo chip classes and texts: `main` (1.59.8) and this change (1.59.9) are identical at 21 checkpoints, including shield and magnet states; lint, type-check and 112 tests clean.
+- Limit: one scripted run, Chromium only. Left in `game.js`: input, UI/toasts/thoughts, share modal, game flow, loop. Version: 1.59.9.
