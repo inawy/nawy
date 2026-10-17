@@ -594,3 +594,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `game/clouds.js` (`spawnCloud`, `updateClouds`, state-only) and `game/portrait.js` (`drawNawyPortrait`, draws on the canvas it is given) moved out of `game.js`; two unit tests added (114 tests).
 - Verified with the deterministic replay, which now also hashes the overlay portrait canvas and the overlay class (6 distinct portrait states seen): `main` (1.59.9) and this change (1.59.10) are identical at 21 checkpoints; lint and type-check clean.
 - Limit: one scripted run, Chromium only. Left in `game.js`: resize, input, UI (toasts/thoughts), share modal, game flow, loop. Version: 1.59.10.
+
+## 073 — Game share modal is its own module (`game/share-modal.js`)
+
+- The share modal (card preview, blob cache, share image / share text / download, close) moved to `game/share-modal.js`. `initShareModal({ showToast })` finds its own elements and wires its listeners; the only thing it takes from `game.js` is `showToast`.
+- Verified with a dedicated old-vs-new check (seeded run to game over, then open the modal with stubbed `navigator.share/canShare/clipboard`): the card PNG (same hash and byte size), modal classes, download filename, share/clipboard payloads and toast are identical on `main` (1.59.10) and this change (1.59.11); the gameplay replay is identical too; lint, type-check and 114 tests clean.
+- Limit: stubbed share APIs, Chromium only, no real share sheet. Version: 1.59.11.
