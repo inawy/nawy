@@ -82,3 +82,9 @@ export const player = {
 
 /** مدة أنيميشن الموت بالثواني. */
 export const DEATH_DUR = 0.85;
+
+/** بيغيّر حالة ناوي المزاجية لمدة d ثانية. */
+export function setMood(m, d) {
+  player.mood = m;
+  player.moodTimer = d || 0;
+}
