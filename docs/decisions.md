@@ -568,3 +568,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - The rename (205 references) was done with a scope-aware codemod using the TypeScript compiler API (symbol resolution, so shadowed locals and property names are untouched), not text replace. `speed` is set from `BASE_SPEED` in `game.js` at start.
 - Verified: lint and type-check clean, 112 tests pass, and a deterministic replay (seeded `Math.random`, fake clock and `requestAnimationFrame`, scripted keys, 720 frames) produced identical score/stars/combo and identical canvas pixels on `main` and on this change at 9 checkpoints.
 - Version: 1.59.6.
+
+## 069 — Game drawing is its own module (`game/render.js`)
+
+- `render()` and the `draw*` helpers (stars, power-ups, obstacles, player, particles, background) moved to `game/render.js`. It reads everything from `S`, the live-object arrays, `player` and `DEATH_DUR` (now exported from `game/state.js` next to `S`), and draws on the context given once through `initRenderer(ctx)`; `game.js` only calls `render()`.
+- Verified with the same deterministic replay as decision 068, comparing the served `main` (1.59.6) with this change (1.59.7): identical score/stars/combo and identical canvas pixels at 9 checkpoints; lint, type-check and 112 tests clean.
+- Limit: one scripted run, Chromium only. Version: 1.59.7.
