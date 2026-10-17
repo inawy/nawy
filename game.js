@@ -1,6 +1,14 @@
 import { clamp, rand } from "nawy-game/util";
 import { particlePool, particles, burstDust, burstConfetti, updateParticles } from "nawy-game/particles";
 import { initShareModal } from "nawy-game/share-modal";
+import {
+  THOUGHT_DURATION_MS,
+  showToast,
+  queueThought,
+  updatePendingThought,
+  updateThoughtPos,
+  resetThoughts
+} from "nawy-game/ui";
 import { S, obstacles, stars, powerups, player, setMood } from "nawy-game/state";
 import { obstaclePool, spawnPowerup, resetSpawner } from "nawy-game/spawn";
 import { render, initRenderer } from "nawy-game/render";
@@ -53,9 +61,6 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
   const ovText = byId("ovText");
   const ovBtn = byId("ovBtn");
   const ovShareBtn = byId("ovShareBtn");
-  const toastEl = byId("toast");
-  const thoughtEl = byId("thought");
-  const thoughtText = byId("thoughtText");
   const muteBtn = byId("muteBtn");
   const pauseBtn = byId("pauseBtn");
   const exitBtn = byId("exitBtn");
@@ -272,78 +277,6 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
   });
 
   /* ============================================================
-   UI
-   ============================================================ */
-  let toastQueue = [];
-  let toastBusy = false;
-  function processToastQueue() {
-    if (toastBusy || toastQueue.length === 0) return;
-    toastBusy = true;
-    const text = toastQueue.shift();
-    toastEl.textContent = text;
-    toastEl.classList.add("show");
-    setTimeout(() => {
-      toastEl.classList.remove("show");
-      setTimeout(() => {
-        toastBusy = false;
-        processToastQueue();
-      }, 180);
-    }, 1300);
-  }
-  function showToast(text) {
-    // لو في رسالة ظاهرة وواحدة منتظرة بالفعل، ما نزودش الزحمة
-    if (toastBusy && toastQueue.length >= 1) return;
-    toastQueue.push(text);
-    processToastQueue();
-  }
-
-  const THOUGHT_DURATION_MS = 1900;
-  /** @type {any} */
-  let thoughtTimeout = null;
-  let thoughtVisible = false;
-  function showThought(text) {
-    thoughtText.textContent = text;
-    thoughtVisible = true;
-    thoughtEl.classList.add("show");
-    clearTimeout(thoughtTimeout);
-    thoughtTimeout = setTimeout(() => {
-      thoughtVisible = false;
-      thoughtEl.classList.remove("show");
-    }, THOUGHT_DURATION_MS);
-    updateThoughtPos();
-  }
-  function updateThoughtPos() {
-    if (!thoughtVisible) return;
-    // بيتابع مكان ناوي الفعلي كل فريم (بما فيه وقت القفز) — نفس نظام إحداثيات اللعب
-    thoughtEl.style.left = player.x + player.size * 0.55 + "px";
-    thoughtEl.style.top = player.y - 6 + "px";
-  }
-
-  /** @type {any} */
-  let pendingThought = null;
-  let pendingThoughtWait = 0;
-  function queueThought(text) {
-    pendingThought = text;
-    pendingThoughtWait = 0;
-  }
-  function isPathClear() {
-    // مفيش عقبة في مسافة كافية قدام ناوي — عشان يقدر يقرا من غير ما يخبط
-    const safeGap = S.W * 0.35;
-    for (const o of obstacles) {
-      if (o.x + o.w > player.x && o.x < player.x + safeGap) return false;
-    }
-    return true;
-  }
-  function updatePendingThought(dt) {
-    if (!pendingThought) return;
-    pendingThoughtWait += dt;
-    if (!thoughtVisible && (isPathClear() || pendingThoughtWait > 3)) {
-      showThought(pendingThought);
-      pendingThought = null;
-      pendingThoughtWait = 0;
-    }
-  }
-  /* ============================================================
    NAWY MINI PORTRAIT (overlay)
    ============================================================ */
   function showOverlay(opt) {
@@ -420,11 +353,7 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
     shieldChip.classList.remove("show");
     magnetChip.classList.remove("show");
     hintEl.classList.remove("fade-out");
-    clearTimeout(thoughtTimeout);
-    thoughtVisible = false;
-    thoughtEl.classList.remove("show");
-    pendingThought = null;
-    pendingThoughtWait = 0;
+    resetThoughts();
     queueThought(START_MESSAGE);
 
     overlay.classList.add("hidden");

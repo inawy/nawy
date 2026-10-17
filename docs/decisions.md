@@ -600,3 +600,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - The share modal (card preview, blob cache, share image / share text / download, close) moved to `game/share-modal.js`. `initShareModal({ showToast })` finds its own elements and wires its listeners; the only thing it takes from `game.js` is `showToast`.
 - Verified with a dedicated old-vs-new check (seeded run to game over, then open the modal with stubbed `navigator.share/canShare/clipboard`): the card PNG (same hash and byte size), modal classes, download filename, share/clipboard payloads and toast are identical on `main` (1.59.10) and this change (1.59.11); the gameplay replay is identical too; lint, type-check and 114 tests clean.
 - Limit: stubbed share APIs, Chromium only, no real share sheet. Version: 1.59.11.
+
+## 074 — Game toast and thought bubble are their own module (`game/ui.js`)
+
+- `game/ui.js` owns the toast queue, the thought bubble (show/follow Nawy/pending until the path is clear) and the `THOUGHT_DURATION_MS` timing; it finds its own elements. `game.js` imports `showToast`, `queueThought`, `updatePendingThought`, `updateThoughtPos`, `resetThoughts`.
+- Verified: the gameplay replay now also logs the thought bubble class/text/position and the toast (9 distinct states, position tracked every frame) and is identical between `main` (1.59.11) and this change (1.59.12); the share-modal check (which shows a toast) is identical too; lint, type-check, 114 tests clean.
+- Limit: Chromium only, scripted run. Left in `game.js`: resize, input, overlay, game flow, loop. Version: 1.59.12.
