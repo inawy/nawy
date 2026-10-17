@@ -556,3 +556,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `tests/game-modules.test.js` covers `game/util.js`, `particles.js`, `share-card.js` and `sound.js` (7 tests: clamp/rand/pick, rounded-rect path, face symmetry, pool reuse, particle cap/aging/recycling, share-card size and texts, mute persistence). It runs inside the existing `npm test` (`node --test`), so no new dependency.
 - Vitest was the plan, but the project already tests with `node:test`, the registry is blocked in this sandbox, and the modules are plain ES. The test resolves the bare `nawy-game/*` names from the same importmap in `game.html` (via `module.registerHooks`, Node 22.15+; CI uses Node 22). Vitest can still be added later if watch mode or DOM mocks are needed.
 - Verified by mutation: breaking `clamp` and the pool reuse each made tests fail. Tests only, so no version bump.
+
+## 067 — Game background sprites are their own module
+
+- `game/sprites.js` exports `createSprites(W, H, groundY)`, which builds the sky, sun, cloud, hill and ground canvases and returns them with `groundTop`. `game.js` keeps its sprite variables and a thin `buildSprites()` that assigns the result, so the draw code is unchanged.
+- Verified: in Chromium the new module and the old code (from `main`) produce identical canvases at 390×780, 800×450 and 1280×720; plus a unit test of the sizing. Version: 1.59.5.

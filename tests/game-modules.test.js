@@ -185,3 +185,30 @@ test("sound: mute flag is read from and persisted to localStorage", async () => 
     delete globalThis.localStorage;
   }
 });
+
+test("sprites: createSprites sizes every sprite from the scene size", async () => {
+  const made = [];
+  globalThis.document = {
+    createElement: () => {
+      const { ctx } = fakeCtx();
+      const cv = { width: 0, height: 0, getContext: () => ctx };
+      made.push(cv);
+      return cv;
+    }
+  };
+  try {
+    const { createSprites } = await load("nawy-game/sprites");
+    const s = createSprites(400, 800, 600);
+    assert.deepEqual([s.skySprite.width, s.skySprite.height], [400, 601]);
+    assert.deepEqual([s.farHillsSprite.width, s.nearHillsSprite.width], [400, 400]);
+    assert.equal(s.groundTop, 586);
+    assert.deepEqual([s.groundSprite.width, s.groundSprite.height], [400, 800 - 586]);
+    assert.equal(s.cloudSprites.length, 2);
+    assert.equal(s.sunSprite.cx, s.sunSprite.width / 2);
+    assert.equal(made.length, 7, "sky, sun, 2 clouds, far hills, near hills, ground");
+    // عرض صغير جدًا مبيطلعش canvas بعرض صفر
+    assert.equal(createSprites(0, 100, 50).skySprite.width, 1);
+  } finally {
+    delete globalThis.document;
+  }
+});
