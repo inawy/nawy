@@ -1,9 +1,11 @@
-import { TAU, FACE, drawNawyFace, clamp, rand } from "nawy-game/util";
+import { clamp, rand } from "nawy-game/util";
 import { particlePool, particles, burstDust, burstConfetti, updateParticles } from "nawy-game/particles";
 import { generateShareCard } from "nawy-game/share-card";
-import { S, obstacles, stars, powerups, clouds, player, setMood } from "nawy-game/state";
+import { S, obstacles, stars, powerups, player, setMood } from "nawy-game/state";
 import { obstaclePool, spawnPowerup, resetSpawner } from "nawy-game/spawn";
 import { render, initRenderer } from "nawy-game/render";
+import { spawnCloud, updateClouds } from "nawy-game/clouds";
+import { drawNawyPortrait } from "nawy-game/portrait";
 import {
   JUMP_V,
   BASE_SPEED,
@@ -152,35 +154,6 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
     const t = (S.worldTime % SUN_CYCLE) / SUN_CYCLE;
     S.sunPos.x = S.W * (0.82 - t * 0.64);
     S.sunPos.y = S.H * 0.1 + Math.sin(t * Math.PI) * S.H * 0.1;
-  }
-
-  /* ============================================================
-   CLOUDS
-   ============================================================ */
-  function spawnCloud() {
-    const variant = (Math.random() * S.cloudSprites.length) | 0;
-    const spr = S.cloudSprites[variant];
-    clouds.push({
-      x: S.W + 40,
-      y: rand(S.H * 0.08, S.groundY * 0.32),
-      w: spr.width,
-      h: spr.height,
-      variant,
-      spd: rand(5, 11)
-    });
-  }
-  function updateClouds(dt) {
-    const worldSpeed = S.state === "playing" ? S.speed * 60 : 60;
-    S.cloudTimer -= dt;
-    if (S.cloudTimer <= 0) {
-      spawnCloud();
-      S.cloudTimer = rand(6, 12);
-    }
-    for (let i = clouds.length - 1; i >= 0; i--) {
-      const c = clouds[i];
-      c.x -= (c.spd + worldSpeed * 0.04) * dt;
-      if (c.x + c.w < -40) clouds.splice(i, 1);
-    }
   }
 
   /* ============================================================
@@ -380,41 +353,6 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
   /* ============================================================
    NAWY MINI PORTRAIT (overlay)
    ============================================================ */
-  function drawNawyPortrait(canvas, mood) {
-    const c = ctx2d(canvas);
-    const w = canvas.width,
-      h = canvas.height;
-    c.clearRect(0, 0, w, h);
-
-    const cx = w / 2,
-      cy = h / 2,
-      R = (Math.min(w, h) / 2) * 0.86;
-
-    // جسم ناوي
-    c.fillStyle = "#3D7BFF";
-    c.beginPath();
-    c.arc(cx, cy, R, 0, TAU);
-    c.fill();
-
-    // لمعة
-    c.globalAlpha = 0.32;
-    c.fillStyle = "#ffffff";
-    c.beginPath();
-    c.ellipse(cx + FACE.shineX * R, cy + FACE.shineY * R, FACE.shineW * R, FACE.shineH * R, FACE.shineRot, 0, TAU);
-    c.fill();
-    c.globalAlpha = 1;
-
-    if (mood === "sad") {
-      drawNawyFace(c, cx, cy, R, "x", "x");
-    } else if (mood === "record") {
-      drawNawyFace(c, cx, cy, R, "star", "star");
-    } else if (mood === "paused") {
-      drawNawyFace(c, cx, cy, R, "closed", "closed");
-    } else {
-      drawNawyFace(c, cx, cy, R, "dot", "slash");
-    }
-  }
-
   function showOverlay(opt) {
     drawNawyPortrait(ovNawy, opt.mood || "idle");
     ovTitle.textContent = opt.title;
