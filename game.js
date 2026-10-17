@@ -9,6 +9,7 @@ import {
   updateParticles
 } from "nawy-game/particles";
 import { generateShareCard } from "nawy-game/share-card";
+import { S, obstacles, stars, powerups, clouds } from "nawy-game/state";
 import { createSprites } from "nawy-game/sprites";
 import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game/sound";
 
@@ -86,67 +87,13 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   /* ============================================================
    STATE
    ============================================================ */
-  let W = 0,
-    H = 0,
-    groundY = 0;
-  let state = "ready";
-  let ovAction = "start";
-  let score = 0,
-    lastShown = -1,
-    milestone = 0;
-  let starCount = 0,
-    combo = 0;
-  let speed = BASE_SPEED;
-  let best = 0;
-  try {
-    best = Number(localStorage.getItem("nawy.best.v14")) || 0;
-  } catch (e) {}
-
-  let shake = 0;
-  let lastShieldShown = -1,
-    lastMagnetShown = -1;
-  let hitStop = 0;
-  let obstacleTimer = 0,
-    starTimer = 0,
-    powerTimer = 0,
-    cloudTimer = 0;
-  let hillOff1 = 0,
-    hillOff2 = 0,
-    groundOff = 0;
-  let overAt = 0;
-  let worldTime = 0;
-  let lastRunRecord = false;
-
-  let sunPos = { x: 0, y: 0 };
-
-  const obstacles = [];
-  const stars = [];
-  const powerups = [];
-  const clouds = [];
+  S.speed = BASE_SPEED;
 
   /* ============================================================
    🎨 SPRITES
    ============================================================ */
-  /** @type {any} */
-  let skySprite = null;
-  /** @type {any} */
-  let sunSprite = null;
-  /** @type {any[]} */
-  let cloudSprites = [];
-  /** @type {any} */
-  let farHillsSprite = null;
-  /** @type {any} */
-  let nearHillsSprite = null;
-  /** @type {any} */
-  let groundSprite = null;
-  let groundTop = 0;
-
   function buildSprites() {
-    ({ skySprite, sunSprite, cloudSprites, farHillsSprite, nearHillsSprite, groundSprite, groundTop } = createSprites(
-      W,
-      H,
-      groundY
-    ));
+    Object.assign(S, createSprites(S.W, S.H, S.groundY));
   }
 
   /* ============================================================
@@ -189,8 +136,8 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   // متتفرقش بين موبايل ضيق وتابلت واسع عند نفس السرعة
   const MIN_REACTION_TIME = 0.6;
   function getObstacleSpawnX() {
-    const dxNow = speed * 60;
-    return Math.max(W + 40, player.x + 40 + MIN_REACTION_TIME * dxNow);
+    const dxNow = S.speed * 60;
+    return Math.max(S.W + 40, player.x + 40 + MIN_REACTION_TIME * dxNow);
   }
 
   /* ============================================================
@@ -207,15 +154,15 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     const nW = Math.max(1, Math.round(rect.width));
     const nH = Math.max(1, Math.round(rect.height));
 
-    if (nW === lastResizeW && nH === lastResizeH && groundY) return;
+    if (nW === lastResizeW && nH === lastResizeH && S.groundY) return;
     lastResizeW = nW;
     lastResizeH = nH;
 
-    W = nW;
-    H = nH;
+    S.W = nW;
+    S.H = nH;
 
-    let rw = W,
-      rh = H;
+    let rw = S.W,
+      rh = S.H;
     if (rw > RENDER_MAX_W) {
       const s = RENDER_MAX_W / rw;
       rw = RENDER_MAX_W;
@@ -225,25 +172,25 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     canvas.width = rw;
     canvas.height = rh;
 
-    const sx = rw / W;
-    const sy = rh / H;
+    const sx = rw / S.W;
+    const sy = rh / S.H;
     ctx.setTransform(sx, 0, 0, sy, 0, 0);
 
-    const oldGround = groundY;
-    groundY = Math.round(H - Math.max(60, H * 0.18));
-    player.size = clamp(Math.round(H * 0.082), 26, 42);
+    const oldGround = S.groundY;
+    S.groundY = Math.round(S.H - Math.max(60, S.H * 0.18));
+    player.size = clamp(Math.round(S.H * 0.082), 26, 42);
 
     if (!oldGround) {
-      player.y = groundY - player.size;
-    } else if (oldGround !== groundY) {
-      const dy = groundY - oldGround;
+      player.y = S.groundY - player.size;
+    } else if (oldGround !== S.groundY) {
+      const dy = S.groundY - oldGround;
       for (const o of obstacles) o.y += dy;
       for (const s of stars) s.y += dy;
       for (const p of powerups) p.y += dy;
-      if (state === "playing") player.y += dy;
-      else player.y = groundY - player.size;
+      if (S.state === "playing") player.y += dy;
+      else player.y = S.groundY - player.size;
     }
-    player.x = Math.max(46, W * 0.14);
+    player.x = Math.max(46, S.W * 0.14);
 
     buildSprites();
   }
@@ -252,20 +199,20 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
 
   function updateSunPos() {
-    const t = (worldTime % SUN_CYCLE) / SUN_CYCLE;
-    sunPos.x = W * (0.82 - t * 0.64);
-    sunPos.y = H * 0.1 + Math.sin(t * Math.PI) * H * 0.1;
+    const t = (S.worldTime % SUN_CYCLE) / SUN_CYCLE;
+    S.sunPos.x = S.W * (0.82 - t * 0.64);
+    S.sunPos.y = S.H * 0.1 + Math.sin(t * Math.PI) * S.H * 0.1;
   }
 
   /* ============================================================
    CLOUDS
    ============================================================ */
   function spawnCloud() {
-    const variant = (Math.random() * cloudSprites.length) | 0;
-    const spr = cloudSprites[variant];
+    const variant = (Math.random() * S.cloudSprites.length) | 0;
+    const spr = S.cloudSprites[variant];
     clouds.push({
-      x: W + 40,
-      y: rand(H * 0.08, groundY * 0.32),
+      x: S.W + 40,
+      y: rand(S.H * 0.08, S.groundY * 0.32),
       w: spr.width,
       h: spr.height,
       variant,
@@ -273,11 +220,11 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     });
   }
   function updateClouds(dt) {
-    const worldSpeed = state === "playing" ? speed * 60 : 60;
-    cloudTimer -= dt;
-    if (cloudTimer <= 0) {
+    const worldSpeed = S.state === "playing" ? S.speed * 60 : 60;
+    S.cloudTimer -= dt;
+    if (S.cloudTimer <= 0) {
       spawnCloud();
-      cloudTimer = rand(6, 12);
+      S.cloudTimer = rand(6, 12);
     }
     for (let i = clouds.length - 1; i >= 0; i--) {
       const c = clouds[i];
@@ -333,7 +280,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
       // ظل خفيف
       ctx.fillStyle = "rgba(30,41,59,.12)";
       ctx.beginPath();
-      ctx.ellipse(o.x + o.w / 2, groundY + 3, o.w * 0.45, 3.5, 0, 0, TAU);
+      ctx.ellipse(o.x + o.w / 2, S.groundY + 3, o.w * 0.45, 3.5, 0, 0, TAU);
       ctx.fill();
 
       if (o.wide) {
@@ -396,19 +343,19 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     const R = s / 2;
 
     const dying = player.deathT >= 0;
-    const airH = clamp((groundY - player.y - s) / 170, 0, 1);
+    const airH = clamp((S.groundY - player.y - s) / 170, 0, 1);
 
     if (!dying || player.deathT < DEATH_DUR * 0.5) {
       ctx.globalAlpha = 0.14 * (1 - airH * 0.7);
       ctx.fillStyle = "#1e293b";
       ctx.beginPath();
-      ctx.ellipse(cx, groundY + 4, s * 0.42 * (1 - airH * 0.4), 4.5 * (1 - airH * 0.4), 0, 0, TAU);
+      ctx.ellipse(cx, S.groundY + 4, s * 0.42 * (1 - airH * 0.4), 4.5 * (1 - airH * 0.4), 0, 0, TAU);
       ctx.fill();
       ctx.globalAlpha = 1;
     }
 
     if (player.shield > 0 && !dying) {
-      const pulse = 1 + Math.sin(worldTime * 8) * 0.05;
+      const pulse = 1 + Math.sin(S.worldTime * 8) * 0.05;
       ctx.save();
       ctx.translate(cx, cy);
       ctx.scale(pulse, pulse);
@@ -444,7 +391,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
 
     // الوش بيبص لقدام (اتجاه الجري) شوية، وبيميل لفوق/تحت مع سرعة القفز والهبوط
     const lookX = 0.1 * R;
-    const lookY = state === "over" ? 0 : clamp(player.vy / 1400, -1, 1) * 0.04 * R;
+    const lookY = S.state === "over" ? 0 : clamp(player.vy / 1400, -1, 1) * 0.04 * R;
 
     if (mood === "hit") {
       drawNawyFace(ctx, lookX, lookY, R, "x", "x");
@@ -486,39 +433,39 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
    ============================================================ */
   function render() {
     ctx.save();
-    if (shake > 0.2) {
-      ctx.translate(rand(-shake, shake) * 0.4, rand(-shake, shake) * 0.4);
+    if (S.shake > 0.2) {
+      ctx.translate(rand(-S.shake, S.shake) * 0.4, rand(-S.shake, S.shake) * 0.4);
     }
 
-    ctx.drawImage(skySprite, 0, 0);
+    ctx.drawImage(S.skySprite, 0, 0);
 
-    ctx.drawImage(sunSprite, sunPos.x - sunSprite.cx, sunPos.y - sunSprite.cx);
+    ctx.drawImage(S.sunSprite, S.sunPos.x - S.sunSprite.cx, S.sunPos.y - S.sunSprite.cx);
 
     for (const c of clouds) {
-      const spr = cloudSprites[c.variant];
+      const spr = S.cloudSprites[c.variant];
       if (spr) ctx.drawImage(spr, c.x, c.y);
     }
 
-    const farY = groundY - farHillsSprite.height + 2;
-    const farOff = hillOff1 % W;
-    ctx.drawImage(farHillsSprite, -farOff, farY);
-    ctx.drawImage(farHillsSprite, W - farOff, farY);
+    const farY = S.groundY - S.farHillsSprite.height + 2;
+    const farOff = S.hillOff1 % S.W;
+    ctx.drawImage(S.farHillsSprite, -farOff, farY);
+    ctx.drawImage(S.farHillsSprite, S.W - farOff, farY);
 
-    const nearY = groundY - nearHillsSprite.height + 2;
-    const nearOff = hillOff2 % W;
-    ctx.drawImage(nearHillsSprite, -nearOff, nearY);
-    ctx.drawImage(nearHillsSprite, W - nearOff, nearY);
+    const nearY = S.groundY - S.nearHillsSprite.height + 2;
+    const nearOff = S.hillOff2 % S.W;
+    ctx.drawImage(S.nearHillsSprite, -nearOff, nearY);
+    ctx.drawImage(S.nearHillsSprite, S.W - nearOff, nearY);
 
-    const gOff = groundOff % W;
-    ctx.drawImage(groundSprite, -gOff, groundTop);
-    ctx.drawImage(groundSprite, W - gOff, groundTop);
+    const gOff = S.groundOff % S.W;
+    ctx.drawImage(S.groundSprite, -gOff, S.groundTop);
+    ctx.drawImage(S.groundSprite, S.W - gOff, S.groundTop);
 
     drawStars();
     drawPowerups();
     drawObstacles();
     drawParticles();
 
-    if (state !== "over" || player.deathT >= 0) drawPlayer();
+    if (S.state !== "over" || player.deathT >= 0) drawPlayer();
 
     ctx.restore();
   }
@@ -528,7 +475,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
    ============================================================ */
   function getDifficulty() {
     // منحنى أنعم وأعدل
-    return 1 - Math.exp(-score / 1600);
+    return 1 - Math.exp(-S.score / 1600);
   }
 
   let lastObstacleStyle = -1;
@@ -546,7 +493,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     o.x = x;
     o.w = w;
     o.h = h;
-    o.y = groundY - h;
+    o.y = S.groundY - h;
     o.wide = wide;
     o.passed = false;
     o.minGap = Infinity;
@@ -570,7 +517,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     const d = getDifficulty();
     const r = Math.random();
     const spawnX = getObstacleSpawnX();
-    const dxNow = speed * 60;
+    const dxNow = S.speed * 60;
 
     // فرصة لعقبة مزدوجة (اثنين قريبين) — الفجوة محسوبة بالزمن مش بالبكسل
     // الثابت، عشان صعوبتها المُدركة تفضل واحدة في أي سرعة حالية
@@ -637,13 +584,13 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   }
 
   function spawnStarArc() {
-    const startX = W + 90;
+    const startX = S.W + 90;
     for (const o of obstacles) {
       if (o.x < startX + 140 && o.x + o.w > startX - 40) return;
     }
     const d = getDifficulty();
     const n = d > 0.45 ? (Math.random() < 0.55 ? 4 : 5) : 3;
-    const baseY = groundY - rand(100, 145);
+    const baseY = S.groundY - rand(100, 145);
     for (let i = 0; i < n; i++) {
       stars.push({
         x: startX + i * 34,
@@ -658,8 +605,8 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     if (powerups.length >= 1 && !force) return;
     const type = Math.random() < 0.55 ? "shield" : "magnet";
     powerups.push({
-      x: W + 60,
-      y: groundY - rand(105, 170),
+      x: S.W + 60,
+      y: S.groundY - rand(105, 170),
       r: 15,
       type,
       bob: Math.random() * TAU
@@ -670,10 +617,10 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
    AMBIENT
    ============================================================ */
   function updateAmbient(dt) {
-    const worldSpeed = state === "playing" ? speed * 60 : 60;
-    hillOff1 += worldSpeed * 0.04 * dt;
-    hillOff2 += worldSpeed * 0.1 * dt;
-    groundOff += worldSpeed * dt;
+    const worldSpeed = S.state === "playing" ? S.speed * 60 : 60;
+    S.hillOff1 += worldSpeed * 0.04 * dt;
+    S.hillOff2 += worldSpeed * 0.1 * dt;
+    S.groundOff += worldSpeed * dt;
   }
   function updatePlayerMood(dt) {
     if (player.moodTimer > 0) {
@@ -721,11 +668,11 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
 
     player.y += player.vy * dt;
 
-    const floor = groundY - player.size;
+    const floor = S.groundY - player.size;
     if (player.y >= floor) {
       if (!player.grounded) {
         player.squash = 0.82;
-        burstDust(player.x + player.size / 2, groundY, 4);
+        burstDust(player.x + player.size / 2, S.groundY, 4);
         sfx("land");
       }
       player.y = floor;
@@ -755,33 +702,33 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
 
     updatePlayerMood(dt);
 
-    score += dt * (12 + getDifficulty() * 7);
-    const shown = Math.floor(score);
-    if (shown !== lastShown) {
-      lastShown = shown;
+    S.score += dt * (12 + getDifficulty() * 7);
+    const shown = Math.floor(S.score);
+    if (shown !== S.lastShown) {
+      S.lastShown = shown;
       scoreEl.textContent = String(shown);
     }
 
     // منحنى سرعة بنفس نسبة Dino (سرعة قصوى ≈ 2.3x البداية) لكن بنفس توقيته تقريبًا (~115 ثانية بدل ~52)
-    speed = Math.min(MAX_SPEED, BASE_SPEED + score * 0.0048);
+    S.speed = Math.min(MAX_SPEED, BASE_SPEED + S.score * 0.0048);
 
-    const ms = Math.floor(score / 100);
-    if (ms > milestone) {
-      milestone = ms;
+    const ms = Math.floor(S.score / 100);
+    if (ms > S.milestone) {
+      S.milestone = ms;
       sfx("milestone");
       setMood("happy", 0.65);
     }
     updatePendingThought(dt);
 
-    obstacleTimer -= dt;
-    if (obstacleTimer <= 0) {
+    S.obstacleTimer -= dt;
+    if (S.obstacleTimer <= 0) {
       spawnObstacle();
       const d = getDifficulty();
       const base = 1.55 - d * 0.68;
-      obstacleTimer = base * rand(0.86, 1.14);
+      S.obstacleTimer = base * rand(0.86, 1.14);
     }
 
-    const dx = speed * 60 * dt;
+    const dx = S.speed * 60 * dt;
 
     // hitbox أصغر شوية وأكثر عدلًا مع اللاعب
     const pHit = {
@@ -821,10 +768,10 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
       }
       if (!o.passed && o.x + o.w < player.x) {
         o.passed = true;
-        combo++;
-        comboEl.textContent = String(combo);
-        if (combo >= 2) comboStat.classList.add("show");
-        if (combo % 10 === 0) {
+        S.combo++;
+        comboEl.textContent = String(S.combo);
+        if (S.combo >= 2) comboStat.classList.add("show");
+        if (S.combo % 10 === 0) {
           setMood("focus", 0.45);
         }
         if (o.minGap < player.size * 0.3) {
@@ -833,11 +780,11 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
       }
     }
 
-    starTimer -= dt;
-    if (starTimer <= 0) {
+    S.starTimer -= dt;
+    if (S.starTimer <= 0) {
       spawnStarArc();
       const d = getDifficulty();
-      starTimer = rand(2.2, 4.5) * (1 - d * 0.28);
+      S.starTimer = rand(2.2, 4.5) * (1 - d * 0.28);
     }
 
     const pcx = player.x + player.size / 2;
@@ -870,19 +817,19 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
       if (ddx * ddx + ddy * ddy < rr * rr) {
         stars.splice(i, 1);
         // الكومبو يؤثر على قيمة النجمة
-        score += 10 * (1 + Math.floor(combo / 4) * 0.35);
-        starCount++;
-        starsEl.textContent = String(starCount);
+        S.score += 10 * (1 + Math.floor(S.combo / 4) * 0.35);
+        S.starCount++;
+        starsEl.textContent = String(S.starCount);
         burstSparkle(s.x, s.y, 6);
-        sfxCoin(Math.floor(combo / 4));
+        sfxCoin(Math.floor(S.combo / 4));
         setMood("happy", 0.45);
       }
     }
 
-    powerTimer -= dt;
-    if (powerTimer <= 0) {
+    S.powerTimer -= dt;
+    if (S.powerTimer <= 0) {
       spawnPowerup();
-      powerTimer = rand(8.5, 12.5);
+      S.powerTimer = rand(8.5, 12.5);
     }
 
     for (let i = powerups.length - 1; i >= 0; i--) {
@@ -911,28 +858,28 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
       player.shield -= dt;
       if (player.shield < 0) player.shield = 0;
       const sv = Math.ceil(player.shield);
-      if (sv !== lastShieldShown) {
-        lastShieldShown = sv;
+      if (sv !== S.lastShieldShown) {
+        S.lastShieldShown = sv;
         shieldTime.textContent = sv + "ث";
       }
       shieldChip.classList.add("show");
     } else {
       shieldChip.classList.remove("show");
-      lastShieldShown = -1;
+      S.lastShieldShown = -1;
     }
 
     if (player.magnet > 0) {
       player.magnet -= dt;
       if (player.magnet < 0) player.magnet = 0;
       const mv = Math.ceil(player.magnet);
-      if (mv !== lastMagnetShown) {
-        lastMagnetShown = mv;
+      if (mv !== S.lastMagnetShown) {
+        S.lastMagnetShown = mv;
         magnetTime.textContent = mv + "ث";
       }
       magnetChip.classList.add("show");
     } else {
       magnetChip.classList.remove("show");
-      lastMagnetShown = -1;
+      S.lastMagnetShown = -1;
     }
   }
 
@@ -940,21 +887,21 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
    INPUT
    ============================================================ */
   function doJump() {
-    player.vy = JUMP_V - speed * JUMP_SPEED_BOOST;
+    player.vy = JUMP_V - S.speed * JUMP_SPEED_BOOST;
     player.grounded = false;
     player.squash = 1.18;
     player.coyote = 0;
     player.jumpBuf = 0;
     player.jumpStartY = player.y;
     player.reachedMinHeight = false;
-    burstDust(player.x + player.size / 2, groundY, 4);
+    burstDust(player.x + player.size / 2, S.groundY, 4);
     sfx("jump");
     setMood("jump", 0.28);
     hintEl.classList.add("fade-out");
   }
 
   function jump() {
-    if (state !== "playing") return;
+    if (S.state !== "playing") return;
     jumpHeld = true;
     if (player.grounded || player.coyote > 0) {
       doJump();
@@ -969,15 +916,15 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
 
   function onTap(e) {
     if (e && e.preventDefault) e.preventDefault();
-    if (state === "playing") {
+    if (S.state === "playing") {
       jump();
       return;
     }
-    if (state === "paused") {
+    if (S.state === "paused") {
       resumeGame();
       return;
     }
-    if (state === "over" && performance.now() - overAt < 500) return;
+    if (S.state === "over" && performance.now() - S.overAt < 500) return;
     startGame();
   }
   canvas.addEventListener("pointerdown", onTap, { passive: false });
@@ -991,7 +938,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   ovBtn.addEventListener("click", e => {
     e.preventDefault();
     e.stopPropagation();
-    if (ovAction === "resume") {
+    if (S.ovAction === "resume") {
       resumeGame();
     } else {
       startGame();
@@ -1002,12 +949,12 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     if (e.code === "Space" || e.code === "ArrowUp" || e.code === "Enter") {
       e.preventDefault();
       if (e.repeat) return;
-      if (state === "playing") jump();
+      if (S.state === "playing") jump();
       else onTap(null);
     }
     if (e.code === "KeyP" || e.code === "Escape") {
-      if (state === "playing") pauseGame();
-      else if (state === "paused") resumeGame();
+      if (S.state === "playing") pauseGame();
+      else if (S.state === "paused") resumeGame();
     }
   });
   window.addEventListener("keyup", e => {
@@ -1035,8 +982,8 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   });
   pauseBtn.addEventListener("click", e => {
     e.stopPropagation();
-    if (state === "playing") pauseGame();
-    else if (state === "paused") resumeGame();
+    if (S.state === "playing") pauseGame();
+    else if (S.state === "paused") resumeGame();
   });
 
   function goBack() {
@@ -1115,7 +1062,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
   }
   function isPathClear() {
     // مفيش عقبة في مسافة كافية قدام ناوي — عشان يقدر يقرا من غير ما يخبط
-    const safeGap = W * 0.35;
+    const safeGap = S.W * 0.35;
     for (const o of obstacles) {
       if (o.x + o.w > player.x && o.x < player.x + safeGap) return false;
     }
@@ -1173,7 +1120,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     ovTitle.textContent = opt.title;
     ovText.innerHTML = opt.text;
     ovBtn.textContent = opt.btn;
-    ovAction = opt.action || "start";
+    S.ovAction = opt.action || "start";
     ovShareBtn.style.display = opt.showShare ? "flex" : "none";
     let badge = overlay.querySelector(".badge");
     if (opt.badge) {
@@ -1214,7 +1161,12 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
 
   function openShareModal() {
     const draw = () => {
-      generateShareCard(shareCanvas, { score, starCount, combo, isRecord: lastRunRecord });
+      generateShareCard(shareCanvas, {
+        score: S.score,
+        starCount: S.starCount,
+        combo: S.combo,
+        isRecord: S.lastRunRecord
+      });
       shareModal.classList.add("open");
 
       const token = ++shareBlobToken;
@@ -1249,7 +1201,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
       const url = shareCanvas.toDataURL("image/png");
       const a = document.createElement("a");
       a.href = url;
-      a.download = "nawy-score-" + Math.floor(score) + ".png";
+      a.download = "nawy-score-" + Math.floor(S.score) + ".png";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1262,7 +1214,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     if (cachedShareBlob) {
       const file = new File([cachedShareBlob], "nawy-score.png", { type: "image/png" });
       const shareUrl = "https://nawy.app/game";
-      const shareText = "وصلت لـ " + Math.floor(score) + " نقطة! هل تقدر تكسر رقمي؟ 🔥\n" + shareUrl;
+      const shareText = "وصلت لـ " + Math.floor(S.score) + " نقطة! هل تقدر تكسر رقمي؟ 🔥\n" + shareUrl;
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         navigator
@@ -1301,12 +1253,12 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     const text =
       "🎮 العب مع ناوي\n" +
       "أنا وصلت لـ " +
-      Math.floor(score) +
+      Math.floor(S.score) +
       " نقطة!\n" +
       "⭐ نجوم: " +
-      starCount +
+      S.starCount +
       "  🔥 سلسلة: " +
-      combo +
+      S.combo +
       "\n" +
       "هل تقدر تكسر رقمي؟ 💪\n" +
       shareUrl;
@@ -1343,22 +1295,22 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
    GAME FLOW
    ============================================================ */
   function startGame() {
-    if (state === "paused") {
+    if (S.state === "paused") {
       resumeGame();
       return;
     }
 
-    score = 0;
-    lastShown = -1;
-    milestone = 0;
-    starCount = 0;
-    combo = 0;
-    speed = BASE_SPEED;
-    obstacleTimer = THOUGHT_DURATION_MS / 1000; // نفس مدة ظهور رسالة "بسم الله" بالظبط، من غير ديلاي زيادة
-    starTimer = rand(1.4, 2.8);
-    powerTimer = 2.8;
-    shake = 0;
-    lastRunRecord = false;
+    S.score = 0;
+    S.lastShown = -1;
+    S.milestone = 0;
+    S.starCount = 0;
+    S.combo = 0;
+    S.speed = BASE_SPEED;
+    S.obstacleTimer = THOUGHT_DURATION_MS / 1000; // نفس مدة ظهور رسالة "بسم الله" بالظبط، من غير ديلاي زيادة
+    S.starTimer = rand(1.4, 2.8);
+    S.powerTimer = 2.8;
+    S.shake = 0;
+    S.lastRunRecord = false;
 
     for (const o of obstacles) obstaclePool.release(o);
     obstacleHistory = [];
@@ -1368,8 +1320,8 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     powerups.length = 0;
     particles.length = 0;
 
-    player.x = Math.max(46, W * 0.14);
-    player.y = groundY - player.size;
+    player.x = Math.max(46, S.W * 0.14);
+    player.y = S.groundY - player.size;
     player.vy = 0;
     player.grounded = true;
     player.squash = 1;
@@ -1403,12 +1355,12 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     pauseBtn.innerHTML = ICONS.pause;
 
     unlockAudio();
-    state = "playing";
+    S.state = "playing";
     spawnPowerup(true);
   }
   function pauseGame() {
-    if (state !== "playing") return;
-    state = "paused";
+    if (S.state !== "playing") return;
+    S.state = "paused";
     showOverlay({
       mood: "paused",
       title: "وقفة صغيرة",
@@ -1420,17 +1372,17 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     pauseBtn.innerHTML = ICONS.play;
   }
   function resumeGame() {
-    if (state !== "paused") return;
-    state = "playing";
+    if (S.state !== "paused") return;
+    S.state = "playing";
     overlay.classList.add("hidden");
     pauseBtn.innerHTML = ICONS.pause;
   }
   function gameOver() {
-    state = "over";
-    overAt = performance.now();
-    score = Math.floor(score);
-    shake = 3.5;
-    hitStop = 0.08;
+    S.state = "over";
+    S.overAt = performance.now();
+    S.score = Math.floor(S.score);
+    S.shake = 3.5;
+    S.hitStop = 0.08;
     sfx("hit");
     vibrate(50);
     setMood("hit", 5);
@@ -1441,29 +1393,29 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     burstConfetti(player.x + player.size / 2, player.y + player.size / 2, 12);
 
     let record = false;
-    if (score > best) {
-      best = score;
+    if (S.score > S.best) {
+      S.best = S.score;
       record = true;
       try {
-        localStorage.setItem("nawy.best.v14", String(best));
+        localStorage.setItem("nawy.best.v14", String(S.best));
       } catch (e) {}
-      bestEl.textContent = String(best);
+      bestEl.textContent = String(S.best);
       sfx("record");
       setMood("record", 5);
     }
-    lastRunRecord = record;
+    S.lastRunRecord = record;
 
     showOverlay({
       mood: record ? "record" : "sad",
       title: record ? "رقم قياسي جديد!" : "ناوي خبط!",
-      text: "نتيجتك: <b>" + score + "</b> — الأفضل: <b>" + best + "</b>",
+      text: "نتيجتك: <b>" + S.score + "</b> — الأفضل: <b>" + S.best + "</b>",
       btn: "حاول تاني",
       action: "start",
       showShare: true,
       badge: record ? "أحسنت! 🎉" : null
     });
 
-    if (record) burstConfetti(W * 0.5, H * 0.35, 14);
+    if (record) burstConfetti(S.W * 0.5, S.H * 0.35, 14);
   }
 
   /* ============================================================
@@ -1487,16 +1439,16 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     if (!isFinite(dt) || dt < 0) dt = 0;
     dt = Math.min(dt, 1 / 30);
 
-    if (hitStop > 0) {
-      hitStop -= dt;
+    if (S.hitStop > 0) {
+      S.hitStop -= dt;
       render();
       return;
     }
 
-    worldTime += dt;
+    S.worldTime += dt;
 
-    if (state === "playing") update(dt);
-    else if (state === "over") updateDeath(dt);
+    if (S.state === "playing") update(dt);
+    else if (S.state === "over") updateDeath(dt);
 
     updateAmbient(dt);
     updateClouds(dt);
@@ -1504,18 +1456,18 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
     updateSunPos();
     updateThoughtPos();
 
-    shake *= Math.exp(-10 * dt);
-    if (shake < 0.15) shake = 0;
+    S.shake *= Math.exp(-10 * dt);
+    if (S.shake < 0.15) S.shake = 0;
 
     render();
   }
 
   document.addEventListener("visibilitychange", () => {
-    if (document.hidden && state === "playing") pauseGame();
+    if (document.hidden && S.state === "playing") pauseGame();
     if (document.hidden) lastFrameTime = 0;
   });
   window.addEventListener("blur", () => {
-    if (state === "playing") pauseGame();
+    if (S.state === "playing") pauseGame();
     lastFrameTime = 0;
   });
 
@@ -1523,7 +1475,7 @@ import { isMuted, setMuted, unlockAudio, sfx, sfxCoin, vibrate } from "nawy-game
    INIT
    ============================================================ */
   function init() {
-    bestEl.textContent = String(best);
+    bestEl.textContent = String(S.best);
     drawNawyPortrait(ovNawy, "idle");
 
     resize();

@@ -561,3 +561,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - `game/sprites.js` exports `createSprites(W, H, groundY)`, which builds the sky, sun, cloud, hill and ground canvases and returns them with `groundTop`. `game.js` keeps its sprite variables and a thin `buildSprites()` that assigns the result, so the draw code is unchanged.
 - Verified: in Chromium the new module and the old code (from `main`) produce identical canvases at 390×780, 800×450 and 1280×720; plus a unit test of the sizing. Version: 1.59.5.
+
+## 068 — Game state moves to one shared object `S` (game/state.js)
+
+- The session/scene variables of `game.js` (size, state, score, speed, timers, offsets, sprites ...) now live in `S` exported from `game/state.js`; the live-object arrays (`obstacles`, `stars`, `powerups`, `clouds`) are exported from there too. Fields are mutated in place, never rebound, so any future module (physics, draw, input, UI) can import the same state without circular ownership.
+- The rename (205 references) was done with a scope-aware codemod using the TypeScript compiler API (symbol resolution, so shadowed locals and property names are untouched), not text replace. `speed` is set from `BASE_SPEED` in `game.js` at start.
+- Verified: lint and type-check clean, 112 tests pass, and a deterministic replay (seeded `Math.random`, fake clock and `requestAnimationFrame`, scripted keys, 720 frames) produced identical score/stars/combo and identical canvas pixels on `main` and on this change at 9 checkpoints.
+- Version: 1.59.6.
