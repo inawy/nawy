@@ -606,3 +606,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `game/ui.js` owns the toast queue, the thought bubble (show/follow Nawy/pending until the path is clear) and the `THOUGHT_DURATION_MS` timing; it finds its own elements. `game.js` imports `showToast`, `queueThought`, `updatePendingThought`, `updateThoughtPos`, `resetThoughts`.
 - Verified: the gameplay replay now also logs the thought bubble class/text/position and the toast (9 distinct states, position tracked every frame) and is identical between `main` (1.59.11) and this change (1.59.12); the share-modal check (which shows a toast) is identical too; lint, type-check, 114 tests clean.
 - Limit: Chromium only, scripted run. Left in `game.js`: resize, input, overlay, game flow, loop. Version: 1.59.12.
+
+## 075 — Game input is its own module (`game/input.js`)
+
+- Pointer/touch on the canvas, keyboard (Space/ArrowUp/Enter jump, P/Escape pause), the overlay button, pause/mute/exit buttons, `doJump`, the held-jump flag and the button icons moved to `game/input.js`. It finds its own elements; `game.js` passes only the flow functions: `initInput({ startGame, pauseGame, resumeGame })`, and imports `doJump`, `isJumpHeld` and `ICONS` back (`ICONS` is still used by pause/resume).
+- Verified with a dedicated input check on `main` (1.59.12) vs this change (1.59.13): canvas pointer down/up/leave/cancel, key hold/release, P and Escape, pause and overlay buttons, mute toggle (icon + stored value), the 500 ms restart guard after game over, restart and the exit button give identical score, overlay, button icons, hint class and canvas pixels at 16 checkpoints; the gameplay replay and the share-modal check are identical too; lint, type-check, 114 tests clean.
+- Limit: synthetic pointer events and keyboard in Chromium, no real touchscreen. `game.js` is now ~385 lines: elements, resize, overlay, flow, loop, init. Version: 1.59.13.

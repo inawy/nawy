@@ -1,5 +1,6 @@
 import { clamp, rand } from "nawy-game/util";
-import { particlePool, particles, burstDust, burstConfetti, updateParticles } from "nawy-game/particles";
+import { particlePool, particles, burstConfetti, updateParticles } from "nawy-game/particles";
+import { initInput, doJump, isJumpHeld, ICONS } from "nawy-game/input";
 import { initShareModal } from "nawy-game/share-modal";
 import {
   THOUGHT_DURATION_MS,
@@ -14,21 +15,11 @@ import { obstaclePool, spawnPowerup, resetSpawner } from "nawy-game/spawn";
 import { render, initRenderer } from "nawy-game/render";
 import { spawnCloud, updateClouds } from "nawy-game/clouds";
 import { drawNawyPortrait } from "nawy-game/portrait";
-import {
-  JUMP_V,
-  BASE_SPEED,
-  COYOTE,
-  JUMP_BUF,
-  SUN_CYCLE,
-  JUMP_SPEED_BOOST,
-  RENDER_MAX_W,
-  FRAME_MIN_MS,
-  START_MESSAGE
-} from "nawy-game/constants";
+import { BASE_SPEED, COYOTE, SUN_CYCLE, RENDER_MAX_W, FRAME_MIN_MS, START_MESSAGE } from "nawy-game/constants";
 import { update, updateAmbient, updateDeath, initUpdate } from "nawy-game/update";
 
 import { createSprites } from "nawy-game/sprites";
-import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
+import { unlockAudio, sfx, vibrate } from "nawy-game/sound";
 
 (function () {
   "use strict";
@@ -61,9 +52,7 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
   const ovText = byId("ovText");
   const ovBtn = byId("ovBtn");
   const ovShareBtn = byId("ovShareBtn");
-  const muteBtn = byId("muteBtn");
   const pauseBtn = byId("pauseBtn");
-  const exitBtn = byId("exitBtn");
   const hintEl = byId("hint");
   const shieldChip = byId("shieldChip");
   const shieldTime = byId("shieldTime");
@@ -88,7 +77,6 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
   /* ============================================================
    PLAYER
    ============================================================ */
-  let jumpHeld = false;
 
   /* ============================================================
    PARTICLES
@@ -154,127 +142,7 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
     S.sunPos.y = S.H * 0.1 + Math.sin(t * Math.PI) * S.H * 0.1;
   }
 
-  /* ============================================================
-   INPUT
-   ============================================================ */
-  function doJump() {
-    player.vy = JUMP_V - S.speed * JUMP_SPEED_BOOST;
-    player.grounded = false;
-    player.squash = 1.18;
-    player.coyote = 0;
-    player.jumpBuf = 0;
-    player.jumpStartY = player.y;
-    player.reachedMinHeight = false;
-    burstDust(player.x + player.size / 2, S.groundY, 4);
-    sfx("jump");
-    setMood("jump", 0.28);
-    hintEl.classList.add("fade-out");
-  }
-
-  function jump() {
-    if (S.state !== "playing") return;
-    jumpHeld = true;
-    if (player.grounded || player.coyote > 0) {
-      doJump();
-    } else {
-      player.jumpBuf = JUMP_BUF;
-    }
-  }
-
-  function releaseJump() {
-    jumpHeld = false;
-  }
-
-  function onTap(e) {
-    if (e && e.preventDefault) e.preventDefault();
-    if (S.state === "playing") {
-      jump();
-      return;
-    }
-    if (S.state === "paused") {
-      resumeGame();
-      return;
-    }
-    if (S.state === "over" && performance.now() - S.overAt < 500) return;
-    startGame();
-  }
-  canvas.addEventListener("pointerdown", onTap, { passive: false });
-  canvas.addEventListener("pointerup", releaseJump);
-  canvas.addEventListener("pointercancel", releaseJump);
-  canvas.addEventListener("pointerleave", releaseJump);
-
-  ovBtn.addEventListener("pointerdown", e => {
-    e.stopPropagation();
-  });
-  ovBtn.addEventListener("click", e => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (S.ovAction === "resume") {
-      resumeGame();
-    } else {
-      startGame();
-    }
-  });
-
-  window.addEventListener("keydown", e => {
-    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "Enter") {
-      e.preventDefault();
-      if (e.repeat) return;
-      if (S.state === "playing") jump();
-      else onTap(null);
-    }
-    if (e.code === "KeyP" || e.code === "Escape") {
-      if (S.state === "playing") pauseGame();
-      else if (S.state === "paused") resumeGame();
-    }
-  });
-  window.addEventListener("keyup", e => {
-    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "Enter") releaseJump();
-  });
-  const ICONS = {
-    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>',
-    pause:
-      '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>',
-    play: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>',
-    soundOn:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 6a9 9 0 0 1 0 12"/></svg>',
-    soundOff:
-      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z" fill="currentColor" stroke="none"/><path d="M16 9l6 6M22 9l-6 6"/></svg>'
-  };
-  exitBtn.innerHTML = ICONS.back;
-  muteBtn.innerHTML = isMuted() ? ICONS.soundOff : ICONS.soundOn;
-  pauseBtn.innerHTML = ICONS.pause;
-
-  muteBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    setMuted(!isMuted());
-    muteBtn.innerHTML = isMuted() ? ICONS.soundOff : ICONS.soundOn;
-    if (!isMuted()) sfx("coin");
-  });
-  pauseBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    if (S.state === "playing") pauseGame();
-    else if (S.state === "paused") resumeGame();
-  });
-
-  function goBack() {
-    // رجوع سلس داخل التطبيق — نفس سلوك زر الرجوع العادي في أي صفحة متصفح
-    try {
-      if (window.history.length > 1) {
-        history.back();
-      } else {
-        window.location.href = "https://nawy.app";
-      }
-    } catch (e) {
-      try {
-        window.location.href = "https://nawy.app";
-      } catch (e2) {}
-    }
-  }
-  exitBtn.addEventListener("click", e => {
-    e.stopPropagation();
-    goBack();
-  });
+  initInput({ startGame, pauseGame, resumeGame });
 
   /* ============================================================
    NAWY MINI PORTRAIT (overlay)
@@ -424,7 +292,7 @@ import { isMuted, setMuted, unlockAudio, sfx, vibrate } from "nawy-game/sound";
   }
 
   initUpdate({
-    isJumpHeld: () => jumpHeld,
+    isJumpHeld,
     doJump,
     gameOver,
     tickThought: updatePendingThought,
