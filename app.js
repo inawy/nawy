@@ -2662,6 +2662,45 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+// سطر الإصدار في القائمة: لو فيه نسخة جديدة مستنية بيطبّقها، وإلا بيتحقق من السيرفر دلوقتي.
+renderUpdateMenu("idle");
+$("#updateMenuBtn").addEventListener("click", async () => {
+  if (updateWaiting) {
+    requestUpdateNow();
+    return;
+  }
+  if (!("serviceWorker" in navigator)) {
+    renderUpdateMenu("latest");
+    return;
+  }
+  renderUpdateMenu("checking");
+  try {
+    const registration = await navigator.serviceWorker.getRegistration();
+    if (!registration) {
+      renderUpdateMenu("latest");
+      return;
+    }
+    await registration.update();
+    const installing = registration.installing;
+    if (installing && installing.state !== "installed") {
+      // بنستنى التثبيت يخلص (أو 10 ثواني) عشان نعرف لو فيه نسخة جديدة.
+      await new Promise(resolve => {
+        const timer = setTimeout(resolve, 10000);
+        installing.addEventListener("statechange", () => {
+          if (installing.state === "installed" || installing.state === "redundant") {
+            clearTimeout(timer);
+            resolve(undefined);
+          }
+        });
+      });
+    }
+    if (!updateWaiting && registration.waiting && navigator.serviceWorker.controller) showUpdateBanner();
+    renderUpdateMenu(updateWaiting ? "available" : "latest");
+  } catch (e) {
+    renderUpdateMenu("error");
+  }
+});
+
 window.addEventListener("beforeinstallprompt", e => {
   e.preventDefault();
   deferredInstallPrompt = e;

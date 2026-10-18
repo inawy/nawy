@@ -435,3 +435,25 @@ test("game.html loads game.js (no inline game script) with the same ?v= as the a
     }
   }
 });
+
+test("the menu shows the app version and an update row (decision 081)", () => {
+  const html = read("index.html");
+  const v = html.match(/styles\.css\?v=([\d.]+)/);
+  assert.ok(v, "styles.css link must carry ?v= (the menu reads the version from it)");
+  assert.match(html, /id="updateMenuBtn"[\s\S]*id="updateMenuTitle"[\s\S]*id="updateMenuSub"/);
+  const banners = read("banners.js");
+  assert.match(banners, /function requestUpdateNow\(/, "banner and menu share one update action");
+  assert.match(banners, /function renderUpdateMenu\(/);
+  assert.match(read("app.js"), /#updateMenuBtn"\)\.addEventListener\("click"/);
+  const tr = read("translations.js");
+  for (const key of [
+    "appVersion",
+    "updateCheckSub",
+    "updateChecking",
+    "updateLatest",
+    "updateReadySub",
+    "updateCheckFailed"
+  ]) {
+    assert.equal((tr.match(new RegExp("\\b" + key + ":", "g")) || []).length, 2, key + " must exist in ar and en");
+  }
+});

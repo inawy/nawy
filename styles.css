@@ -2771,3 +2771,31 @@ html[dir="ltr"] {
 #settingsMenuContent .setting-info {
   flex: 1 1 130px;
 }
+
+#updateMenuBtn .menu-item-title,
+#updateMenuBtn .menu-item-sub {
+  display: block;
+}
+/* سطر الإصدار في القائمة: لما فيه نسخة جديدة جاهزة بياخد لون التمييز. */
+#updateMenuBtn[data-state="available"] .menu-item-title,
+#updateMenuBtn[data-state="available"] .menu-item-sub,
+#updateMenuBtn[data-state="available"] .icon {
+  color: var(--accent);
+  opacity: 1;
+}
+#updateMenuBtn[data-state="available"] .menu-item-sub {
+  font-weight: 700;
+}
+#updateMenuBtn[data-state="checking"] .icon {
+  animation: nawy-spin 0.9s linear infinite;
+}
+@keyframes nawy-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #updateMenuBtn[data-state="checking"] .icon {
+    animation: none;
+  }
+}
