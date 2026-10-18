@@ -51,6 +51,8 @@ html[data-theme="dark"] {
 
 html {
   background-color: var(--bg);
+  /* بدون سحب-للتحديث: في الـ PWA المثبت بيظهر شريط بلون مختلف فوق الصفحة وقت الريفرش (القرار 080). */
+  overscroll-behavior-y: none;
 }
 
 html[data-accent="blue"] {
