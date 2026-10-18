@@ -635,3 +635,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - The overlay headings ("ناوي جاهز؟", pause, game over) use Handjet, a pixel-style font with real Arabic support (SIL OFL 1.1, from google/fonts). Body text stays Cairo and the numbers keep Press Start 2P, so only the headings change, as asked.
 - `fonts/handjet-ar.woff` is the variable font frozen at wght 600 / ELGR 1 / ELSH 2 and cut down to Basic Latin + Arabic blocks (~20 KB). It's WOFF, not WOFF2, because the Brotli encoder isn't available in this environment; the cost is a few KB. Don't set ELSH to 0: the glyphs render blank.
+
+## 080 — No pull-to-refresh (the top line seen when refreshing the installed app)
+
+- Report after decisions 039/040: the thin white/black line at the top is still there, on Android in the installed app, only when refreshing (not when opening). In an installed app the only way to refresh by hand is the pull-down gesture, and that gesture draws the browser's own overscroll area above the page, in the browser's color rather than the theme's.
+- `overscroll-behavior-y: none` was only set on `body`; Chrome reads it from the root element for the page scroll, so the pull gesture still worked. It is now also set on `html`. Updates don't need the gesture: the app has its own update button (service worker waiting state, decision on updates).
+- Not verified on a device (inferred from the report). If the line still shows, it is not this gesture, and a screen recording would be needed.
+- Version: 1.59.16.

@@ -361,7 +361,8 @@ test("the canvas follows the theme from the first frame: color-scheme meta, per-
   );
   assert.match(css, /html\[data-theme="light"\] \{\s*color-scheme: light;/);
   assert.match(css, /html\[data-theme="dark"\] \{\s*color-scheme: dark;/);
-  assert.match(css, /\nhtml \{\s*background-color: var\(--bg\);\s*\}/, "html must paint the theme background itself");
+  assert.match(css, /\nhtml \{\s*background-color: var\(--bg\);/, "html must paint the theme background itself");
+  assert.match(css, /\nhtml \{[^}]*overscroll-behavior-y: none;/, "html must disable pull-to-refresh (decision 080)");
 });
 
 test("the menu is a side drawer on phones and a docked sidebar from 1024px, driven by one breakpoint", () => {
