@@ -461,6 +461,7 @@ test("the menu shows the app version and an update row (decision 081)", () => {
 test("a swipe from the menu-side screen edge opens the menu (decision 082)", () => {
   const app = read("app.js");
   assert.match(app, /MENU_EDGE_PX/);
-  assert.match(app, /openOverlay\(\$\("#menuOverlay"\)\)/);
+  assert.match(app, /openOverlay\(overlay, true\)/);
   assert.match(app, /edgeSwipe = \{ tracking: true/);
+  assert.match(app, /function edgeDragMenu\(/, "the drawer follows the finger");
 });

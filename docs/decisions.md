@@ -656,3 +656,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Rule: a single finger that starts within 24px of that edge, while no overlay is open and the sidebar is not docked (desktop), and then moves inward 50px or more within 700ms (mostly horizontal) opens the menu. Such a touch never starts the existing swipe between Today/All/Favorites views.
 - The drawer opens with its normal animation after the swipe ends; it does not follow the finger during the drag. Not verified on a real device: Android's own back gesture (gesture navigation) uses the same screen edges and may take the swipe first; if that happens a wider zone won't help, only the menu button then.
 - Version: 1.59.18.
+
+## 083 — The drawer follows the finger during the edge swipe
+
+- Follow-up to decision 082: the menu now tracks the finger 1:1 while it is dragged in from the edge (and the backdrop darkens with it), like the swipe that closes it. On release it opens if it passed 40% of its width or the swipe was quick (> 50px in under 300ms); otherwise it slides back. The edge zone grew from 24 to 32px.
+- Implementation: `edgeDragMenu` / `edgeDragFinish` in `app.js`; `openOverlay(overlay, true)` keeps the dragged position instead of resetting the drawer. Still not verified on a real device (Android's back gesture may claim the same edge).
+- Version: 1.59.19.
