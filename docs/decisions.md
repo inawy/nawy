@@ -649,3 +649,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - The row has four states: idle ("tap to check"), checking (spinning icon), latest ("you are on the latest version ✓"), and available ("a new version is ready — tap to update", accent color). Tapping in the idle/latest state asks the service worker to check now and waits for an install to finish (max 10 s); tapping in the available state applies the update.
 - The top banner and the menu row share one action, `requestUpdateNow()`, so both keep the same safety rule: an unsent draft in the add screen postpones the update instead of being lost. The update is still never forced; the page only reloads after the user asks (decision on updates).
 - Version: 1.59.17.
+
+## 082 — Swipe from the menu-side edge opens the menu
+
+- Request: like most modern apps, a horizontal swipe from the edge on the menu's side opens the menu, mirroring the swipe toward that edge that closes it. The menu side is the left edge in Arabic and the right edge in English (where the drawer comes from).
+- Rule: a single finger that starts within 24px of that edge, while no overlay is open and the sidebar is not docked (desktop), and then moves inward 50px or more within 700ms (mostly horizontal) opens the menu. Such a touch never starts the existing swipe between Today/All/Favorites views.
+- The drawer opens with its normal animation after the swipe ends; it does not follow the finger during the drag. Not verified on a real device: Android's own back gesture (gesture navigation) uses the same screen edges and may take the swipe first; if that happens a wider zone won't help, only the menu button then.
+- Version: 1.59.18.

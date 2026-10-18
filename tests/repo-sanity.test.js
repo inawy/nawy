@@ -457,3 +457,10 @@ test("the menu shows the app version and an update row (decision 081)", () => {
     assert.equal((tr.match(new RegExp("\\b" + key + ":", "g")) || []).length, 2, key + " must exist in ar and en");
   }
 });
+
+test("a swipe from the menu-side screen edge opens the menu (decision 082)", () => {
+  const app = read("app.js");
+  assert.match(app, /MENU_EDGE_PX/);
+  assert.match(app, /openOverlay\(\$\("#menuOverlay"\)\)/);
+  assert.match(app, /edgeSwipe = \{ tracking: true/);
+});

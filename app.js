@@ -47,6 +47,10 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 let swipeTracking = false;
+// سحبة من حافة الشاشة ناحية القائمة (شمال في العربي، يمين في الإنجليزي) لجوه: بتفتح القائمة، عكس سحبها لبرّه اللي بيقفلها.
+const MENU_EDGE_PX = 24;
+const MENU_EDGE_OPEN_PX = 50;
+let edgeSwipe = { tracking: false, x: 0, y: 0, time: 0 };
 /** @type {any} */
 let deferredInstallPrompt = null;
 let archiveSearchQuery = "";
@@ -2522,6 +2526,16 @@ $("#notifToggleCheckbox").addEventListener(
 document.addEventListener(
   "touchstart",
   e => {
+    edgeSwipe.tracking = false;
+    const first = e.touches[0];
+    const rtl = document.documentElement.dir === "rtl";
+    const onMenuEdge = rtl ? first.clientX <= MENU_EDGE_PX : first.clientX >= window.innerWidth - MENU_EDGE_PX;
+    if (e.touches.length === 1 && onMenuEdge && !isSidebarDocked() && !document.querySelector(".overlay.show")) {
+      edgeSwipe = { tracking: true, x: first.clientX, y: first.clientY, time: Date.now() };
+      swipeTracking = false;
+      return;
+    }
+
     if (
       /** @type {Element} */ (e.target).closest(
         "button, input, textarea, select, option, .overlay, .sheet, .composer-panel, .fab"
@@ -2541,6 +2555,15 @@ document.addEventListener(
 document.addEventListener(
   "touchmove",
   e => {
+    if (edgeSwipe.tracking) {
+      const dx = e.touches[0].clientX - edgeSwipe.x;
+      const dy = e.touches[0].clientY - edgeSwipe.y;
+      const inward = document.documentElement.dir === "rtl" ? dx : -dx;
+      if (Math.abs(dy) > Math.abs(dx) * 1.2) edgeSwipe.tracking = false;
+      else if (inward > 10) e.preventDefault();
+      return;
+    }
+
     if (!swipeTracking) return;
 
     const touch = e.touches[0];
@@ -2571,6 +2594,17 @@ document.addEventListener(
 document.addEventListener(
   "touchend",
   e => {
+    if (edgeSwipe.tracking) {
+      edgeSwipe.tracking = false;
+      const dx = e.changedTouches[0].clientX - edgeSwipe.x;
+      const inward = document.documentElement.dir === "rtl" ? dx : -dx;
+      if (inward > MENU_EDGE_OPEN_PX && Date.now() - edgeSwipe.time < 700 && !document.querySelector(".overlay.show")) {
+        openOverlay($("#menuOverlay"));
+        $("#menuBtn").setAttribute("aria-expanded", "true");
+      }
+      return;
+    }
+
     if (!swipeTracking) return;
 
     swipeTracking = false;
