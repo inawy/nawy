@@ -13,6 +13,7 @@
 <link rel="preload" href="./fonts/press-start-2p.woff2" as="font" type="font/woff2" crossorigin>
 <style>@font-face{font-family:'Cairo';font-style:normal;font-weight:400 1000;font-display:swap;src:url("./fonts/cairo-ar-latin.woff2") format("woff2");}
 @font-face{font-family:'Press Start 2P';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/press-start-2p.woff2") format("woff2");}
+@font-face{font-family:'Handjet';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/handjet-ar.woff") format("woff");}
 @font-face{font-family:'Px Digits';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/press-start-2p.woff2") format("woff2");unicode-range:U+0030-0039,U+0025;}
 @font-face{font-family:'Px Latin';font-style:normal;font-weight:400;font-display:swap;src:url("./fonts/press-start-2p.woff2") format("woff2");unicode-range:U+0041-005A,U+0061-007A;}
   :root{
@@ -135,7 +136,7 @@
     box-shadow:0 7px 0 #0f172a, 0 16px 34px rgba(15,23,42,.20);
     max-width:min(380px,92vw);pointer-events:auto;
   }
-  .overlay h1{margin:0 0 6px;font-family:'Px Latin','Px Digits','Cairo',system-ui,sans-serif;font-size:22px;font-weight:900;letter-spacing:-.4px;color:#0f172a;}
+  .overlay h1{margin:0 0 6px;font-family:'Handjet','Cairo',system-ui,sans-serif;font-size:34px;line-height:1.1;font-weight:400;letter-spacing:0;color:#0f172a;}
   .overlay p{margin:0;color:#5b6b82;font-size:13px;font-weight:750;line-height:1.7;}
   .overlay p b{color:#0f172a;font-family:'Press Start 2P',system-ui,monospace;font-size:.95em;font-variant-numeric:tabular-nums;}
   .overlay .ov-nawy{
@@ -368,8 +369,8 @@
 </div>
 
 <script type="importmap">
-{ "imports": { "nawy-game/util": "./game/util.js?v=1.59.14", "nawy-game/sound": "./game/sound.js?v=1.59.14", "nawy-game/particles": "./game/particles.js?v=1.59.14", "nawy-game/share-card": "./game/share-card.js?v=1.59.14", "nawy-game/sprites": "./game/sprites.js?v=1.59.14", "nawy-game/state": "./game/state.js?v=1.59.14", "nawy-game/render": "./game/render.js?v=1.59.14", "nawy-game/spawn": "./game/spawn.js?v=1.59.14", "nawy-game/constants": "./game/constants.js?v=1.59.14", "nawy-game/update": "./game/update.js?v=1.59.14", "nawy-game/clouds": "./game/clouds.js?v=1.59.14", "nawy-game/portrait": "./game/portrait.js?v=1.59.14", "nawy-game/share-modal": "./game/share-modal.js?v=1.59.14", "nawy-game/ui": "./game/ui.js?v=1.59.14", "nawy-game/loop": "./game/loop.js?v=1.59.14", "nawy-game/resize": "./game/resize.js?v=1.59.14", "nawy-game/flow": "./game/flow.js?v=1.59.14", "nawy-game/hud": "./game/hud.js?v=1.59.14", "nawy-game/overlay": "./game/overlay.js?v=1.59.14", "nawy-game/input": "./game/input.js?v=1.59.14" } }
+{ "imports": { "nawy-game/util": "./game/util.js?v=1.59.15", "nawy-game/sound": "./game/sound.js?v=1.59.15", "nawy-game/particles": "./game/particles.js?v=1.59.15", "nawy-game/share-card": "./game/share-card.js?v=1.59.15", "nawy-game/sprites": "./game/sprites.js?v=1.59.15", "nawy-game/state": "./game/state.js?v=1.59.15", "nawy-game/render": "./game/render.js?v=1.59.15", "nawy-game/spawn": "./game/spawn.js?v=1.59.15", "nawy-game/constants": "./game/constants.js?v=1.59.15", "nawy-game/update": "./game/update.js?v=1.59.15", "nawy-game/clouds": "./game/clouds.js?v=1.59.15", "nawy-game/portrait": "./game/portrait.js?v=1.59.15", "nawy-game/share-modal": "./game/share-modal.js?v=1.59.15", "nawy-game/ui": "./game/ui.js?v=1.59.15", "nawy-game/loop": "./game/loop.js?v=1.59.15", "nawy-game/resize": "./game/resize.js?v=1.59.15", "nawy-game/flow": "./game/flow.js?v=1.59.15", "nawy-game/hud": "./game/hud.js?v=1.59.15", "nawy-game/overlay": "./game/overlay.js?v=1.59.15", "nawy-game/input": "./game/input.js?v=1.59.15" } }
 </script>
-<script type="module" src="./game.js?v=1.59.14"></script>
+<script type="module" src="./game.js?v=1.59.15"></script>
 </body>
 </html>

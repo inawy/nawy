@@ -630,3 +630,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - The game loads through an importmap (decision 062), which older engines don't support, and until now only Chromium ever ran it. `tests/browser/game-engines.test.mjs` opens the built `game.html`, starts a run, jumps, and checks that the score moves, there are no page errors and no external requests. `ENGINES` picks the engines (default chromium); CI sets `chromium,firefox,webkit` and installs all three.
 - Honest limit: verified locally in Chromium only (no Firefox/WebKit here); the other two are first exercised by CI. Playwright's WebKit is not real iOS Safari, so a real device is still the final check.
+
+## 079 — Handjet for the game's Arabic headings
+
+- The overlay headings ("ناوي جاهز؟", pause, game over) use Handjet, a pixel-style font with real Arabic support (SIL OFL 1.1, from google/fonts). Body text stays Cairo and the numbers keep Press Start 2P, so only the headings change, as asked.
+- `fonts/handjet-ar.woff` is the variable font frozen at wght 600 / ELGR 1 / ELSH 2 and cut down to Basic Latin + Arabic blocks (~20 KB). It's WOFF, not WOFF2, because the Brotli encoder isn't available in this environment; the cost is a few KB. Don't set ELSH to 0: the glyphs render blank.
