@@ -67,6 +67,7 @@ npm test
 | `fonts/` | خط Cairo محلي (woff2، عربي + لاتيني) وترخيصه OFL |
 | `service-worker.js` | الكاش وبلا إنترنت والتذكير اليومي |
 | `game.html` | لعبة «خذ استراحة» |
+| `game.js` + `game/*.js` | توصيل اللعبة + وحدات ES (state, update, render, input, flow, ...) بتتحمّل عبر importmap في `game.html` |
 | `scripts/build-site.js` | يجهّز `_site/` للنشر |
 | `tests/` | الاختبارات |
 | `docs/decisions.md` | سجل القرارات المعمارية ولماذا اتُّخذت |
