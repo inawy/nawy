@@ -1,5 +1,5 @@
 // بانر التحديث وبانر التثبيت (تعريفات الدوال بس) — منقولة حرفيًا من app.js. classic script بيتحمّل قبله؛ بتستخدم `$` و`t` و`showToast` و`updateRequested` من app.js وقت التشغيل بس، والمستمعين والاستدعاءات فضلت في app.js.
-/* exported showUpdateBanner, requestUpdateNow, getAppVersion, renderUpdateMenu, showInstallBanner, hideInstallBanner, isAppInstalled */
+/* exported updateWaiting, showUpdateBanner, requestUpdateNow, getAppVersion, renderUpdateMenu, showInstallBanner, hideInstallBanner, isAppInstalled */
 
 // فيه نسخة جديدة اتثبتت وبتستنى الضغط على تحديث.
 let updateWaiting = false;
