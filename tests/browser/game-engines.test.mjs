@@ -66,16 +66,22 @@ for (const engine of engines) {
       });
       await page.goto(`${base}/game.html`);
       await page.waitForFunction(() => document.getElementById("canvas").width > 0);
-      await page.keyboard.press("Space"); // start
-      for (let i = 0; i < 8; i++) {
+      // المفاتيح بتتبعت كأحداث keydown مباشرة على window: نفس اللي اللعبة بتسمعه، من غير اعتماد على تركيز الصفحة في المحرك.
+      const press = () =>
+        page.evaluate(() =>
+          window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space", bubbles: true, cancelable: true }))
+        );
+      await press(); // start
+      for (let i = 0; i < 12; i++) {
         await page.waitForTimeout(250);
-        await page.keyboard.press("Space"); // jump
+        await press(); // jump
       }
-      const score = await page.evaluate(() => Number(document.getElementById("score").textContent));
-      assert.ok(score > 0, "score moved (the loop runs): " + score);
-      assert.ok(
-        (await page.evaluate(() => document.getElementById("overlay").classList.contains("hidden"))) || score > 0
-      );
+      const info = await page.evaluate(() => ({
+        score: Number(document.getElementById("score").textContent),
+        overlay: document.getElementById("overlay").className,
+        title: document.getElementById("ovTitle").textContent
+      }));
+      assert.ok(info.score > 0, "score moved (the loop runs): " + JSON.stringify({ ...info, errors }));
       assert.deepEqual(errors, [], "no page errors");
       assert.deepEqual(external, [], "no external requests");
     } finally {
