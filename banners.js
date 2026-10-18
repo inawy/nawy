@@ -1,6 +1,12 @@
 // بانر التحديث وبانر التثبيت (تعريفات الدوال بس) — منقولة حرفيًا من app.js. classic script بيتحمّل قبله؛ بتستخدم `$` و`t` و`showToast` و`updateRequested` من app.js وقت التشغيل بس، والمستمعين والاستدعاءات فضلت في app.js.
-/* exported showUpdateBanner, showInstallBanner, hideInstallBanner, isAppInstalled */
+/* exported showUpdateBanner, requestUpdateNow, getAppVersion, renderUpdateMenu, showInstallBanner, hideInstallBanner, isAppInstalled */
+
+// فيه نسخة جديدة اتثبتت وبتستنى الضغط على تحديث.
+let updateWaiting = false;
+
 function showUpdateBanner() {
+  updateWaiting = true;
+  renderUpdateMenu("available");
   const existingBanner = document.getElementById("updateBanner");
   if (existingBanner) existingBanner.remove();
 
@@ -34,26 +40,61 @@ function showUpdateBanner() {
   document.body.appendChild(updateBanner);
 
   /** @type {HTMLElement} */ (updateBanner.querySelector("#updateNowBtn")).addEventListener("click", () => {
-    // نص مكتوب في شاشة الإضافة ولسه ما اتبعتش بيتمسح مع إعادة التحميل،
-    // فنأجّل التحديث ونسيب الشريط ظاهر لحد ما المستخدم يخلّص.
-    const draftInput = $("#taskInput");
-    if (draftInput && draftInput.value.trim()) {
-      showToast(t("updateAfterDraft"));
-      return;
-    }
-
-    updateBanner.remove();
-    updateRequested = true;
-
-    navigator.serviceWorker.ready.then(registration => {
-      if (registration.waiting) {
-        registration.waiting.postMessage("SKIP_WAITING");
-      } else {
-        // النسخة الجديدة اتفعّلت بالفعل (مفيش حاجة مستنية): نعيد التحميل.
-        window.location.reload();
-      }
-    });
+    requestUpdateNow();
   });
+}
+
+// بيطبّق التحديث المستني (من الشريط أو من زر القائمة). false لو اتأجّل بسبب نص لسه ما اتبعتش.
+function requestUpdateNow() {
+  // نص مكتوب في شاشة الإضافة ولسه ما اتبعتش بيتمسح مع إعادة التحميل،
+  // فنأجّل التحديث ونسيب الشريط ظاهر لحد ما المستخدم يخلّص.
+  const draftInput = $("#taskInput");
+  if (draftInput && draftInput.value.trim()) {
+    showToast(t("updateAfterDraft"));
+    return false;
+  }
+
+  const banner = document.getElementById("updateBanner");
+  if (banner) banner.remove();
+  updateRequested = true;
+
+  navigator.serviceWorker.ready.then(registration => {
+    if (registration.waiting) {
+      registration.waiting.postMessage("SKIP_WAITING");
+    } else {
+      // النسخة الجديدة اتفعّلت بالفعل (مفيش حاجة مستنية): نعيد التحميل.
+      window.location.reload();
+    }
+  });
+  return true;
+}
+
+// رقم الإصدار الشغال دلوقتي: بيتقرأ من ?v= في رابط ملف الستايل (نفس رقم النسخة في كل ملفات التطبيق).
+function getAppVersion() {
+  const link = document.querySelector('link[rel="stylesheet"][href*="styles.css"]');
+  try {
+    return (link && new URL(link.getAttribute("href") || "", location.href).searchParams.get("v")) || "";
+  } catch (e) {
+    return "";
+  }
+}
+
+// سطر "الإصدار" في القائمة: حالته idle | checking | latest | available | error.
+function renderUpdateMenu(state) {
+  const btn = $("#updateMenuBtn");
+  if (!btn) return;
+  btn.dataset.state = state;
+  const title = $("#updateMenuTitle");
+  const sub = $("#updateMenuSub");
+  if (title) title.textContent = `${t("appVersion")} ${getAppVersion()}`.trim();
+  const keys = {
+    idle: "updateCheckSub",
+    checking: "updateChecking",
+    latest: "updateLatest",
+    available: "updateReadySub",
+    error: "updateCheckFailed"
+  };
+  if (sub) sub.textContent = t(keys[state] || keys.idle);
 }
 
 function isAppInstalled() {

@@ -50,7 +50,7 @@
   <title>ناوي</title>
   
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json?v=1.59.16">
+  <link rel="manifest" href="manifest.json?v=1.59.17">
   <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -69,18 +69,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.59.16"></script>
+  <script src="./nawy-data.js?v=1.59.17"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.59.16"></script>
+  <script src="./nawy-storage.js?v=1.59.17"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.59.16"></script>
+  <script src="./nawy-backup.js?v=1.59.17"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي. بتتحمّل من app.js بعد أول رسم (loadUiBundle) عشان ماتأخّرش فتح التطبيق -->
-  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.59.16">
+  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.59.17">
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.59.16">
+  <link rel="stylesheet" href="./styles.css?v=1.59.17">
 </head>
 <body>
   <div class="app">
@@ -190,6 +190,13 @@
           <span class="menu-item-title" data-i18n="takeBreak">خذ استراحة</span>
         </span>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+      </button>
+      <button class="menu-item" id="updateMenuBtn" type="button" data-state="idle">
+        <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
+        <span class="menu-item-copy">
+          <span class="menu-item-title" id="updateMenuTitle">الإصدار</span>
+          <span class="menu-item-sub" id="updateMenuSub">اضغط للتحقق من وجود تحديث</span>
+        </span>
       </button>
       </div>
       <div class="account-menu-panel" id="backupMenuPanel" hidden>
@@ -510,12 +517,12 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.59.16"></script>
-  <script src="./sounds.js?v=1.59.16"></script>
-  <script src="./share.js?v=1.59.16"></script>
-  <script src="./sheet-gestures.js?v=1.59.16"></script>
-  <script src="./banners.js?v=1.59.16"></script>
-  <script src="./date-format.js?v=1.59.16"></script>
-  <script src="./app.js?v=1.59.16"></script>
+  <script src="./translations.js?v=1.59.17"></script>
+  <script src="./sounds.js?v=1.59.17"></script>
+  <script src="./share.js?v=1.59.17"></script>
+  <script src="./sheet-gestures.js?v=1.59.17"></script>
+  <script src="./banners.js?v=1.59.17"></script>
+  <script src="./date-format.js?v=1.59.17"></script>
+  <script src="./app.js?v=1.59.17"></script>
 </body>
 </html>

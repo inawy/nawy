@@ -642,3 +642,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `overscroll-behavior-y: none` was only set on `body`; Chrome reads it from the root element for the page scroll, so the pull gesture still worked. It is now also set on `html`. Updates don't need the gesture: the app has its own update button (service worker waiting state, decision on updates).
 - Not verified on a device (inferred from the report). If the line still shows, it is not this gesture, and a screen recording would be needed.
 - Version: 1.59.16.
+
+## 081 — App version and an update row in the menu
+
+- After pull-to-refresh was turned off (decision 080) there was no manual way to check for a new version. The menu now ends with a row "الإصدار X.Y.Z" (read from the `?v=` of the stylesheet link, which every release bumps together with the other files).
+- The row has four states: idle ("tap to check"), checking (spinning icon), latest ("you are on the latest version ✓"), and available ("a new version is ready — tap to update", accent color). Tapping in the idle/latest state asks the service worker to check now and waits for an install to finish (max 10 s); tapping in the available state applies the update.
+- The top banner and the menu row share one action, `requestUpdateNow()`, so both keep the same safety rule: an unsent draft in the add screen postpones the update instead of being lost. The update is still never forced; the page only reloads after the user asks (decision on updates).
+- Version: 1.59.17.
