@@ -48,9 +48,44 @@ let swipeStartY = 0;
 let swipeStartTime = 0;
 let swipeTracking = false;
 // سحبة من حافة الشاشة ناحية القائمة (شمال في العربي، يمين في الإنجليزي) لجوه: بتفتح القائمة، عكس سحبها لبرّه اللي بيقفلها.
-const MENU_EDGE_PX = 24;
+const MENU_EDGE_PX = 32;
 const MENU_EDGE_OPEN_PX = 50;
-let edgeSwipe = { tracking: false, x: 0, y: 0, time: 0 };
+let edgeSwipe = { tracking: false, x: 0, y: 0, time: 0, dragging: false };
+
+// الدرج بيتابع الإصبع أثناء سحبة الحافة: inward = المسافة لجوه بالبكسل (0 = مقفول تمامًا).
+function edgeDragMenu(inward) {
+  const overlay = $("#menuOverlay");
+  const sheet = /** @type {HTMLElement} */ (overlay.querySelector(".sheet"));
+  const width = sheet.offsetWidth + 24;
+  const shown = Math.max(0, Math.min(width, inward));
+  const rtl = document.documentElement.dir === "rtl";
+  overlay.classList.add("edge-dragging");
+  sheet.style.transition = "none";
+  sheet.style.transform = `translateX(${rtl ? shown - width : width - shown}px)`;
+  overlay.style.backgroundColor = `rgba(8, 10, 16, ${(0.5 * shown) / width})`;
+  return shown / width;
+}
+// آخر السحبة: نفتح لو عدّى الحد أو كان سريع، وإلا نرجّعه مكانه.
+function edgeDragFinish(open) {
+  const overlay = $("#menuOverlay");
+  const sheet = /** @type {HTMLElement} */ (overlay.querySelector(".sheet"));
+  sheet.style.transition = SIDE_PANEL_TRANSITION;
+  overlay.style.backgroundColor = "";
+  if (open) {
+    sheet.style.transform = "";
+    openOverlay(overlay, true);
+    overlay.classList.remove("edge-dragging");
+    $("#menuBtn").setAttribute("aria-expanded", "true");
+  } else {
+    const width = sheet.offsetWidth + 24;
+    sheet.style.transform = `translateX(${document.documentElement.dir === "rtl" ? -width : width}px)`;
+    setTimeout(() => {
+      overlay.classList.remove("edge-dragging");
+      sheet.style.transition = "";
+      sheet.style.transform = "";
+    }, 300);
+  }
+}
 /** @type {any} */
 let deferredInstallPrompt = null;
 let archiveSearchQuery = "";
@@ -1587,15 +1622,18 @@ function updateBodyScrollLock() {
   document.body.classList.toggle("no-scroll", anyOverlayOpen || composerOpen);
 }
 
-function openOverlay(overlay) {
+function openOverlay(overlay, fromDrag = false) {
   const sheet = overlay.querySelector(".sheet");
   if (sheet && SIDE_PANEL_IDS.has(overlay.id)) {
     // الدرج الجانبي بيدخل من جنبه (حالة الإغلاق في الـ CSS)، مش من تحت زي باقي الشيتات؛
     // بنمسح أي إزاحة سحب فاضلة من آخر إغلاق من غير أنيميشن، وبعدين الكلاس هو اللي بيحرّكه.
-    sheet.style.transition = "none";
-    sheet.style.transform = "";
-    void sheet.offsetHeight;
-    sheet.style.transition = "";
+    // لو الفتح جاي من سحبة الحافة، الدرج أصلًا في مكان إصبعه فبنكمّل منه من غير ما نرجّعه.
+    if (!fromDrag) {
+      sheet.style.transition = "none";
+      sheet.style.transform = "";
+      void sheet.offsetHeight;
+      sheet.style.transition = "";
+    }
   } else if (sheet) {
     // لازم الدخول يبدأ من تحت دايمًا، حتى لو آخر مرة البطاقة
     // قفلت بسحب يمين/شمال وسابت transform أفقي على العنصر. فبنرجّع
@@ -2531,7 +2569,7 @@ document.addEventListener(
     const rtl = document.documentElement.dir === "rtl";
     const onMenuEdge = rtl ? first.clientX <= MENU_EDGE_PX : first.clientX >= window.innerWidth - MENU_EDGE_PX;
     if (e.touches.length === 1 && onMenuEdge && !isSidebarDocked() && !document.querySelector(".overlay.show")) {
-      edgeSwipe = { tracking: true, x: first.clientX, y: first.clientY, time: Date.now() };
+      edgeSwipe = { tracking: true, x: first.clientX, y: first.clientY, time: Date.now(), dragging: false };
       swipeTracking = false;
       return;
     }
@@ -2559,8 +2597,12 @@ document.addEventListener(
       const dx = e.touches[0].clientX - edgeSwipe.x;
       const dy = e.touches[0].clientY - edgeSwipe.y;
       const inward = document.documentElement.dir === "rtl" ? dx : -dx;
-      if (Math.abs(dy) > Math.abs(dx) * 1.2) edgeSwipe.tracking = false;
-      else if (inward > 10) e.preventDefault();
+      if (!edgeSwipe.dragging && Math.abs(dy) > Math.abs(dx) * 1.2) edgeSwipe.tracking = false;
+      else if (inward > 10) {
+        e.preventDefault();
+        edgeSwipe.dragging = true;
+        edgeDragMenu(inward);
+      }
       return;
     }
 
@@ -2596,12 +2638,13 @@ document.addEventListener(
   e => {
     if (edgeSwipe.tracking) {
       edgeSwipe.tracking = false;
+      if (!edgeSwipe.dragging) return;
+      edgeSwipe.dragging = false;
       const dx = e.changedTouches[0].clientX - edgeSwipe.x;
       const inward = document.documentElement.dir === "rtl" ? dx : -dx;
-      if (inward > MENU_EDGE_OPEN_PX && Date.now() - edgeSwipe.time < 700 && !document.querySelector(".overlay.show")) {
-        openOverlay($("#menuOverlay"));
-        $("#menuBtn").setAttribute("aria-expanded", "true");
-      }
+      const sheetWidth = $("#menuOverlay .sheet").offsetWidth + 24;
+      const fast = Date.now() - edgeSwipe.time < 300 && inward > MENU_EDGE_OPEN_PX;
+      edgeDragFinish(inward > sheetWidth * 0.4 || fast);
       return;
     }
 
