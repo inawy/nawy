@@ -42,8 +42,10 @@ jobs:
       - name: Build site
         run: npm run build
       - name: Install browser
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
       - name: Browser tests on the built site
+        env:
+          ENGINES: chromium,firefox,webkit
         run: |
           npm run test:browser 2>&1 | tee browser.log
           code=${PIPESTATUS[0]}
