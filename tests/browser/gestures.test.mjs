@@ -128,6 +128,25 @@ test("a swipe that starts away from the edge still switches the view and does no
   assert.equal((await menu()).open, false);
 });
 
+test("switching tabs does not wrap around: today, all, favorites, and the ends stay put", async () => {
+  await page.evaluate(() => setView("today"));
+  const view = () => page.evaluate(() => currentView);
+  const swipe = async dx => {
+    await drag(dx > 0 ? 100 : 290, dx > 0 ? 100 + dx : 290 + dx, { y: 300 });
+    await page.waitForTimeout(250);
+  };
+  await swipe(-110); // عكس الاتجاه عند أول تاب
+  assert.equal(await view(), "today");
+  await swipe(110);
+  assert.equal(await view(), "all");
+  await swipe(110);
+  assert.equal(await view(), "favorites");
+  await swipe(110); // بعد آخر تاب: من غير لفّ
+  assert.equal(await view(), "favorites");
+  await swipe(-110);
+  assert.equal(await view(), "all");
+});
+
 test("a long horizontal swipe from the middle opens the menu; a medium one still switches the view", async () => {
   await closeMenu();
   // 200px (> 40% of 390) نحو القائمة: الدرج يبان أثناء السحب ويتفتح عند الرفع
