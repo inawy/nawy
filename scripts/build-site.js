@@ -55,6 +55,7 @@ const REQUIRED = [
   "share.js",
   "sheet-gestures.js",
   "banners.js",
+  "update.js",
   "touch-gestures.js",
   "date-format.js",
   "styles.css",

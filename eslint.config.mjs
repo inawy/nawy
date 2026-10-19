@@ -67,6 +67,15 @@ export default [
     }
   },
   {
+    // update.js بيستخدم $ و t و showToast من app.js وقت التشغيل
+    files: ["update.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...appGlobals, $: "readonly", t: "readonly", showToast: "readonly" }
+    }
+  },
+  {
     // touch-gestures.js بيستخدم اللي بتعرّفه app.js و banners.js وقت التشغيل
     files: ["touch-gestures.js"],
     languageOptions: {
@@ -105,7 +114,7 @@ export default [
     }
   },
   {
-    // banners.js بيستخدم $ و t و showToast و updateRequested (بيكتب فيها) من app.js وقت التشغيل
+    // banners.js بيستخدم $ و t و showToast من app.js وقت التشغيل
     files: ["banners.js"],
     languageOptions: {
       sourceType: "script",
@@ -115,8 +124,7 @@ export default [
         ...appGlobals,
         $: "readonly",
         t: "readonly",
-        showToast: "readonly",
-        updateRequested: "writable"
+        showToast: "readonly"
       }
     }
   },
@@ -144,7 +152,7 @@ export default [
         playAddedSound: "readonly",
         shareAsImage: "readonly",
         initSheetGestures: "readonly",
-        showUpdateBanner: "readonly",
+        initUpdates: "readonly",
         initTouchGestures: "readonly",
         requestUpdateNow: "readonly",
         renderUpdateMenu: "readonly",

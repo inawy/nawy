@@ -43,6 +43,7 @@ test("JavaScript files parse", () => {
     "share.js",
     "sheet-gestures.js",
     "banners.js",
+    "update.js",
     "touch-gestures.js",
     "date-format.js",
     "nawy-data.js",
@@ -96,6 +97,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(sounds > backup && sounds < app, "sounds.js must load after the Core and before app.js");
   const share = html.indexOf('src="./share.js');
   assert.ok(share > backup && share < app, "share.js must load after the Core and before app.js");
+  const updateJs = html.indexOf('src="./update.js');
+  assert.ok(updateJs > backup && updateJs < app, "update.js must load after the Core and before app.js");
   const touchGestures = html.indexOf('src="./touch-gestures.js');
   assert.ok(
     touchGestures > backup && touchGestures < app,
@@ -170,6 +173,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
     read("service-worker.js").includes(`./banners.js?v=${html[1]}`),
     "APP_SHELL must precache banners.js with the same version"
   );
+  const htmlUp = read("index.html").match(/update\.js\?v=([\w.]+)/);
+  assert.ok(htmlUp && htmlUp[1] === html[1], "index.html must load update.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./update.js?v=${html[1]}`),
+    "APP_SHELL must precache update.js with the same version"
+  );
   const htmlTg = read("index.html").match(/touch-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlTg && htmlTg[1] === html[1], "index.html must load touch-gestures.js with the same ?v");
   assert.ok(
@@ -213,7 +222,7 @@ test("service worker does not skipWaiting on install; only on the user's message
 });
 
 test("page reloads on controllerchange only after the user asked for the update", () => {
-  const html = read("app.js");
+  const html = read("update.js");
   const handler = html.match(/addEventListener\("controllerchange",[\s\S]*?\}\);/);
   assert.ok(handler, "controllerchange handler not found");
   assert.match(handler[0], /!updateRequested/, "reload must be gated by updateRequested");
@@ -222,7 +231,7 @@ test("page reloads on controllerchange only after the user asked for the update"
     /registration\.waiting && navigator\.serviceWorker\.controller/,
     "banner must also show for an already-waiting worker"
   );
-  assert.match(read("banners.js"), /updateAfterDraft/, "update must not discard an unsent draft");
+  assert.match(html, /updateAfterDraft/, "update must not discard an unsent draft");
 });
 
 test("update banner strings exist in Arabic and English", () => {
@@ -453,10 +462,10 @@ test("the menu shows the app version and an update row (decision 081)", () => {
   const v = html.match(/styles\.css\?v=([\d.]+)/);
   assert.ok(v, "styles.css link must carry ?v= (the menu reads the version from it)");
   assert.match(html, /id="updateMenuBtn"[\s\S]*id="updateMenuTitle"[\s\S]*id="updateMenuSub"/);
-  const banners = read("banners.js");
+  const banners = read("update.js");
   assert.match(banners, /function requestUpdateNow\(/, "banner and menu share one update action");
   assert.match(banners, /function renderUpdateMenu\(/);
-  assert.match(read("app.js"), /#updateMenuBtn"\)\.addEventListener\("click"/);
+  assert.match(read("update.js"), /#updateMenuBtn"\)\.addEventListener\("click"/);
   const tr = read("translations.js");
   for (const key of [
     "appVersion",
@@ -484,7 +493,7 @@ test("a swipe from the menu-side screen edge opens the menu (decision 082)", () 
 });
 
 test("pull down from the top checks for and applies an update (decision 084)", () => {
-  assert.match(read("app.js"), /async function checkForUpdate\(/);
+  assert.match(read("update.js"), /async function checkForUpdate\(/);
   const gestures = read("touch-gestures.js");
   assert.match(gestures, /PULL_TRIGGER_PX/);
   assert.match(gestures, /state === "available"\) requestUpdateNow\(\)/);

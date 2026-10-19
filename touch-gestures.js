@@ -1,5 +1,5 @@
 // إيماءات اللمس في الصفحة الرئيسية: فتح القائمة (سحبة الحافة وسحبة أفقية طويلة)، تبديل التابات، والسحب-للتحديث.
-// classic script بيتحمّل قبل app.js؛ بيستخدم $ و t و showToast و openOverlay و closeOverlay و isSidebarDocked و setView و currentView و SIDE_PANEL_TRANSITION و checkForUpdate (من app.js) و requestUpdateNow (من banners.js) وقت التشغيل بس.
+// classic script بيتحمّل قبل app.js؛ بيستخدم $ و t و showToast و openOverlay و closeOverlay و isSidebarDocked و setView و currentView و SIDE_PANEL_TRANSITION و checkForUpdate و requestUpdateNow (من update.js) وقت التشغيل بس.
 // الاستدعاء الوحيد: initTouchGestures() من app.js.
 /* exported initTouchGestures */
 
