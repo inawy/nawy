@@ -42,6 +42,7 @@ test("JavaScript files parse", () => {
     "sounds.js",
     "share.js",
     "overlays.js",
+    "reminders.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -107,6 +108,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   );
   const overlaysJs = html.indexOf('src="./overlays.js');
   assert.ok(overlaysJs > backup && overlaysJs < app, "overlays.js must load after the Core and before app.js");
+  const remindersJs = html.indexOf('src="./reminders.js');
+  assert.ok(remindersJs > backup && remindersJs < app, "reminders.js must load after the Core and before app.js");
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -169,6 +172,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./overlays.js?v=${html[1]}`),
     "APP_SHELL must precache overlays.js with the same version"
+  );
+  const htmlRm = read("index.html").match(/reminders\.js\?v=([\w.]+)/);
+  assert.ok(htmlRm && htmlRm[1] === html[1], "index.html must load reminders.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./reminders.js?v=${html[1]}`),
+    "APP_SHELL must precache reminders.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
