@@ -680,3 +680,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - The conflict with the swipe between Today/All/Favorites: a touch that starts in the 32px edge zone belongs only to the menu; every other horizontal swipe still switches views. The two never run for the same touch, and the pull-down-to-update gesture ignores touches that start on the edge.
 - Verified with simulated touches in Chromium, including cancel, an interrupted drag and back-and-forth drags; not on a real device.
 - Version: 1.59.21.
+
+## 086 — Browser tests for the touch gestures
+
+- The menu's edge swipe, the pull-down update and the version row (decisions 081–085) had only been checked by hand. `tests/browser/gestures.test.mjs` now runs them in CI on the built site (Chromium, mobile emulation, `Touch` events dispatched directly): edge swipe opens; short or wrong-edge swipe doesn't; a cancelled touch and a drag that never ends both leave the drawer fully closed; a swipe away from the edge still switches the view; pulling down shows "latest version"; the menu shows the version and the update row states.
+- Limit: simulated touches in one engine, not a real finger, and not Android's own edge gestures.

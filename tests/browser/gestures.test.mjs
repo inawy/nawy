@@ -1,0 +1,157 @@
+// الحركات اللمس: سحبة حافة القائمة (82/83/85)، السحب-للتحديث (84) وسطر الإصدار (81).
+// اللمسات بتتبعت كأحداث Touch مباشرة (Chromium بس، موبايل محاكى)، مش على جهاز حقيقي.
+import test, { before, after } from "node:test";
+import assert from "node:assert/strict";
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { chromium } from "playwright";
+
+const SITE = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../_site");
+const MIME = {
+  ".html": "text/html; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".css": "text/css",
+  ".woff2": "font/woff2",
+  ".woff": "font/woff",
+  ".png": "image/png",
+  ".svg": "image/svg+xml",
+  ".ico": "image/x-icon",
+  ".json": "application/json"
+};
+
+let server, browser, base, page;
+const errors = [];
+
+before(async () => {
+  assert.ok(fs.existsSync(path.join(SITE, "index.html")), "run `npm run build` first");
+  server = http.createServer((req, res) => {
+    let p = decodeURIComponent(new URL(req.url, "http://x").pathname);
+    if (p.endsWith("/")) p += "index.html";
+    const file = path.join(SITE, p);
+    if (!file.startsWith(SITE) || !fs.existsSync(file) || fs.statSync(file).isDirectory()) {
+      res.writeHead(404);
+      res.end("nf");
+      return;
+    }
+    res.writeHead(200, {
+      "Content-Type": MIME[path.extname(file)] || "application/octet-stream",
+      "Cache-Control": "no-store"
+    });
+    fs.createReadStream(file).pipe(res);
+  });
+  await new Promise(r => server.listen(0, "127.0.0.1", r));
+  base = `http://localhost:${server.address().port}`;
+  browser = await chromium.launch();
+  const ctx = await browser.newContext({ viewport: { width: 390, height: 780 }, hasTouch: true, isMobile: true });
+  page = await ctx.newPage();
+  page.on("pageerror", e => errors.push(String(e)));
+  await page.route("**/*", route => (route.request().url().startsWith(base) ? route.continue() : route.abort()));
+  await page.goto(`${base}/index.html`);
+  await page.waitForFunction(
+    () => document.getElementById("menuBtn") && !document.documentElement.classList.contains("booting")
+  );
+});
+
+after(async () => {
+  await browser?.close();
+  await new Promise(r => server?.close(r));
+});
+
+const touch = (type, x, y = 400) =>
+  page.evaluate(
+    ([type, x, y]) => {
+      const t = new Touch({ identifier: 1, target: document.body, clientX: x, clientY: y });
+      const end = type === "touchend" || type === "touchcancel";
+      document.body.dispatchEvent(
+        new TouchEvent(type, { touches: end ? [] : [t], changedTouches: [t], bubbles: true, cancelable: true })
+      );
+    },
+    [type, x, y]
+  );
+const drag = async (from, to, { y = 400, end = "touchend" } = {}) => {
+  await touch("touchstart", from, y);
+  await touch("touchmove", Math.round((from + to) / 2), y);
+  await touch("touchmove", to, y);
+  await touch(end, to, y);
+};
+const menu = () =>
+  page.evaluate(() => {
+    const o = document.getElementById("menuOverlay");
+    return {
+      open: o.classList.contains("show"),
+      cls: o.className,
+      left: Math.round(o.querySelector(".sheet").getBoundingClientRect().left)
+    };
+  });
+const closeMenu = async () => {
+  await page.evaluate(() => closeOverlay(document.getElementById("menuOverlay")));
+  await page.waitForTimeout(450);
+};
+
+test("a swipe in from the menu-side edge opens the menu; a short one or one from the wrong edge does not", async () => {
+  await drag(5, 200);
+  await page.waitForTimeout(500);
+  assert.equal((await menu()).open, true);
+  await closeMenu();
+  await drag(385, 190); // الحافة التانية
+  await page.waitForTimeout(300);
+  assert.equal((await menu()).open, false);
+  await touch("touchstart", 5);
+  await touch("touchmove", 40);
+  await page.waitForTimeout(400); // بطيئة وقصيرة
+  await touch("touchend", 40);
+  await page.waitForTimeout(700);
+  const m = await menu();
+  assert.equal(m.open, false);
+  assert.equal(m.cls, "overlay", "the drawer must settle back fully closed");
+});
+
+test("a cancelled or interrupted edge swipe never leaves the drawer half open", async () => {
+  await touch("touchstart", 5);
+  await touch("touchmove", 100);
+  await touch("touchcancel", 100);
+  await page.waitForTimeout(500);
+  assert.deepEqual(await menu(), { open: false, cls: "overlay", left: -344 });
+  await touch("touchstart", 5);
+  await touch("touchmove", 100); // ولا touchend ولا touchcancel
+  await page.waitForTimeout(1900);
+  assert.equal((await menu()).cls, "overlay", "the watchdog closes a drag that never ended");
+});
+
+test("a swipe that starts away from the edge still switches the view and does not open the menu", async () => {
+  const before = await page.evaluate(() => currentView);
+  await drag(150, 260, { y: 300 });
+  await page.waitForTimeout(300);
+  assert.notEqual(await page.evaluate(() => currentView), before);
+  assert.equal((await menu()).open, false);
+});
+
+test("pulling down from the top checks for an update and says you are on the latest", async () => {
+  await touch("touchstart", 200, 200);
+  await touch("touchmove", 200, 260);
+  await touch("touchmove", 200, 380);
+  assert.equal(await page.evaluate(() => document.getElementById("pullIndicator").classList.contains("ready")), true);
+  await touch("touchend", 200, 380);
+  await page.waitForFunction(() => document.querySelector(".toastify")?.textContent.includes("أحدث نسخة"), null, {
+    timeout: 15000
+  });
+});
+
+test("the menu shows the running version and a tap checks for updates", async () => {
+  const version = await page.evaluate(() => getAppVersion());
+  assert.match(version, /^\d+\.\d+\.\d+$/);
+  await page.evaluate(() => openOverlay(document.getElementById("menuOverlay")));
+  assert.match(await page.textContent("#updateMenuTitle"), new RegExp(version.replace(/\./g, "\\.")));
+  await page.click("#updateMenuBtn");
+  await page.waitForFunction(() => document.getElementById("updateMenuBtn").dataset.state === "latest", null, {
+    timeout: 15000
+  });
+  await page.evaluate(() => showUpdateBanner());
+  assert.equal(await page.evaluate(() => document.getElementById("updateMenuBtn").dataset.state), "available");
+});
+
+test("no page errors during any of it", () => {
+  assert.deepEqual(errors, []);
+});
