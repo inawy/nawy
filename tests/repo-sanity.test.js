@@ -43,6 +43,7 @@ test("JavaScript files parse", () => {
     "share.js",
     "sheet-gestures.js",
     "banners.js",
+    "touch-gestures.js",
     "date-format.js",
     "nawy-data.js",
     "nawy-storage.js",
@@ -95,6 +96,11 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(sounds > backup && sounds < app, "sounds.js must load after the Core and before app.js");
   const share = html.indexOf('src="./share.js');
   assert.ok(share > backup && share < app, "share.js must load after the Core and before app.js");
+  const touchGestures = html.indexOf('src="./touch-gestures.js');
+  assert.ok(
+    touchGestures > backup && touchGestures < app,
+    "touch-gestures.js must load after the Core and before app.js"
+  );
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -163,6 +169,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./banners.js?v=${html[1]}`),
     "APP_SHELL must precache banners.js with the same version"
+  );
+  const htmlTg = read("index.html").match(/touch-gestures\.js\?v=([\w.]+)/);
+  assert.ok(htmlTg && htmlTg[1] === html[1], "index.html must load touch-gestures.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./touch-gestures.js?v=${html[1]}`),
+    "APP_SHELL must precache touch-gestures.js with the same version"
   );
   const htmlDf = read("index.html").match(/date-format\.js\?v=([\w.]+)/);
   assert.ok(htmlDf && htmlDf[1] === html[1], "index.html must load date-format.js with the same ?v");
@@ -459,7 +471,7 @@ test("the menu shows the app version and an update row (decision 081)", () => {
 });
 
 test("a swipe from the menu-side screen edge opens the menu (decision 082)", () => {
-  const app = read("app.js");
+  const app = read("touch-gestures.js");
   assert.match(app, /MENU_EDGE_PX/);
   assert.match(app, /openOverlay\(overlay, true\)/);
   assert.match(app, /edgeSwipe\.tracking = true/);
@@ -472,9 +484,9 @@ test("a swipe from the menu-side screen edge opens the menu (decision 082)", () 
 });
 
 test("pull down from the top checks for and applies an update (decision 084)", () => {
-  const app = read("app.js");
-  assert.match(app, /async function checkForUpdate\(/);
-  assert.match(app, /PULL_TRIGGER_PX/);
-  assert.match(app, /state === "available"\) requestUpdateNow\(\)/);
+  assert.match(read("app.js"), /async function checkForUpdate\(/);
+  const gestures = read("touch-gestures.js");
+  assert.match(gestures, /PULL_TRIGGER_PX/);
+  assert.match(gestures, /state === "available"\) requestUpdateNow\(\)/);
   assert.match(read("styles.css"), /#pullIndicator/);
 });
