@@ -41,6 +41,8 @@ function readSavedView() {
   return "today";
 }
 let currentView = readSavedView();
+// بتتقرا في overlays.js (closeOverlay)
+/* exported activeTaskEditRestore */
 /** @type {(() => void) | null} */
 let activeTaskEditRestore = null;
 /** @type {any} */
