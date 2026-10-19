@@ -72,7 +72,9 @@ for (const engine of engines) {
           window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space", bubbles: true, cancelable: true }))
         );
       await press(); // start
-      for (let i = 0; i < 12; i++) {
+      // نستنى لحد 10 ثواني لحد ما السكور يتحرك (المحركات على جهاز CI بطيء ساعات بتبدأ الـ rAF متأخر)
+      const readScore = () => page.evaluate(() => Number(document.getElementById("score").textContent));
+      for (let i = 0; i < 40 && (await readScore()) === 0; i++) {
         await page.waitForTimeout(250);
         await press(); // jump
       }
