@@ -128,6 +128,28 @@ test("a swipe that starts away from the edge still switches the view and does no
   assert.equal((await menu()).open, false);
 });
 
+test("a long horizontal swipe from the middle opens the menu; a medium one still switches the view", async () => {
+  await closeMenu();
+  // 200px (> 40% of 390) نحو القائمة: الدرج يبان أثناء السحب ويتفتح عند الرفع
+  await touch("touchstart", 100, 300);
+  await touch("touchmove", 160, 300);
+  await touch("touchmove", 300, 300);
+  await page.waitForTimeout(100);
+  assert.match((await menu()).cls, /edge-dragging/, "the drawer peeks once the long distance is passed");
+  await touch("touchend", 300, 300);
+  await page.waitForTimeout(600);
+  assert.equal((await menu()).open, true);
+  await closeMenu();
+  // رجوع الإصبع لقدّام المسافة: الدرج يتخفّي وما يتفتحش
+  await touch("touchstart", 100, 300);
+  await touch("touchmove", 300, 300);
+  await touch("touchmove", 200, 300);
+  await touch("touchend", 200, 300);
+  await page.waitForTimeout(600);
+  assert.equal((await menu()).open, false);
+  assert.equal((await menu()).cls, "overlay");
+});
+
 test("pulling down from the top checks for an update and says you are on the latest", async () => {
   await touch("touchstart", 200, 200);
   await touch("touchmove", 200, 260);
