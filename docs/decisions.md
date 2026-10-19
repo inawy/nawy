@@ -711,3 +711,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Same shape as `touch-gestures.js` (decision 089): a classic script loaded before `app.js` that uses `$`, `t` and `showToast` at run time, with `?v=`, APP_SHELL, build list, type check, a lint block and sanity tests updated (the update tests now read `update.js`). `updateRequested` is now private to `update.js`; nothing else wrote it.
 - Behavior check: the safe-update tests, the update-row and pull-to-update browser tests pass before and after.
 - Version: 1.59.25.
+
+## 091 — Overlays and the side drawer moved into overlays.js
+
+- Third step of splitting `app.js` (now about 2560 lines): the code that opens and closes the drawer and the bottom sheets moved, unchanged, into `overlays.js` (138 lines): `openOverlay` / `closeOverlay` / `closeAllOverlays`, the docked sidebar on wide screens (`isSidebarDocked`, `syncMenuState`, `initSidebar`, its saved preference), `updateBodyScrollLock`, `dismissMenuForNavigation`, and the sliding between the menu's sub-panels (`showMenuSubPanel`, `backToMainMenuPanel`). It was the code every other part calls, and `touch-gestures.js` and `sheet-gestures.js` already depended on it as globals.
+- Definitions only, with nothing executed while loading, so the load order is safe anywhere before `app.js`. It uses `$`, `$$` and `activeTaskEditRestore` from `app.js` at run time. Wiring as before (`?v=`, APP_SHELL, build list, type check, lint block, sanity tests; the breakpoint test now reads `overlays.js`).
+- Behavior check: all tests and the 8 gesture browser tests pass unchanged.
+- Version: 1.59.26.
