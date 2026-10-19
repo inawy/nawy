@@ -2712,14 +2712,11 @@ document.addEventListener(
       const views = ["today", "all", "favorites"];
       const idx = views.indexOf(/** @type {string} */ (currentView));
       const isRTL = document.documentElement.dir === "rtl";
-
-      if (isRTL) {
-        if (dx > 0) setView(views[(idx + 1) % views.length]);
-        else setView(views[(idx - 1 + views.length) % views.length]);
-      } else {
-        if (dx > 0) setView(views[(idx - 1 + views.length) % views.length]);
-        else setView(views[(idx + 1) % views.length]);
-      }
+      // اتجاه التبديل: في العربي السحب لليمين = التاب اللي بعده (اليوم ← نواياي ← مفضلاتي)، وفي الإنجليزي العكس.
+      // من غير لفّ: عند أول تاب أو آخر تاب السحبة في الاتجاه ده مبتعملش حاجة (زي التطبيقات الحديثة).
+      const step = (isRTL ? dx > 0 : dx < 0) ? 1 : -1;
+      const next = idx + step;
+      if (idx !== -1 && next >= 0 && next < views.length) setView(views[next]);
     }
   },
   { passive: true }

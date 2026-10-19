@@ -692,3 +692,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Rule: a horizontal swipe on the page content toward the menu side (rightward in Arabic, where the menu is on the left; leftward in English) of 40% of the screen width or more opens the menu; from 60px up to that it switches the view as before. At the threshold the drawer starts to appear, following the finger, which also tells the user which of the two will happen; moving the finger back under the threshold hides it again and the swipe goes back to being a tab swipe; releasing past it opens the menu.
 - The edge swipe (decision 082/083) is kept for devices where it works. Both use the same drag and cleanup code (decision 085).
 - Not verified on a real device. Version: 1.59.22.
+
+## 088 — Swiping between tabs does not wrap around
+
+- Report: the swipe between Today / All / Favorites looped (after the last one it went back to the first). Modern apps stop at the ends, so it now does: Today, then All (نواياي), then Favorites (مفضلاتي), and a further swipe in the same direction at the end does nothing; the opposite swipe goes back. In English the direction is mirrored.
+- Version: 1.59.23.
