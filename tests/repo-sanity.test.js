@@ -462,8 +462,13 @@ test("a swipe from the menu-side screen edge opens the menu (decision 082)", () 
   const app = read("app.js");
   assert.match(app, /MENU_EDGE_PX/);
   assert.match(app, /openOverlay\(overlay, true\)/);
-  assert.match(app, /edgeSwipe = \{ tracking: true/);
-  assert.match(app, /function edgeDragMenu\(/, "the drawer follows the finger");
+  assert.match(app, /edgeSwipe\.tracking = true/);
+  assert.match(app, /function edgeDragMove\(/, "the drawer follows the finger");
+  assert.match(
+    app,
+    /"touchcancel", \(\) => edgeDragFinish\(false\)/,
+    "a cancelled touch must not leave the drawer half open"
+  );
 });
 
 test("pull down from the top checks for and applies an update (decision 084)", () => {

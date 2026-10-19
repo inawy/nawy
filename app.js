@@ -50,23 +50,49 @@ let swipeTracking = false;
 // سحبة من حافة الشاشة ناحية القائمة (شمال في العربي، يمين في الإنجليزي) لجوه: بتفتح القائمة، عكس سحبها لبرّه اللي بيقفلها.
 const MENU_EDGE_PX = 32;
 const MENU_EDGE_OPEN_PX = 50;
-let edgeSwipe = { tracking: false, x: 0, y: 0, time: 0, dragging: false };
+let edgeSwipe = { tracking: false, x: 0, y: 0, time: 0, dragging: false, width: 0, inward: 0, raf: 0, watchdog: 0 };
+/** @type {ReturnType<typeof setTimeout> | 0} */
+let edgeSettleTimer = 0;
 
-// الدرج بيتابع الإصبع أثناء سحبة الحافة: inward = المسافة لجوه بالبكسل (0 = مقفول تمامًا).
-function edgeDragMenu(inward) {
+// الدرج بيتابع الإصبع أثناء سحبة الحافة (inward = المسافة لجوه بالبكسل، 0 = مقفول تمامًا).
+// الكتابة على الـ DOM بتتجمّع في إطار واحد لكل frame (rAF) والعرض بيتقاس مرة واحدة أول السحبة، عشان السحب يفضل سلس.
+function edgeDragApply() {
+  edgeSwipe.raf = 0;
+  if (!edgeSwipe.dragging) return;
   const overlay = $("#menuOverlay");
   const sheet = /** @type {HTMLElement} */ (overlay.querySelector(".sheet"));
-  const width = sheet.offsetWidth + 24;
-  const shown = Math.max(0, Math.min(width, inward));
+  const width = edgeSwipe.width;
+  const shown = Math.max(0, Math.min(width, edgeSwipe.inward));
   const rtl = document.documentElement.dir === "rtl";
-  overlay.classList.add("edge-dragging");
-  sheet.style.transition = "none";
   sheet.style.transform = `translateX(${rtl ? shown - width : width - shown}px)`;
   overlay.style.backgroundColor = `rgba(8, 10, 16, ${(0.5 * shown) / width})`;
-  return shown / width;
 }
-// آخر السحبة: نفتح لو عدّى الحد أو كان سريع، وإلا نرجّعه مكانه.
+function edgeDragMove(inward) {
+  const overlay = $("#menuOverlay");
+  const sheet = /** @type {HTMLElement} */ (overlay.querySelector(".sheet"));
+  if (!edgeSwipe.dragging) {
+    // أول حركة: نلغي أي تنضيف متأخر من سحبة قبلها، ونقيس العرض مرة واحدة.
+    if (edgeSettleTimer) clearTimeout(edgeSettleTimer);
+    edgeSettleTimer = 0;
+    edgeSwipe.dragging = true;
+    edgeSwipe.width = sheet.offsetWidth + 24;
+    overlay.classList.add("edge-dragging");
+    sheet.style.transition = "none";
+  }
+  edgeSwipe.inward = inward;
+  // لو الإصبع وقف في نص السحبة من غير touchend/touchcancel (حصل مع إيماءات النظام)، بنرجّع الدرج بعد ثانية ونص.
+  clearTimeout(edgeSwipe.watchdog);
+  edgeSwipe.watchdog = /** @type {any} */ (setTimeout(() => edgeDragFinish(false), 1500));
+  if (!edgeSwipe.raf) edgeSwipe.raf = requestAnimationFrame(edgeDragApply);
+}
+// آخر السحبة: نفتح لو عدّى الحد أو كان سريع، وإلا نرجّعه مكانه. بتتنده في كل الأحوال (touchend / touchcancel / watchdog) فمفيش حالة نص-مفتوحة بتفضل عالقة.
 function edgeDragFinish(open) {
+  clearTimeout(edgeSwipe.watchdog);
+  if (edgeSwipe.raf) cancelAnimationFrame(edgeSwipe.raf);
+  edgeSwipe.raf = 0;
+  edgeSwipe.tracking = false;
+  if (!edgeSwipe.dragging) return;
+  edgeSwipe.dragging = false;
   const overlay = $("#menuOverlay");
   const sheet = /** @type {HTMLElement} */ (overlay.querySelector(".sheet"));
   sheet.style.transition = SIDE_PANEL_TRANSITION;
@@ -77,9 +103,10 @@ function edgeDragFinish(open) {
     overlay.classList.remove("edge-dragging");
     $("#menuBtn").setAttribute("aria-expanded", "true");
   } else {
-    const width = sheet.offsetWidth + 24;
+    const width = edgeSwipe.width || sheet.offsetWidth + 24;
     sheet.style.transform = `translateX(${document.documentElement.dir === "rtl" ? -width : width}px)`;
-    setTimeout(() => {
+    edgeSettleTimer = setTimeout(() => {
+      edgeSettleTimer = 0;
       overlay.classList.remove("edge-dragging");
       sheet.style.transition = "";
       sheet.style.transform = "";
@@ -2564,12 +2591,18 @@ $("#notifToggleCheckbox").addEventListener(
 document.addEventListener(
   "touchstart",
   e => {
+    // سحبة حافة قديمة لسه معلّقة (touchend ما وصلش): نقفلها الأول.
+    if (edgeSwipe.dragging) edgeDragFinish(false);
     edgeSwipe.tracking = false;
     const first = e.touches[0];
     const rtl = document.documentElement.dir === "rtl";
     const onMenuEdge = rtl ? first.clientX <= MENU_EDGE_PX : first.clientX >= window.innerWidth - MENU_EDGE_PX;
     if (e.touches.length === 1 && onMenuEdge && !isSidebarDocked() && !document.querySelector(".overlay.show")) {
-      edgeSwipe = { tracking: true, x: first.clientX, y: first.clientY, time: Date.now(), dragging: false };
+      edgeSwipe.tracking = true;
+      edgeSwipe.x = first.clientX;
+      edgeSwipe.y = first.clientY;
+      edgeSwipe.time = Date.now();
+      edgeSwipe.dragging = false;
       swipeTracking = false;
       return;
     }
@@ -2598,10 +2631,9 @@ document.addEventListener(
       const dy = e.touches[0].clientY - edgeSwipe.y;
       const inward = document.documentElement.dir === "rtl" ? dx : -dx;
       if (!edgeSwipe.dragging && Math.abs(dy) > Math.abs(dx) * 1.2) edgeSwipe.tracking = false;
-      else if (inward > 10) {
+      else if (edgeSwipe.dragging || inward > 10) {
         e.preventDefault();
-        edgeSwipe.dragging = true;
-        edgeDragMenu(inward);
+        edgeDragMove(inward);
       }
       return;
     }
@@ -2637,14 +2669,14 @@ document.addEventListener(
   "touchend",
   e => {
     if (edgeSwipe.tracking) {
-      edgeSwipe.tracking = false;
-      if (!edgeSwipe.dragging) return;
-      edgeSwipe.dragging = false;
+      if (!edgeSwipe.dragging) {
+        edgeSwipe.tracking = false;
+        return;
+      }
       const dx = e.changedTouches[0].clientX - edgeSwipe.x;
       const inward = document.documentElement.dir === "rtl" ? dx : -dx;
-      const sheetWidth = $("#menuOverlay .sheet").offsetWidth + 24;
       const fast = Date.now() - edgeSwipe.time < 300 && inward > MENU_EDGE_OPEN_PX;
-      edgeDragFinish(inward > sheetWidth * 0.4 || fast);
+      edgeDragFinish(inward > edgeSwipe.width * 0.4 || fast);
       return;
     }
 
@@ -2672,6 +2704,13 @@ document.addEventListener(
   },
   { passive: true }
 );
+
+// المتصفح/النظام أخد اللمسة (إيماءة رجوع مثلًا): نرجّع الدرج مكانه بدل ما يفضل ظاهر نصه.
+document.addEventListener("touchcancel", () => edgeDragFinish(false), { passive: true });
+window.addEventListener("blur", () => edgeDragFinish(false));
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) edgeDragFinish(false);
+});
 
 initSheetGestures();
 
