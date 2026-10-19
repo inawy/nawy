@@ -704,3 +704,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - It is a classic script loaded after `banners.js` and before `app.js`, like the other page scripts (`?v=` version, APP_SHELL, build list, type check and a lint block listing the globals it uses at runtime). Not an ES module yet: `app.js` and its siblings still share globals, and turning them into modules is the later step.
 - Behavior check: the 8 gesture browser tests of decisions 086–088 pass before and after, unchanged. The update check itself (`checkForUpdate`) stays in `app.js`, next to the update banner code.
 - Version: 1.59.24.
+
+## 090 — Update logic moved into update.js
+
+- Second step of splitting `app.js` (now about 2700 lines): everything about updates moved, unchanged, into `update.js` (205 lines): the "new version" banner and its `requestUpdateNow` (with the unsent-draft rule), the version row in the menu (`getAppVersion`, `renderUpdateMenu`), `checkForUpdate`, and the service worker registration with its periodic check and the `controllerchange` reload that only happens after the user asked. `app.js` keeps one call, `initUpdates()`. `banners.js` now only holds the install banner.
+- Same shape as `touch-gestures.js` (decision 089): a classic script loaded before `app.js` that uses `$`, `t` and `showToast` at run time, with `?v=`, APP_SHELL, build list, type check, a lint block and sanity tests updated (the update tests now read `update.js`). `updateRequested` is now private to `update.js`; nothing else wrote it.
+- Behavior check: the safe-update tests, the update-row and pull-to-update browser tests pass before and after.
+- Version: 1.59.25.
