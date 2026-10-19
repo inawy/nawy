@@ -685,3 +685,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - The menu's edge swipe, the pull-down update and the version row (decisions 081–085) had only been checked by hand. `tests/browser/gestures.test.mjs` now runs them in CI on the built site (Chromium, mobile emulation, `Touch` events dispatched directly): edge swipe opens; short or wrong-edge swipe doesn't; a cancelled touch and a drag that never ends both leave the drawer fully closed; a swipe away from the edge still switches the view; pulling down shows "latest version"; the menu shows the version and the update row states.
 - Limit: simulated touches in one engine, not a real finger, and not Android's own edge gestures.
+
+## 087 — A long horizontal swipe from anywhere opens the menu
+
+- Request: the screen edge carries Android's back gesture, so opening the menu should not depend on it. As in other professional apps, a longer horizontal swipe toward the menu opens it, and a shorter one still switches the tab.
+- Rule: a horizontal swipe on the page content toward the menu side (rightward in Arabic, where the menu is on the left; leftward in English) of 40% of the screen width or more opens the menu; from 60px up to that it switches the view as before. At the threshold the drawer starts to appear, following the finger, which also tells the user which of the two will happen; moving the finger back under the threshold hides it again and the swipe goes back to being a tab swipe; releasing past it opens the menu.
+- The edge swipe (decision 082/083) is kept for devices where it works. Both use the same drag and cleanup code (decision 085).
+- Not verified on a real device. Version: 1.59.22.

@@ -50,6 +50,10 @@ let swipeTracking = false;
 // سحبة من حافة الشاشة ناحية القائمة (شمال في العربي، يمين في الإنجليزي) لجوه: بتفتح القائمة، عكس سحبها لبرّه اللي بيقفلها.
 const MENU_EDGE_PX = 32;
 const MENU_EDGE_OPEN_PX = 50;
+// سحبة أفقية طويلة من أي مكان ناحية القائمة بتفتحها (الحافة عليها إيماءة الرجوع في أندرويد): أقصر من 40% من عرض الشاشة = بتبدّل التاب، أطول = القائمة.
+const MENU_LONG_SWIPE_RATIO = 0.4;
+const MENU_LONG_SWIPE_PEEK_PX = 56;
+const menuLongSwipePx = () => Math.round(window.innerWidth * MENU_LONG_SWIPE_RATIO);
 let edgeSwipe = { tracking: false, x: 0, y: 0, time: 0, dragging: false, width: 0, inward: 0, raf: 0, watchdog: 0 };
 /** @type {ReturnType<typeof setTimeout> | 0} */
 let edgeSettleTimer = 0;
@@ -2661,6 +2665,15 @@ document.addEventListener(
     if (Math.abs(dx) > 10) {
       e.preventDefault();
     }
+
+    // عدّت مسافة التبديل: الدرج يبان وهو بيتابع الإصبع (وده التأكيد إن السحبة هتفتح القائمة مش هتبدّل التاب).
+    // لو الإصبع رجع لقدّام المسافة دي الدرج بيتخفّي والسحبة ترجع تاب عادي.
+    const inwardLong = document.documentElement.dir === "rtl" ? dx : -dx;
+    const threshold = menuLongSwipePx();
+    if (!isSidebarDocked() && !document.querySelector(".overlay.show")) {
+      if (inwardLong >= threshold) edgeDragMove(inwardLong - threshold + MENU_LONG_SWIPE_PEEK_PX);
+      else if (edgeSwipe.dragging) edgeDragFinish(false);
+    }
   },
   { passive: false }
 );
@@ -2687,6 +2700,13 @@ document.addEventListener(
     const touch = e.changedTouches[0];
     const dx = touch.clientX - swipeStartX;
     const gestureDuration = Date.now() - swipeStartTime;
+
+    if (edgeSwipe.dragging) {
+      // سحبة طويلة اتحوّلت لسحب الدرج: بتفتح لو الإصبع لسه عدّى المسافة.
+      const inwardLong = document.documentElement.dir === "rtl" ? dx : -dx;
+      edgeDragFinish(inwardLong >= menuLongSwipePx());
+      return;
+    }
 
     if (Math.abs(dx) > 60 && gestureDuration < 450) {
       const views = ["today", "all", "favorites"];
