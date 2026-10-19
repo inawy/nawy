@@ -697,3 +697,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 
 - Report: the swipe between Today / All / Favorites looped (after the last one it went back to the first). Modern apps stop at the ends, so it now does: Today, then All (نواياي), then Favorites (مفضلاتي), and a further swipe in the same direction at the end does nothing; the opposite swipe goes back. In English the direction is mirrored.
 - Version: 1.59.23.
+
+## 089 — Touch gestures moved out of app.js into touch-gestures.js
+
+- First step of splitting `app.js` (about 3100 lines, the weakest part of the design): everything about touch gestures moved, unchanged, into `touch-gestures.js` (315 lines): the edge swipe and the long swipe that open the menu, the swipe between tabs, the drag/settle code with its cleanup rules (decision 085) and the pull-down update with its indicator. `app.js` keeps one call, `initTouchGestures()`, at the place where the listeners used to be registered, so listener order is the same.
+- It is a classic script loaded after `banners.js` and before `app.js`, like the other page scripts (`?v=` version, APP_SHELL, build list, type check and a lint block listing the globals it uses at runtime). Not an ES module yet: `app.js` and its siblings still share globals, and turning them into modules is the later step.
+- Behavior check: the 8 gesture browser tests of decisions 086–088 pass before and after, unchanged. The update check itself (`checkForUpdate`) stays in `app.js`, next to the update banner code.
+- Version: 1.59.24.

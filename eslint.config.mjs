@@ -67,6 +67,29 @@ export default [
     }
   },
   {
+    // touch-gestures.js بيستخدم اللي بتعرّفه app.js و banners.js وقت التشغيل
+    files: ["touch-gestures.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        t: "readonly",
+        showToast: "readonly",
+        openOverlay: "readonly",
+        closeOverlay: "readonly",
+        isSidebarDocked: "readonly",
+        setView: "readonly",
+        currentView: "readonly",
+        SIDE_PANEL_TRANSITION: "readonly",
+        checkForUpdate: "readonly",
+        requestUpdateNow: "readonly"
+      }
+    }
+  },
+  {
     // sheet-gestures.js بيستخدم $$ و closeOverlay من app.js وقت التشغيل
     files: ["sheet-gestures.js"],
     languageOptions: {
@@ -122,6 +145,7 @@ export default [
         shareAsImage: "readonly",
         initSheetGestures: "readonly",
         showUpdateBanner: "readonly",
+        initTouchGestures: "readonly",
         requestUpdateNow: "readonly",
         renderUpdateMenu: "readonly",
         updateWaiting: "readonly",
