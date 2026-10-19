@@ -662,3 +662,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Follow-up to decision 082: the menu now tracks the finger 1:1 while it is dragged in from the edge (and the backdrop darkens with it), like the swipe that closes it. On release it opens if it passed 40% of its width or the swipe was quick (> 50px in under 300ms); otherwise it slides back. The edge zone grew from 24 to 32px.
 - Implementation: `edgeDragMenu` / `edgeDragFinish` in `app.js`; `openOverlay(overlay, true)` keeps the dragged position instead of resetting the drawer. Still not verified on a real device (Android's back gesture may claim the same edge).
 - Version: 1.59.19.
+
+## 084 — Pull down to update (our own gesture), colors follow the theme
+
+- Request: bring back update-by-pulling-down, and make the status bar, the browser UI and the page background all follow the theme (day/night).
+- The browser's own pull-to-refresh stays off (decision 080) because it draws its area in the browser's color, not the theme's. In its place: at the top of the page, a vertical pull of 70px (the finger travels twice that, with resistance) shows a round indicator in the theme's colors; on release the app asks the service worker to check now. A new version is applied (same safe action as the banner and the menu row, so an unsent draft postpones it); otherwise a toast says you are on the latest version. It does not reload the page: the data is local, so there is nothing else to refresh.
+- The check itself moved to `checkForUpdate()`, shared with the menu row.
+- Colors: the `theme-color` meta tags already follow the active theme at runtime (`updateThemeColorMeta`), and `html`/`body` paint `--bg`, which is the same value (#FAF9F7 light / #0F1115 dark). Not changeable from the page: the OS window color behind the page while an installed app starts or reloads comes from the manifest, which has a single `background_color`/`theme_color` (dark). The manifest `color_scheme_dark` member that would allow both is still only a W3C proposal, so it was not added.
+- Not verified on a real device (touch events simulated in Chromium).
+- Version: 1.59.20.
