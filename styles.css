@@ -2835,3 +2835,6 @@ html[dir="ltr"] {
     animation: none;
   }
 }
+#menuOverlay.edge-dragging .sheet {
+  will-change: transform;
+}

@@ -671,3 +671,12 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Colors: the `theme-color` meta tags already follow the active theme at runtime (`updateThemeColorMeta`), and `html`/`body` paint `--bg`, which is the same value (#FAF9F7 light / #0F1115 dark). Not changeable from the page: the OS window color behind the page while an installed app starts or reloads comes from the manifest, which has a single `background_color`/`theme_color` (dark). The manifest `color_scheme_dark` member that would allow both is still only a W3C proposal, so it was not added.
 - Not verified on a real device (touch events simulated in Chromium).
 - Version: 1.59.20.
+
+## 085 — The edge swipe can no longer leave the drawer stuck half open
+
+- Report on decision 083: sometimes a part of the drawer stays on screen, the app stops responding, and the drawer's appearance isn't smooth.
+- Causes found in the code: (1) `touchcancel` was never handled, so when the browser or the OS took the gesture (e.g. Android's back gesture on the same edge) the drawer stayed wherever the finger was and the page behind it was left in the dragging state; (2) after the drag began, moving back toward the edge (inward <= 10px) stopped updating it; (3) a slide-back cleanup timer from one swipe could fire in the middle of the next swipe and wipe its transform; (4) the sheet width was re-measured and styles written on every touchmove.
+- Fix: one `edgeDragFinish(open)` ends every drag whatever the reason (touchend, touchcancel, window blur, page hidden, a new touchstart, or a 1.5 s watchdog with no touch events); the pending cleanup timer is cancelled when a new drag starts; the width is measured once; DOM writes are batched per frame with `requestAnimationFrame`; `will-change: transform` only during the drag.
+- The conflict with the swipe between Today/All/Favorites: a touch that starts in the 32px edge zone belongs only to the menu; every other horizontal swipe still switches views. The two never run for the same touch, and the pull-down-to-update gesture ignores touches that start on the edge.
+- Verified with simulated touches in Chromium, including cancel, an interrupted drag and back-and-forth drags; not on a real device.
+- Version: 1.59.21.
