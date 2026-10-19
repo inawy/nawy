@@ -718,3 +718,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Definitions only, with nothing executed while loading, so the load order is safe anywhere before `app.js`. It uses `$`, `$$` and `activeTaskEditRestore` from `app.js` at run time. Wiring as before (`?v=`, APP_SHELL, build list, type check, lint block, sanity tests; the breakpoint test now reads `overlays.js`).
 - Behavior check: all tests and the 8 gesture browser tests pass unchanged.
 - Version: 1.59.26.
+
+## 092 — Reminders and notifications moved into reminders.js
+
+- Fourth step of splitting `app.js` (now about 2410 lines): the six functions about reminders moved, unchanged, into `reminders.js` (157 lines): `updateNotifUI`, `requestNotificationPermission`, `runDailyReminderCheck`, `runBackgroundReminderCheck`, `registerPeriodicReminderSync` and `showMorningNotification`. The calls to them stay in `app.js` (the settings toggle, `init()` with its 15-minute interval and the visibility check), so when and how often they run is unchanged.
+- Definitions only, nothing executed at load time; it uses `$`, `t`, `showToast`, `settings`, `saveSettings`, `getDateKey` and `getTodayPinnedTask` from `app.js` at run time. Wiring as in the previous steps.
+- Behavior check: all tests and the 8 gesture browser tests pass; the reminder rules themselves are covered by the existing tests and by the service worker tests (decision on automatic reminders is untouched).
+- Version: 1.59.27.

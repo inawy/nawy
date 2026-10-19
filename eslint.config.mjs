@@ -67,6 +67,25 @@ export default [
     }
   },
   {
+    // reminders.js: تعريفات بس؛ بيستخدم اللي بتعرّفه app.js وقت التشغيل
+    files: ["reminders.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        t: "readonly",
+        showToast: "readonly",
+        settings: "readonly",
+        saveSettings: "readonly",
+        getDateKey: "readonly",
+        getTodayPinnedTask: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -162,6 +181,12 @@ export default [
         shareAsImage: "readonly",
         initSheetGestures: "readonly",
         initUpdates: "readonly",
+        updateNotifUI: "readonly",
+        requestNotificationPermission: "readonly",
+        runDailyReminderCheck: "readonly",
+        runBackgroundReminderCheck: "readonly",
+        registerPeriodicReminderSync: "readonly",
+        showMorningNotification: "readonly",
         openOverlay: "readonly",
         closeOverlay: "readonly",
         closeAllOverlays: "readonly",
