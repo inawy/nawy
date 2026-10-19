@@ -67,6 +67,15 @@ export default [
     }
   },
   {
+    // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
+    files: ["overlays.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...appGlobals, $: "readonly", $$: "readonly", activeTaskEditRestore: "readonly" }
+    }
+  },
+  {
     // update.js بيستخدم $ و t و showToast من app.js وقت التشغيل
     files: ["update.js"],
     languageOptions: {
@@ -153,6 +162,16 @@ export default [
         shareAsImage: "readonly",
         initSheetGestures: "readonly",
         initUpdates: "readonly",
+        openOverlay: "readonly",
+        closeOverlay: "readonly",
+        closeAllOverlays: "readonly",
+        isSidebarDocked: "readonly",
+        syncMenuState: "readonly",
+        dismissMenuForNavigation: "readonly",
+        initSidebar: "readonly",
+        updateBodyScrollLock: "readonly",
+        showMenuSubPanel: "readonly",
+        backToMainMenuPanel: "readonly",
         initTouchGestures: "readonly",
         requestUpdateNow: "readonly",
         renderUpdateMenu: "readonly",
