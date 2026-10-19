@@ -2804,3 +2804,34 @@ html[dir="ltr"] {
 #menuOverlay.edge-dragging {
   visibility: visible;
 }
+
+/* مؤشر السحب-للتحديث: بألوان الثيم مش لون المتصفح */
+#pullIndicator {
+  position: fixed;
+  top: env(safe-area-inset-top);
+  left: 50%;
+  z-index: 120;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sheet);
+  color: var(--muted);
+  opacity: 0;
+  transform: translate(-50%, -44px);
+  pointer-events: none;
+}
+#pullIndicator.ready {
+  color: var(--accent);
+}
+#pullIndicator.busy .icon {
+  animation: nawy-spin 0.9s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  #pullIndicator.busy .icon {
+    animation: none;
+  }
+}

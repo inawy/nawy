@@ -465,3 +465,11 @@ test("a swipe from the menu-side screen edge opens the menu (decision 082)", () 
   assert.match(app, /edgeSwipe = \{ tracking: true/);
   assert.match(app, /function edgeDragMenu\(/, "the drawer follows the finger");
 });
+
+test("pull down from the top checks for and applies an update (decision 084)", () => {
+  const app = read("app.js");
+  assert.match(app, /async function checkForUpdate\(/);
+  assert.match(app, /PULL_TRIGGER_PX/);
+  assert.match(app, /state === "available"\) requestUpdateNow\(\)/);
+  assert.match(read("styles.css"), /#pullIndicator/);
+});
