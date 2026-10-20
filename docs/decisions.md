@@ -725,3 +725,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Definitions only, nothing executed at load time; it uses `$`, `t`, `showToast`, `settings`, `saveSettings`, `getDateKey` and `getTodayPinnedTask` from `app.js` at run time. Wiring as in the previous steps.
 - Behavior check: all tests and the 8 gesture browser tests pass; the reminder rules themselves are covered by the existing tests and by the service worker tests (decision on automatic reminders is untouched).
 - Version: 1.59.27.
+
+## 093 — A browser test for the whole intention lifecycle, through the real UI
+
+- Before touching the task code in `app.js` (the next step of the split), `tests/browser/task-lifecycle.test.mjs` drives it the way a person does, with real clicks: add from the composer (newest first), star and unstar (Favorites tab), achieve and un-achieve (including expanding the achieved section), archive and Undo, restore from the archive, permanent delete (cancel first, then confirm; leaves a tombstone, nothing goes to the archive), and a reload. After each step it checks that memory equals IndexedDB, and at the end that a reload brings back exactly the same data.
+- Two things it showed about the setup, kept in the test: the "install Nawy" banner covers the add button in a non-installed browser, so the test dismisses it the way a user does (the same `sessionStorage` key); and archive followed by restore within about 10 ms can leave the archive entry behind. A person can't do that, so the test waits a moment between them like a person would. Not changed in the app.
+- Runs in CI with the other browser tests (Chromium). Not a replacement for trying it on a device.
