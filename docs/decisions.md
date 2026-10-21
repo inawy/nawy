@@ -746,3 +746,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Wired in `index.html`, the service worker's `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.29.
 - Not tested against a real Google account (no credentials here): the export/import and Drive paths are covered by the existing unit and browser tests only. Worth one manual backup + restore on a device.
 - Test fix found on the way (same PR): the browser test "permanent delete can be undone" put its archive entry only in memory. After the delete, the first echo from the storage live query reset memory to the disk state, which never had the entry, and wiped what Undo had just restored. It failed on its own (also on main) and passed or failed in the full run by timing, so CI failed one run. The test now saves the entry to IndexedDB first, like a real user's data. The app code is unchanged: with a saved entry the flow works.
+
+## 096 — Archive and stats views moved into archive-stats.js
+
+- Seventh step of splitting `app.js` (now about 1740 lines): the archive screen and the stats screen moved, unchanged, into `archive-stats.js`: `buildArchiveView`, `renderArchive` (with its fallback), `computeStats`, `renderStats`, `openDeleteAllConfirm` and `closeDeleteAllConfirm`. The search box, the buttons and `archiveSearchQuery` stay in `app.js`; the new file reads that variable at render time through the shared global scope.
+- Classic script loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.30.
+- Covered by the archive browser tests (open, search, restore, delete, delete all) and the lifecycle test. Checked in Chromium (Firefox/WebKit in CI), not on a device.
