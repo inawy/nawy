@@ -771,3 +771,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Tenth step of splitting `app.js` (now about 1480 lines): the code that shows backup state moved, unchanged, into `backup-status.js`: `updateMenuStatusLine` (the line under the menu header plus the archive/stats/backup subtitles), `updateBackupStatusCard`, `markBackupSuccessful`, the "take a backup" nudge (`shouldNudgeBackup`, its two thresholds, `refreshBackupNudge`, the dot on the menu button) and `requestPersistentStorage`.
 - Classic script loaded after the Core and before `app.js`. It reassigns `lastBackupTimestamp` and `lastGoogleAccountEmail`, which `app.js` declares, through the shared global scope. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests (the nudge-policy test now reads the new file). Version 1.59.33.
 - Checked in Chromium (Firefox/WebKit in CI), not on a device.
+
+## 100 — "Today's intention" view moved into today.js
+
+- Eleventh step of splitting `app.js` (now about 1240 lines): the Today view moved, unchanged, into `today.js`: `getDateKey`, `checkTodayIntentionRollover`, `getTodayPinnedTask`, `buildTodayView`, the empty state and the card (`buildTodayEmpty`, `buildTodayCard`), and the pick-an-intention sheet (`openTodayPickSheet`, `buildTodayPickView`, `renderTodayPickList` with its fallback). `render` and the tab logic stay in `app.js` and call `buildTodayView` as before.
+- Classic script loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.34.
+- Covered by the today-pick browser tests (open the pick sheet, search, choose, rollover) and the lifecycle test. Checked in Chromium (Firefox/WebKit in CI), not on a device.

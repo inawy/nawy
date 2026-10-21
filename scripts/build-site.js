@@ -61,6 +61,7 @@ const REQUIRED = [
   "appearance.js",
   "composer.js",
   "backup-status.js",
+  "today.js",
   "sheet-gestures.js",
   "banners.js",
   "update.js",
