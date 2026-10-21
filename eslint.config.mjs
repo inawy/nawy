@@ -125,6 +125,7 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        $: "readonly",
         applySettings: "readonly",
         markBackupSuccessful: "readonly",
         render: "readonly",
@@ -133,7 +134,7 @@ export default [
         snapshotFrom: "readonly",
         t: "readonly",
         storage: "readonly",
-        tasks: "readonly",
+        tasks: "writable",
         archive: "writable",
         deletedIds: "writable",
         settings: "writable",
