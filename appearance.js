@@ -1,6 +1,8 @@
 // مظهر التطبيق: الثيم (فاتح/داكن/نظام) ولون شريط الحالة وتطبيق الإعدادات (أكسنت وحجم خط ولغة واتجاه وترجمات) على الصفحة.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم settings و t و $ ودوال app.js وقت التشغيل.
 /* exported resolveTheme, updateThemeColorMeta, applySettings */
+// لو الإعداد "تلقائي"، نتبع تفضيل الجهاز الحالي، وإلا نستخدم القيمة
+// المحفوظة (داكن/نهاري) زي ما هي.
 function resolveTheme() {
   if (settings.theme === "system") {
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -63,4 +65,19 @@ function applySettings() {
 
   updateNotifUI();
   updateMenuStatusLine();
+}
+
+if (window.matchMedia) {
+  const systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  const onSystemThemeChange = () => {
+    if (settings.theme === "system") {
+      document.documentElement.setAttribute("data-theme", resolveTheme());
+      updateThemeColorMeta();
+    }
+  };
+  if (systemThemeQuery.addEventListener) {
+    systemThemeQuery.addEventListener("change", onSystemThemeChange);
+  } else if (systemThemeQuery.addListener) {
+    systemThemeQuery.addListener(onSystemThemeChange); // متصفحات أقدم
+  }
 }

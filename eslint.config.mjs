@@ -190,6 +190,22 @@ export default [
     }
   },
   {
+    // composer.js: شاشة إضافة النية (فتح/قفل ومكانها فوق الكيبورد)؛ بيستخدم $ و t و showToast ومساعدات الـ overlays وقت التشغيل
+    files: ["composer.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        showToast: "readonly",
+        t: "readonly",
+        updateBodyScrollLock: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -280,6 +296,9 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        openComposer: "readonly",
+        getComposerPlaceholder: "readonly",
+        closeComposer: "readonly",
         resolveTheme: "readonly",
         updateThemeColorMeta: "readonly",
         applySettings: "readonly",

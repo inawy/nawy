@@ -47,6 +47,7 @@ test("JavaScript files parse", () => {
     "backup-restore.js",
     "archive-stats.js",
     "appearance.js",
+    "composer.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -131,6 +132,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   );
   const appearanceJs = html.indexOf('src="./appearance.js');
   assert.ok(appearanceJs > backup && appearanceJs < app, "appearance.js must load after the Core and before app.js");
+  const composerJs = html.indexOf('src="./composer.js');
+  assert.ok(composerJs > backup && composerJs < app, "composer.js must load after the Core and before app.js");
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -223,6 +226,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./appearance.js?v=${html[1]}`),
     "APP_SHELL must precache appearance.js with the same version"
+  );
+  const htmlCo = read("index.html").match(/composer\.js\?v=([\w.]+)/);
+  assert.ok(htmlCo && htmlCo[1] === html[1], "index.html must load composer.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./composer.js?v=${html[1]}`),
+    "APP_SHELL must precache composer.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
