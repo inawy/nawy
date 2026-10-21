@@ -206,6 +206,29 @@ export default [
     }
   },
   {
+    // backup-status.js: سطر حالة القائمة وكارت النسخ الاحتياطي وتنبيه النسخ؛ بيستخدم حالة app.js ودواله وقت التشغيل
+    files: ["backup-status.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        archive: "readonly",
+        computeStats: "readonly",
+        reportStorageWriteError: "readonly",
+        settings: "readonly",
+        storage: "readonly",
+        t: "readonly",
+        tasks: "readonly",
+        tf: "readonly",
+        lastBackupTimestamp: "writable",
+        lastGoogleAccountEmail: "writable"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -296,6 +319,9 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        updateMenuStatusLine: "readonly",
+        refreshBackupNudge: "readonly",
+        requestPersistentStorage: "readonly",
         openComposer: "readonly",
         getComposerPlaceholder: "readonly",
         closeComposer: "readonly",

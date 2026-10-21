@@ -765,3 +765,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Also moved in the same PR: the listener that follows the device's light/dark change (for the "system" theme) went to `appearance.js` (decision 097), where it belongs; it was sitting in the middle of the composer code. Same code, same behaviour.
 - Classic script loaded after the Core and before `app.js`. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.32.
 - Covered by the lifecycle test (it adds through the composer) and the app browser tests. The keyboard positioning needs a real phone: desktop Chromium has no on-screen keyboard, so it is not checked here.
+
+## 099 — Backup status in the menu moved into backup-status.js
+
+- Tenth step of splitting `app.js` (now about 1480 lines): the code that shows backup state moved, unchanged, into `backup-status.js`: `updateMenuStatusLine` (the line under the menu header plus the archive/stats/backup subtitles), `updateBackupStatusCard`, `markBackupSuccessful`, the "take a backup" nudge (`shouldNudgeBackup`, its two thresholds, `refreshBackupNudge`, the dot on the menu button) and `requestPersistentStorage`.
+- Classic script loaded after the Core and before `app.js`. It reassigns `lastBackupTimestamp` and `lastGoogleAccountEmail`, which `app.js` declares, through the shared global scope. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests (the nudge-policy test now reads the new file). Version 1.59.33.
+- Checked in Chromium (Firefox/WebKit in CI), not on a device.

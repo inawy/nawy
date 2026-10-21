@@ -48,6 +48,7 @@ test("JavaScript files parse", () => {
     "archive-stats.js",
     "appearance.js",
     "composer.js",
+    "backup-status.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -134,6 +135,11 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(appearanceJs > backup && appearanceJs < app, "appearance.js must load after the Core and before app.js");
   const composerJs = html.indexOf('src="./composer.js');
   assert.ok(composerJs > backup && composerJs < app, "composer.js must load after the Core and before app.js");
+  const backupStatusJs = html.indexOf('src="./backup-status.js');
+  assert.ok(
+    backupStatusJs > backup && backupStatusJs < app,
+    "backup-status.js must load after the Core and before app.js"
+  );
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -232,6 +238,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./composer.js?v=${html[1]}`),
     "APP_SHELL must precache composer.js with the same version"
+  );
+  const htmlBs = read("index.html").match(/backup-status\.js\?v=([\w.]+)/);
+  assert.ok(htmlBs && htmlBs[1] === html[1], "index.html must load backup-status.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./backup-status.js?v=${html[1]}`),
+    "APP_SHELL must precache backup-status.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
@@ -484,9 +496,9 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
 });
 
 test("backup nudge policy: needs enough data and an old or missing backup", () => {
-  const src = read("app.js").replace(/\r\n/g, "\n");
+  const src = read("backup-status.js").replace(/\r\n/g, "\n");
   const m = src.match(/const BACKUP_NUDGE_MIN_ITEMS[\s\S]*?function shouldNudgeBackup[\s\S]*?\n}\n/);
-  assert.ok(m, "nudge policy exists in app.js");
+  assert.ok(m, "nudge policy exists in backup-status.js");
   const { shouldNudgeBackup, DAY } = vm.runInNewContext(m[0] + "; ({ shouldNudgeBackup, DAY: 86400000 })");
   const now = 1e12;
   assert.equal(shouldNudgeBackup(2, 0, now), false, "too little data");
@@ -496,12 +508,11 @@ test("backup nudge policy: needs enough data and an old or missing backup", () =
 });
 
 test("manual export counts as a backup and permanent deletes are undoable", () => {
-  const src = read("app.js");
   assert.match(read("backup-restore.js"), /URL\.revokeObjectURL\(url\);\s*markBackupSuccessful\(\);/);
   const taskActions = read("task-actions.js");
   assert.match(taskActions, /showToast\(t\("deletedForeverToast"\), true,/);
   assert.match(taskActions, /showToast\(t\("deleteAllDoneToast"\), true,/);
-  assert.match(src, /navigator\.storage\.persist/);
+  assert.match(read("backup-status.js"), /navigator\.storage\.persist/);
 });
 
 test("game.html loads game.js (no inline game script) with the same ?v= as the app", () => {
