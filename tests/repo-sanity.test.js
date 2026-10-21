@@ -50,6 +50,7 @@ test("JavaScript files parse", () => {
     "composer.js",
     "backup-status.js",
     "today.js",
+    "task-sheet.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -143,6 +144,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   );
   const todayJs = html.indexOf('src="./today.js');
   assert.ok(todayJs > backup && todayJs < app, "today.js must load after the Core and before app.js");
+  const tasksheetJs = html.indexOf('src="./task-sheet.js');
+  assert.ok(tasksheetJs > backup && tasksheetJs < app, "task-sheet.js must load after the Core and before app.js");
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -253,6 +256,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./today.js?v=${html[1]}`),
     "APP_SHELL must precache today.js with the same version"
+  );
+  const html_tasksheet = read("index.html").match(/task-sheet\.js\?v=([\w.]+)/);
+  assert.ok(html_tasksheet && html_tasksheet[1] === html[1], "index.html must load task-sheet.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./task-sheet.js?v=${html[1]}`),
+    "APP_SHELL must precache task-sheet.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");

@@ -1,6 +1,8 @@
 // عرض الأرشيف والإحصائيات وتأكيد حذف كل الأرشيف: buildArchiveView و renderArchive و computeStats و renderStats و openDeleteAllConfirm و closeDeleteAllConfirm.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم حالة app.js (tasks و archive و archiveSearchQuery) ودواله وقت التشغيل.
 /* exported renderArchive, renderStats, computeStats, openDeleteAllConfirm, closeDeleteAllConfirm */
+// نموذج عرض شاشة الأرشيف: كل المنطق (ترجمة، فلترة، ترتيب، تجميع بالأيام،
+// تنسيق التواريخ) هنا، والرسم نفسه (React أو الاحتياطي تحت) بيعرض النتيجة بس.
 function buildArchiveView() {
   const total = archive.length;
   if (total === 0) return { kind: "empty", message: t("noArchive") };

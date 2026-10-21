@@ -170,6 +170,56 @@ test("permanent delete asks for confirmation, then removes the intention and lea
   assert.equal(await page.evaluate(() => deletedIds.length), 1);
 });
 
+test("the details sheet: tap opens it, edit saves the text, achieve and delete work from it", async () => {
+  await addViaComposer("نية الشيت");
+  await page.evaluate(() => setView("all"));
+  const sheetOpen = () => page.evaluate(() => document.querySelector("#taskOverlay").classList.contains("show"));
+  const openSheet = async text => {
+    await taskEl(text).locator(".task-text").click();
+    await page.waitForFunction(() => document.querySelector("#taskOverlay").classList.contains("show"));
+    await page.waitForTimeout(400);
+  };
+  // فتح الشيت بالضغط على النية: النص ظاهر وكل أزرار الإجراءات موجودة
+  await openSheet("نية الشيت");
+  assert.equal(await page.locator("#taskPreviewText").textContent(), "نية الشيت");
+  for (const cls of ["achieve", "copy", "share", "archive", "delete"]) {
+    assert.equal(await page.locator(`#taskActions .action-${cls}`).count(), 1, "action-" + cls);
+  }
+  // تعديل النص: الضغط على النص يفتح خانة التعديل، حفظ يغيّر النص ويقفل الشيت
+  await page.locator("#taskPreviewText").click();
+  await page.locator(".task-edit-textarea").fill("نية الشيت معدّلة");
+  await page.locator(".task-edit-save").click();
+  await page.waitForFunction(() => !document.querySelector("#taskOverlay").classList.contains("show"));
+  assert.equal(await page.evaluate(() => tasks.some(x => x.text === "نية الشيت معدّلة")), true);
+  assert.equal(await page.evaluate(() => tasks.some(x => x.text === "نية الشيت")), false);
+  await synced("edit text");
+  // إلغاء التعديل (Escape) يرجّع النص من غير حفظ ولا يغلق الشيت
+  await clearToasts();
+  await openSheet("نية الشيت معدّلة");
+  await page.locator("#taskPreviewText").click();
+  await page.locator(".task-edit-textarea").fill("لن تُحفظ");
+  await page.keyboard.press("Escape");
+  await page.waitForTimeout(300);
+  assert.equal(await sheetOpen(), true, "Escape cancels the edit but keeps the sheet open");
+  assert.equal(await page.locator("#taskPreviewText").textContent(), "نية الشيت معدّلة");
+  // تحقيق من الشيت
+  await page.locator("#taskActions .action-achieve").click();
+  await page.waitForFunction(() => !document.querySelector("#taskOverlay").classList.contains("show"));
+  assert.equal(await page.evaluate(() => tasks.find(x => x.text === "نية الشيت معدّلة").status), "achieved");
+  await synced("achieve from sheet");
+  // حذف نهائي من الشيت بعد تأكيد: اختفاء النية من القائمة والأرشيف
+  const collapsed = page.locator(".section.collapsed .section-header");
+  if (await collapsed.count()) await collapsed.click();
+  await clearToasts();
+  await openSheet("نية الشيت معدّلة");
+  await page.locator("#taskActions .action-delete").click();
+  await page.locator("#taskActions .delete-approve").click();
+  await page.waitForFunction(() => !document.querySelector("#taskOverlay").classList.contains("show"));
+  assert.equal(await page.evaluate(() => tasks.some(x => x.text.startsWith("نية الشيت"))), false);
+  assert.equal(await page.evaluate(() => archive.some(x => x.text.startsWith("نية الشيت"))), false);
+  await synced("delete from sheet");
+});
+
 test("everything survives a reload exactly as it was", async () => {
   const before = await disk();
   await page.reload();
