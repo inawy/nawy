@@ -117,6 +117,35 @@ export default [
     }
   },
   {
+    // backup-restore.js: تصدير/استيراد/نسخ احتياطي؛ بيستخدم حالة app.js ودواله وقت التشغيل
+    files: ["backup-restore.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        applySettings: "readonly",
+        markBackupSuccessful: "readonly",
+        render: "readonly",
+        reportStorageWriteError: "readonly",
+        showToast: "readonly",
+        snapshotFrom: "readonly",
+        t: "readonly",
+        storage: "readonly",
+        tasks: "writable",
+        archive: "writable",
+        deletedIds: "writable",
+        settings: "writable",
+        settingsUpdatedAt: "writable",
+        tasksSnapshot: "writable",
+        archiveSnapshot: "writable",
+        deletedIdsSnapshot: "writable"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -207,6 +236,12 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        exportData: "readonly",
+        loadGoogleIdentity: "readonly",
+        normalizeSettings: "readonly",
+        backupDataToGoogleDrive: "readonly",
+        restoreDataFromGoogleDrive: "readonly",
+        importData: "readonly",
         addTask: "readonly",
         achieveTask: "readonly",
         reactivateTask: "readonly",

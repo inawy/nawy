@@ -449,8 +449,11 @@ test("phone: sub-screens have clear back/close buttons, and the archive slides i
 
 test("permanent delete can be undone", async () => {
   const page = await open(`${base}/index.html`);
-  await page.evaluate(() => {
-    archive.push({ id: "undo-1", text: "x", createdAt: Date.now(), completedAt: Date.now() });
+  // نحفظها فعلًا في IndexedDB: لو فضلت في الذاكرة بس، أول صدى من liveQuery بعد الحذف بيرجّع الذاكرة لحالة القرص (بدونها)
+  // ويمسح اللي رجّعه التراجع. المستخدم الحقيقي دايمًا بيحذف نية محفوظة.
+  await page.evaluate(async () => {
+    archive.push({ id: "undo-1", text: "x", createdAt: Date.now(), updatedAt: Date.now(), completedAt: Date.now() });
+    await persistAcrossStores();
   });
   const count = () => page.evaluate(() => archive.length);
   const before = await count();

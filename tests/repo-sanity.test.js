@@ -44,6 +44,7 @@ test("JavaScript files parse", () => {
     "overlays.js",
     "reminders.js",
     "task-actions.js",
+    "backup-restore.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -115,6 +116,11 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(
     taskActionsJs > backup && taskActionsJs < app,
     "task-actions.js must load after the Core and before app.js"
+  );
+  const backupRestoreJs = html.indexOf('src="./backup-restore.js');
+  assert.ok(
+    backupRestoreJs > backup && backupRestoreJs < app,
+    "backup-restore.js must load after the Core and before app.js"
   );
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
@@ -190,6 +196,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./task-actions.js?v=${html[1]}`),
     "APP_SHELL must precache task-actions.js with the same version"
+  );
+  const htmlBr = read("index.html").match(/backup-restore\.js\?v=([\w.]+)/);
+  assert.ok(htmlBr && htmlBr[1] === html[1], "index.html must load backup-restore.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./backup-restore.js?v=${html[1]}`),
+    "APP_SHELL must precache backup-restore.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
@@ -295,7 +307,8 @@ test("Google Identity is loaded on demand, and Cairo is served locally", () => {
   const html = read("index.html"),
     app = read("app.js"),
     css = read("styles.css");
-  assert.match(app, /function loadGoogleIdentity\(\)/, "lazy loader missing");
+  const backupRestore = read("backup-restore.js");
+  assert.match(backupRestore, /function loadGoogleIdentity\(\)/, "lazy loader missing");
   for (const [name, code] of [
     ["index.html", html],
     ["app.js", app],
@@ -454,7 +467,7 @@ test("backup nudge policy: needs enough data and an old or missing backup", () =
 
 test("manual export counts as a backup and permanent deletes are undoable", () => {
   const src = read("app.js");
-  assert.match(src, /URL\.revokeObjectURL\(url\);\s*markBackupSuccessful\(\);/);
+  assert.match(read("backup-restore.js"), /URL\.revokeObjectURL\(url\);\s*markBackupSuccessful\(\);/);
   const taskActions = read("task-actions.js");
   assert.match(taskActions, /showToast\(t\("deletedForeverToast"\), true,/);
   assert.match(taskActions, /showToast\(t\("deleteAllDoneToast"\), true,/);
