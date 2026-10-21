@@ -758,3 +758,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Eighth step of splitting `app.js` (now about 1670 lines): `resolveTheme`, `updateThemeColorMeta` (the status-bar/browser colour that follows the light/dark theme, decision 084) and `applySettings` (theme, accent, font size, language and direction, translations, the settings controls' state, the boot cache `nawy_boot_v1`) moved, unchanged, into `appearance.js`. The setting handlers (theme, accent, font, language, sound, notifications buttons) stay in `app.js`; they call `applySettings` as before.
 - Classic script loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.31.
 - Checked in Chromium (Firefox/WebKit in CI), not on a device.
+
+## 098 — The composer moved into composer.js
+
+- Ninth step of splitting `app.js` (now about 1580 lines): `getComposerPlaceholder`, `syncComposerToViewport` (with its `visualViewport` listeners, which keep the sheet right above the on-screen keyboard), `openComposer` and `closeComposer` (the draft stays when the sheet closes unsent) moved, unchanged, into `composer.js`. The form submit, the add button and the input handler stay in `app.js`.
+- Also moved in the same PR: the listener that follows the device's light/dark change (for the "system" theme) went to `appearance.js` (decision 097), where it belongs; it was sitting in the middle of the composer code. Same code, same behaviour.
+- Classic script loaded after the Core and before `app.js`. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.32.
+- Covered by the lifecycle test (it adds through the composer) and the app browser tests. The keyboard positioning needs a real phone: desktop Chromium has no on-screen keyboard, so it is not checked here.
