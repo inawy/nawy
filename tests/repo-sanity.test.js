@@ -43,6 +43,7 @@ test("JavaScript files parse", () => {
     "share.js",
     "overlays.js",
     "reminders.js",
+    "task-actions.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -110,6 +111,11 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(overlaysJs > backup && overlaysJs < app, "overlays.js must load after the Core and before app.js");
   const remindersJs = html.indexOf('src="./reminders.js');
   assert.ok(remindersJs > backup && remindersJs < app, "reminders.js must load after the Core and before app.js");
+  const taskActionsJs = html.indexOf('src="./task-actions.js');
+  assert.ok(
+    taskActionsJs > backup && taskActionsJs < app,
+    "task-actions.js must load after the Core and before app.js"
+  );
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -178,6 +184,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./reminders.js?v=${html[1]}`),
     "APP_SHELL must precache reminders.js with the same version"
+  );
+  const htmlTa = read("index.html").match(/task-actions\.js\?v=([\w.]+)/);
+  assert.ok(htmlTa && htmlTa[1] === html[1], "index.html must load task-actions.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./task-actions.js?v=${html[1]}`),
+    "APP_SHELL must precache task-actions.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");
@@ -443,8 +455,9 @@ test("backup nudge policy: needs enough data and an old or missing backup", () =
 test("manual export counts as a backup and permanent deletes are undoable", () => {
   const src = read("app.js");
   assert.match(src, /URL\.revokeObjectURL\(url\);\s*markBackupSuccessful\(\);/);
-  assert.match(src, /showToast\(t\("deletedForeverToast"\), true,/);
-  assert.match(src, /showToast\(t\("deleteAllDoneToast"\), true,/);
+  const taskActions = read("task-actions.js");
+  assert.match(taskActions, /showToast\(t\("deletedForeverToast"\), true,/);
+  assert.match(taskActions, /showToast\(t\("deleteAllDoneToast"\), true,/);
   assert.match(src, /navigator\.storage\.persist/);
 });
 

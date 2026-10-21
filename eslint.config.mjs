@@ -86,6 +86,37 @@ export default [
     }
   },
   {
+    // task-actions.js: دوال المهام؛ بتستخدم حالة app.js (tasks/archive/deletedIds...) وقت التشغيل
+    files: ["task-actions.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        buildAchievementMessage: "readonly",
+        celebrate: "readonly",
+        createId: "readonly",
+        currentView: "readonly",
+        getDateKey: "readonly",
+        nextTopSortOrder: "readonly",
+        persistAcrossStores: "readonly",
+        playAddedSound: "readonly",
+        playUndoSound: "readonly",
+        render: "readonly",
+        renderArchive: "readonly",
+        saveSettings: "readonly",
+        saveTasks: "readonly",
+        settings: "readonly",
+        showToast: "readonly",
+        t: "readonly",
+        tasks: "readonly",
+        archive: "writable",
+        deletedIds: "writable"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -176,6 +207,15 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        addTask: "readonly",
+        achieveTask: "readonly",
+        reactivateTask: "readonly",
+        toggleStar: "readonly",
+        deleteTask: "readonly",
+        restoreFromArchive: "readonly",
+        deleteForever: "readonly",
+        deleteTaskPermanently: "readonly",
+        deleteAllArchived: "readonly",
         playUndoSound: "readonly",
         playAddedSound: "readonly",
         shareAsImage: "readonly",
