@@ -255,6 +255,33 @@ export default [
     }
   },
   {
+    // task-sheet.js: شيت تفاصيل النية: عرضها وتعديل نصها ونجمتها وتحقيقها وأرشفتها وحذفها ومشاركتها ونسخها.
+    files: ["task-sheet.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        achieveTask: "readonly",
+        activeTaskEditRestore: "writable",
+        closeOverlay: "readonly",
+        copyTaskText: "readonly",
+        deleteTask: "readonly",
+        deleteTaskPermanently: "readonly",
+        openOverlay: "readonly",
+        reactivateTask: "readonly",
+        render: "readonly",
+        saveTasks: "readonly",
+        settings: "readonly",
+        shareAsImage: "readonly",
+        showToast: "readonly",
+        t: "readonly",
+        tasks: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -345,6 +372,7 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        openTaskSheet: "readonly",
         checkTodayIntentionRollover: "readonly",
         buildTodayView: "readonly",
         renderTodayPickList: "readonly",
