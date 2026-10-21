@@ -752,3 +752,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Seventh step of splitting `app.js` (now about 1740 lines): the archive screen and the stats screen moved, unchanged, into `archive-stats.js`: `buildArchiveView`, `renderArchive` (with its fallback), `computeStats`, `renderStats`, `openDeleteAllConfirm` and `closeDeleteAllConfirm`. The search box, the buttons and `archiveSearchQuery` stay in `app.js`; the new file reads that variable at render time through the shared global scope.
 - Classic script loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.30.
 - Covered by the archive browser tests (open, search, restore, delete, delete all) and the lifecycle test. Checked in Chromium (Firefox/WebKit in CI), not on a device.
+
+## 097 — Theme and applying settings moved into appearance.js
+
+- Eighth step of splitting `app.js` (now about 1670 lines): `resolveTheme`, `updateThemeColorMeta` (the status-bar/browser colour that follows the light/dark theme, decision 084) and `applySettings` (theme, accent, font size, language and direction, translations, the settings controls' state, the boot cache `nawy_boot_v1`) moved, unchanged, into `appearance.js`. The setting handlers (theme, accent, font, language, sound, notifications buttons) stay in `app.js`; they call `applySettings` as before.
+- Classic script loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.31.
+- Checked in Chromium (Firefox/WebKit in CI), not on a device.
