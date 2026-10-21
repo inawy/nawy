@@ -60,6 +60,7 @@ const REQUIRED = [
   "archive-stats.js",
   "appearance.js",
   "composer.js",
+  "backup-status.js",
   "sheet-gestures.js",
   "banners.js",
   "update.js",
