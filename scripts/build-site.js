@@ -55,6 +55,7 @@ const REQUIRED = [
   "share.js",
   "overlays.js",
   "reminders.js",
+  "task-actions.js",
   "sheet-gestures.js",
   "banners.js",
   "update.js",
