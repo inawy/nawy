@@ -56,6 +56,7 @@ const REQUIRED = [
   "overlays.js",
   "reminders.js",
   "task-actions.js",
+  "backup-restore.js",
   "sheet-gestures.js",
   "banners.js",
   "update.js",

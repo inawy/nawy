@@ -738,3 +738,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - It is a classic script loaded after the Core and before `app.js`, definitions only, like `reminders.js`. It reads and reassigns `tasks`, `archive` and `deletedIds` that `app.js` declares with `let`: classic scripts share one global scope, so the assignments land on the same variables (the lifecycle test from decision 093 covers archive, restore, delete forever and the tombstone).
 - Wired in `index.html`, the service worker's `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, the ESLint config and the sanity tests (load order and `?v=`). Version bumped to 1.59.28 so installed copies fetch the new file.
 - Checked in Chromium (and Firefox/WebKit in CI), not on a device.
+
+## 095 — Export, import and Drive backup moved into backup-restore.js
+
+- Sixth step of splitting `app.js` (now about 1960 lines): the data-transfer block moved, unchanged, into `backup-restore.js`: `exportData`, `importData`, `backupDataToGoogleDrive`, `restoreDataFromGoogleDrive` and what supports them (`backupProvider`, the Google sign-in helpers, `normalizeSettings`, `getLocalNawyData`, `persistMergedDataLocally`, ...). The buttons that call them stay wired in `app.js`, so what happens on a tap is unchanged.
+- Classic script loaded after the Core and before `app.js`. The only thing it runs at load time is creating `backupProvider` (needs `NawyBackup`, loaded before). It reassigns app state (`settings`, `settingsUpdatedAt`, the three snapshots) through the shared global scope, same as `task-actions.js` (decision 094).
+- Wired in `index.html`, the service worker's `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.29.
+- Not tested against a real Google account (no credentials here): the export/import and Drive paths are covered by the existing unit and browser tests only. Worth one manual backup + restore on a device.
