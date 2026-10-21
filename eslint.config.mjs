@@ -283,6 +283,32 @@ export default [
     }
   },
   {
+    // list-view.js: عرض قوائم النوايا: render (حسب التاب الحالي) وأقسام القائمة وعنصر النية والحالة الفاضية.
+    files: ["list-view.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        achieveTask: "readonly",
+        buildTodayView: "readonly",
+        currentView: "readonly",
+        formatAchievedDate: "readonly",
+        initSortable: "readonly",
+        openTaskSheet: "readonly",
+        reactivateTask: "readonly",
+        saveSettings: "readonly",
+        settings: "readonly",
+        t: "readonly",
+        tasks: "readonly",
+        toggleStar: "readonly",
+        updateTabs: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -373,6 +399,7 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        render: "readonly",
         openTaskSheet: "readonly",
         checkTodayIntentionRollover: "readonly",
         buildTodayView: "readonly",

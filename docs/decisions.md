@@ -784,3 +784,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - It sets `activeTaskEditRestore`, declared in `app.js` and read by `overlays.js` when the sheet closes in any way, so that an edit in progress is always finished. A classic script assigns to the same global, so that handshake is unchanged.
 - Loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.35.
 - No test opened this sheet before, so the lifecycle test (decision 093) got a new case: tap an intention, check the five actions exist, edit the text and save, cancel an edit with Escape (the sheet stays open), achieve from the sheet, and delete forever from it after confirming. Memory is compared with IndexedDB after each step. I checked that it fails when the sheet's code is broken. Checked in Chromium (Firefox/WebKit in CI), not on a device.
+
+## 102 — Rendering the lists moved into list-view.js
+
+- Thirteenth step of splitting `app.js` (now about 900 lines): `render` (draws the current tab: Today, All or Favorites), `createSection`, `createTaskElement` and `createEmpty` moved, unchanged, into `list-view.js`. `render` is called from many files (task actions, the sheet, the archive, backup restore...), all through the shared global scope, so nothing about how it is called changes. Tab switching (`setView`, `updateTabs`) and drag-to-reorder (`initSortable`) stay in `app.js`.
+- Loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.36.
+- Covered by every browser test that adds, stars, achieves or archives (they all read the rendered lists), including the lifecycle test. Checked in Chromium (Firefox/WebKit in CI), not on a device.
