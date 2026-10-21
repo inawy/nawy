@@ -58,6 +58,7 @@ const REQUIRED = [
   "task-actions.js",
   "backup-restore.js",
   "archive-stats.js",
+  "appearance.js",
   "sheet-gestures.js",
   "banners.js",
   "update.js",

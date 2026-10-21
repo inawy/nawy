@@ -171,6 +171,25 @@ export default [
     }
   },
   {
+    // appearance.js: الثيم والأكسنت واللغة وتطبيق الإعدادات على الصفحة؛ بيستخدم حالة app.js ودواله وقت التشغيل
+    files: ["appearance.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        $$: "readonly",
+        getComposerPlaceholder: "readonly",
+        settings: "readonly",
+        t: "readonly",
+        updateMenuStatusLine: "readonly",
+        updateNotifUI: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -261,6 +280,9 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        resolveTheme: "readonly",
+        updateThemeColorMeta: "readonly",
+        applySettings: "readonly",
         renderArchive: "readonly",
         renderStats: "readonly",
         computeStats: "readonly",
