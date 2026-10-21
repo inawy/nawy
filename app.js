@@ -42,7 +42,7 @@ function readSavedView() {
 }
 let currentView = readSavedView();
 // بتتقرا في overlays.js (closeOverlay)
-/* exported activeTaskEditRestore */
+/* exported activeTaskEditRestore, celebrate, buildAchievementMessage, persistAcrossStores, nextTopSortOrder */
 /** @type {(() => void) | null} */
 let activeTaskEditRestore = null;
 /** @type {any} */
