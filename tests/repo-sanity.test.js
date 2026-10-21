@@ -45,6 +45,7 @@ test("JavaScript files parse", () => {
     "reminders.js",
     "task-actions.js",
     "backup-restore.js",
+    "archive-stats.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -121,6 +122,11 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(
     backupRestoreJs > backup && backupRestoreJs < app,
     "backup-restore.js must load after the Core and before app.js"
+  );
+  const archiveStatsJs = html.indexOf('src="./archive-stats.js');
+  assert.ok(
+    archiveStatsJs > backup && archiveStatsJs < app,
+    "archive-stats.js must load after the Core and before app.js"
   );
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
@@ -202,6 +208,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./backup-restore.js?v=${html[1]}`),
     "APP_SHELL must precache backup-restore.js with the same version"
+  );
+  const htmlAs = read("index.html").match(/archive-stats\.js\?v=([\w.]+)/);
+  assert.ok(htmlAs && htmlAs[1] === html[1], "index.html must load archive-stats.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./archive-stats.js?v=${html[1]}`),
+    "APP_SHELL must precache archive-stats.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");

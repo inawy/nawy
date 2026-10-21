@@ -146,6 +146,31 @@ export default [
     }
   },
   {
+    // archive-stats.js: عرض الأرشيف والإحصائيات وتأكيد حذف الكل؛ بيستخدم حالة app.js ودواله وقت التشغيل
+    files: ["archive-stats.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        archiveDayGroup: "readonly",
+        archiveSearchQuery: "readonly",
+        deleteForever: "readonly",
+        formatArchivedTime: "readonly",
+        formatOlderDate: "readonly",
+        restoreFromArchive: "readonly",
+        showConfirmDialog: "readonly",
+        t: "readonly",
+        tasks: "readonly",
+        tf: "readonly",
+        updateMenuStatusLine: "readonly",
+        archive: "readonly",
+        $: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -236,6 +261,11 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        renderArchive: "readonly",
+        renderStats: "readonly",
+        computeStats: "readonly",
+        openDeleteAllConfirm: "readonly",
+        closeDeleteAllConfirm: "readonly",
         exportData: "readonly",
         loadGoogleIdentity: "readonly",
         normalizeSettings: "readonly",
