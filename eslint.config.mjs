@@ -229,6 +229,32 @@ export default [
     }
   },
   {
+    // today.js: عرض "نية اليوم": مفتاح التاريخ، تجديد نية اليوم، البطاقة والحالة الفاضية، وشيت اختيار نية اليوم وقائمته.
+    files: ["today.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        achieveTask: "readonly",
+        closeOverlay: "readonly",
+        openComposer: "readonly",
+        openOverlay: "readonly",
+        openTaskSheet: "readonly",
+        reactivateTask: "readonly",
+        render: "readonly",
+        saveSettings: "readonly",
+        settings: "readonly",
+        shareAsImage: "readonly",
+        t: "readonly",
+        tasks: "readonly",
+        toggleStar: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -319,6 +345,9 @@ export default [
         ...appGlobals,
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        checkTodayIntentionRollover: "readonly",
+        buildTodayView: "readonly",
+        renderTodayPickList: "readonly",
         updateMenuStatusLine: "readonly",
         refreshBackupNudge: "readonly",
         requestPersistentStorage: "readonly",
