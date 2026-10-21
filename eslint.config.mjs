@@ -263,6 +263,7 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        $: "readonly",
         achieveTask: "readonly",
         activeTaskEditRestore: "writable",
         closeOverlay: "readonly",
