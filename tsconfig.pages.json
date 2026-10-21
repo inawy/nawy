@@ -19,5 +19,5 @@
     "paths": { "nawy-game/*": ["./game/*.js"] },
     "types": []
   },
-  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "overlays.js", "reminders.js", "task-actions.js", "backup-restore.js", "archive-stats.js", "appearance.js", "composer.js", "backup-status.js", "today.js", "task-sheet.js", "sheet-gestures.js", "banners.js", "update.js", "touch-gestures.js", "date-format.js", "app.js", "game.js", "game/*.js"]
+  "include": ["types/*.d.ts", "translations.js", "sounds.js", "share.js", "overlays.js", "reminders.js", "task-actions.js", "backup-restore.js", "archive-stats.js", "appearance.js", "composer.js", "backup-status.js", "today.js", "task-sheet.js", "list-view.js", "sheet-gestures.js", "banners.js", "update.js", "touch-gestures.js", "date-format.js", "app.js", "game.js", "game/*.js"]
 }
