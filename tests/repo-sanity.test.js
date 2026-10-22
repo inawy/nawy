@@ -52,6 +52,7 @@ test("JavaScript files parse", () => {
     "today.js",
     "task-sheet.js",
     "list-view.js",
+    "feedback.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -149,6 +150,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(tasksheetJs > backup && tasksheetJs < app, "task-sheet.js must load after the Core and before app.js");
   const listviewJs = html.indexOf('src="./list-view.js');
   assert.ok(listviewJs > backup && listviewJs < app, "list-view.js must load after the Core and before app.js");
+  const feedbackJs = html.indexOf('src="./feedback.js');
+  assert.ok(feedbackJs > backup && feedbackJs < app, "feedback.js must load after the Core and before app.js");
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
@@ -271,6 +274,12 @@ test("page and service worker use the same version for nawy-data.js and nawy-sto
   assert.ok(
     read("service-worker.js").includes(`./list-view.js?v=${html[1]}`),
     "APP_SHELL must precache list-view.js with the same version"
+  );
+  const html_feedback = read("index.html").match(/feedback\.js\?v=([\w.]+)/);
+  assert.ok(html_feedback && html_feedback[1] === html[1], "index.html must load feedback.js with the same ?v");
+  assert.ok(
+    read("service-worker.js").includes(`./feedback.js?v=${html[1]}`),
+    "APP_SHELL must precache feedback.js with the same version"
   );
   const htmlSg = read("index.html").match(/sheet-gestures\.js\?v=([\w.]+)/);
   assert.ok(htmlSg && htmlSg[1] === html[1], "index.html must load sheet-gestures.js with the same ?v");

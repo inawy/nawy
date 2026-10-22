@@ -318,6 +318,23 @@ export default [
     }
   },
   {
+    // feedback.js: توست التراجع وصندوق التأكيد ورسالة وتأثير الاحتفال ونسخ النص: showToast و showConfirmDialog و buildAchievementMessage و celebrate و copyTaskText.
+    files: ["feedback.js"],
+    languageOptions: {
+      sourceType: "script",
+      ecmaVersion: 2022,
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        $: "readonly",
+        playAchievedSound: "readonly",
+        playUndoSound: "readonly",
+        settings: "readonly",
+        t: "readonly"
+      }
+    }
+  },
+  {
     // overlays.js: تعريفات بس؛ بيستخدم $ و $$ و activeTaskEditRestore من app.js وقت التشغيل
     files: ["overlays.js"],
     languageOptions: {
@@ -428,6 +445,7 @@ export default [
         initReminderToggle: "readonly",
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
+        showToast: "readonly",
         render: "readonly",
         openTaskSheet: "readonly",
         checkTodayIntentionRollover: "readonly",

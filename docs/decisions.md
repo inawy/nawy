@@ -797,3 +797,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `app.js` calls the eight in one block, at the same place the listeners used to be registered, so they are attached at the same moment, after the DOM exists and before `init()`. The order between them does not matter: they bind different elements.
 - ESLint's lists of shared names were updated for each file. This time I linted locally with the real config (the stubbed `@eslint/js` and `globals` packages are not installable here), so the first CI run should not fail on that. The sanity test that counted `dismissMenuForNavigation()` calls now reads `backup-restore.js`. Version 1.59.37.
 - Covered by every browser test that taps something (they all go through these handlers). Not on a device.
+
+## 104 — Toast, confirm dialog and celebration moved into feedback.js
+
+- Fifteenth step of splitting `app.js` (now about 510 lines): `showToast` (the message with an Undo button), `showConfirmDialog`, `buildAchievementMessage` and `celebrate` (the achievement text and the confetti), and `copyTaskText` with its fallback moved, unchanged, into `feedback.js`. Nearly every file calls `showToast`, all through the shared global scope as before.
+- Loaded after the Core and before `app.js`, definitions only. Wired in `index.html`, `APP_SHELL`, `build-site.js`, `tsconfig.pages.json`, ESLint and the sanity tests. Version 1.59.38. Linted locally with the real config before pushing (decision 103).
+- What remains in `app.js` is the shared state (`tasks`, `archive`, `settings`...), storage (`loadData`, the `save*` functions), tab switching, drag-to-reorder, install prompt wiring, cross-tab sync and `init`. Covered by every browser test that shows a toast or confirms something. Not on a device.
