@@ -812,3 +812,4 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - The gesture browser tests use the right edge now, and the sanity test checks the three CSS rules. I looked at screenshots of Arabic and English, menu closed and open, at 390px: Arabic matches the request, English did not change.
 - Found on the way and fixed: the version row in the menu stayed in the old language after switching language until a reload. `applySettings` now redraws it with its current state; a gesture test covers it.
 - Limits: Chromium only, no real device. Android's back gesture works from both screen edges, so the right edge now has the same conflict the left edge had; the 40% long swipe is still the way around it. Version 1.59.39.
+- Follow-up (same day): in Arabic the name now comes after the mark, left to right, like English: `html[dir="rtl"] .brand { flex-direction: row-reverse }`, so the header reads `[mark] ناوي` at the left edge. Version 1.59.40.
