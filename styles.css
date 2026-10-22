@@ -992,21 +992,6 @@ html[data-theme="light"] #taskActions {
   font-weight: 800;
   letter-spacing: -0.3px;
 }
-.account-menu-subtitle {
-  margin-top: 2px;
-  color: var(--muted);
-  font-size: var(--fs-xs);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.account-menu-subtitle.status-ok {
-  color: #10b981;
-}
-.account-menu-subtitle .icon {
-  width: 12px;
-  height: 12px;
-}
 .account-menu-sync {
   margin: 4px 0;
   color: var(--muted);

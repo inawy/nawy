@@ -3,7 +3,6 @@
 const TRANSLATIONS = {
   ar: {
     appName: "ناوي",
-    accountSubtitle: "مساحتك الشخصية",
     takeBreak: "خذ استراحة",
     backupTitle: "النسخ الاحتياطي",
     cloudBackup: "نسخة سحابية",
@@ -181,7 +180,6 @@ const TRANSLATIONS = {
   },
   en: {
     appName: "NAWY",
-    accountSubtitle: "Your personal space",
     takeBreak: "Take a break",
     backupTitle: "Backup",
     cloudBackup: "Cloud Backup",
