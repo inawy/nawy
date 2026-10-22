@@ -1,6 +1,6 @@
 // عرض "نية اليوم": مفتاح التاريخ، تجديد نية اليوم، البطاقة والحالة الفاضية، وشيت اختيار نية اليوم وقائمته.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم settings و tasks و t ودوال app.js (render و openTaskSheet...) وقت التشغيل.
-/* exported getDateKey,, checkTodayIntentionRollover,, getTodayPinnedTask,, buildTodayView,, openTodayPickSheet,, renderTodayPickList */
+/* exported getDateKey,, checkTodayIntentionRollover,, getTodayPinnedTask,, buildTodayView,, openTodayPickSheet,, renderTodayPickList, initTodayPickSearch */
 function getDateKey(date = new Date()) {
   return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
 }
@@ -238,4 +238,12 @@ function renderTodayPickListFallback(list, view, handlers) {
   });
   list.innerHTML = "";
   list.appendChild(box);
+}
+
+// ربط خانة البحث في شيت اختيار نية اليوم. بتتنادى مرة من app.js.
+function initTodayPickSearch() {
+  $("#todayPickSearchInput").addEventListener("input", e => {
+    const activeTasks = tasks.filter(x => x.status === "active");
+    renderTodayPickList(activeTasks, e.target.value);
+  });
 }

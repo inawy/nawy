@@ -1,6 +1,6 @@
 // شاشة إضافة النية (composer): نص الـ placeholder حسب الوقت، تثبيتها فوق الكيبورد بالـ VisualViewport، وفتحها وقفلها (والمسودة بتفضل محفوظة).
 // classic script بيتحمّل قبل app.js؛ تعريفات + ربط listeners الـ visualViewport بس، وبيستخدم $ و t و showToast ودوال overlays.js وقت التشغيل.
-/* exported getComposerPlaceholder, openComposer, closeComposer */
+/* exported getComposerPlaceholder, openComposer, closeComposer, initComposer */
 function getComposerPlaceholder() {
   const hour = new Date().getHours();
   const key =
@@ -76,4 +76,26 @@ function closeComposer() {
   if (wasOpen && hadDraft) {
     showToast(t("draftSavedToast"));
   }
+}
+
+// ربط أزرار شاشة الإضافة: زر الإضافة، الخلفية، إرسال النموذج، وتغيّر النص. بتتنادى مرة من app.js.
+function initComposer() {
+  $("#fabBtn").addEventListener("click", openComposer);
+  $("#composerBackdrop").addEventListener("click", closeComposer);
+
+  $("#composerForm").addEventListener("submit", e => {
+    e.preventDefault();
+    if (addTask($("#taskInput").value)) {
+      $("#taskInput").value = "";
+      $("#sendBtn").classList.add("disabled");
+      closeComposer();
+    }
+  });
+
+  $("#taskInput").addEventListener("input", () => {
+    const hasText = $("#taskInput").value.trim().length > 0;
+    $("#taskInput").placeholder = hasText ? t("taskPlaceholder") : getComposerPlaceholder();
+    $("#sendBtn").classList.toggle("disabled", !hasText);
+    $("#sendBtn").disabled = !hasText;
+  });
 }

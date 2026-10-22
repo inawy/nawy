@@ -1,6 +1,6 @@
 // تصدير واستيراد البيانات والنسخ الاحتياطي على Google Drive: exportData و importData و backupDataToGoogleDrive و restoreDataFromGoogleDrive وما يدعمها.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل غير إنشاء backupProvider، وبيستخدم حالة app.js (tasks و archive و settings...) ودواله وقت التشغيل.
-/* exported exportData, loadGoogleIdentity, backupDataToGoogleDrive, restoreDataFromGoogleDrive, importData */
+/* exported exportData, loadGoogleIdentity, backupDataToGoogleDrive, restoreDataFromGoogleDrive, importData, initBackupControls */
 function exportData() {
   const data = JSON.stringify(
     NawyData.buildExport({
@@ -302,4 +302,38 @@ function importData(file, onDone) {
   };
 
   reader.readAsText(file);
+}
+
+// ربط أزرار التصدير والاستيراد والنسخ الاحتياطي والاسترجاع. بتتنادى مرة من app.js.
+function initBackupControls() {
+  $("#exportBtn").addEventListener("click", () => {
+    dismissMenuForNavigation();
+    exportData();
+  });
+
+  $("#importBtn").addEventListener("click", () => {
+    dismissMenuForNavigation();
+    $("#importFileInput").click();
+  });
+
+  $("#syncBtn").addEventListener("click", () => {
+    backupDataToGoogleDrive();
+  });
+
+  $("#restoreBtn").addEventListener("click", () => {
+    dismissMenuForNavigation();
+    restoreDataFromGoogleDrive();
+  });
+
+  $("#importFileInput").addEventListener("change", e => {
+    const input = e.target;
+    const file = input.files[0];
+    if (file) {
+      importData(file, () => {
+        input.value = "";
+      });
+    } else {
+      input.value = "";
+    }
+  });
 }

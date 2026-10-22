@@ -1,6 +1,6 @@
 // التذكيرات والإشعارات: تحديث واجهة الإشعار، طلب الإذن، فحص تذكير اليوم (في الصفحة وفي الخلفية)، تسجيل الـ periodic sync، وإشعار الصباح.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس (دوال) من غير أي تنفيذ وقت التحميل، وبيستخدم $ و t و tf و settings و tasks و getDateKey وغيرهم من app.js وقت التشغيل.
-/* exported updateNotifUI, requestNotificationPermission, runDailyReminderCheck, runBackgroundReminderCheck, registerPeriodicReminderSync, showMorningNotification */
+/* exported updateNotifUI, requestNotificationPermission, runDailyReminderCheck, runBackgroundReminderCheck, registerPeriodicReminderSync, showMorningNotification, initReminderToggle */
 
 function updateNotifUI() {
   const checkbox = $("#notifToggleCheckbox");
@@ -154,4 +154,73 @@ function showMorningNotification(bodyText) {
       notification.close();
     };
   }
+}
+
+// ربط مفتاح الإشعارات اليومية في الإعدادات. بتتنادى مرة من app.js.
+function initReminderToggle() {
+  let notificationChanging = false;
+
+  $("#feedbackToggleCheckbox").addEventListener(
+    "change",
+    /** @this {HTMLInputElement} */ function () {
+      settings.feedbackEnabled = this.checked;
+      saveSettings();
+      showToast(this.checked ? t("feedbackEnabledToast") : t("feedbackDisabledToast"));
+    }
+  );
+
+  $("#achievementToneSelect").addEventListener(
+    "change",
+    /** @this {HTMLSelectElement} */ function () {
+      settings.achievementTone = this.value;
+      saveSettings();
+      playAchievedSound();
+    }
+  );
+
+  $("#tonePreviewBtn").addEventListener("click", () => playAchievedSound());
+
+  $("#notifToggleCheckbox").addEventListener(
+    "change",
+    /** @this {HTMLInputElement} */ async function () {
+      if (notificationChanging) return;
+
+      const checkbox = /** @type {HTMLInputElement} */ (this);
+      const requestedState = checkbox.checked;
+
+      notificationChanging = true;
+      checkbox.disabled = true;
+
+      try {
+        if (requestedState) {
+          const granted = await requestNotificationPermission();
+
+          if (!granted) {
+            settings.notificationEnabled = false;
+            checkbox.checked = false;
+            updateNotifUI();
+            return;
+          }
+
+          settings.notificationEnabled = true;
+          saveSettings();
+          registerPeriodicReminderSync();
+
+          // إشعار تجريبي فوري: يوضّح إن الإشعارات شغالة فعلًا على الجهاز ده (ومبيتحسبش من الـ ٣ يوميًا).
+          showMorningNotification(t("reminderTestBody"));
+          showToast(`✅ ${t("notifEnabledToast")}`);
+          updateNotifUI();
+        } else {
+          settings.notificationEnabled = false;
+          saveSettings();
+
+          showToast(t("notifDisabledToast"));
+          updateNotifUI();
+        }
+      } finally {
+        checkbox.disabled = false;
+        notificationChanging = false;
+      }
+    }
+  );
 }

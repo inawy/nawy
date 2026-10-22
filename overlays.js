@@ -1,6 +1,6 @@
 // القائمة الجانبية والنوافذ (overlays): فتح وقفل الدرج والشيتات، السايدبار المثبّت على الشاشات العريضة، وانزلاق شاشات القائمة الفرعية.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس (دوال وثوابت) من غير أي تنفيذ وقت التحميل، وبيستخدم $ و$$ و activeTaskEditRestore من app.js وقت التشغيل.
-/* exported SIDE_PANEL_TRANSITION, isSidebarDocked, syncMenuState, dismissMenuForNavigation, initSidebar, updateBodyScrollLock, openOverlay, closeOverlay, closeAllOverlays, showMenuSubPanel, backToMainMenuPanel */
+/* exported SIDE_PANEL_TRANSITION, isSidebarDocked, syncMenuState, dismissMenuForNavigation, initSidebar, updateBodyScrollLock, openOverlay, closeOverlay, closeAllOverlays, showMenuSubPanel, backToMainMenuPanel, initMenuNavigation */
 
 // القائمة الجانبية: على الشاشات العريضة بتتثبّت جنب المحتوى (زي سايدبار)،
 // وعلى الموبايل بتبقى درج بيطلع من الجنب فوق خلفية معتمة.
@@ -135,4 +135,80 @@ function backToMainMenuPanel(fromSelector) {
   void main.offsetWidth;
   main.classList.add("slide-back");
   main.addEventListener("animationend", () => main.classList.remove("slide-back"), { once: true });
+}
+
+// ربط القائمة الجانبية وشاشاتها الفرعية (الإحصائيات، النسخ الاحتياطي، الإعدادات، الأرشيف)، وأزرار إغلاق الـ overlays، وزر Escape. بتتنادى مرة من app.js.
+function initMenuNavigation() {
+  $("#menuBtn").setAttribute("aria-expanded", "false");
+  $("#settingsMenuContent").append(...$$("#settingsOverlay .setting-group"));
+  $("#statsBtn").addEventListener("click", () => {
+    renderStats();
+    showMenuSubPanel("#statsMenuPanel");
+  });
+  $("#statsBackBtn").addEventListener("click", () => backToMainMenuPanel("#statsMenuPanel"));
+  $("#backupMenuBtn").addEventListener("click", () => {
+    $("#mainMenuPanel").hidden = true;
+    $("#backupMenuPanel").hidden = false;
+    loadGoogleIdentity().catch(() => {}); // تجهيز مسبق؛ لو فشل (بلا إنترنت) النسخ المحلي شغال عادي
+  });
+  $("#backupMenuBackBtn").addEventListener("click", () => backToMainMenuPanel("#backupMenuPanel"));
+  $("#settingsBtn").addEventListener("click", () => {
+    $("#mainMenuPanel").hidden = true;
+    $("#settingsMenuPanel").hidden = false;
+  });
+  $("#settingsMenuBackBtn").addEventListener("click", () => backToMainMenuPanel("#settingsMenuPanel"));
+  $("#menuBtn").addEventListener("click", () => {
+    const menu = $("#menuOverlay");
+    const isOpen = menu.classList.contains("show");
+    if (isOpen) {
+      closeOverlay(menu);
+    } else {
+      openOverlay(menu);
+    }
+    $("#menuBtn").setAttribute("aria-expanded", String(!isOpen));
+  });
+
+  $("#archiveBtn").addEventListener("click", () => {
+    loadUiBundle();
+    archiveSearchQuery = "";
+    $("#archiveSearchInput").value = "";
+    renderArchive();
+    showMenuSubPanel("#archiveMenuPanel");
+  });
+  $("#archiveBackBtn").addEventListener("click", () => backToMainMenuPanel("#archiveMenuPanel"));
+
+  $$("[data-close]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const overlay = /** @type {HTMLElement} */ (document.getElementById(btn.dataset.close));
+      closeOverlay(overlay);
+
+      if (overlay.id === "menuOverlay") {
+        $("#menuBtn").setAttribute("aria-expanded", "false");
+      }
+    });
+  });
+
+  $$(".overlay").forEach(overlay => {
+    overlay.addEventListener("click", e => {
+      if (e.target === overlay) {
+        if (overlay.id === "menuOverlay" && isSidebarDocked()) return;
+        closeOverlay(overlay);
+
+        if (overlay.id === "menuOverlay") {
+          $("#menuBtn").setAttribute("aria-expanded", "false");
+        }
+      }
+    });
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") {
+      // السايدبار المثبّت مابيتقفلش بـ Escape، لكن شاشته الفرعية بترجع للقائمة الرئيسية
+      const sub =
+        isSidebarDocked() && $$("#menuOverlay .account-menu-panel").find(p => !p.hidden && p.id !== "mainMenuPanel");
+      if (sub) backToMainMenuPanel("#" + sub.id);
+      closeAllOverlays();
+      if ($("#composerPanel").classList.contains("open")) closeComposer();
+    }
+  });
 }

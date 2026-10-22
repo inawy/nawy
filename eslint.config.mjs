@@ -75,6 +75,7 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        playAchievedSound: "readonly",
         $: "readonly",
         t: "readonly",
         showToast: "readonly",
@@ -125,6 +126,7 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        dismissMenuForNavigation: "readonly",
         $: "readonly",
         applySettings: "readonly",
         markBackupSuccessful: "readonly",
@@ -154,8 +156,10 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        settings: "readonly",
+        deleteAllArchived: "readonly",
         archiveDayGroup: "readonly",
-        archiveSearchQuery: "readonly",
+        archiveSearchQuery: "writable",
         deleteForever: "readonly",
         formatArchivedTime: "readonly",
         formatOlderDate: "readonly",
@@ -179,6 +183,8 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        saveSettings: "readonly",
+        render: "readonly",
         $: "readonly",
         $$: "readonly",
         getComposerPlaceholder: "readonly",
@@ -198,6 +204,7 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        addTask: "readonly",
         $: "readonly",
         showToast: "readonly",
         t: "readonly",
@@ -291,6 +298,8 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        $$: "readonly",
+        setView: "readonly",
         $: "readonly",
         achieveTask: "readonly",
         buildTodayView: "readonly",
@@ -314,7 +323,19 @@ export default [
     languageOptions: {
       sourceType: "script",
       ecmaVersion: 2022,
-      globals: { ...globals.browser, ...appGlobals, $: "readonly", $$: "readonly", activeTaskEditRestore: "readonly" }
+      globals: {
+        ...globals.browser,
+        ...appGlobals,
+        renderStats: "readonly",
+        loadGoogleIdentity: "readonly",
+        loadUiBundle: "readonly",
+        archiveSearchQuery: "writable",
+        renderArchive: "readonly",
+        closeComposer: "readonly",
+        $: "readonly",
+        $$: "readonly",
+        activeTaskEditRestore: "readonly"
+      }
     }
   },
   {
@@ -397,6 +418,14 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        initComposer: "readonly",
+        initTabs: "readonly",
+        initMenuNavigation: "readonly",
+        initArchiveControls: "readonly",
+        initTodayPickSearch: "readonly",
+        initBackupControls: "readonly",
+        initSettingsControls: "readonly",
+        initReminderToggle: "readonly",
         TRANSLATIONS: "readonly",
         playAchievedSound: "readonly",
         render: "readonly",

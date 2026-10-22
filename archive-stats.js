@@ -1,6 +1,6 @@
 // عرض الأرشيف والإحصائيات وتأكيد حذف كل الأرشيف: buildArchiveView و renderArchive و computeStats و renderStats و openDeleteAllConfirm و closeDeleteAllConfirm.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم حالة app.js (tasks و archive و archiveSearchQuery) ودواله وقت التشغيل.
-/* exported renderArchive, renderStats, computeStats, openDeleteAllConfirm, closeDeleteAllConfirm */
+/* exported renderArchive, renderStats, computeStats, openDeleteAllConfirm, closeDeleteAllConfirm, initArchiveControls */
 // نموذج عرض شاشة الأرشيف: كل المنطق (ترجمة، فلترة، ترتيب، تجميع بالأيام،
 // تنسيق التواريخ) هنا، والرسم نفسه (React أو الاحتياطي تحت) بيعرض النتيجة بس.
 function buildArchiveView() {
@@ -230,4 +230,27 @@ function openDeleteAllConfirm() {
 
 function closeDeleteAllConfirm() {
   $("#deleteAllConfirmOverlay").classList.remove("show");
+}
+
+// ربط بحث الأرشيف وتأكيد حذف كل الأرشيف. بتتنادى مرة من app.js.
+function initArchiveControls() {
+  $("#archiveSearchInput").addEventListener("input", e => {
+    archiveSearchQuery = e.target.value;
+    renderArchive();
+  });
+
+  $("#archiveDeleteAllBtn").addEventListener("click", openDeleteAllConfirm);
+  $("#deleteAllCancelBtn").addEventListener("click", closeDeleteAllConfirm);
+  $("#deleteAllConfirmCheckbox").addEventListener("change", e => {
+    $("#deleteAllApproveBtn").disabled = !e.target.checked;
+  });
+  $("#deleteAllApproveBtn").addEventListener("click", () => {
+    if ($("#deleteAllApproveBtn").disabled) return;
+    if (settings.feedbackEnabled !== false && navigator.vibrate) navigator.vibrate([18, 24, 18]);
+    deleteAllArchived();
+    closeDeleteAllConfirm();
+  });
+  $("#deleteAllConfirmOverlay").addEventListener("click", e => {
+    if (e.target === $("#deleteAllConfirmOverlay")) closeDeleteAllConfirm();
+  });
 }
