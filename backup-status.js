@@ -1,8 +1,7 @@
-// حالة النسخ الاحتياطي في القائمة: سطر الحالة وكارت النسخ الاحتياطي، تسجيل نجاح النسخة، وتنبيه "خد نسخة" (نقطة على زر القائمة)، وطلب تثبيت التخزين.
+// حالة النسخ الاحتياطي في القائمة: عناوين القائمة الفرعية (الأرشيف والإحصائيات والنسخ) وكارت النسخ الاحتياطي، تسجيل نجاح النسخة، وتنبيه "خد نسخة" (نقطة على زر القائمة)، وطلب تثبيت التخزين.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس (وثابتين) من غير تنفيذ وقت التحميل، وبيستخدم حالة app.js (tasks و archive و lastBackupTimestamp...) ودواله وقت التشغيل.
 /* exported updateMenuStatusLine, markBackupSuccessful, refreshBackupNudge, requestPersistentStorage */
 function updateMenuStatusLine() {
-  const statusLine = $("#menuStatusLine");
   const archiveSub = $("#archiveMenuSub");
   const backupMenuSub = $("#backupMenuSub");
 
@@ -23,12 +22,8 @@ function updateMenuStatusLine() {
       day: "numeric",
       month: "short"
     });
-    statusLine.classList.add("status-ok");
-    statusLine.innerHTML = `<svg class="icon" viewBox="0 0 24 24"><path d="M8 12.5L11 15.5L16 9"/><circle cx="12" cy="12" r="10"/></svg>${tf("lastSyncAt", { time })}`;
     if (backupMenuSub) backupMenuSub.textContent = tf("lastSyncAt", { time });
   } else {
-    statusLine.classList.remove("status-ok");
-    statusLine.textContent = t("accountSubtitle");
     if (backupMenuSub) backupMenuSub.textContent = t("backupMenuSub");
   }
 

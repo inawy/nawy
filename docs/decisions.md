@@ -813,3 +813,8 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Found on the way and fixed: the version row in the menu stayed in the old language after switching language until a reload. `applySettings` now redraws it with its current state; a gesture test covers it.
 - Limits: Chromium only, no real device. Android's back gesture works from both screen edges, so the right edge now has the same conflict the left edge had; the 40% long swipe is still the way around it. Version 1.59.39.
 - Follow-up (same day): in Arabic the name now comes after the mark, left to right, like English: `html[dir="rtl"] .brand { flex-direction: row-reverse }`, so the header reads `[mark] ناوي` at the left edge. Version 1.59.40.
+
+## 106 — No status line under the name in the menu header
+
+- Asked for: remove the line under "ناوي" at the top of the menu (it showed "مساحتك الشخصية", or the last backup time once a backup existed). It pushed the name up away from the mark. Removed the element, the CSS for it and the `accountSubtitle` text in both languages; the name is now centred next to the mark (checked on screenshots in Arabic and English, with and without a saved backup time).
+- The last backup time is still shown where it is useful: the backup card inside the Backup screen, and the backup row's subtitle. `updateMenuStatusLine` keeps updating those and the archive and stats subtitles; only the header line is gone. Version 1.59.41.
