@@ -1,6 +1,6 @@
 // عرض قوائم النوايا: render (حسب التاب الحالي) وأقسام القائمة وعنصر النية والحالة الفاضية.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم tasks و settings و currentView و t ودوال app.js (updateTabs و initSortable...) و today.js و task-sheet.js وقت التشغيل.
-/* exported render */
+/* exported render, initTabs */
 function render() {
   const content = $("#content");
   content.innerHTML = "";
@@ -132,4 +132,11 @@ function createEmpty(icon, title, text) {
         <div class="empty-text">${text}</div>
       `;
   return div;
+}
+
+// ربط التابات (اليوم/الكل/المفضلة). بتتنادى مرة من app.js.
+function initTabs() {
+  $$(".tab").forEach(tab => {
+    tab.addEventListener("click", () => setView(tab.dataset.view));
+  });
 }

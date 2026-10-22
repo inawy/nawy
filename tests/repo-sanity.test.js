@@ -500,7 +500,6 @@ test("the canvas follows the theme from the first frame: color-scheme meta, per-
 
 test("the menu is a side drawer on phones and a docked sidebar from 1024px, driven by one breakpoint", () => {
   const css = read("styles.css").replace(/\r/g, "");
-  const app = read("app.js");
   // phone: the drawer hides toward the menu-button edge (left in Arabic, right in English)
   assert.match(
     css,
@@ -519,7 +518,7 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
     "JS breakpoint must match the CSS one"
   );
   // every screen opened from the menu goes through the one helper so the docked sidebar stays open
-  assert.equal((app.match(/dismissMenuForNavigation\(\);/g) || []).length, 3);
+  assert.equal((read("backup-restore.js").match(/dismissMenuForNavigation\(\);/g) || []).length, 3);
 });
 
 test("backup nudge policy: needs enough data and an old or missing backup", () => {

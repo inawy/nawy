@@ -1,6 +1,6 @@
 // مظهر التطبيق: الثيم (فاتح/داكن/نظام) ولون شريط الحالة وتطبيق الإعدادات (أكسنت وحجم خط ولغة واتجاه وترجمات) على الصفحة.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم settings و t و $ ودوال app.js وقت التشغيل.
-/* exported resolveTheme, updateThemeColorMeta, applySettings */
+/* exported resolveTheme, updateThemeColorMeta, applySettings, initSettingsControls */
 // لو الإعداد "تلقائي"، نتبع تفضيل الجهاز الحالي، وإلا نستخدم القيمة
 // المحفوظة (داكن/نهاري) زي ما هي.
 function resolveTheme() {
@@ -80,4 +80,41 @@ if (window.matchMedia) {
   } else if (systemThemeQuery.addListener) {
     systemThemeQuery.addListener(onSystemThemeChange); // متصفحات أقدم
   }
+}
+
+// ربط عناصر الإعدادات: الثيم، الأكسنت، حجم الخط، اللغة، الصوت والاهتزاز، نغمة الإنجاز. بتتنادى مرة من app.js.
+function initSettingsControls() {
+  $$(".segment[data-theme]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      settings.theme = btn.dataset.theme;
+      saveSettings();
+      applySettings();
+    });
+  });
+
+  $$(".color-btn[data-accent]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      settings.accent = btn.dataset.accent;
+      saveSettings();
+      applySettings();
+    });
+  });
+
+  $$(".segment[data-font]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      settings.fontSize = btn.dataset.font;
+      saveSettings();
+      applySettings();
+      render();
+    });
+  });
+
+  $$("[data-language]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      settings.language = btn.dataset.language;
+      saveSettings();
+      applySettings();
+      render();
+    });
+  });
 }
