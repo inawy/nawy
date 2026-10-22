@@ -7,7 +7,7 @@ let swipeStartX = 0;
 let swipeStartY = 0;
 let swipeStartTime = 0;
 let swipeTracking = false;
-// سحبة من حافة الشاشة ناحية القائمة (شمال في العربي، يمين في الإنجليزي) لجوه: بتفتح القائمة، عكس سحبها لبرّه اللي بيقفلها.
+// سحبة من حافة الشاشة ناحية القائمة (اليمين في العربي والإنجليزي) لجوه: بتفتح القائمة، عكس سحبها لبرّه اللي بيقفلها.
 const MENU_EDGE_PX = 32;
 const MENU_EDGE_OPEN_PX = 50;
 // سحبة أفقية طويلة من أي مكان ناحية القائمة بتفتحها (الحافة عليها إيماءة الرجوع في أندرويد): أقصر من 40% من عرض الشاشة = بتبدّل التاب، أطول = القائمة.
@@ -27,8 +27,7 @@ function edgeDragApply() {
   const sheet = /** @type {HTMLElement} */ (overlay.querySelector(".sheet"));
   const width = edgeSwipe.width;
   const shown = Math.max(0, Math.min(width, edgeSwipe.inward));
-  const rtl = document.documentElement.dir === "rtl";
-  sheet.style.transform = `translateX(${rtl ? shown - width : width - shown}px)`;
+  sheet.style.transform = `translateX(${width - shown}px)`;
   overlay.style.backgroundColor = `rgba(8, 10, 16, ${(0.5 * shown) / width})`;
 }
 function edgeDragMove(inward) {
@@ -68,7 +67,7 @@ function edgeDragFinish(open) {
     $("#menuBtn").setAttribute("aria-expanded", "true");
   } else {
     const width = edgeSwipe.width || sheet.offsetWidth + 24;
-    sheet.style.transform = `translateX(${document.documentElement.dir === "rtl" ? -width : width}px)`;
+    sheet.style.transform = `translateX(${width}px)`;
     edgeSettleTimer = setTimeout(() => {
       edgeSettleTimer = 0;
       overlay.classList.remove("edge-dragging");
@@ -142,8 +141,7 @@ function initTouchGestures() {
       if (edgeSwipe.dragging) edgeDragFinish(false);
       edgeSwipe.tracking = false;
       const first = e.touches[0];
-      const rtl = document.documentElement.dir === "rtl";
-      const onMenuEdge = rtl ? first.clientX <= MENU_EDGE_PX : first.clientX >= window.innerWidth - MENU_EDGE_PX;
+      const onMenuEdge = first.clientX >= window.innerWidth - MENU_EDGE_PX;
       if (e.touches.length === 1 && onMenuEdge && !isSidebarDocked() && !document.querySelector(".overlay.show")) {
         edgeSwipe.tracking = true;
         edgeSwipe.x = first.clientX;
@@ -176,7 +174,7 @@ function initTouchGestures() {
       if (edgeSwipe.tracking) {
         const dx = e.touches[0].clientX - edgeSwipe.x;
         const dy = e.touches[0].clientY - edgeSwipe.y;
-        const inward = document.documentElement.dir === "rtl" ? dx : -dx;
+        const inward = -dx;
         if (!edgeSwipe.dragging && Math.abs(dy) > Math.abs(dx) * 1.2) edgeSwipe.tracking = false;
         else if (edgeSwipe.dragging || inward > 10) {
           e.preventDefault();
@@ -211,7 +209,7 @@ function initTouchGestures() {
 
       // عدّت مسافة التبديل: الدرج يبان وهو بيتابع الإصبع (وده التأكيد إن السحبة هتفتح القائمة مش هتبدّل التاب).
       // لو الإصبع رجع لقدّام المسافة دي الدرج بيتخفّي والسحبة ترجع تاب عادي.
-      const inwardLong = document.documentElement.dir === "rtl" ? dx : -dx;
+      const inwardLong = -dx;
       const threshold = menuLongSwipePx();
       if (!isSidebarDocked() && !document.querySelector(".overlay.show")) {
         if (inwardLong >= threshold) edgeDragMove(inwardLong - threshold + MENU_LONG_SWIPE_PEEK_PX);
@@ -230,7 +228,7 @@ function initTouchGestures() {
           return;
         }
         const dx = e.changedTouches[0].clientX - edgeSwipe.x;
-        const inward = document.documentElement.dir === "rtl" ? dx : -dx;
+        const inward = -dx;
         const fast = Date.now() - edgeSwipe.time < 300 && inward > MENU_EDGE_OPEN_PX;
         edgeDragFinish(inward > edgeSwipe.width * 0.4 || fast);
         return;
@@ -246,7 +244,7 @@ function initTouchGestures() {
 
       if (edgeSwipe.dragging) {
         // سحبة طويلة اتحوّلت لسحب الدرج: بتفتح لو الإصبع لسه عدّى المسافة.
-        const inwardLong = document.documentElement.dir === "rtl" ? dx : -dx;
+        const inwardLong = -dx;
         edgeDragFinish(inwardLong >= menuLongSwipePx());
         return;
       }

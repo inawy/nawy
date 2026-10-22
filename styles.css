@@ -2479,9 +2479,6 @@ html[data-theme="light"] .toastify {
    ديسكتوب (>=1024px): سايدبار مثبّت جنب المحتوى وقابل للطي (زي claude.ai). */
 :root {
   --sidebar-w: 300px;
-  --drawer-hide: calc(-100% - 24px);
-}
-html[dir="ltr"] {
   --drawer-hide: calc(100% + 24px);
 }
 #menuOverlay {
@@ -2629,12 +2626,17 @@ html[dir="ltr"] {
 /* ===== شريط التنقل الموحّد (رجوع / عنوان / إغلاق) =====
    رجوع = سهم في بداية الشريط ويرجّعك لمستوى واحد؛ إغلاق = X في آخر الشريط ويقفل الشاشة كلها.
    الزرّين بنفس الحجم (٤٤px، الحد الأدنى للمس) وعلى طرفين متقابلين، بأيقونتين مختلفتين. */
-/* لوح بيطلع من ناحية زر القائمة (شمال في العربي) في كل المقاسات، عكس --drawer-hide اللي بيتقلب على الديسكتوب */
+/* لوح بيطلع من ناحية زر القائمة: على الموبايل اليمين في العربي والإنجليزي (القائمة على اليمين فيهم)، وعلى الديسكتوب العكس عشان السايدبار المثبّت على بداية الكتابة */
 :root {
   --panel-hide: calc(-100% - 24px);
 }
 html[dir="ltr"] {
   --panel-hide: calc(100% + 24px);
+}
+@media (max-width: 1023.98px) {
+  html[dir="rtl"] {
+    --panel-hide: calc(100% + 24px);
+  }
 }
 .nav-bar {
   display: flex;
@@ -2837,4 +2839,18 @@ html[dir="ltr"] {
 }
 #menuOverlay.edge-dragging .sheet {
   will-change: transform;
+}
+
+/* القائمة على اليمين والوجو على اليسار في العربي (زي الإنجليزي: زر القائمة على اليمين): الهيدر بيتعكس، والدرج بيطلع من اليمين على الموبايل */
+html[dir="rtl"] .header {
+  flex-direction: row-reverse;
+}
+@media (max-width: 1023.98px) {
+  html[dir="rtl"] #menuOverlay {
+    justify-content: flex-start;
+  }
+  html[dir="rtl"] #menuOverlay .sheet {
+    border-inline-start: 0;
+    border-inline-end: 1px solid var(--border);
+  }
 }

@@ -183,6 +183,7 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
+        renderUpdateMenu: "readonly",
         saveSettings: "readonly",
         render: "readonly",
         $: "readonly",

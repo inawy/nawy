@@ -65,6 +65,8 @@ function applySettings() {
 
   updateNotifUI();
   updateMenuStatusLine();
+  // سطر الإصدار نصوصه مترجمة: نعيد رسمه بنفس حالته الحالية عشان يتبدّل مع اللغة
+  renderUpdateMenu($("#updateMenuBtn")?.dataset.state || "idle");
 }
 
 if (window.matchMedia) {
