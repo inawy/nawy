@@ -2845,6 +2845,10 @@ html[dir="ltr"] {
 html[dir="rtl"] .header {
   flex-direction: row-reverse;
 }
+/* اللوجو على اليسار والاسم بعده (./ ناوي) زي الإنجليزي: الرمز الأول من الشمال */
+html[dir="rtl"] .brand {
+  flex-direction: row-reverse;
+}
 @media (max-width: 1023.98px) {
   html[dir="rtl"] #menuOverlay {
     justify-content: flex-start;

@@ -522,6 +522,11 @@ test("the menu is a side drawer on phones and a docked sidebar from 1024px, driv
   );
   assert.match(
     css,
+    /html\[dir="rtl"\] \.brand \{\s*flex-direction: row-reverse;/,
+    "Arabic brand: the mark first, then the name"
+  );
+  assert.match(
+    css,
     /@media \(max-width: 1023\.98px\) \{\s*html\[dir="rtl"\] #menuOverlay \{\s*justify-content: flex-start;/,
     "Arabic drawer on the right on phones"
   );
