@@ -91,17 +91,18 @@ const closeMenu = async () => {
 };
 
 test("a swipe in from the menu-side edge opens the menu; a short one or one from the wrong edge does not", async () => {
-  await drag(5, 200);
+  // القائمة على اليمين في العربي والإنجليزي: السحب من حافة اليمين لجوه (ناحية الشمال) بيفتحها
+  await drag(385, 190);
   await page.waitForTimeout(500);
   assert.equal((await menu()).open, true);
   await closeMenu();
-  await drag(385, 190); // الحافة التانية
+  await drag(5, 200); // الحافة التانية (الشمال)
   await page.waitForTimeout(300);
   assert.equal((await menu()).open, false);
-  await touch("touchstart", 5);
-  await touch("touchmove", 40);
+  await touch("touchstart", 385);
+  await touch("touchmove", 350);
   await page.waitForTimeout(400); // بطيئة وقصيرة
-  await touch("touchend", 40);
+  await touch("touchend", 350);
   await page.waitForTimeout(700);
   const m = await menu();
   assert.equal(m.open, false);
@@ -109,13 +110,14 @@ test("a swipe in from the menu-side edge opens the menu; a short one or one from
 });
 
 test("a cancelled or interrupted edge swipe never leaves the drawer half open", async () => {
-  await touch("touchstart", 5);
-  await touch("touchmove", 100);
-  await touch("touchcancel", 100);
+  await touch("touchstart", 385);
+  await touch("touchmove", 290);
+  await touch("touchcancel", 290);
   await page.waitForTimeout(500);
-  assert.deepEqual(await menu(), { open: false, cls: "overlay", left: -344 });
-  await touch("touchstart", 5);
-  await touch("touchmove", 100); // ولا touchend ولا touchcancel
+  // الدرج مخفي بره الشاشة من اليمين: عرضه 320 + 24 مسافة إخفاء
+  assert.deepEqual(await menu(), { open: false, cls: "overlay", left: 414 });
+  await touch("touchstart", 385);
+  await touch("touchmove", 290); // ولا touchend ولا touchcancel
   await page.waitForTimeout(1900);
   assert.equal((await menu()).cls, "overlay", "the watchdog closes a drag that never ended");
 });
@@ -150,18 +152,18 @@ test("switching tabs does not wrap around: today, all, favorites, and the ends s
 test("a long horizontal swipe from the middle opens the menu; a medium one still switches the view", async () => {
   await closeMenu();
   // 200px (> 40% of 390) نحو القائمة: الدرج يبان أثناء السحب ويتفتح عند الرفع
-  await touch("touchstart", 100, 300);
-  await touch("touchmove", 160, 300);
-  await touch("touchmove", 300, 300);
+  await touch("touchstart", 300, 300);
+  await touch("touchmove", 240, 300);
+  await touch("touchmove", 100, 300);
   await page.waitForTimeout(100);
   assert.match((await menu()).cls, /edge-dragging/, "the drawer peeks once the long distance is passed");
-  await touch("touchend", 300, 300);
+  await touch("touchend", 100, 300);
   await page.waitForTimeout(600);
   assert.equal((await menu()).open, true);
   await closeMenu();
   // رجوع الإصبع لقدّام المسافة: الدرج يتخفّي وما يتفتحش
-  await touch("touchstart", 100, 300);
-  await touch("touchmove", 300, 300);
+  await touch("touchstart", 300, 300);
+  await touch("touchmove", 100, 300);
   await touch("touchmove", 200, 300);
   await touch("touchend", 200, 300);
   await page.waitForTimeout(600);
@@ -191,6 +193,19 @@ test("the menu shows the running version and a tap checks for updates", async ()
   });
   await page.evaluate(() => showUpdateBanner());
   assert.equal(await page.evaluate(() => document.getElementById("updateMenuBtn").dataset.state), "available");
+});
+
+test("switching language re-translates the version row without a reload", async () => {
+  await page.evaluate(() => {
+    settings.language = "en";
+    applySettings();
+  });
+  assert.match(await page.textContent("#updateMenuTitle"), /^Version /);
+  await page.evaluate(() => {
+    settings.language = "ar";
+    applySettings();
+  });
+  assert.match(await page.textContent("#updateMenuTitle"), /^الإصدار /);
 });
 
 test("no page errors during any of it", () => {

@@ -509,11 +509,21 @@ test("the canvas follows the theme from the first frame: color-scheme meta, per-
 
 test("the menu is a side drawer on phones and a docked sidebar from 1024px, driven by one breakpoint", () => {
   const css = read("styles.css").replace(/\r/g, "");
-  // phone: the drawer hides toward the menu-button edge (left in Arabic, right in English)
+  // phone: the menu button and the drawer are on the right in Arabic and English, so the drawer hides to the right in both
   assert.match(
     css,
-    /--drawer-hide: calc\(-100% - 24px\);\s*\}\s*html\[dir="ltr"\] \{\s*--drawer-hide: calc\(100% \+ 24px\);/,
-    "phone drawer directions"
+    /:root \{\s*--sidebar-w: 300px;\s*--drawer-hide: calc\(100% \+ 24px\);\s*\}/,
+    "phone drawer direction"
+  );
+  assert.match(
+    css,
+    /html\[dir="rtl"\] \.header \{\s*flex-direction: row-reverse;/,
+    "Arabic header: menu right, logo left"
+  );
+  assert.match(
+    css,
+    /@media \(max-width: 1023\.98px\) \{\s*html\[dir="rtl"\] #menuOverlay \{\s*justify-content: flex-start;/,
+    "Arabic drawer on the right on phones"
   );
   assert.match(css, /translateX\(var\(--drawer-hide\)\)/);
   assert.match(
