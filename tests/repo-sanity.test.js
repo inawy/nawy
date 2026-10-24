@@ -618,17 +618,12 @@ test("the menu shows the app version and an update row (decision 081)", () => {
   }
 });
 
-test("a swipe from the menu-side screen edge opens the menu (decision 082)", () => {
-  const app = read("touch-gestures.js");
-  assert.match(app, /MENU_EDGE_PX/);
-  assert.match(app, /openOverlay\(overlay, true\)/);
-  assert.match(app, /edgeSwipe\.tracking = true/);
-  assert.match(app, /function edgeDragMove\(/, "the drawer follows the finger");
-  assert.match(
-    app,
-    /"touchcancel", \(\) => edgeDragFinish\(false\)/,
-    "a cancelled touch must not leave the drawer half open"
-  );
+test("the menu is the tab before Today: a swipe the other way from Today opens it (decision 107)", () => {
+  const g = read("touch-gestures.js");
+  assert.match(g, /function openMenuBySwipe\(/);
+  assert.match(g, /if \(next < 0\) openMenuBySwipe\(\);/);
+  assert.ok(!/MENU_EDGE_PX|edgeSwipe|MENU_LONG_SWIPE/.test(g), "the edge and long-swipe gestures are gone");
+  assert.ok(!/edge-dragging/.test(read("styles.css")));
 });
 
 test("pull down from the top checks for and applies an update (decision 084)", () => {
