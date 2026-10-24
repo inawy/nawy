@@ -90,85 +90,74 @@ const closeMenu = async () => {
   await page.waitForTimeout(450);
 };
 
-test("a swipe in from the menu-side edge opens the menu; a short one or one from the wrong edge does not", async () => {
-  // القائمة على اليمين في العربي والإنجليزي: السحب من حافة اليمين لجوه (ناحية الشمال) بيفتحها
-  await drag(385, 190);
-  await page.waitForTimeout(500);
-  assert.equal((await menu()).open, true);
-  await closeMenu();
-  await drag(5, 200); // الحافة التانية (الشمال)
-  await page.waitForTimeout(300);
-  assert.equal((await menu()).open, false);
-  await touch("touchstart", 385);
-  await touch("touchmove", 350);
-  await page.waitForTimeout(400); // بطيئة وقصيرة
-  await touch("touchend", 350);
-  await page.waitForTimeout(700);
-  const m = await menu();
-  assert.equal(m.open, false);
-  assert.equal(m.cls, "overlay", "the drawer must settle back fully closed");
-});
+// الترتيب: القائمة ← نية اليوم ← نواياي ← مفضلاتي. العربي: السحب لليمين = التاب اللي بعده، ولليسار = اللي قبله (وعند نية اليوم = القائمة).
+const view = () => page.evaluate(() => currentView);
+const swipe = async (dx, y = 300) => {
+  const from = dx > 0 ? 100 : 290;
+  await drag(from, from + dx, { y });
+  await page.waitForTimeout(450);
+};
 
-test("a cancelled or interrupted edge swipe never leaves the drawer half open", async () => {
-  await touch("touchstart", 385);
-  await touch("touchmove", 290);
-  await touch("touchcancel", 290);
-  await page.waitForTimeout(500);
-  // الدرج مخفي بره الشاشة من اليمين: عرضه 320 + 24 مسافة إخفاء
-  assert.deepEqual(await menu(), { open: false, cls: "overlay", left: 414 });
-  await touch("touchstart", 385);
-  await touch("touchmove", 290); // ولا touchend ولا touchcancel
-  await page.waitForTimeout(1900);
-  assert.equal((await menu()).cls, "overlay", "the watchdog closes a drag that never ended");
-});
-
-test("a swipe that starts away from the edge still switches the view and does not open the menu", async () => {
-  const before = await page.evaluate(() => currentView);
-  await drag(150, 260, { y: 300 });
-  await page.waitForTimeout(300);
-  assert.notEqual(await page.evaluate(() => currentView), before);
-  assert.equal((await menu()).open, false);
-});
-
-test("switching tabs does not wrap around: today, all, favorites, and the ends stay put", async () => {
+test("from Today, a swipe the other way opens the menu; from All it first goes back to Today", async () => {
   await page.evaluate(() => setView("today"));
-  const view = () => page.evaluate(() => currentView);
-  const swipe = async dx => {
-    await drag(dx > 0 ? 100 : 290, dx > 0 ? 100 + dx : 290 + dx, { y: 300 });
-    await page.waitForTimeout(250);
-  };
-  await swipe(-110); // عكس الاتجاه عند أول تاب
+  await swipe(-110);
+  assert.equal((await menu()).open, true, "the menu is the tab before Today");
   assert.equal(await view(), "today");
+  await closeMenu();
+  await page.evaluate(() => setView("all"));
+  await swipe(-110);
+  assert.equal(await view(), "today");
+  assert.equal((await menu()).open, false, "one step back from All stops at Today");
+  await swipe(-110);
+  assert.equal((await menu()).open, true, "another step opens the menu");
+  await closeMenu();
+});
+
+test("switching tabs does not wrap around: menu, today, all, favorites, and the end stays put", async () => {
+  await page.evaluate(() => setView("today"));
   await swipe(110);
   assert.equal(await view(), "all");
+  assert.equal((await menu()).open, false);
   await swipe(110);
   assert.equal(await view(), "favorites");
   await swipe(110); // بعد آخر تاب: من غير لفّ
   assert.equal(await view(), "favorites");
+  assert.equal((await menu()).open, false);
   await swipe(-110);
   assert.equal(await view(), "all");
 });
 
-test("a long horizontal swipe from the middle opens the menu; a medium one still switches the view", async () => {
-  await closeMenu();
-  // 200px (> 40% of 390) نحو القائمة: الدرج يبان أثناء السحب ويتفتح عند الرفع
-  await touch("touchstart", 300, 300);
-  await touch("touchmove", 240, 300);
-  await touch("touchmove", 100, 300);
-  await page.waitForTimeout(100);
-  assert.match((await menu()).cls, /edge-dragging/, "the drawer peeks once the long distance is passed");
-  await touch("touchend", 100, 300);
+test("a short swipe does not open the menu, and a swipe from the screen edge is treated like any other swipe", async () => {
+  await page.evaluate(() => setView("today"));
+  await touch("touchstart", 290, 300);
+  await touch("touchmove", 270, 300);
+  await touch("touchend", 270, 300); // أقل من حد التبديل
+  await page.waitForTimeout(300);
+  assert.equal((await menu()).open, false);
+  await drag(385, 190); // من حافة اليمين: مفيش إيماءة حافة، فبتتعامل كسحبة عادية
   await page.waitForTimeout(600);
+  assert.equal(await view(), "today");
+  assert.equal((await menu()).open, true, "same as any swipe the other way from Today");
+  await closeMenu();
+  assert.equal((await menu()).cls, "overlay", "no half-open drawer is left behind");
+});
+
+test("in English the same rule holds mirrored: swipe right from Today opens the menu, swipe left goes to All", async () => {
+  await page.evaluate(() => {
+    settings.language = "en";
+    applySettings();
+    setView("today");
+  });
+  await swipe(110);
   assert.equal((await menu()).open, true);
   await closeMenu();
-  // رجوع الإصبع لقدّام المسافة: الدرج يتخفّي وما يتفتحش
-  await touch("touchstart", 300, 300);
-  await touch("touchmove", 100, 300);
-  await touch("touchmove", 200, 300);
-  await touch("touchend", 200, 300);
-  await page.waitForTimeout(600);
-  assert.equal((await menu()).open, false);
-  assert.equal((await menu()).cls, "overlay");
+  await swipe(-110);
+  assert.equal(await view(), "all");
+  await page.evaluate(() => {
+    settings.language = "ar";
+    applySettings();
+    setView("today");
+  });
 });
 
 test("pulling down from the top checks for an update and says you are on the latest", async () => {

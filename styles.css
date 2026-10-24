@@ -2787,11 +2787,6 @@ html[dir="ltr"] {
   }
 }
 
-/* سحبة الحافة: الدرج بيبان وهو بيتابع الإصبع قبل ما يتفتح رسميًا */
-#menuOverlay.edge-dragging {
-  visibility: visible;
-}
-
 /* مؤشر السحب-للتحديث: بألوان الثيم مش لون المتصفح */
 #pullIndicator {
   position: fixed;
@@ -2821,9 +2816,6 @@ html[dir="ltr"] {
   #pullIndicator.busy .icon {
     animation: none;
   }
-}
-#menuOverlay.edge-dragging .sheet {
-  will-change: transform;
 }
 
 /* القائمة على اليمين والوجو على اليسار في العربي (زي الإنجليزي: زر القائمة على اليمين): الهيدر بيتعكس، والدرج بيطلع من اليمين على الموبايل */
