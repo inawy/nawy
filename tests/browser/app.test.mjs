@@ -325,13 +325,13 @@ test("phone: the menu is a side drawer on the menu-button edge, closes on backdr
     };
   });
   assert.equal(
-    Math.round(box.rtl ? box.left : box.right),
-    box.rtl ? 0 : 390,
-    "drawer sits flush on the menu-button edge"
+    Math.round(box.rtl ? box.right : box.left),
+    box.rtl ? 390 : 0,
+    "drawer sits flush on the menu-button edge (right in Arabic, left in English)"
   );
   assert.ok(box.right - box.left < 390 && box.height >= box.vh - 1, JSON.stringify(box));
   // swipe toward the hidden edge closes it
-  const dir = box.rtl ? -1 : 1;
+  const dir = box.rtl ? 1 : -1;
   await page.mouse.move(box.left + 100, 500);
   await page.mouse.down();
   for (let i = 1; i <= 12; i++) await page.mouse.move(box.left + 100 + dir * i * 15, 500);
@@ -341,7 +341,7 @@ test("phone: the menu is a side drawer on the menu-button edge, closes on backdr
   // backdrop click closes it too
   await page.click("#menuBtn");
   await page.waitForTimeout(400);
-  await page.mouse.click(box.rtl ? 380 : 10, 400);
+  await page.mouse.click(box.rtl ? 10 : 380, 400);
   await page.waitForTimeout(400);
   assert.equal((await menuState(page)).show, false);
   await page.close();

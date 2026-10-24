@@ -2466,6 +2466,9 @@ html[data-theme="light"] .toastify {
   --sidebar-w: 300px;
   --drawer-hide: calc(100% + 24px);
 }
+html[dir="ltr"] {
+  --drawer-hide: calc(-100% - 24px);
+}
 #menuOverlay {
   padding: 0;
   align-items: stretch;
@@ -2621,6 +2624,9 @@ html[dir="ltr"] {
 @media (max-width: 1023.98px) {
   html[dir="rtl"] {
     --panel-hide: calc(100% + 24px);
+  }
+  html[dir="ltr"] {
+    --panel-hide: calc(-100% - 24px);
   }
 }
 .nav-bar {
@@ -2818,19 +2824,19 @@ html[dir="ltr"] {
   }
 }
 
-/* القائمة على اليمين والوجو على اليسار في العربي (زي الإنجليزي: زر القائمة على اليمين): الهيدر بيتعكس، والدرج بيطلع من اليمين على الموبايل */
-html[dir="rtl"] .header {
+/* القائمة جنب بداية القراءة في اللغتين: زر القائمة والدرج على اليمين في العربي وعلى اليسار في الإنجليزي، واللوجو على الجنب التاني. الهيدر بيتعكس، والدرج بيطلع من جنب القائمة على الموبايل */
+.header {
   flex-direction: row-reverse;
 }
-/* اللوجو على اليسار والاسم بعده (./ ناوي) زي الإنجليزي: الرمز الأول من الشمال */
+/* العربي: الرمز الأول من الشمال ثم الاسم (./ ناوي) زي الإنجليزي */
 html[dir="rtl"] .brand {
   flex-direction: row-reverse;
 }
 @media (max-width: 1023.98px) {
-  html[dir="rtl"] #menuOverlay {
+  #menuOverlay {
     justify-content: flex-start;
   }
-  html[dir="rtl"] #menuOverlay .sheet {
+  #menuOverlay .sheet {
     border-inline-start: 0;
     border-inline-end: 1px solid var(--border);
   }
