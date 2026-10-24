@@ -27,8 +27,8 @@ function initSheetGestures() {
     const scrollArea = wrapSheetScrollArea(sheet);
     // القائمة الجانبية درج: بيتسحب ناحية الحافة اللي طالع منها بس، والسحب الرأسي سكرول عادي للمحتوى.
     const isDrawer = overlay.id === "menuOverlay";
-    // الدرج بيختفي ناحية اليمين (ناحية زر القائمة) في العربي والإنجليزي؛ السايدبار المثبّت بس هو اللي بيختفي ناحية بداية الكتابة
-    const drawerDir = () => 1;
+    // الدرج بيختفي ناحية زر القائمة (اليمين في العربي، الشمال في الإنجليزي)؛ السايدبار المثبّت بيختفي ناحية بداية الكتابة وده نفس الاتجاه
+    const drawerDir = () => (document.documentElement.dir === "rtl" ? 1 : -1);
 
     let startX = 0;
     let startY = 0;
