@@ -1,12 +1,39 @@
-// صورة المشاركة (رسم الكانفس + المشاركة/التنزيل) — منقولة حرفيًا من app.js. classic script بيتحمّل قبله؛ بتستخدم `resolveTheme` و`settings` من app.js وقت التشغيل بس.
-/* exported shareAsImage */
-function shareAsImage(task) {
+// صورة المشاركة (رسم الكانفس + المشاركة/التنزيل). ES module (القرار 115): الثيم واللغة بيجوا كمعامل `{ isDark, language }` بدل resolveTheme/settings،
+// وتقسيم النص لسطور (wrapShareText) دالة صافية بتتختبر في Node. الملفات القديمة بتوصل للدالة عبر NawyShare.shareAsImage(task, options).
+/** @typedef {{ isDark: boolean, language: string }} ShareOptions */
+
+/**
+ * يقسّم النص لسطور بحيث كل سطر يتقاس عرضه بـ `measure` ومايعدّيش maxWidth (كلمة أطول من العرض بتاخد سطر لوحدها).
+ * @param {string} text
+ * @param {number} maxWidth
+ * @param {(candidate: string) => number} measure
+ * @returns {string[]}
+ */
+export function wrapShareText(text, maxWidth, measure) {
+  const words = String(text || "").split(/\s+/);
+  const lines = [];
+  let line = "";
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (measure(candidate) > maxWidth && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+/** @param {ShareOptions} options */
+export function shareAsImage(task, options) {
   const canvas = document.createElement("canvas");
   canvas.width = 1080;
   canvas.height = 1350;
   const ctx = /** @type {CanvasRenderingContext2D} */ (canvas.getContext("2d"));
 
-  const isDark = resolveTheme() === "dark";
+  const { isDark } = options;
   const bg = isDark ? "#0F1115" : "#FAF9F7";
   const textColor = isDark ? "#E5E7EB" : "#1A1A1A";
   const accentColor = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#3D7BFF";
@@ -16,16 +43,17 @@ function shareAsImage(task) {
 
   const iconImg = new Image();
   iconImg.src = new URL("icon-192.png", document.baseURI).href;
-  iconImg.onload = () => drawShareContent(ctx, task, textColor, accentColor, iconImg);
-  iconImg.onerror = () => drawShareContent(ctx, task, textColor, accentColor, null);
+  iconImg.onload = () => drawShareContent(ctx, task, textColor, accentColor, iconImg, options);
+  iconImg.onerror = () => drawShareContent(ctx, task, textColor, accentColor, null, options);
 }
 
-/** @param {HTMLImageElement | null} [iconImg] */
-function drawShareContent(ctx, task, textColor, accentColor, iconImg = null) {
+/** @param {HTMLImageElement | null} iconImg
+ * @param {ShareOptions} options */
+function drawShareContent(ctx, task, textColor, accentColor, iconImg, options) {
   const { canvas } = ctx;
   const w = canvas.width;
   const h = canvas.height;
-  const isDark = resolveTheme() === "dark";
+  const { isDark, language } = options;
   const surface = isDark ? "#181B20" : "#FFFFFF";
   const muted = isDark ? "#9CA3AF" : "#6B7280";
   const soft = isDark ? "rgba(255,255,255,0.06)" : "rgba(61,123,255,0.06)";
@@ -77,11 +105,11 @@ function drawShareContent(ctx, task, textColor, accentColor, iconImg = null) {
   ctx.fillStyle = textColor;
   ctx.font = "bold 48px Cairo, sans-serif";
   ctx.textAlign = "right";
-  ctx.direction = settings.language === "ar" ? "rtl" : "ltr";
-  ctx.fillText(settings.language === "ar" ? "ناوي" : "NAWY", 954, 160);
+  ctx.direction = language === "ar" ? "rtl" : "ltr";
+  ctx.fillText(language === "ar" ? "ناوي" : "NAWY", 954, 160);
   ctx.fillStyle = muted;
   ctx.font = "28px Cairo, sans-serif";
-  ctx.fillText(settings.language === "ar" ? "نية اليوم" : "TODAY'S INTENTION", 954, 204);
+  ctx.fillText(language === "ar" ? "نية اليوم" : "TODAY'S INTENTION", 954, 204);
 
   roundRect(108, 330, w - 216, 630, 30);
   ctx.fillStyle = soft;
@@ -100,21 +128,9 @@ function drawShareContent(ctx, task, textColor, accentColor, iconImg = null) {
   ctx.fillStyle = textColor;
   ctx.font = "bold 56px Cairo, sans-serif";
   ctx.textAlign = "center";
-  ctx.direction = settings.language === "ar" ? "rtl" : "ltr";
+  ctx.direction = language === "ar" ? "rtl" : "ltr";
   const maxWidth = w - 300;
-  const words = String(task.text || "").split(/\s+/);
-  const lines = [];
-  let line = "";
-  for (const word of words) {
-    const candidate = line ? `${line} ${word}` : word;
-    if (ctx.measureText(candidate).width > maxWidth && line) {
-      lines.push(line);
-      line = word;
-    } else {
-      line = candidate;
-    }
-  }
-  if (line) lines.push(line);
+  const lines = wrapShareText(task.text, maxWidth, candidate => ctx.measureText(candidate).width);
   const visibleLines = lines.slice(0, 5);
   let y = 585 - (visibleLines.length - 1) * 38;
   visibleLines.forEach(currentLine => {
@@ -135,7 +151,7 @@ function drawShareContent(ctx, task, textColor, accentColor, iconImg = null) {
   ctx.fillStyle = accentColor;
   ctx.font = "bold 34px Cairo, sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText(settings.language === "ar" ? "خذها خطوة بخطوة" : "One step at a time", w / 2, 1110);
+  ctx.fillText(language === "ar" ? "خذها خطوة بخطوة" : "One step at a time", w / 2, 1110);
   ctx.fillStyle = muted;
   ctx.font = "bold 34px Cairo, sans-serif";
   ctx.fillText("nawy.app", w / 2, 1250);
@@ -163,3 +179,5 @@ function drawShareContent(ctx, task, textColor, accentColor, iconImg = null) {
     }
   }, "image/png");
 }
+
+/** @type {any} */ (globalThis).NawyShare = { wrapShareText, shareAsImage };

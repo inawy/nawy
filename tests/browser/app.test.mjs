@@ -537,3 +537,21 @@ test("the «Take a break» menu item opens the game page (same origin, not an ex
   assert.ok(await page.evaluate(() => document.title.length > 0 && !!document.querySelector("canvas")));
   await page.close();
 });
+
+test("share image: the canvas card is drawn and downloaded as a real PNG (light and dark, Arabic and English)", async () => {
+  const page = await open(`${base}/index.html`);
+  for (const opts of [
+    { isDark: false, language: "ar" },
+    { isDark: true, language: "en" }
+  ]) {
+    const [download] = await Promise.all([
+      page.waitForEvent("download"),
+      page.evaluate(o => NawyShare.shareAsImage({ text: "اقرأ صفحة من كتاب كل يوم قبل النوم" }, o), opts)
+    ]);
+    assert.equal(download.suggestedFilename(), "nawy-intention.png");
+    const bytes = fs.readFileSync(await download.path());
+    assert.equal(bytes.subarray(1, 4).toString(), "PNG");
+    assert.ok(bytes.length > 5000, "png too small: " + bytes.length);
+  }
+  await page.close();
+});

@@ -869,3 +869,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Second step of the ES-modules migration (decision 113's pattern). `playAchievedSound`, `playUndoSound` and `playAddedSound` are exported and take the app `settings` as a parameter instead of reading the global; the module publishes `NawySounds` for the classic scripts (`feedback.js`, `reminders.js`, `task-actions.js` call `NawySounds.play…(settings)`).
 - `tests/sounds.test.js` (4 tests) runs the module in Node with a fake `AudioContext`: the notes of each tone, fallback to the soft tone for an unknown name, silence (no AudioContext created) when feedback is off, one reused context, and no throw when audio is blocked. The sound itself cannot be heard in tests, only the notes and calls are checked.
 - The app start already waits for module scripts (decision 113), so no timing change.
+
+## 115 — `share.js` is an ES module
+
+- Third ES-module step (pattern of 113/114). `shareAsImage(task, { isDark, language })` no longer reads `resolveTheme()` and `settings`; `task-sheet.js` and `today.js` pass them (`NawyShare.shareAsImage(...)`). The word-wrapping of the quote is extracted as the pure `wrapShareText(text, maxWidth, measure)`.
+- `tests/share.test.js` (4 tests): wrapping on word boundaries within the width, an over-long word on its own line, empty or undefined text, repeated whitespace, Arabic text, and the `NawyShare` bridge. A browser test draws the card in light/Arabic and dark/English and checks the download is a real PNG named `nawy-intention.png`.
+- Limit: the test checks that a PNG is produced, not how it looks, and the native share sheet (`navigator.share`) was not exercised: only the download fallback was.

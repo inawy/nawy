@@ -39,7 +39,6 @@ test("JavaScript files parse", () => {
     "service-worker.js",
     "app.js",
     "translations.js",
-    "share.js",
     "overlays.js",
     "reminders.js",
     "task-actions.js",
@@ -712,5 +711,20 @@ test("sounds.js is an ES module too: type=module, classic callers use NawySounds
       !/(^|[^.\w])play(Achieved|Undo|Added)Sound\(/m.test(src),
       f + " calls a sound helper without NawySounds."
     );
+  }
+});
+
+test("share.js is an ES module: type=module, classic callers use NawyShare with { isDark, language }", () => {
+  assert.match(read("index.html"), /<script type="module" src="\.\/share\.js\?v=[\w.]+"><\/script>/);
+  assert.match(read("share.js"), /^export function shareAsImage\(task, options\)/m);
+  for (const f of ["task-sheet.js", "today.js"]) {
+    const src = read(f);
+    assert.ok(
+      /NawyShare\.shareAsImage\(task, \{ isDark: resolveTheme\(\) === "dark", language: settings\.language \}\)/.test(
+        src
+      ),
+      f
+    );
+    assert.ok(!/(^|[^.\w])shareAsImage\(/m.test(src), f + " calls shareAsImage without NawyShare.");
   }
 });
