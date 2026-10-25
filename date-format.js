@@ -1,10 +1,11 @@
-// تنسيق التواريخ في الأرشيف (آخر وقت/مجموعة اليوم/التاريخ الأقدم) — منقولة حرفيًا من app.js. classic script بيتحمّل قبله؛ بتستخدم `settings` من app.js وقت التشغيل بس.
-/* exported formatAchievedDate, formatArchivedTime, archiveDayGroup, formatOlderDate */
-function formatAchievedDate(timestamp) {
+// تنسيق التواريخ في الأرشيف (آخر وقت/مجموعة اليوم/التاريخ الأقدم).
+// أول ملف ES module في الصفحة الرئيسية (القرار 113): دوال صافية بتاخد اللغة والوقت الحالي كمعاملات بدل ما تقرا settings من app.js،
+// فتتختبر في Node مباشرة. الملفات القديمة (classic) بتوصلها عبر الكائن العام NawyDates اللي بيتعمل في آخر الملف.
+export function formatAchievedDate(timestamp, language, now = new Date()) {
   const date = new Date(timestamp);
   if (!Number.isFinite(date.getTime())) return "";
 
-  const today = new Date();
+  const today = now;
   const isSameDay = (left, right) =>
     left.getFullYear() === right.getFullYear() &&
     left.getMonth() === right.getMonth() &&
@@ -12,7 +13,7 @@ function formatAchievedDate(timestamp) {
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
 
-  if (settings.language === "en") {
+  if (language === "en") {
     if (isSameDay(date, today)) return "Completed today";
     if (isSameDay(date, yesterday)) return "Completed yesterday";
     const formatted = date.toLocaleDateString("en-US", {
@@ -43,16 +44,16 @@ function formatAchievedDate(timestamp) {
   return `تحققت ${date.getFullYear() === today.getFullYear() ? formatted : `${formatted} ${date.getFullYear()}`}`;
 }
 
-function formatArchivedTime(timestamp) {
+export function formatArchivedTime(timestamp, language) {
   const date = new Date(timestamp);
   if (!Number.isFinite(date.getTime())) return "";
-  const locale = settings.language === "en" ? "en-US" : "ar-EG";
+  const locale = language === "en" ? "en-US" : "ar-EG";
   return date.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
 }
 
-function archiveDayGroup(timestamp) {
+export function archiveDayGroup(timestamp, now = new Date()) {
   const date = new Date(timestamp);
-  const today = new Date();
+  const today = now;
   const isSameDay = (left, right) =>
     left.getFullYear() === right.getFullYear() &&
     left.getMonth() === right.getMonth() &&
@@ -64,8 +65,16 @@ function archiveDayGroup(timestamp) {
   return "older";
 }
 
-function formatOlderDate(timestamp) {
+export function formatOlderDate(timestamp, language) {
   const date = new Date(timestamp);
-  const locale = settings.language === "en" ? "en-US" : "ar-EG";
+  const locale = language === "en" ? "en-US" : "ar-EG";
   return date.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }
+
+// جسر للملفات الـ classic (list-view.js و archive-stats.js): بتنادي NawyDates.* وقت العرض، بعد ما الـ modules تشتغل.
+/** @type {any} */ (globalThis).NawyDates = {
+  formatAchievedDate,
+  formatArchivedTime,
+  archiveDayGroup,
+  formatOlderDate
+};

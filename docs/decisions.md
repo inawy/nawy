@@ -856,3 +856,10 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - `error-log.js` records uncaught errors and unhandled promise rejections (time, kind, message and file:line, truncated; no task text) in `localStorage` (`nawy_errlog_v1`, last 30). Nothing is sent anywhere.
 - Settings has a new «Diagnostics» group with an Export button that saves `nawy-errors-DATE.json` (app version, user agent, errors) to send when something breaks.
 - The manifest shortcut «Add intention» (`?action=add`) already worked; it now has a browser test.
+
+## 113 — First ES module in the main page: `date-format.js`
+
+- Step 1 of the ES-modules migration, one small leaf file, no big-bang. `date-format.js` is loaded with `type="module"` and exports pure functions that take the language (and, where needed, the current time) as parameters instead of reading `settings` from `app.js`. It is now unit-tested directly in Node (`tests/date-format.test.js`, 4 tests including month/year edges and the Arabic and English outputs).
+- Bridge: the module sets `globalThis.NawyDates`; the classic scripts `list-view.js` and `archive-stats.js` call `NawyDates.*(…, settings.language)`. Types: `NawyDates` is declared in `types/page-globals.d.ts`; ESLint treats the file as `sourceType: "module"`.
+- Timing: module scripts run after all classic scripts but before `DOMContentLoaded`, so `app.js` now starts through `startApp()` on `DOMContentLoaded` (immediately if the page is already past loading). A sanity test pins the `type="module"` tag, the bridge usage and the deferred start.
+- The pattern for the next steps: pick a leaf file, make it pure (parameters instead of globals), export it, add a bridge name for classic callers, test it in Node. Not done: moving files that share mutable state (`tasks`, `settings`, `db`), which need their own step.

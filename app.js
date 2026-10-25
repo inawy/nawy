@@ -509,7 +509,16 @@ async function init() {
   });
 }
 
-init().catch(error => {
-  console.error("Nawy init failed", error);
-  document.documentElement.classList.remove("booting");
-});
+function startApp() {
+  init().catch(error => {
+    console.error("Nawy init failed", error);
+    document.documentElement.classList.remove("booting");
+  });
+}
+
+// ملفات ES module (type="module") بتشتغل بعد كل الـ classic scripts وقبل DOMContentLoaded، فبنبدأ التطبيق بعدها عشان NawyDates وأمثاله يبقوا جاهزين.
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", startApp, { once: true });
+} else {
+  startApp();
+}

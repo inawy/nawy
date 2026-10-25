@@ -58,7 +58,6 @@ test("JavaScript files parse", () => {
     "banners.js",
     "update.js",
     "touch-gestures.js",
-    "date-format.js",
     "nawy-data.js",
     "nawy-storage.js",
     "nawy-backup.js"
@@ -688,4 +687,18 @@ test("status bar, first-paint style, boot script, runtime update and --bg all us
     app.includes('"dark" ? "' + dark.toUpperCase() + '" : "' + light.toUpperCase() + '"'),
     "runtime colours differ"
   );
+});
+
+test("date-format.js is the first ES module: loaded as type=module, classic callers use NawyDates, app start waits for modules", () => {
+  const html = read("index.html");
+  assert.match(html, /<script type="module" src="\.\/date-format\.js\?v=[\w.]+"><\/script>/);
+  assert.match(read("date-format.js"), /^export function formatAchievedDate/m);
+  for (const f of ["list-view.js", "archive-stats.js"]) {
+    assert.ok(/NawyDates\./.test(read(f)), f + " must call NawyDates.*");
+    assert.ok(
+      !/(^|[^.\w])(formatAchievedDate|formatArchivedTime|formatOlderDate|archiveDayGroup)\(/m.test(read(f)),
+      f + " calls a date helper without NawyDates."
+    );
+  }
+  assert.match(read("app.js"), /document\.addEventListener\("DOMContentLoaded", startApp/);
 });

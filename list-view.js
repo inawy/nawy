@@ -102,7 +102,7 @@ function createTaskElement(task) {
   if (task.status === "achieved") {
     const achievedDate = document.createElement("p");
     achievedDate.className = "task-achieved-date";
-    achievedDate.textContent = formatAchievedDate(task.achievedAt);
+    achievedDate.textContent = NawyDates.formatAchievedDate(task.achievedAt, settings.language);
     main.appendChild(achievedDate);
   }
   main.addEventListener("click", () => openTaskSheet(task.id));
