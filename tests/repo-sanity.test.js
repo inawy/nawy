@@ -39,7 +39,6 @@ test("JavaScript files parse", () => {
     "service-worker.js",
     "app.js",
     "translations.js",
-    "sounds.js",
     "share.js",
     "overlays.js",
     "reminders.js",
@@ -701,4 +700,17 @@ test("date-format.js is the first ES module: loaded as type=module, classic call
     );
   }
   assert.match(read("app.js"), /document\.addEventListener\("DOMContentLoaded", startApp/);
+});
+
+test("sounds.js is an ES module too: type=module, classic callers use NawySounds with settings", () => {
+  assert.match(read("index.html"), /<script type="module" src="\.\/sounds\.js\?v=[\w.]+"><\/script>/);
+  assert.match(read("sounds.js"), /^export function playAchievedSound\(settings\)/m);
+  for (const f of ["feedback.js", "reminders.js", "task-actions.js"]) {
+    const src = read(f);
+    assert.ok(/NawySounds\.play\w+Sound\(settings\)/.test(src), f + " must call NawySounds.*(settings)");
+    assert.ok(
+      !/(^|[^.\w])play(Achieved|Undo|Added)Sound\(/m.test(src),
+      f + " calls a sound helper without NawySounds."
+    );
+  }
 });

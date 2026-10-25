@@ -35,7 +35,7 @@ function showToast(message, canUndo = false, undoCallback = null, subtitle = "")
     undoButton.textContent = t("undo");
     undoButton.addEventListener("click", event => {
       event.stopPropagation();
-      playUndoSound();
+      NawySounds.playUndoSound(settings);
       if (settings.feedbackEnabled !== false && navigator.vibrate) navigator.vibrate(18);
       undoCallback();
       toast.remove();
@@ -102,7 +102,7 @@ function buildAchievementMessage(taskText) {
 }
 
 function celebrate() {
-  playAchievedSound();
+  NawySounds.playAchievedSound(settings);
   if (settings.feedbackEnabled !== false && navigator.vibrate) navigator.vibrate(30);
   if (typeof confetti === "function") {
     confetti({

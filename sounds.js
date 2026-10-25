@@ -1,9 +1,9 @@
-// الأصوات (إنجاز/تراجع/إضافة) — منقولة حرفيًا من app.js. classic script بيتحمّل قبله؛ بتستخدم `settings` من app.js وقت التشغيل بس.
-/* exported playAchievedSound, playUndoSound, playAddedSound */
+// الأصوات (إنجاز/تراجع/إضافة). ES module (القرار 114): كل دالة بتاخد إعدادات التطبيق (settings) كمعامل بدل ما تقرا المتغير العام،
+// فتتختبر في Node بـ AudioContext مزيّف. الملفات القديمة (classic) بتوصلها عبر الكائن العام NawySounds اللي في آخر الملف.
 /** @type {AudioContext | null} */
 let audioContext = null;
 
-function playAchievedSound() {
+export function playAchievedSound(settings) {
   if (settings.feedbackEnabled === false) return;
   const toneMap = {
     soft: { notes: [523.25, 659.25, 783.99], type: "sine", gap: 0.09, length: 0.36, volume: 0.12 },
@@ -16,7 +16,8 @@ function playAchievedSound() {
 
 function playTonePattern(tone) {
   try {
-    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioContext)
+      audioContext = new (globalThis.AudioContext || /** @type {any} */ (globalThis).webkitAudioContext)();
     const ctx = /** @type {AudioContext} */ (audioContext);
     tone.notes.forEach((freq, i) => {
       const start = ctx.currentTime + i * tone.gap;
@@ -35,10 +36,11 @@ function playTonePattern(tone) {
   } catch (error) {}
 }
 
-function playUndoSound() {
+export function playUndoSound(settings) {
   if (settings.feedbackEnabled === false) return;
   try {
-    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioContext)
+      audioContext = new (globalThis.AudioContext || /** @type {any} */ (globalThis).webkitAudioContext)();
     const ctx = /** @type {AudioContext} */ (audioContext);
     const now = ctx.currentTime;
     [659.25, 523.25].forEach((freq, index) => {
@@ -57,10 +59,11 @@ function playUndoSound() {
   } catch (error) {}
 }
 
-function playAddedSound() {
+export function playAddedSound(settings) {
   if (settings.feedbackEnabled === false) return;
   try {
-    if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioContext)
+      audioContext = new (globalThis.AudioContext || /** @type {any} */ (globalThis).webkitAudioContext)();
     const ctx = /** @type {AudioContext} */ (audioContext);
     const now = ctx.currentTime;
     const osc = ctx.createOscillator();
@@ -77,3 +80,5 @@ function playAddedSound() {
     osc.stop(now + 0.3);
   } catch (error) {}
 }
+
+/** @type {any} */ (globalThis).NawySounds = { playAchievedSound, playUndoSound, playAddedSound };
