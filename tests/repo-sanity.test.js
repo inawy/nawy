@@ -445,7 +445,9 @@ test("the header mark is the Nawy symbol (dot and slash) and both pages use the 
 
 test("index.html is markup only: no big inline script or stylesheet (only the tiny boot script)", () => {
   const html = read("index.html");
-  assert.ok(!/<style[\s>]/.test(html), "styles belong in styles.css");
+  const styles = html.match(/<style[\s>]/g) || [];
+  assert.ok(styles.length <= 1, "styles belong in styles.css (only the one-line first-paint background may stay inline)");
+  assert.ok(!styles.length || /<style>html\[data-theme="dark"\]\{background:#\w+\}html\[data-theme="light"\]\{background:#\w+\}<\/style>/.test(html), "the only inline style is the first-paint background");
   const inline = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)].map(m => m[1]);
   assert.equal(inline.length, 1, "only the theme boot script may stay inline (it must run before first paint)");
   assert.ok(inline[0].split("\n").length < 60, "the inline boot script must stay small");
@@ -634,4 +636,23 @@ test("pull down from the top reloads the page, unless a draft is unsent (decisio
   assert.match(gestures, /t\("refreshAfterDraft"\)/);
   assert.ok(!/requestUpdateNow\(\)/.test(gestures), "the pull no longer applies updates");
   assert.match(read("styles.css"), /#pullIndicator/);
+});
+
+test("status bar, first-paint style, boot script, runtime update and --bg all use the same two shades", () => {
+  const html = read("index.html");
+  const css = read("styles.css");
+  const app = read("appearance.js");
+  const bg = theme => css.match(new RegExp('html\\[data-theme="' + theme + '"\\]\\s*\\{[^}]*?--bg:\\s*(#[0-9a-fA-F]{6})'))[1].toLowerCase();
+  const dark = bg("dark");
+  const light = bg("light");
+  const metaOf = mode =>
+    html.match(new RegExp('<meta name="theme-color" media="\\(prefers-color-scheme: ' + mode + '\\)" content="(#[0-9A-Fa-f]{6})"'))[1].toLowerCase();
+  assert.equal(metaOf("dark"), dark);
+  assert.equal(metaOf("light"), light);
+  const inline = html.match(/<style>html\[data-theme="dark"\]\{background:(#\w+)\}html\[data-theme="light"\]\{background:(#\w+)\}<\/style>/);
+  assert.ok(inline, "inline first-paint background style missing from <head>");
+  assert.equal(inline[1].toLowerCase(), dark);
+  assert.equal(inline[2].toLowerCase(), light);
+  assert.ok(html.includes('"dark" ? "' + dark.toUpperCase() + '" : "' + light.toUpperCase() + '"'), "boot script colours differ");
+  assert.ok(app.includes('"dark" ? "' + dark.toUpperCase() + '" : "' + light.toUpperCase() + '"'), "runtime colours differ");
 });
