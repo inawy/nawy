@@ -23,7 +23,7 @@ function addTask(text) {
   saveTasks();
   render();
   window.scrollTo(0, 0);
-  playAddedSound();
+  NawySounds.playAddedSound(settings);
   showToast(t("addedToast"));
   return true;
 }
@@ -74,7 +74,7 @@ function deleteTask(id) {
     tasks.unshift(deleted);
     persistAcrossStores();
     render();
-    playUndoSound();
+    NawySounds.playUndoSound(settings);
     if (settings.feedbackEnabled !== false && navigator.vibrate) navigator.vibrate(18);
   });
 }

@@ -9,6 +9,7 @@ const appGlobals = {
   confetti: "readonly",
   NawyData: "readonly",
   NawyDates: "readonly",
+  NawySounds: "readonly",
   NawyStorage: "readonly",
   NawyBackup: "readonly",
   NawyMascot: "readonly"
@@ -50,12 +51,12 @@ export default [
     languageOptions: { sourceType: "module", ecmaVersion: 2022, globals: { ...globals.browser, ...appGlobals } }
   },
   {
-    // sounds.js بيقرأ إعدادات التطبيق (settings) وقت التشغيل
+    // sounds.js: ES module؛ الدوال بتاخد settings كمعامل
     files: ["sounds.js"],
     languageOptions: {
-      sourceType: "script",
+      sourceType: "module",
       ecmaVersion: 2022,
-      globals: { ...globals.browser, ...appGlobals, settings: "readonly" }
+      globals: { ...globals.browser }
     }
   },
   {
@@ -76,7 +77,6 @@ export default [
       globals: {
         ...globals.browser,
         ...appGlobals,
-        playAchievedSound: "readonly",
         $: "readonly",
         t: "readonly",
         showToast: "readonly",
@@ -103,8 +103,6 @@ export default [
         getDateKey: "readonly",
         nextTopSortOrder: "readonly",
         persistAcrossStores: "readonly",
-        playAddedSound: "readonly",
-        playUndoSound: "readonly",
         render: "readonly",
         renderArchive: "readonly",
         saveSettings: "readonly",
@@ -329,8 +327,6 @@ export default [
         ...globals.browser,
         ...appGlobals,
         $: "readonly",
-        playAchievedSound: "readonly",
-        playUndoSound: "readonly",
         settings: "readonly",
         t: "readonly"
       }
@@ -463,7 +459,6 @@ export default [
         initReminderToggle: "readonly",
         initErrorLog: "readonly",
         TRANSLATIONS: "readonly",
-        playAchievedSound: "readonly",
         showToast: "readonly",
         render: "readonly",
         openTaskSheet: "readonly",
@@ -499,8 +494,6 @@ export default [
         deleteForever: "readonly",
         deleteTaskPermanently: "readonly",
         deleteAllArchived: "readonly",
-        playUndoSound: "readonly",
-        playAddedSound: "readonly",
         shareAsImage: "readonly",
         initSheetGestures: "readonly",
         initUpdates: "readonly",

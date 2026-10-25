@@ -863,3 +863,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Bridge: the module sets `globalThis.NawyDates`; the classic scripts `list-view.js` and `archive-stats.js` call `NawyDates.*(…, settings.language)`. Types: `NawyDates` is declared in `types/page-globals.d.ts`; ESLint treats the file as `sourceType: "module"`.
 - Timing: module scripts run after all classic scripts but before `DOMContentLoaded`, so `app.js` now starts through `startApp()` on `DOMContentLoaded` (immediately if the page is already past loading). A sanity test pins the `type="module"` tag, the bridge usage and the deferred start.
 - The pattern for the next steps: pick a leaf file, make it pure (parameters instead of globals), export it, add a bridge name for classic callers, test it in Node. Not done: moving files that share mutable state (`tasks`, `settings`, `db`), which need their own step.
+
+## 114 — `sounds.js` is an ES module
+
+- Second step of the ES-modules migration (decision 113's pattern). `playAchievedSound`, `playUndoSound` and `playAddedSound` are exported and take the app `settings` as a parameter instead of reading the global; the module publishes `NawySounds` for the classic scripts (`feedback.js`, `reminders.js`, `task-actions.js` call `NawySounds.play…(settings)`).
+- `tests/sounds.test.js` (4 tests) runs the module in Node with a fake `AudioContext`: the notes of each tone, fallback to the soft tone for an unknown name, silence (no AudioContext created) when feedback is off, one reused context, and no throw when audio is blocked. The sound itself cannot be heard in tests, only the notes and calls are checked.
+- The app start already waits for module scripts (decision 113), so no timing change.

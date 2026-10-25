@@ -174,11 +174,11 @@ function initReminderToggle() {
     /** @this {HTMLSelectElement} */ function () {
       settings.achievementTone = this.value;
       saveSettings();
-      playAchievedSound();
+      NawySounds.playAchievedSound(settings);
     }
   );
 
-  $("#tonePreviewBtn").addEventListener("click", () => playAchievedSound());
+  $("#tonePreviewBtn").addEventListener("click", () => NawySounds.playAchievedSound(settings));
 
   $("#notifToggleCheckbox").addEventListener(
     "change",
