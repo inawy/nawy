@@ -337,6 +337,7 @@ initTodayPickSearch();
 initBackupControls();
 initSettingsControls();
 initReminderToggle();
+initErrorLog();
 
 initTouchGestures();
 

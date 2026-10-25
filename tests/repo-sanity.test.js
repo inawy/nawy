@@ -53,6 +53,7 @@ test("JavaScript files parse", () => {
     "task-sheet.js",
     "list-view.js",
     "feedback.js",
+    "error-log.js",
     "sheet-gestures.js",
     "banners.js",
     "update.js",
@@ -152,6 +153,12 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(listviewJs > backup && listviewJs < app, "list-view.js must load after the Core and before app.js");
   const feedbackJs = html.indexOf('src="./feedback.js');
   assert.ok(feedbackJs > backup && feedbackJs < app, "feedback.js must load after the Core and before app.js");
+  const errorLogJs = html.indexOf('src="./error-log.js');
+  assert.ok(errorLogJs > backup && errorLogJs < app, "error-log.js must load after the Core and before app.js");
+  assert.ok(
+    read("service-worker.js").includes(`./error-log.js?v=${html.match(/styles\.css\?v=([\w.]+)/)[1]}`),
+    "APP_SHELL must precache error-log.js"
+  );
   const gestures = html.indexOf('src="./sheet-gestures.js');
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');

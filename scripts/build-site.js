@@ -65,6 +65,7 @@ const REQUIRED = [
   "task-sheet.js",
   "list-view.js",
   "feedback.js",
+  "error-log.js",
   "sheet-gestures.js",
   "banners.js",
   "update.js",
