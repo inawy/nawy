@@ -156,7 +156,9 @@ function openTaskSheet(id) {
         <span class="action-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 12V20H20V12"/><path d="M12 16V4M8 8L12 4L16 8"/></svg></span>
         <span class="action-text">${t("share")}</span>
       `;
-  shareBtn.addEventListener("click", () => shareAsImage(task));
+  shareBtn.addEventListener("click", () =>
+    NawyShare.shareAsImage(task, { isDark: resolveTheme() === "dark", language: settings.language })
+  );
   actions.appendChild(shareBtn);
 
   const archiveBtn = document.createElement("button");

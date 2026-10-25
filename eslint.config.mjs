@@ -9,6 +9,7 @@ const appGlobals = {
   confetti: "readonly",
   NawyData: "readonly",
   NawyDates: "readonly",
+  NawyShare: "readonly",
   NawySounds: "readonly",
   NawyStorage: "readonly",
   NawyBackup: "readonly",
@@ -60,12 +61,12 @@ export default [
     }
   },
   {
-    // share.js بيستخدم resolveTheme و settings من app.js وقت التشغيل
+    // share.js: ES module؛ الثيم واللغة معاملات
     files: ["share.js"],
     languageOptions: {
-      sourceType: "script",
+      sourceType: "module",
       ecmaVersion: 2022,
-      globals: { ...globals.browser, ...appGlobals, settings: "readonly", resolveTheme: "readonly" }
+      globals: { ...globals.browser }
     }
   },
   {
@@ -253,8 +254,8 @@ export default [
         reactivateTask: "readonly",
         render: "readonly",
         saveSettings: "readonly",
+        resolveTheme: "readonly",
         settings: "readonly",
-        shareAsImage: "readonly",
         t: "readonly",
         tasks: "readonly",
         toggleStar: "readonly"
@@ -281,8 +282,8 @@ export default [
         reactivateTask: "readonly",
         render: "readonly",
         saveTasks: "readonly",
+        resolveTheme: "readonly",
         settings: "readonly",
-        shareAsImage: "readonly",
         showToast: "readonly",
         t: "readonly",
         tasks: "readonly"
@@ -494,7 +495,6 @@ export default [
         deleteForever: "readonly",
         deleteTaskPermanently: "readonly",
         deleteAllArchived: "readonly",
-        shareAsImage: "readonly",
         initSheetGestures: "readonly",
         initUpdates: "readonly",
         updateNotifUI: "readonly",

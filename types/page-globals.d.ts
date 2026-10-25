@@ -2,6 +2,7 @@
 // أنواع الـ Core بتيجي من مصدر TypeScript نفسه، فاستدعاءاتها من app.js بتتفحص فعليًا.
 declare const NawyData: typeof import("../src/core/nawy-data");
 declare const NawySounds: typeof import("../sounds.js");
+declare const NawyShare: typeof import("../share.js");
 declare const NawyDates: typeof import("../date-format.js");
 declare const NawyStorage: typeof import("../src/core/nawy-storage");
 declare const NawyBackup: typeof import("../src/core/nawy-backup");
