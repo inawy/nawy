@@ -626,10 +626,12 @@ test("the menu is the tab before Today: a swipe the other way from Today opens i
   assert.ok(!/edge-dragging/.test(read("styles.css")));
 });
 
-test("pull down from the top checks for and applies an update (decision 084)", () => {
-  assert.match(read("update.js"), /async function checkForUpdate\(/);
+test("pull down from the top reloads the page, unless a draft is unsent (decisions 084 and 109)", () => {
+  assert.match(read("update.js"), /async function checkForUpdate\(/, "the menu row still checks for updates");
   const gestures = read("touch-gestures.js");
   assert.match(gestures, /PULL_TRIGGER_PX/);
-  assert.match(gestures, /state === "available"\) requestUpdateNow\(\)/);
+  assert.match(gestures, /window\.location\.reload\(\);/);
+  assert.match(gestures, /t\("refreshAfterDraft"\)/);
+  assert.ok(!/requestUpdateNow\(\)/.test(gestures), "the pull no longer applies updates");
   assert.match(read("styles.css"), /#pullIndicator/);
 });

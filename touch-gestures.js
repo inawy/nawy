@@ -1,5 +1,5 @@
-// إيماءات اللمس في الصفحة الرئيسية: تبديل التابات (والقائمة هي "التاب" اللي قبل نية اليوم)، والسحب-للتحديث.
-// classic script بيتحمّل قبل app.js؛ بيستخدم $ و t و showToast و openOverlay و isSidebarDocked و setView و currentView و checkForUpdate و requestUpdateNow (من update.js) وقت التشغيل بس.
+// إيماءات اللمس في الصفحة الرئيسية: تبديل التابات (والقائمة هي "التاب" اللي قبل نية اليوم)، والسحب لأسفل لإعادة تحميل الصفحة.
+// classic script بيتحمّل قبل app.js؛ بيستخدم $ و t و showToast و openOverlay و isSidebarDocked و setView و currentView وقت التشغيل بس.
 // الاستدعاء الوحيد: initTouchGestures() من app.js.
 /* exported initTouchGestures */
 
@@ -15,8 +15,8 @@ function openMenuBySwipe() {
   $("#menuBtn").setAttribute("aria-expanded", "true");
 }
 
-// سحب لأسفل من أول الصفحة = تحديث (بدل سحب-للتحديث بتاع المتصفح اللي بيرسم شريط بلون مش لون الثيم).
-// مؤشر بألوان الثيم بينزل مع الإصبع؛ لو عدّى الحد وسيبت: يتحقق من نسخة جديدة ويطبّقها، وإلا يقولك إنك على الأحدث.
+// سحب لأسفل من أول الصفحة = ريفرش عادي للصفحة (بدل سحب-للتحديث بتاع المتصفح اللي بيرسم شريط بلون مش لون الثيم).
+// مؤشر بألوان الثيم بينزل مع الإصبع؛ لو عدّى الحد وسيبت: الصفحة بتتحمّل من جديد (إلا لو في مسودة مش مبعوتة). التحقق من نسخة جديدة بقى من سطر الإصدار في القائمة.
 const PULL_TRIGGER_PX = 70;
 const pullState = { tracking: false, pulling: false, busy: false, startX: 0, startY: 0, dist: 0 };
 function pullIndicator() {
@@ -61,14 +61,16 @@ async function endPull() {
     hidePullIndicator();
     return;
   }
+  // نص مكتوب في شاشة الإضافة ولسه ما اتبعتش بيتمسح مع إعادة التحميل: ما نعيدش التحميل ونقول للمستخدم.
+  const draftInput = $("#taskInput");
+  if (draftInput && draftInput.value.trim()) {
+    hidePullIndicator();
+    showToast(t("refreshAfterDraft"));
+    return;
+  }
   pullState.busy = true;
   setPullIndicator(PULL_TRIGGER_PX, true);
-  const state = await checkForUpdate();
-  pullState.busy = false;
-  hidePullIndicator();
-  if (state === "available") requestUpdateNow();
-  else if (state === "latest") showToast(t("updateLatest"));
-  else showToast(t("updateCheckFailed"));
+  window.location.reload();
 }
 
 function initTouchGestures() {

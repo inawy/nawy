@@ -160,14 +160,32 @@ test("in English the same rule holds mirrored: swipe right from Today opens the 
   });
 });
 
-test("pulling down from the top checks for an update and says you are on the latest", async () => {
+test("pulling down from the top reloads the page like a normal refresh", async () => {
+  await page.evaluate(() => {
+    window.__beforePull = true;
+  });
   await touch("touchstart", 200, 200);
   await touch("touchmove", 200, 260);
   await touch("touchmove", 200, 380);
   assert.equal(await page.evaluate(() => document.getElementById("pullIndicator").classList.contains("ready")), true);
+  await Promise.all([page.waitForEvent("load", { timeout: 15000 }), touch("touchend", 200, 380)]);
+  await page.waitForFunction(() => !document.documentElement.classList.contains("booting"));
+  assert.equal(await page.evaluate(() => window.__beforePull), undefined, "the page was reloaded from scratch");
+});
+
+test("a pull with an unsent draft does not reload; it says to send or clear the draft", async () => {
+  await page.evaluate(() => {
+    window.__beforePull = true;
+    document.getElementById("taskInput").value = "مسودة لسه ما اتبعتتش";
+  });
+  await touch("touchstart", 200, 200);
+  await touch("touchmove", 200, 260);
+  await touch("touchmove", 200, 380);
   await touch("touchend", 200, 380);
-  await page.waitForFunction(() => document.querySelector(".toastify")?.textContent.includes("أحدث نسخة"), null, {
-    timeout: 15000
+  await page.waitForFunction(() => /ابعت نيتك/.test(document.querySelector(".toastify")?.textContent || ""));
+  assert.equal(await page.evaluate(() => window.__beforePull), true, "no reload happened");
+  await page.evaluate(() => {
+    document.getElementById("taskInput").value = "";
   });
 });
 
