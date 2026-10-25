@@ -8,6 +8,7 @@ const appGlobals = {
   Sortable: "readonly",
   confetti: "readonly",
   NawyData: "readonly",
+  NawyDates: "readonly",
   NawyStorage: "readonly",
   NawyBackup: "readonly",
   NawyMascot: "readonly"
@@ -435,12 +436,12 @@ export default [
     }
   },
   {
-    // date-format.js بيستخدم settings من app.js وقت التشغيل
+    // date-format.js: أول ES module؛ دوال صافية من غير أي global من app.js
     files: ["date-format.js"],
     languageOptions: {
-      sourceType: "script",
+      sourceType: "module",
       ecmaVersion: 2022,
-      globals: { ...globals.browser, ...appGlobals, settings: "readonly" }
+      globals: { ...globals.browser }
     }
   },
   {

@@ -23,7 +23,7 @@ function buildArchiveView() {
     .slice()
     .sort((a, b) => (Number(b.archivedAt) || 0) - (Number(a.archivedAt) || 0))
     .forEach(task => {
-      const key = archiveDayGroup(task.archivedAt || task.updatedAt || Date.now());
+      const key = NawyDates.archiveDayGroup(task.archivedAt || task.updatedAt || Date.now());
       groups[key].push(task);
     });
 
@@ -49,8 +49,8 @@ function buildArchiveView() {
             text: task.text,
             dateText:
               key === "older"
-                ? tf("archiveArchivedAt", { time: formatOlderDate(ts) })
-                : tf("archiveArchivedAt", { time: formatArchivedTime(ts) })
+                ? tf("archiveArchivedAt", { time: NawyDates.formatOlderDate(ts, settings.language) })
+                : tf("archiveArchivedAt", { time: NawyDates.formatArchivedTime(ts, settings.language) })
           };
         })
       }))
