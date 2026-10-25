@@ -844,3 +844,15 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Asked for: status bar dark in night mode and light in day mode, in the same shade as the page, and no differing colours while loading.
 - Already in place: a `theme-color` meta pair per system theme plus the runtime update. Added: a one-line inline `<style>` in `<head>` that paints `html` with the same `--bg` value (dark `#0f1115`, light `#faf9f7`) before `styles.css` loads, so the first paint can no longer be the browser's default black or white. A sanity test now checks the meta pair, the inline style, the boot script, `updateThemeColorMeta` and the `--bg` tokens all agree.
 - Limit: the manifest holds only one colour (it has no per-theme value). `theme_color`/`background_color` stay dark (`#0f1115`), used by the OS for the installed app's splash and window before the page exists. In light mode that can still show a brief dark frame there; it changes only after the app is reinstalled on some Android versions. The browser bar itself follows the meta pair.
+
+## 111 — «Take a break» opens `./game.html`
+
+- Problem: the menu item went to `https://nawy.app/game`. Since the game was split into `game/*.js` modules (v1.59.10) there is a `game/` folder next to `game.html`, so the extension-less URL is ambiguous on static hosting (folder without an index vs. the page) and can end on a 404. It also always left the current origin.
+- Fix: the item navigates to the relative `./game.html`, same origin, the exact file. A browser test clicks it from the menu and checks the game page loads. I could not open nawy.app from the build environment, so the 404 on the live URL is the likely cause, not something I observed.
+- Not done: `game.html` and its modules are not in the offline precache; they are cached after the first visit.
+
+## 112 — Local error log with export, and a test for the app shortcut
+
+- `error-log.js` records uncaught errors and unhandled promise rejections (time, kind, message and file:line, truncated; no task text) in `localStorage` (`nawy_errlog_v1`, last 30). Nothing is sent anywhere.
+- Settings has a new «Diagnostics» group with an Export button that saves `nawy-errors-DATE.json` (app version, user agent, errors) to send when something breaks.
+- The manifest shortcut «Add intention» (`?action=add`) already worked; it now has a browser test.

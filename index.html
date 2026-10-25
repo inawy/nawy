@@ -52,7 +52,7 @@
   <title>ناوي</title>
   
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json?v=1.59.45">
+  <link rel="manifest" href="manifest.json?v=1.59.46">
   <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -71,18 +71,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.59.45"></script>
+  <script src="./nawy-data.js?v=1.59.46"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.59.45"></script>
+  <script src="./nawy-storage.js?v=1.59.46"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.59.45"></script>
+  <script src="./nawy-backup.js?v=1.59.46"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي. بتتحمّل من app.js بعد أول رسم (loadUiBundle) عشان ماتأخّرش فتح التطبيق -->
-  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.59.45">
+  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.59.46">
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.59.45">
+  <link rel="stylesheet" href="./styles.css?v=1.59.46">
 </head>
 <body>
   <div class="app">
@@ -182,7 +182,7 @@
         </span>
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
       </button>
-      <button class="menu-item" id="runBtn" type="button" onclick="window.location.href='https://nawy.app/game'">
+      <button class="menu-item" id="runBtn" type="button" onclick="window.location.href='./game.html'">
         <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" >
           <path d="M6.5 7.5h11a4 4 0 0 1 3.8 5.25l-1.2 3.6a2.5 2.5 0 0 1-4.5.5l-1.2-1.8H9.6l-1.2 1.8a2.5 2.5 0 0 1-4.5-.5l-1.2-3.6A4 4 0 0 1 6.5 7.5Z"/>
           <path d="M7 11v4M5 13h4M16.5 12.5h.01M19 14.5h.01"/>
@@ -448,6 +448,18 @@
           </div>
         </div>
       </div>
+      <div class="setting-group">
+        <div class="setting-label" data-i18n="diagnostics">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/></svg>
+          التشخيص
+        </div>
+        <div class="setting-box">
+          <div class="setting-row">
+            <div class="setting-name" data-i18n="errorLogName">سجل الأخطاء</div>
+            <button class="segment" id="exportErrorLogBtn" type="button" data-i18n="errorLogExport">تصدير</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -518,26 +530,27 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.59.45"></script>
-  <script src="./sounds.js?v=1.59.45"></script>
-  <script src="./share.js?v=1.59.45"></script>
-  <script src="./overlays.js?v=1.59.45"></script>
-  <script src="./reminders.js?v=1.59.45"></script>
-  <script src="./task-actions.js?v=1.59.45"></script>
-  <script src="./backup-restore.js?v=1.59.45"></script>
-  <script src="./archive-stats.js?v=1.59.45"></script>
-  <script src="./appearance.js?v=1.59.45"></script>
-  <script src="./composer.js?v=1.59.45"></script>
-  <script src="./backup-status.js?v=1.59.45"></script>
-  <script src="./today.js?v=1.59.45"></script>
-  <script src="./task-sheet.js?v=1.59.45"></script>
-  <script src="./list-view.js?v=1.59.45"></script>
-  <script src="./feedback.js?v=1.59.45"></script>
-  <script src="./sheet-gestures.js?v=1.59.45"></script>
-  <script src="./banners.js?v=1.59.45"></script>
-  <script src="./update.js?v=1.59.45"></script>
-  <script src="./touch-gestures.js?v=1.59.45"></script>
-  <script src="./date-format.js?v=1.59.45"></script>
-  <script src="./app.js?v=1.59.45"></script>
+  <script src="./translations.js?v=1.59.46"></script>
+  <script src="./sounds.js?v=1.59.46"></script>
+  <script src="./share.js?v=1.59.46"></script>
+  <script src="./overlays.js?v=1.59.46"></script>
+  <script src="./reminders.js?v=1.59.46"></script>
+  <script src="./task-actions.js?v=1.59.46"></script>
+  <script src="./backup-restore.js?v=1.59.46"></script>
+  <script src="./archive-stats.js?v=1.59.46"></script>
+  <script src="./appearance.js?v=1.59.46"></script>
+  <script src="./composer.js?v=1.59.46"></script>
+  <script src="./backup-status.js?v=1.59.46"></script>
+  <script src="./today.js?v=1.59.46"></script>
+  <script src="./task-sheet.js?v=1.59.46"></script>
+  <script src="./list-view.js?v=1.59.46"></script>
+  <script src="./feedback.js?v=1.59.46"></script>
+  <script src="./error-log.js?v=1.59.46"></script>
+  <script src="./sheet-gestures.js?v=1.59.46"></script>
+  <script src="./banners.js?v=1.59.46"></script>
+  <script src="./update.js?v=1.59.46"></script>
+  <script src="./touch-gestures.js?v=1.59.46"></script>
+  <script src="./date-format.js?v=1.59.46"></script>
+  <script src="./app.js?v=1.59.46"></script>
 </body>
 </html>

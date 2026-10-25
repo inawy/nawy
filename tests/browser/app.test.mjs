@@ -493,3 +493,47 @@ test("desktop: archive and stats open inside the docked sidebar like settings", 
 test("no page errors during the whole run", () => {
   assert.deepEqual(pageErrors, []);
 });
+
+test("the app shortcut link (?action=add) opens the composer", async () => {
+  const page = await open(`${base}/index.html?action=add`);
+  assert.equal(await page.evaluate(() => $("#composerPanel").classList.contains("open")), true);
+  await page.close();
+});
+
+test("uncaught errors land in the local error log and export as a file without task text", async () => {
+  const page = await open(`${base}/index.html`);
+  await page.evaluate(() => localStorage.removeItem("nawy_errlog_v1"));
+  await page.evaluate(() => {
+    setTimeout(() => {
+      throw new Error("boom-sync");
+    }, 0);
+    Promise.reject(new Error("boom-async"));
+  });
+  await page.waitForTimeout(300);
+  const log = await page.evaluate(() => JSON.parse(localStorage.getItem("nawy_errlog_v1")));
+  assert.ok(
+    log.some(e => e.message.includes("boom-sync")),
+    JSON.stringify(log)
+  );
+  assert.ok(
+    log.some(e => e.kind === "promise" && e.message.includes("boom-async")),
+    JSON.stringify(log)
+  );
+  const [download] = await Promise.all([page.waitForEvent("download"), page.evaluate(() => exportErrorLog())]);
+  const report = JSON.parse(fs.readFileSync(await download.path(), "utf8"));
+  assert.equal(report.app, "nawy");
+  assert.ok(report.version && report.errors.length >= 2);
+  assert.ok(/^nawy-errors-\d{4}-\d{2}-\d{2}\.json$/.test(download.suggestedFilename()));
+  await page.close();
+  pageErrors.length = 0;
+});
+
+test("the «Take a break» menu item opens the game page (same origin, not an extension-less URL)", async () => {
+  const page = await open(`${base}/index.html`);
+  await page.evaluate(() => $("#menuBtn").click());
+  await page.waitForTimeout(400);
+  await Promise.all([page.waitForURL(/\/game\.html$/), page.click("#runBtn")]);
+  await page.waitForLoadState("load");
+  assert.ok(await page.evaluate(() => document.title.length > 0 && !!document.querySelector("canvas")));
+  await page.close();
+});
