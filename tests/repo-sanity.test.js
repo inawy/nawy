@@ -728,3 +728,14 @@ test("share.js is an ES module: type=module, classic callers use NawyShare with 
     assert.ok(!/(^|[^.\w])shareAsImage\(/m.test(src), f + " calls shareAsImage without NawyShare.");
   }
 });
+
+test("getDateKey lives in the date-format module; classic callers use NawyDates.getDateKey", () => {
+  assert.match(read("date-format.js"), /^export function getDateKey/m);
+  for (const f of ["today.js", "reminders.js", "task-actions.js"]) {
+    assert.ok(/NawyDates\.getDateKey\(/.test(read(f)), f);
+    assert.ok(
+      !/(^|[^.\w])getDateKey\(/m.test(read(f).replace(/^\/\/.*$/gm, "")),
+      f + " calls getDateKey without NawyDates."
+    );
+  }
+});

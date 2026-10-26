@@ -1,10 +1,6 @@
 // عرض "نية اليوم": مفتاح التاريخ، تجديد نية اليوم، البطاقة والحالة الفاضية، وشيت اختيار نية اليوم وقائمته.
 // classic script بيتحمّل قبل app.js؛ تعريفات بس من غير تنفيذ وقت التحميل، وبيستخدم settings و tasks و t ودوال app.js (render و openTaskSheet...) وقت التشغيل.
-/* exported getDateKey,, checkTodayIntentionRollover,, getTodayPinnedTask,, buildTodayView,, openTodayPickSheet,, renderTodayPickList, initTodayPickSearch */
-function getDateKey(date = new Date()) {
-  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
-}
-
+/* exported checkTodayIntentionRollover,, getTodayPinnedTask,, buildTodayView,, openTodayPickSheet,, renderTodayPickList, initTodayPickSearch */
 // بيتنادى مرة واحدة عند فتح التطبيق. لو يوم جديد ولسه فيه نية مثبتة:
 // - لو النية اتحققت خلاص، نرجع الشاشة فاضية عشان يختار نية جديدة للنهارده.
 // - لو لسه نشطة، تفضل هي نفسها (نية مش مكتملة ملهاش تُلغى بس لأن يوم عدى).
@@ -196,7 +192,7 @@ function buildTodayPickView(taskList, query) {
 const todayPickHandlers = {
   onPick(id) {
     settings.todayIntentionId = id;
-    settings.todayIntentionDate = getDateKey();
+    settings.todayIntentionDate = NawyDates.getDateKey();
     saveSettings();
     closeOverlay($("#todayPickOverlay"));
     render();

@@ -72,7 +72,16 @@ export function formatOlderDate(timestamp, language) {
 }
 
 // جسر للملفات الـ classic (list-view.js و archive-stats.js): بتنادي NawyDates.* وقت العرض، بعد ما الـ modules تشتغل.
+/**
+ * مفتاح اليوم المحلي (السنة-الشهر-اليوم، الشهر من 0). بيتقارن بيه "نية اليوم" وتذكير الصباح.
+ * @param {Date} [date]
+ */
+export function getDateKey(date = new Date()) {
+  return `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+}
+
 /** @type {any} */ (globalThis).NawyDates = {
+  getDateKey,
   formatAchievedDate,
   formatArchivedTime,
   archiveDayGroup,
