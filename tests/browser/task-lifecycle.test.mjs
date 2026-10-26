@@ -220,6 +220,61 @@ test("the details sheet: tap opens it, edit saves the text, achieve and delete w
   await synced("delete from sheet");
 });
 
+// أسرع تراجع ممكن: بنادي الحذف ثم زر «تراجع» في نفس اللحظة قبل ما أي كتابة لـ IndexedDB تخلص (زي جهاز بطيء).
+// قبل الإصلاح كان صدى الكتابة القديمة بيرجّع النية للأرشيف وبيضيّع التراجع.
+test("Undo right after a delete still brings the intention back (a slow write must not win)", async () => {
+  await clearToasts();
+  await page.evaluate(() => addTask("undo-race-1"));
+  await page.waitForTimeout(500);
+  await page.evaluate(() => {
+    deleteTask(tasks.find(x => x.text === "undo-race-1").id);
+    document.querySelector(".toast-undo").click();
+  });
+  await page.waitForTimeout(1200);
+  const m = await mem();
+  assert.ok(
+    m.tasks.some(x => x.text === "undo-race-1"),
+    "back in the list"
+  );
+  assert.ok(!m.archive.includes("undo-race-1"), "gone from the archive");
+  await synced("instant undo of an archive");
+});
+
+test("Undo right after a permanent delete from the archive restores it and removes the tombstone", async () => {
+  await clearToasts();
+  await page.evaluate(() => {
+    addTask("undo-race-2");
+    deleteTask(tasks.find(x => x.text === "undo-race-2").id);
+  });
+  await page.waitForTimeout(500);
+  await page.evaluate(() => {
+    window.__raceId = archive.find(x => x.text === "undo-race-2").id;
+    deleteForever(window.__raceId);
+    document.querySelector(".toast-undo").click();
+  });
+  await page.waitForTimeout(1200);
+  assert.equal(await page.evaluate(() => archive.some(x => x.text === "undo-race-2")), true);
+  assert.equal(
+    await page.evaluate(() => deletedIds.some(x => x.id === window.__raceId)),
+    false,
+    "no leftover tombstone in memory"
+  );
+  assert.equal(await page.evaluate(() => db.deletedIds.get(window.__raceId)), undefined, "no tombstone left on disk");
+  await synced("instant undo of a permanent delete");
+});
+
+test("Undo right after «delete all archived» restores everything", async () => {
+  await clearToasts();
+  const before = await page.evaluate(() => archive.length);
+  await page.evaluate(() => {
+    deleteAllArchived();
+    document.querySelector(".toast-undo").click();
+  });
+  await page.waitForTimeout(1200);
+  assert.equal(await page.evaluate(() => archive.length), before);
+  await synced("instant undo of delete-all");
+});
+
 test("everything survives a reload exactly as it was", async () => {
   const before = await disk();
   await page.reload();
