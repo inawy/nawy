@@ -70,6 +70,7 @@ const REQUIRED = [
   "banners.js",
   "update.js",
   "touch-gestures.js",
+  "tombstones.js",
   "date-format.js",
   "styles.css",
   "service-worker.js",

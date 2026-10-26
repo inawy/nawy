@@ -3,6 +3,7 @@
 declare const NawyData: typeof import("../src/core/nawy-data");
 declare const NawySounds: typeof import("../sounds.js");
 declare const NawyShare: typeof import("../share.js");
+declare const NawyTombstones: typeof import("../tombstones.js");
 declare const NawyDates: typeof import("../date-format.js");
 declare const NawyStorage: typeof import("../src/core/nawy-storage");
 declare const NawyBackup: typeof import("../src/core/nawy-backup");

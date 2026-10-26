@@ -160,6 +160,8 @@ test("script order: Dexie, then nawy-data.js, nawy-storage.js, nawy-backup.js, t
   assert.ok(gestures > backup && gestures < app, "sheet-gestures.js must load after the Core and before app.js");
   const banners = html.indexOf('src="./banners.js');
   assert.ok(banners > backup && banners < app, "banners.js must load after the Core and before app.js");
+  const tombstonesJs = html.indexOf('src="./tombstones.js');
+  assert.ok(tombstonesJs > backup && tombstonesJs < app, "tombstones.js must load after the Core and before app.js");
   const dateFormat = html.indexOf('src="./date-format.js');
   assert.ok(dateFormat > backup && dateFormat < app, "date-format.js must load after the Core and before app.js");
   assert.ok(read("app.js").includes("const db = new Dexie("), "app.js must create the database");
@@ -738,4 +740,13 @@ test("getDateKey lives in the date-format module; classic callers use NawyDates.
       f + " calls getDateKey without NawyDates."
     );
   }
+});
+
+test("tombstones.js is an ES module wired everywhere; task-actions.js uses it instead of inline filters", () => {
+  assert.match(read("index.html"), /<script type="module" src="\.\/tombstones\.js\?v=[\w.]+"><\/script>/);
+  const ver = read("index.html").match(/tombstones\.js\?v=([\w.]+)/)[1];
+  assert.ok(read("service-worker.js").includes(`./tombstones.js?v=${ver}`), "APP_SHELL must precache tombstones.js");
+  const src = read("task-actions.js");
+  assert.ok(/NawyTombstones\.addTombstone\(/.test(src) && /NawyTombstones\.removeTombstones\(/.test(src));
+  assert.ok(!/deletedIds\.filter\(/.test(src), "no inline tombstone filtering left in task-actions.js");
 });
