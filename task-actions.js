@@ -101,13 +101,13 @@ function deleteForever(id) {
   if (index === -1) return;
   const deleted = archive[index];
   const deletedAt = Date.now();
-  deletedIds = [...deletedIds.filter(item => item.id !== deleted.id), { id: deleted.id, deletedAt }];
+  deletedIds = NawyTombstones.addTombstone(deletedIds, deleted.id, deletedAt);
   archive.splice(index, 1);
   persistAcrossStores();
   renderArchive();
   showToast(t("deletedForeverToast"), true, () => {
     // تراجع: نرجّع النية للأرشيف ونشيل التومبستون بتاعها
-    deletedIds = deletedIds.filter(item => item.id !== deleted.id);
+    deletedIds = NawyTombstones.removeTombstone(deletedIds, deleted.id);
     archive.splice(Math.min(index, archive.length), 0, deleted);
     persistAcrossStores();
     renderArchive();
@@ -121,7 +121,7 @@ function deleteTaskPermanently(id) {
   if (index === -1) return;
   const deleted = tasks[index];
   const deletedAt = Date.now();
-  deletedIds = [...deletedIds.filter(item => item.id !== deleted.id), { id: deleted.id, deletedAt }];
+  deletedIds = NawyTombstones.addTombstone(deletedIds, deleted.id, deletedAt);
   tasks.splice(index, 1);
   persistAcrossStores();
   render();
@@ -130,13 +130,13 @@ function deleteTaskPermanently(id) {
 function deleteAllArchived() {
   const now = Date.now();
   const removed = archive.slice();
-  const newTombstones = archive.map(item => ({ id: item.id, deletedAt: now }));
-  deletedIds = [...deletedIds.filter(item => !newTombstones.some(nt => nt.id === item.id)), ...newTombstones];
+  const removedIds = removed.map(item => item.id);
+  deletedIds = NawyTombstones.addTombstones(deletedIds, removedIds, now);
   archive = [];
   persistAcrossStores();
   renderArchive();
   showToast(t("deleteAllDoneToast"), true, () => {
-    deletedIds = deletedIds.filter(item => !removed.some(r => r.id === item.id));
+    deletedIds = NawyTombstones.removeTombstones(deletedIds, removedIds);
     archive = [...removed, ...archive];
     persistAcrossStores();
     renderArchive();
