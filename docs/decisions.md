@@ -895,3 +895,9 @@ Format: `ID — title`, then status, date, decision, reason, rejected alternativ
 - Fix (`app.js`): the snapshot is updated when the write is requested (so the next change is diffed against what is already on its way to disk), failures roll the snapshot back, and echoes that arrive while our own writes are still pending are deferred; when the writes finish, the state is re-read from storage once and applied through the same compare-and-apply code (`applyIncomingStorage`), so another tab's change that arrived in between is not lost.
 - Tests: three browser tests click Undo in the same tick as the delete, permanent delete and "delete all archived". They fail on the previous `app.js` and pass now.
 - Limit: reproduced and fixed in Chromium on a throttled CPU, not on the real device. Permanent delete of an active intention (from the details sheet, after its confirmation) still has no Undo by design.
+
+## 119 — Rapid-action consistency test (guards decision 118)
+
+- `tests/browser/rapid-actions.test.mjs`: three seeded runs, each firing 30 rounds of 1 to 4 random actions (add, star, achieve, delete, Undo, restore, permanent delete, delete all) with the CPU throttled 6x and, a third of the time, no wait between rounds. After everything settles it requires memory = IndexedDB for tasks, archive and tombstones, no intention in both lists, and no live intention that also carries a tombstone (the state that made a Drive merge delete it).
+- It fails on the `app.js` from before decision 118 (all three seeds) and passes now. It runs in about 15 seconds and is picked up by `npm run test:browser` and CI automatically.
+- Limit: it simulates a slow device with CPU throttling; it does not model a flaky storage layer or two real devices.
