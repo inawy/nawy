@@ -164,7 +164,7 @@ for (const [label, ctxGetter] of [
     await page.waitForTimeout(500);
     const r = await page.evaluate(() => ({
       id: settings.todayIntentionId,
-      date: settings.todayIntentionDate === getDateKey(),
+      date: settings.todayIntentionDate === NawyDates.getDateKey(),
       shown: document.getElementById("todayPickOverlay").classList.contains("show"),
       disk: null
     }));

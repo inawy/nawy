@@ -42,7 +42,7 @@ async function requestNotificationPermission() {
 // المتصفح يسمح بيه (مش وقت محدد بدقة).
 function runDailyReminderCheck() {
   const now = new Date();
-  const todayKey = getDateKey(now);
+  const todayKey = NawyDates.getDateKey(now);
   // القرار نفسه في الـ Core (مشترك مع الـ Service Worker): رسالة داخل التطبيق.
   const decision = NawyData.decideReminder({
     settings,
@@ -83,7 +83,7 @@ function runBackgroundReminderCheck() {
   });
   if (!decision.show) return;
   Object.assign(settings, NawyData.recordReminderShown(settings, now));
-  settings.lastReminderShownDate = getDateKey(now);
+  settings.lastReminderShownDate = NawyDates.getDateKey(now);
   saveSettings();
   showMorningNotification();
 }

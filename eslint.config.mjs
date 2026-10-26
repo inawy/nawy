@@ -83,7 +83,6 @@ export default [
         showToast: "readonly",
         settings: "readonly",
         saveSettings: "readonly",
-        getDateKey: "readonly",
         getTodayPinnedTask: "readonly"
       }
     }
@@ -101,7 +100,6 @@ export default [
         celebrate: "readonly",
         createId: "readonly",
         currentView: "readonly",
-        getDateKey: "readonly",
         nextTopSortOrder: "readonly",
         persistAcrossStores: "readonly",
         render: "readonly",

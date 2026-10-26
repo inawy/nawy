@@ -17,7 +17,7 @@ function addTask(text) {
   tasks.unshift(newTask);
   if (currentView === "today" && !settings.todayIntentionId) {
     settings.todayIntentionId = newTask.id;
-    settings.todayIntentionDate = getDateKey();
+    settings.todayIntentionDate = NawyDates.getDateKey();
     saveSettings();
   }
   saveTasks();

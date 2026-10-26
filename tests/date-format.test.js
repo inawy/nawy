@@ -42,3 +42,11 @@ test("the module publishes the NawyDates bridge for the classic scripts", async 
   const m = await load();
   assert.deepEqual(Object.keys(globalThis.NawyDates).sort(), Object.keys(m).sort());
 });
+
+test("getDateKey is the local calendar day (month is 0-based) and defaults to today", async () => {
+  const m = await load();
+  assert.equal(m.getDateKey(new Date(2026, 9, 25, 23, 59)), "2026-9-25");
+  assert.equal(m.getDateKey(new Date(2026, 0, 1, 0, 0)), "2026-0-1");
+  assert.notEqual(m.getDateKey(new Date(2026, 9, 25, 23, 59)), m.getDateKey(new Date(2026, 9, 26, 0, 1)));
+  assert.equal(m.getDateKey(), m.getDateKey(new Date()));
+});
