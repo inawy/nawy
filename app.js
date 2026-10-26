@@ -224,15 +224,44 @@ async function loadData() {
   settingsUpdatedAt = Number(dbSettingsUpdatedAt) || 0;
 }
 
+// كتابات IndexedDB الجارية. اللقطات (snapshots) بتتحدّث لحظة الطلب مش بعد انتهاء الكتابة، عشان أي تعديل تاني بسرعة
+// (زي «تراجع» بعد حذف بثانية) يتحسب فرقه صح. وصدى الـ liveQuery اللي بيوصل والكتابات لسه جارية بيتأجّل
+// (وإلا كان بيرجّع حالة قديمة فوق التعديل الأحدث ويضيّع التراجع)، وبيتعاد قراءته من التخزين لما الكتابات تخلص.
+let pendingWrites = 0;
+let echoSkipped = false;
+
+/**
+ * @param {Promise<unknown>} write
+ * @param {() => void} rollback بيرجّع اللقطات لو الكتابة فشلت (عشان المحاولة الجاية تعيد كتابة الفرق)
+ * @param {(() => void) | null} [afterSuccess]
+ */
+function trackWrite(write, rollback, afterSuccess = null) {
+  pendingWrites++;
+  return write
+    .then(() => {
+      if (afterSuccess) afterSuccess();
+    })
+    .catch(error => {
+      rollback();
+      reportStorageWriteError(error);
+    })
+    .finally(() => {
+      pendingWrites--;
+      if (!pendingWrites && echoSkipped) {
+        echoSkipped = false;
+        resyncFromStorage();
+      }
+    });
+}
+
 function saveTasks() {
   const { toPut, toDelete } = diffAgainstSnapshot(tasks, tasksSnapshot);
   if (!toPut.length && !toDelete.length) return;
-  storage
-    .applyChanges({ tasks: { toPut, toDelete } })
-    .then(() => {
-      tasksSnapshot = snapshotFrom(tasks);
-    })
-    .catch(reportStorageWriteError);
+  const prev = tasksSnapshot;
+  tasksSnapshot = snapshotFrom(tasks);
+  trackWrite(storage.applyChanges({ tasks: { toPut, toDelete } }), () => {
+    tasksSnapshot = prev;
+  });
 }
 
 function saveArchive() {
@@ -241,13 +270,15 @@ function saveArchive() {
     updateMenuStatusLine();
     return;
   }
-  storage
-    .applyChanges({ archive: { toPut, toDelete } })
-    .then(() => {
-      archiveSnapshot = snapshotFrom(archive);
-      updateMenuStatusLine();
-    })
-    .catch(reportStorageWriteError);
+  const prev = archiveSnapshot;
+  archiveSnapshot = snapshotFrom(archive);
+  trackWrite(
+    storage.applyChanges({ archive: { toPut, toDelete } }),
+    () => {
+      archiveSnapshot = prev;
+    },
+    updateMenuStatusLine
+  );
 }
 
 function saveSettings() {
@@ -263,19 +294,26 @@ function persistAcrossStores() {
   const archiveDiff = diffAgainstSnapshot(archive, archiveSnapshot);
   const deletedIdsDiff = diffAgainstSnapshot(deletedIds, deletedIdsSnapshot, "deletedAt");
 
-  return storage
-    .applyChanges({
+  const prevTasks = tasksSnapshot;
+  const prevArchive = archiveSnapshot;
+  const prevDeletedIds = deletedIdsSnapshot;
+  tasksSnapshot = snapshotFrom(tasks);
+  archiveSnapshot = snapshotFrom(archive);
+  deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt");
+
+  return trackWrite(
+    storage.applyChanges({
       tasks: tasksDiff,
       archive: archiveDiff,
       deletedIds: deletedIdsDiff
-    })
-    .then(() => {
-      tasksSnapshot = snapshotFrom(tasks);
-      archiveSnapshot = snapshotFrom(archive);
-      deletedIdsSnapshot = snapshotFrom(deletedIds, "deletedAt");
-      updateMenuStatusLine();
-    })
-    .catch(reportStorageWriteError);
+    }),
+    () => {
+      tasksSnapshot = prevTasks;
+      archiveSnapshot = prevArchive;
+      deletedIdsSnapshot = prevDeletedIds;
+    },
+    updateMenuStatusLine
+  );
 }
 
 function updateTabs() {
@@ -405,54 +443,73 @@ window.addEventListener("appinstalled", () => {
 // الحالة وعرضها تاني — مفيش أي منطق دمج تعارضات هنا (زي ما هو مطلوب،
 // التعارض الحقيقي بين الأجهزة بيتحل فقط في مزامنة Google Drive عبر
 // mergeNawyData، مش هنا).
+async function resyncFromStorage() {
+  try {
+    const stored = await storage.readAll();
+    applyIncomingStorage(stored);
+  } catch (error) {
+    console.error("Resync after writes failed", error);
+  }
+}
+
+/** @param {{ tasks: any, archive: any, settingsRow: any, deletedIds: any }} live */
+function applyIncomingStorage(live) {
+  const { tasks: liveTasks, archive: liveArchive, settingsRow: liveSettingsRow, deletedIds: liveDeletedIds } = live;
+  // liveQuery بتتفعّل حتى على كتابة نفس التاب (مش بس تابات تانية)،
+  // فكل حركة (إضافة، تحقيق، تعديل...) كانت بتعمل render() مرتين: مرة
+  // فورية بعد التعديل في الذاكرة، ومرة تانية لما الـ liveQuery يتفعّل
+  // بعد ما الكتابة تتأكد. ده كان بيحس التطبيق بالتقل. هنا بنقارن
+  // الداتا الجاية بالداتا اللي عندنا فعلاً — لو متطابقة (يعني الإشعار
+  // ده مجرد صدى لكتابتنا إحنا)، منعملش أي حاجة تاني.
+  const incomingTasksSnapshot = snapshotFrom(Array.isArray(liveTasks) ? liveTasks : []);
+  const incomingArchiveSnapshot = snapshotFrom(Array.isArray(liveArchive) ? liveArchive : []);
+  const incomingDeletedIdsSnapshot = snapshotFrom(Array.isArray(liveDeletedIds) ? liveDeletedIds : [], "deletedAt");
+  const { id: _rowId, updatedAt: liveSettingsUpdatedAt, ...restLiveSettings } = liveSettingsRow || {};
+  const incomingSettingsUpdatedAt = Number(liveSettingsUpdatedAt) || 0;
+
+  const nothingChanged =
+    snapshotsEqual(incomingTasksSnapshot, tasksSnapshot) &&
+    snapshotsEqual(incomingArchiveSnapshot, archiveSnapshot) &&
+    snapshotsEqual(incomingDeletedIdsSnapshot, deletedIdsSnapshot) &&
+    incomingSettingsUpdatedAt <= settingsUpdatedAt;
+
+  if (nothingChanged) return;
+
+  tasks = Array.isArray(liveTasks) ? liveTasks : [];
+  tasks.sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+  archive = Array.isArray(liveArchive) ? liveArchive : [];
+  deletedIds = Array.isArray(liveDeletedIds) ? liveDeletedIds : [];
+  tasksSnapshot = incomingTasksSnapshot;
+  archiveSnapshot = incomingArchiveSnapshot;
+  deletedIdsSnapshot = incomingDeletedIdsSnapshot;
+
+  if (incomingSettingsUpdatedAt > settingsUpdatedAt) {
+    settings = normalizeSettings(restLiveSettings);
+    settingsUpdatedAt = incomingSettingsUpdatedAt;
+    applySettings();
+  }
+
+  render();
+  if (!$("#archiveMenuPanel").hidden) renderArchive();
+  if (!$("#statsMenuPanel").hidden) renderStats();
+}
+
 let crossTabSyncReady = false;
 function startCrossTabSync() {
   storage.subscribe({
-    next: ({ tasks: liveTasks, archive: liveArchive, settingsRow: liveSettingsRow, deletedIds: liveDeletedIds }) => {
+    next: live => {
       // أول إطلاق بيحصل فورًا عند الاشتراك بنفس البيانات اللي حمّلناها
       // بالفعل في loadData() — نتجاهله عشان منعملش render() زيادة من غير داعي.
       if (!crossTabSyncReady) {
         crossTabSyncReady = true;
         return;
       }
-
-      // liveQuery بتتفعّل حتى على كتابة نفس التاب (مش بس تابات تانية)،
-      // فكل حركة (إضافة، تحقيق، تعديل...) كانت بتعمل render() مرتين: مرة
-      // فورية بعد التعديل في الذاكرة، ومرة تانية لما الـ liveQuery يتفعّل
-      // بعد ما الكتابة تتأكد. ده كان بيحس التطبيق بالتقل. هنا بنقارن
-      // الداتا الجاية بالداتا اللي عندنا فعلاً — لو متطابقة (يعني الإشعار
-      // ده مجرد صدى لكتابتنا إحنا)، منعملش أي حاجة تاني.
-      const incomingTasksSnapshot = snapshotFrom(Array.isArray(liveTasks) ? liveTasks : []);
-      const incomingArchiveSnapshot = snapshotFrom(Array.isArray(liveArchive) ? liveArchive : []);
-      const incomingDeletedIdsSnapshot = snapshotFrom(Array.isArray(liveDeletedIds) ? liveDeletedIds : [], "deletedAt");
-      const { id: _rowId, updatedAt: liveSettingsUpdatedAt, ...restLiveSettings } = liveSettingsRow || {};
-      const incomingSettingsUpdatedAt = Number(liveSettingsUpdatedAt) || 0;
-
-      const nothingChanged =
-        snapshotsEqual(incomingTasksSnapshot, tasksSnapshot) &&
-        snapshotsEqual(incomingArchiveSnapshot, archiveSnapshot) &&
-        snapshotsEqual(incomingDeletedIdsSnapshot, deletedIdsSnapshot) &&
-        incomingSettingsUpdatedAt <= settingsUpdatedAt;
-
-      if (nothingChanged) return;
-
-      tasks = Array.isArray(liveTasks) ? liveTasks : [];
-      tasks.sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
-      archive = Array.isArray(liveArchive) ? liveArchive : [];
-      deletedIds = Array.isArray(liveDeletedIds) ? liveDeletedIds : [];
-      tasksSnapshot = incomingTasksSnapshot;
-      archiveSnapshot = incomingArchiveSnapshot;
-      deletedIdsSnapshot = incomingDeletedIdsSnapshot;
-
-      if (incomingSettingsUpdatedAt > settingsUpdatedAt) {
-        settings = normalizeSettings(restLiveSettings);
-        settingsUpdatedAt = incomingSettingsUpdatedAt;
-        applySettings();
+      // كتابات تاب النهارده لسه جارية: الصدى ممكن يكون حالة أقدم من اللي على الشاشة. نأجّله ونعيد القراءة لما تخلص.
+      if (pendingWrites > 0) {
+        echoSkipped = true;
+        return;
       }
-
-      render();
-      if (!$("#archiveMenuPanel").hidden) renderArchive();
-      if (!$("#statsMenuPanel").hidden) renderStats();
+      applyIncomingStorage(live);
     },
     error: error => console.error("Cross-tab live sync error", error)
   });
