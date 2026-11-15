@@ -435,13 +435,18 @@ test("every icon in the manifest and head exists with the declared size (brand f
     "the notification badge must have transparency (it is a silhouette)"
   );
   assert.equal(png("monochrome-icon.png").alpha, true, "the monochrome icon must have transparency");
-  assert.match(read("favicon.svg"), /<svg[^>]*viewBox="0 0 1024 1024"/);
+  assert.match(read("favicon.svg"), /<svg[^>]*viewBox="0 0 512 512"/);
+  assert.ok(read("favicon.svg").includes("#29CAC0"), "favicon.svg must be the noon-grid mark (hero teal)");
 });
 
-test("the header mark is the Nawy symbol (dot and slash) and both pages use the shared icon files, not inline copies", () => {
+test("the header mark is the Nawy noon grid and both pages use the shared icon files, not inline copies", () => {
   const html = read("index.html");
-  assert.match(html, /<svg viewBox="0 0 512 256"[^>]*aria-label="ناوي"/, "header symbol missing");
-  assert.ok(html.includes('d="M256 256H353.783L512 0H414.217Z"'), "slash geometry differs from the spec");
+  assert.match(html, /<svg viewBox="97\.78 97\.78 316\.88 316\.88"[^>]*aria-label="ناوي"/, "header symbol missing");
+  assert.ok(
+    html.includes('<rect x="203.26" y="97.78" width="105.88" height="105.88" fill="#29CAC0"/>'),
+    "hero square differs from the spec"
+  );
+  assert.ok(!html.includes("M256 256H353.783"), "the old dot-and-slash symbol must be gone");
   const game = read("game.html");
   assert.ok(!/href="data:image/.test(game), "game.html must not embed icon data URIs");
   assert.ok(game.includes('href="apple-touch-icon.png"') && game.includes('href="favicon.svg"'));
