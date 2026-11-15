@@ -18,13 +18,13 @@ description: Nawy UI rules: Arabic-first RTL/LTR, logical CSS, localization, des
 - Support light and dark via tokens, not per-component overrides.
 - Shared components are extracted only when two or more screens genuinely need them, and must keep Nawy's personality.
 
-## Brand identity (decision 023)
+## Brand identity (decisions 023, 120)
 
-- Source of truth is `brand/` (spec in `brand/SPEC.md`, symbol and app-icon SVGs). The shipped icons are generated from it; `brand/make-derived-icons.py` redraws the monochrome icon and the notification badge from the same geometry.
-- The symbol is a circle and a slanted slash (golden ratio). Colors: Nawy Blue `#3D7BFF`, Deep `#101A32`, Ink `#111318`, White. The in-app accent follows the user's choice; blue is the default.
-- Never: gradients, outlines or shadows on the symbol; changing the dot on its own; rotating the slash; putting the wordmark after the symbol on the same line (it reads "Nawyo/"; the wordmark goes beside it, symbol first in reading order).
-- Clear space around the symbol: at least half the dot diameter on every side.
-- The app icon is shifted right by the spec's optical shift on purpose (the dot is heavier than the slash); do not "fix" it by centering the bounding box.
+- Source of truth is `brand/` (spec in `brand/SPEC.md`, SVGs in `brand/svg/`). The shipped icons come from the master pack; `brand/make-derived-icons.py` redraws the monochrome icon and the notification badge from `svg/mark-ink.svg` and `svg/notification-badge.svg`.
+- The mark is the noon grid: a 3x3 grid of sharp squares, a teal hero `#29CAC0` at top-centre and five lit squares (coral, sunny yellow, mint, calm blue, lavender) on the Ink tile `#111318`. The colour mark is for dark surfaces only; on light surfaces use the ink mark (the header does this in CSS).
+- Never: gradients, outlines or shadows; recolouring or re-spacing single squares; rotating the grid. Keep at least one cell of clear space around the mark.
+- Up to 48 px use the larger mark without ghost squares; maskable and round icons use a smaller centred mark. Do not replace them with a scaled copy of the 512 icon.
+- The in-app accent follows the user's choice (blue by default); the brand mark no longer follows it.
 
 ## Motion
 

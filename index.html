@@ -52,7 +52,7 @@
   <title>ناوي</title>
   
   <!-- PWA -->
-  <link rel="manifest" href="manifest.json?v=1.59.52">
+  <link rel="manifest" href="manifest.json?v=1.60.0">
   <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -71,18 +71,18 @@
   <!-- Dexie.js (IndexedDB wrapper) -->
   <script src="./dexie.min.js"></script>
   <!-- Nawy data core (schema, merge, export format) -->
-  <script src="./nawy-data.js?v=1.59.52"></script>
+  <script src="./nawy-data.js?v=1.60.0"></script>
   <!-- Nawy storage interface (the only place that talks to Dexie) -->
-  <script src="./nawy-storage.js?v=1.59.52"></script>
+  <script src="./nawy-storage.js?v=1.60.0"></script>
   <!-- Nawy backup interface (BackupProvider + Google Drive adapter) -->
-  <script src="./nawy-backup.js?v=1.59.52"></script>
+  <script src="./nawy-backup.js?v=1.60.0"></script>
   <!-- واجهة React لشاشة الأرشيف (مولَّدة من src/ui/archive). اختيارية: لو مش موجودة بيشتغل الرسم الاحتياطي. بتتحمّل من app.js بعد أول رسم (loadUiBundle) عشان ماتأخّرش فتح التطبيق -->
-  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.59.52">
+  <link rel="prefetch" as="script" id="nawyUiLink" href="./nawy-ui.js?v=1.60.0">
   <!-- Google Drive OAuth configuration and Identity Services -->
   <script src="./google-drive-config.js"></script>
   <!-- سكربت Google Identity بيتحمّل عند الحاجة بس (loadGoogleIdentity) مش عند فتح التطبيق -->
 
-  <link rel="stylesheet" href="./styles.css?v=1.59.52">
+  <link rel="stylesheet" href="./styles.css?v=1.60.0">
 </head>
 <body>
   <div class="app">
@@ -90,7 +90,7 @@
       <header class="header">
       <div class="brand">
         <div class="brand-icon">
-          <svg viewBox="0 0 512 256" role="img" aria-label="ناوي" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="currentColor"/><path d="M256 256H353.783L512 0H414.217Z" fill="currentColor"/></svg>
+          <svg viewBox="97.78 97.78 316.88 316.88" role="img" aria-label="ناوي" xmlns="http://www.w3.org/2000/svg"><rect x="203.26" y="97.78" width="105.88" height="105.88" fill="#29CAC0"/><rect x="97.78" y="203.26" width="105.88" height="105.88" fill="#FDB0AD"/><rect x="308.74" y="203.26" width="105.88" height="105.88" fill="#D4BAF4"/><rect x="97.78" y="308.74" width="105.88" height="105.88" fill="#FCDB81"/><rect x="203.26" y="308.74" width="105.88" height="105.88" fill="#9EE0AF"/><rect x="308.74" y="308.74" width="105.88" height="105.88" fill="#87B1E6"/></svg>
         </div>
         <div class="brand-name" data-i18n="appName">ناوي</div>
       </div>
@@ -147,7 +147,7 @@
       <span id="archiveMenuSub" hidden></span>
       <div class="account-menu-head">
         <div class="brand-icon">
-          <svg viewBox="0 0 512 256" role="img" aria-label="ناوي" xmlns="http://www.w3.org/2000/svg"><circle cx="128" cy="128" r="128" fill="currentColor"/><path d="M256 256H353.783L512 0H414.217Z" fill="currentColor"/></svg>
+          <svg viewBox="97.78 97.78 316.88 316.88" role="img" aria-label="ناوي" xmlns="http://www.w3.org/2000/svg"><rect x="203.26" y="97.78" width="105.88" height="105.88" fill="#29CAC0"/><rect x="97.78" y="203.26" width="105.88" height="105.88" fill="#FDB0AD"/><rect x="308.74" y="203.26" width="105.88" height="105.88" fill="#D4BAF4"/><rect x="97.78" y="308.74" width="105.88" height="105.88" fill="#FCDB81"/><rect x="203.26" y="308.74" width="105.88" height="105.88" fill="#9EE0AF"/><rect x="308.74" y="308.74" width="105.88" height="105.88" fill="#87B1E6"/></svg>
         </div>
         <div class="account-menu-copy">
           <div class="account-menu-name" id="brandName" data-i18n="appName">ناوي</div>
@@ -530,28 +530,28 @@
 
   <input type="file" id="importFileInput" accept=".json" style="display:none;">
 
-  <script src="./translations.js?v=1.59.52"></script>
-  <script type="module" src="./sounds.js?v=1.59.52"></script>
-  <script type="module" src="./share.js?v=1.59.52"></script>
-  <script src="./overlays.js?v=1.59.52"></script>
-  <script src="./reminders.js?v=1.59.52"></script>
-  <script src="./task-actions.js?v=1.59.52"></script>
-  <script src="./backup-restore.js?v=1.59.52"></script>
-  <script src="./archive-stats.js?v=1.59.52"></script>
-  <script src="./appearance.js?v=1.59.52"></script>
-  <script src="./composer.js?v=1.59.52"></script>
-  <script src="./backup-status.js?v=1.59.52"></script>
-  <script src="./today.js?v=1.59.52"></script>
-  <script src="./task-sheet.js?v=1.59.52"></script>
-  <script src="./list-view.js?v=1.59.52"></script>
-  <script src="./feedback.js?v=1.59.52"></script>
-  <script src="./error-log.js?v=1.59.52"></script>
-  <script src="./sheet-gestures.js?v=1.59.52"></script>
-  <script src="./banners.js?v=1.59.52"></script>
-  <script src="./update.js?v=1.59.52"></script>
-  <script src="./touch-gestures.js?v=1.59.52"></script>
-  <script type="module" src="./tombstones.js?v=1.59.52"></script>
-  <script type="module" src="./date-format.js?v=1.59.52"></script>
-  <script src="./app.js?v=1.59.52"></script>
+  <script src="./translations.js?v=1.60.0"></script>
+  <script type="module" src="./sounds.js?v=1.60.0"></script>
+  <script type="module" src="./share.js?v=1.60.0"></script>
+  <script src="./overlays.js?v=1.60.0"></script>
+  <script src="./reminders.js?v=1.60.0"></script>
+  <script src="./task-actions.js?v=1.60.0"></script>
+  <script src="./backup-restore.js?v=1.60.0"></script>
+  <script src="./archive-stats.js?v=1.60.0"></script>
+  <script src="./appearance.js?v=1.60.0"></script>
+  <script src="./composer.js?v=1.60.0"></script>
+  <script src="./backup-status.js?v=1.60.0"></script>
+  <script src="./today.js?v=1.60.0"></script>
+  <script src="./task-sheet.js?v=1.60.0"></script>
+  <script src="./list-view.js?v=1.60.0"></script>
+  <script src="./feedback.js?v=1.60.0"></script>
+  <script src="./error-log.js?v=1.60.0"></script>
+  <script src="./sheet-gestures.js?v=1.60.0"></script>
+  <script src="./banners.js?v=1.60.0"></script>
+  <script src="./update.js?v=1.60.0"></script>
+  <script src="./touch-gestures.js?v=1.60.0"></script>
+  <script type="module" src="./tombstones.js?v=1.60.0"></script>
+  <script type="module" src="./date-format.js?v=1.60.0"></script>
+  <script src="./app.js?v=1.60.0"></script>
 </body>
 </html>
